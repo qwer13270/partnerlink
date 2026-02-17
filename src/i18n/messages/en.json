@@ -131,6 +131,10 @@
       "referrals": "Referrals",
       "settings": "Settings"
     },
+    "overview": {
+      "title": "Admin Overview",
+      "subtitle": "Platform snapshot and operational highlights."
+    },
     "stats": {
       "totalProjects": "Total Projects",
       "activeKols": "Active KOLs",
@@ -140,12 +144,14 @@
       "commissionPayable": "Commission Payable"
     },
     "quickActions": {
+      "title": "Quick Actions",
       "addProject": "Add Project",
       "inviteKol": "Invite KOL",
       "exportReports": "Export Reports"
     },
     "projects": {
       "title": "Project Management",
+      "subtitle": "Manage active listings and performance indicators.",
       "developer": "Developer",
       "location": "Location",
       "kolsAssigned": "KOLs Assigned",
@@ -156,12 +162,24 @@
     },
     "kols": {
       "title": "KOL Management",
+      "subtitle": "Monitor KOL performance, tiers, and participation.",
+      "tier": "Tier",
+      "activeProjects": "Active Projects",
+      "clicks": "Clicks",
+      "bookings": "Bookings",
+      "sales": "Sales",
       "joinedDate": "Joined Date",
       "viewProfile": "View Profile",
       "deactivate": "Deactivate"
     },
     "referrals": {
       "title": "Referral Records",
+      "subtitle": "Track every referral and booking status.",
+      "leadName": "Lead Name",
+      "project": "Project",
+      "kol": "KOL",
+      "tourDate": "Tour Date",
+      "searchPlaceholder": "Search by lead or project",
       "filterByProperty": "Filter by Property",
       "filterByKol": "Filter by KOL",
       "filterByStatus": "Filter by Status",
@@ -169,9 +187,13 @@
     },
     "settings": {
       "title": "Settings",
+      "subtitle": "Configure commission, branding, and notifications.",
       "commissionStructure": "Commission Structure",
       "platformBranding": "Platform Branding",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "commissionStructureBody": "Define commission rules, payout thresholds, and tiered incentives.",
+      "platformBrandingBody": "Upload logos, set typography, and adjust brand color palette.",
+      "notificationsBody": "Manage alerts for referral milestones and sales confirmations."
     },
     "activity": {
       "title": "Platform Activity",
