@@ -1,26 +1,632 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  /* Kanzo Studio - Editorial Minimalist Palette */
+  --color-cream: #FAF9F6;
+  --color-cream-dark: #F2F0EC;
+  --color-warm-white: #FEFDFB;
+  --color-charcoal: #1A1A1A;
+  --color-warm-gray: #6B6560;
+  --color-light-gray: #E8E4DF;
+  --color-terracotta: #B5886C;
+  --color-sage: #8B9A7D;
+  --color-sand: #C4B49A;
+  --color-rose: #C9A59A;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0.25rem;
+  /* Light editorial theme */
+  --background: #FAF9F6;
+  --foreground: #1A1A1A;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A1A;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A1A;
+  --primary: #1A1A1A;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F2F0EC;
+  --secondary-foreground: #1A1A1A;
+  --muted: #F2F0EC;
+  --muted-foreground: #6B6560;
+  --accent: #F2F0EC;
+  --accent-foreground: #1A1A1A;
+  --destructive: #C9A59A;
+  --border: #E8E4DF;
+  --input: #FFFFFF;
+  --ring: #1A1A1A;
+  --chart-1: #1A1A1A;
+  --chart-2: #6B6560;
+  --chart-3: #B5886C;
+  --chart-4: #8B9A7D;
+  --chart-5: #C4B49A;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #1A1A1A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F2F0EC;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #E8E4DF;
+  --sidebar-ring: #1A1A1A;
+}
+
+.dark {
+  --background: #1A1A1A;
+  --foreground: #FAF9F6;
+  --card: #242424;
+  --card-foreground: #FAF9F6;
+  --popover: #242424;
+  --popover-foreground: #FAF9F6;
+  --primary: #FAF9F6;
+  --primary-foreground: #1A1A1A;
+  --secondary: #2A2A2A;
+  --secondary-foreground: #FAF9F6;
+  --muted: #2A2A2A;
+  --muted-foreground: #A0A0A0;
+  --accent: #2A2A2A;
+  --accent-foreground: #FAF9F6;
+  --destructive: #C9A59A;
+  --border: #3A3A3A;
+  --input: #2A2A2A;
+  --ring: #FAF9F6;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Editorial Serif Headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    @apply font-normal tracking-tight;
+  }
+
+  h1 {
+    @apply text-5xl md:text-6xl lg:text-7xl;
+    line-height: 1.1;
+  }
+
+  h2 {
+    @apply text-4xl md:text-5xl;
+    line-height: 1.15;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+    line-height: 1.2;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl;
+    line-height: 1.3;
+  }
+
+  p {
+    @apply text-base md:text-lg leading-relaxed;
+  }
+
+  /* Selection */
+  ::selection {
+    background-color: #1A1A1A;
+    color: #FFFFFF;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ============================================
+   KANZO STUDIO - EDITORIAL COMPONENT STYLES
+   ============================================ */
+
+/* Container - Editorial Width */
+.editorial-container {
+  @apply max-w-7xl mx-auto px-6 md:px-12 lg:px-20;
+}
+
+.editorial-container-wide {
+  @apply max-w-[1600px] mx-auto px-6 md:px-12 lg:px-20;
+}
+
+.editorial-container-narrow {
+  @apply max-w-4xl mx-auto px-6 md:px-12;
+}
+
+/* Section Spacing - Generous Whitespace */
+.section-editorial {
+  @apply py-24 md:py-32 lg:py-40;
+}
+
+.section-editorial-sm {
+  @apply py-16 md:py-24 lg:py-28;
+}
+
+/* Dividers */
+.divider-editorial {
+  @apply border-t border-border;
+}
+
+/* ============================================
+   BUTTONS - Architectural, Geometric
+   ============================================ */
+
+.btn-editorial {
+  @apply inline-flex items-center justify-center px-8 py-4;
+  @apply bg-foreground text-background;
+  @apply text-sm font-medium tracking-wide uppercase;
+  @apply transition-all duration-300 ease-out;
+  @apply hover:bg-foreground/90;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2;
+}
+
+.btn-editorial-outline {
+  @apply inline-flex items-center justify-center px-8 py-4;
+  @apply bg-transparent text-foreground border border-foreground;
+  @apply text-sm font-medium tracking-wide uppercase;
+  @apply transition-all duration-300 ease-out;
+  @apply hover:bg-foreground hover:text-background;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2;
+}
+
+.btn-editorial-ghost {
+  @apply inline-flex items-center gap-2 text-foreground;
+  @apply text-sm font-medium tracking-wide;
+  @apply transition-all duration-300 ease-out;
+  @apply hover:opacity-60;
+}
+
+/* Circle Arrow Button - Kanzo Signature */
+.btn-circle-arrow {
+  @apply w-14 h-14 rounded-full;
+  @apply bg-foreground text-background;
+  @apply flex items-center justify-center;
+  @apply transition-all duration-300 ease-out;
+  @apply hover:scale-105;
+}
+
+.btn-circle-arrow-outline {
+  @apply w-14 h-14 rounded-full;
+  @apply bg-transparent border border-foreground text-foreground;
+  @apply flex items-center justify-center;
+  @apply transition-all duration-300 ease-out;
+  @apply hover:bg-foreground hover:text-background;
+}
+
+/* ============================================
+   CARDS - Minimal, Architectural
+   ============================================ */
+
+.card-editorial {
+  @apply bg-card;
+  @apply transition-all duration-500 ease-out;
+}
+
+.card-editorial-bordered {
+  @apply bg-card border border-border;
+  @apply transition-all duration-500 ease-out;
+}
+
+.card-editorial:hover .card-image {
+  @apply scale-105;
+}
+
+.card-image-container {
+  @apply overflow-hidden;
+}
+
+.card-image {
+  @apply transition-transform duration-700 ease-out;
+}
+
+/* ============================================
+   NAVIGATION - Clean, Editorial
+   ============================================ */
+
+.nav-link {
+  @apply text-sm uppercase tracking-widest text-muted-foreground;
+  @apply transition-all duration-300 ease-out;
+  @apply hover:text-foreground;
+  @apply relative;
+}
+
+.nav-link::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-0 h-px bg-foreground;
+  @apply transition-all duration-300 ease-out;
+}
+
+.nav-link:hover::after {
+  @apply w-full;
+}
+
+.nav-link-active {
+  @apply text-foreground;
+}
+
+.nav-link-active::after {
+  @apply w-full;
+}
+
+/* ============================================
+   FORMS - Minimal, Understated
+   ============================================ */
+
+.input-editorial {
+  @apply w-full bg-transparent;
+  @apply border-0 border-b border-border;
+  @apply py-4 px-0;
+  @apply text-foreground placeholder:text-muted-foreground;
+  @apply transition-all duration-300 ease-out;
+  @apply focus:outline-none focus:border-foreground;
+}
+
+.input-editorial-boxed {
+  @apply w-full bg-white;
+  @apply border border-border rounded-none;
+  @apply py-4 px-5;
+  @apply text-foreground placeholder:text-muted-foreground;
+  @apply transition-all duration-300 ease-out;
+  @apply focus:outline-none focus:border-foreground;
+}
+
+.label-editorial {
+  @apply block text-xs uppercase tracking-widest text-muted-foreground mb-2;
+}
+
+/* ============================================
+   TABLES - Editorial Data Presentation
+   ============================================ */
+
+.table-editorial {
+  @apply w-full;
+}
+
+.table-editorial thead {
+  @apply border-b border-border;
+}
+
+.table-editorial th {
+  @apply text-left text-xs uppercase tracking-widest text-muted-foreground;
+  @apply py-4 font-medium;
+}
+
+.table-editorial td {
+  @apply py-5 border-b border-border/50;
+  @apply text-foreground;
+}
+
+.table-editorial tbody tr {
+  @apply transition-colors duration-200;
+}
+
+.table-editorial tbody tr:hover {
+  @apply bg-muted/30;
+}
+
+/* ============================================
+   BADGES - Subtle, Understated
+   ============================================ */
+
+.badge-editorial {
+  @apply inline-flex items-center px-3 py-1;
+  @apply text-xs uppercase tracking-widest;
+  @apply bg-muted text-muted-foreground;
+}
+
+.badge-editorial-outline {
+  @apply inline-flex items-center px-3 py-1;
+  @apply text-xs uppercase tracking-widest;
+  @apply border border-border text-muted-foreground;
+}
+
+/* Status Badges - Muted Tones */
+.badge-success {
+  @apply bg-[#8B9A7D]/10 text-[#6B7A5D] border border-[#8B9A7D]/20;
+}
+
+.badge-pending {
+  @apply bg-[#C4B49A]/10 text-[#9A8A6A] border border-[#C4B49A]/20;
+}
+
+.badge-cancelled {
+  @apply bg-[#C9A59A]/10 text-[#A9857A] border border-[#C9A59A]/20;
+}
+
+.badge-info {
+  @apply bg-muted text-muted-foreground border border-border;
+}
+
+/* Tier Badges */
+.tier-bronze {
+  @apply bg-[#CD7F32]/5 text-[#8B5A2B] border border-[#CD7F32]/20;
+}
+
+.tier-silver {
+  @apply bg-[#6B6560]/5 text-[#6B6560] border border-[#6B6560]/20;
+}
+
+.tier-gold {
+  @apply bg-[#C4B49A]/10 text-[#8A7A5A] border border-[#C4B49A]/30;
+}
+
+.tier-platinum {
+  @apply bg-[#1A1A1A]/5 text-[#1A1A1A] border border-[#1A1A1A]/20;
+}
+
+/* ============================================
+   SIDEBAR - Clean, Minimal
+   ============================================ */
+
+.sidebar-editorial {
+  @apply bg-background border-r border-border;
+}
+
+.sidebar-link {
+  @apply flex items-center gap-4 px-6 py-4;
+  @apply text-muted-foreground transition-all duration-200;
+  @apply hover:text-foreground hover:bg-muted/50;
+  @apply border-l-2 border-transparent;
+}
+
+.sidebar-link-active {
+  @apply text-foreground bg-muted/30;
+  @apply border-l-2 border-foreground;
+}
+
+/* ============================================
+   STAT CARDS - Dashboard Metrics
+   ============================================ */
+
+.stat-card {
+  @apply p-8 border border-border bg-card;
+}
+
+.stat-value {
+  @apply text-4xl md:text-5xl font-serif font-normal text-foreground;
+  line-height: 1.1;
+}
+
+.stat-label {
+  @apply text-xs uppercase tracking-widest text-muted-foreground mt-3;
+}
+
+.stat-trend {
+  @apply text-sm mt-2;
+}
+
+.stat-trend-up {
+  @apply text-[#6B7A5D];
+}
+
+.stat-trend-down {
+  @apply text-[#A9857A];
+}
+
+/* ============================================
+   IMAGE PLACEHOLDERS - Editorial
+   ============================================ */
+
+.placeholder-editorial {
+  @apply bg-gradient-to-br from-[#F2F0EC] to-[#E8E4DF];
+}
+
+.placeholder-editorial-dark {
+  @apply bg-gradient-to-br from-[#E8E4DF] to-[#D8D4CF];
+}
+
+/* ============================================
+   INVERTED SECTION - Black Background
+   ============================================ */
+
+.section-inverted {
+  @apply bg-foreground text-background;
+}
+
+.section-inverted h1,
+.section-inverted h2,
+.section-inverted h3,
+.section-inverted h4 {
+  @apply text-background;
+}
+
+.section-inverted p {
+  @apply text-background/70;
+}
+
+.section-inverted .btn-editorial {
+  @apply bg-background text-foreground hover:bg-background/90;
+}
+
+.section-inverted .btn-editorial-outline {
+  @apply border-background text-background hover:bg-background hover:text-foreground;
+}
+
+/* ============================================
+   LINE BUTTON - Special CTA
+   ============================================ */
+
+.btn-line {
+  @apply inline-flex items-center justify-center gap-3 px-8 py-4;
+  @apply bg-[#06C755] text-white;
+  @apply text-sm font-medium tracking-wide;
+  @apply transition-all duration-300 ease-out;
+  @apply hover:bg-[#05B34C];
+}
+
+/* ============================================
+   SCROLLBAR - Minimal
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D8D4CF;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C8C4BF;
+}
+
+/* ============================================
+   FOCUS STATES - Accessibility
+   ============================================ */
+
+:focus-visible {
+  @apply outline-none ring-2 ring-foreground ring-offset-2 ring-offset-background;
+}
+
+/* ============================================
+   ANIMATIONS - Entrance & Scroll
+   ============================================ */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes underline-in {
+  from {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  to {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+/* Stagger delays for children */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+
+/* Image hover zoom */
+.image-zoom {
+  @apply overflow-hidden;
+}
+
+.image-zoom img,
+.image-zoom .image-inner {
+  @apply transition-transform duration-700 ease-out;
+}
+
+.image-zoom:hover img,
+.image-zoom:hover .image-inner {
+  @apply scale-105;
+}
+
+/* Link hover underline */
+.link-underline {
+  @apply relative inline-block;
+}
+
+.link-underline::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-full h-px bg-current;
+  @apply origin-left scale-x-0 transition-transform duration-300 ease-out;
+}
+
+.link-underline:hover::after {
+  @apply scale-x-100;
+}
+
+/* Scroll indicator */
+.scroll-indicator {
+  @apply animate-bounce;
 }

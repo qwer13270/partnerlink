@@ -1,0 +1,386 @@
+{
+  "common": {
+    "homekey": "HomeKey 房客",
+    "loading": "載入中...",
+    "copyLink": "複製連結",
+    "copied": "已複製！",
+    "viewAll": "查看全部",
+    "search": "搜尋",
+    "filter": "篩選",
+    "export": "匯出",
+    "save": "儲存",
+    "cancel": "取消",
+    "confirm": "確認",
+    "delete": "刪除",
+    "edit": "編輯",
+    "add": "新增",
+    "status": "狀態",
+    "actions": "操作",
+    "date": "日期",
+    "name": "姓名",
+    "email": "電子郵件",
+    "phone": "電話",
+    "message": "訊息",
+    "submit": "送出",
+    "success": "成功",
+    "error": "錯誤",
+    "tbd": "待定"
+  },
+  "nav": {
+    "publicView": "公開頁面",
+    "kolDashboard": "KOL 儀表板",
+    "adminPanel": "管理後台",
+    "developerPortal": "建商後台",
+    "switchRole": "切換角色"
+  },
+  "kol": {
+    "sidebar": {
+      "overview": "總覽",
+      "myLinks": "推廣連結",
+      "performance": "成效分析",
+      "commissions": "佣金紀錄"
+    },
+    "welcome": "歡迎回來",
+    "memberSince": "會員加入日期",
+    "tier": {
+      "bronze": "銅牌",
+      "silver": "銀牌",
+      "gold": "金牌",
+      "platinum": "白金"
+    },
+    "stats": {
+      "activeProjects": "合作案件",
+      "totalClicks": "總點擊數",
+      "bookings": "預約成功",
+      "commission": "累計佣金"
+    },
+    "overview": {
+      "summary": "您的推廣成效一覽",
+      "quickLinks": "推廣連結",
+      "performance": "成效速覽"
+    },
+    "links": {
+      "title": "我的推廣連結",
+      "subtitle": "管理與追蹤所有推廣連結",
+      "project": "建案名稱",
+      "link": "連結",
+      "clicks": "點擊",
+      "bookings": "預約",
+      "sales": "成交",
+      "commissionStatus": "佣金狀態",
+      "active": "進行中",
+      "paused": "已暫停",
+      "viewAllLinks": "查看全部連結",
+      "searchPlaceholder": "搜尋建案或連結"
+    },
+    "performance": {
+      "title": "成效分析",
+      "subtitle": "深入檢視推廣活動成效",
+      "dateRange": "日期範圍",
+      "selectProject": "選擇建案",
+      "allProjects": "所有建案",
+      "conversionFunnel": "轉換漏斗",
+      "clicksVsBookings": "點擊數 vs 預約數",
+      "breakdownTitle": "建案成效拆解",
+      "dateRangeOptions": {
+        "last7": "最近 7 天",
+        "last30": "最近 30 天",
+        "last90": "最近 90 天"
+      },
+      "funnel": {
+        "clicks": "點擊",
+        "bookings": "預約",
+        "tours": "看屋",
+        "sales": "成交"
+      }
+    },
+    "commissions": {
+      "title": "佣金紀錄",
+      "notice": "佣金結構將於正式上線後公布",
+      "saleDate": "成交日期",
+      "salePrice": "成交金額",
+      "rate": "佣金比例",
+      "amount": "佣金金額",
+      "status": {
+        "pending": "待確認",
+        "confirmed": "已確認",
+        "paid": "已撥款"
+      },
+      "summary": {
+        "total": "累計佣金",
+        "pending": "待撥款",
+        "paid": "已撥款"
+      }
+    },
+    "activity": {
+      "title": "近期動態",
+      "types": {
+        "click": "有人點擊了您的連結",
+        "booking": "有人透過您的連結預約看屋",
+        "tourCompleted": "您推薦的客戶已完成看屋",
+        "saleConfirmed": "恭喜！成交確認",
+        "commissionPaid": "佣金已撥款"
+      }
+    }
+  },
+  "admin": {
+    "sidebar": {
+      "overview": "總覽",
+      "projects": "建案管理",
+      "kols": "KOL管理",
+      "referrals": "推薦紀錄",
+      "settings": "系統設定"
+    },
+    "stats": {
+      "totalProjects": "總建案數",
+      "activeKols": "活躍KOL",
+      "referralsThisMonth": "本月推薦數",
+      "bookingsThisMonth": "本月預約數",
+      "confirmedSales": "已成交",
+      "commissionPayable": "待付佣金"
+    },
+    "quickActions": {
+      "addProject": "新增建案",
+      "inviteKol": "邀請KOL",
+      "exportReports": "匯出報表"
+    },
+    "projects": {
+      "title": "建案管理",
+      "developer": "建商",
+      "location": "地點",
+      "kolsAssigned": "合作KOL",
+      "referrals": "推薦數",
+      "bookings": "預約數",
+      "sales": "成交數",
+      "viewLandingPage": "查看頁面"
+    },
+    "kols": {
+      "title": "KOL管理",
+      "joinedDate": "加入日期",
+      "viewProfile": "查看資料",
+      "deactivate": "停用"
+    },
+    "referrals": {
+      "title": "推薦紀錄",
+      "filterByProperty": "依建案篩選",
+      "filterByKol": "依KOL篩選",
+      "filterByStatus": "依狀態篩選",
+      "filterByDate": "依日期篩選"
+    },
+    "settings": {
+      "title": "系統設定",
+      "commissionStructure": "佣金結構設定",
+      "platformBranding": "平台品牌設定",
+      "notifications": "通知設定"
+    },
+    "activity": {
+      "title": "平台動態",
+      "all": "全部",
+      "referrals": "推薦",
+      "bookings": "預約",
+      "sales": "成交"
+    }
+  },
+  "developer": {
+    "sidebar": {
+      "overview": "總覽",
+      "projects": "建案成效",
+      "leads": "客戶名單",
+      "kolPerformance": "KOL表現"
+    },
+    "stats": {
+      "activeProjects": "進行中建案",
+      "totalReferrals": "總推薦數",
+      "tourBookings": "預約看屋",
+      "confirmedSales": "已成交"
+    },
+    "leads": {
+      "title": "客戶名單",
+      "leadName": "客戶姓名",
+      "referredBy": "推薦KOL",
+      "referralDate": "推薦日期",
+      "tourDate": "看屋日期",
+      "status": {
+        "pendingTour": "待看屋",
+        "toured": "已看屋",
+        "negotiating": "議價中",
+        "saleConfirmed": "已成交",
+        "cancelled": "已取消"
+      },
+      "confirmSale": "確認成交",
+      "confirmSaleTitle": "確認成交",
+      "confirmSaleDescription": "確認此筆交易成交後，將觸發KOL佣金計算。此操作無法撤銷。",
+      "saleConfirmedSuccess": "成交確認成功！"
+    },
+    "kolPerformance": {
+      "title": "KOL表現",
+      "comparisonChart": "KOL比較圖表",
+      "referrals": "推薦數",
+      "conversionRate": "轉換率"
+    },
+    "recentLeads": "近期客戶"
+  },
+  "property": {
+    "preSale": "預售中",
+    "selling": "銷售中",
+    "soldOut": "已售完",
+    "completed": "已完工",
+    "priceRange": "價格區間",
+    "location": "地點",
+    "nearestMrt": "最近捷運",
+    "walkingDistance": "步行",
+    "minutes": "分鐘",
+    "highlights": {
+      "totalUnits": "戶數",
+      "sizeRange": "坪數",
+      "floors": "樓層",
+      "completion": "交屋日期"
+    },
+    "gallery": {
+      "title": "空間展示",
+      "livingRoom": "客廳",
+      "masterBedroom": "主臥",
+      "kitchen": "廚房",
+      "bathroom": "浴室",
+      "amenities": "公設",
+      "exterior": "外觀",
+      "courtyard": "中庭",
+      "rooftop": "頂樓"
+    },
+    "floorPlans": {
+      "title": "格局規劃",
+      "popular": "熱門",
+      "rooms": "房型",
+      "size": "坪數",
+      "price": "價格"
+    },
+    "amenities": {
+      "title": "周邊機能",
+      "mrt": "捷運",
+      "schools": "學校",
+      "parks": "公園",
+      "shopping": "商圈",
+      "hospitals": "醫院"
+    },
+    "timeline": {
+      "title": "工程進度",
+      "groundbreaking": "動工",
+      "foundation": "基礎工程",
+      "structure": "結構體",
+      "interior": "裝修",
+      "handover": "交屋",
+      "expectedCompletion": "預計完工"
+    },
+    "bookTour": {
+      "title": "預約看屋",
+      "lineButton": "透過LINE預約看屋",
+      "orFillForm": "或填寫表單",
+      "name": "姓名",
+      "phone": "電話",
+      "email": "電子郵件",
+      "preferredDate": "希望看屋日期",
+      "message": "備註訊息",
+      "submit": "送出預約",
+      "referredBy": "您是由 {name} 推薦",
+      "thankYou": "感謝您的預約！我們將盡快與您聯繫。"
+    }
+  },
+  "footer": {
+    "disclaimer": "本頁面資訊僅供參考，實際內容以建商公布為準",
+    "copyright": "© {year} HomeKey 房客. 保留所有權利."
+  },
+  "landing": {
+    "hero": {
+      "title": "房地產推廣新模式",
+      "badge": "信賴的房地產聯盟",
+      "subtitle": "連結建商與KOL，創造共贏的房產行銷生態",
+      "cta": "了解更多",
+      "ctaPrimary": "探索所有建案",
+      "ctaSecondary": "查看 KOL 儀表板",
+      "trustBadge": "平台認證",
+      "trustTitle": "透明、可追溯的合作機制",
+      "trustBody": "整合建案資訊、推薦流量與成交數據，讓每一次合作都可被檢視與放大。",
+      "stats": {
+        "projects": "合作建案",
+        "kols": "合作 KOL",
+        "tours": "看屋預約",
+        "conversion": "平均轉換率"
+      }
+    },
+    "trust": {
+      "eyebrow": "為何選擇 HomeKey",
+      "title": "值得信賴的頂級房產聯盟",
+      "subtitle": "我們嚴選建案並對齊所有合作方的利益，讓行銷更專業、數據更透明。",
+      "cards": {
+        "verified": {
+          "title": "嚴選建案",
+          "body": "清楚的價格區間、工程進度與建商資訊，建立信任感。"
+        },
+        "compliance": {
+          "title": "流程可驗證",
+          "body": "完整的推薦與預約追蹤，確保每一筆成交可被核對。"
+        },
+        "quality": {
+          "title": "高質感呈現",
+          "body": "行銷素材與頁面呈現符合高端房產定位。"
+        },
+        "partners": {
+          "title": "合作一致目標",
+          "body": "建商與KOL以「有效且高品質的客戶」為共同 KPI。"
+        }
+      }
+    },
+    "highlights": {
+      "eyebrow": "核心能力",
+      "title": "擴展推薦合作的完整工具",
+      "subtitle": "從推廣到成交，讓所有角色都能掌握關鍵進度與成效。",
+      "items": {
+        "performance": {
+          "title": "成效追蹤",
+          "body": "一次掌握點擊、預約、看屋與成交數據。"
+        },
+        "booking": {
+          "title": "預約管理",
+          "body": "集中安排看屋流程，提升成交效率。"
+        },
+        "kol": {
+          "title": "KOL 支援",
+          "body": "可追蹤連結、分級機制與完整素材包。"
+        },
+        "analytics": {
+          "title": "高層報表",
+          "body": "投資人與建商可快速掌握整體成效。"
+        }
+      }
+    },
+    "featured": {
+      "eyebrow": "合作建案",
+      "title": "目前合作中的重點建案",
+      "subtitle": "精選 HomeKey 合作建案，立即查看詳情。",
+      "viewAll": "查看所有建案",
+      "cards": {
+        "lightRiver": {
+          "title": "璞真建設 — 光河",
+          "location": "新北市板橋區",
+          "price": "NT$ 1,680萬 ~ 3,200萬"
+        },
+        "cathay": {
+          "title": "國泰禾",
+          "location": "台北市信義區",
+          "price": "NT$ 3,500萬 ~ 6,800萬"
+        },
+        "ruentex": {
+          "title": "潤泰敦峰",
+          "location": "台北市大安區",
+          "price": "NT$ 4,200萬 ~ 8,500萬"
+        }
+      }
+    },
+    "cta": {
+      "title": "準備好啟動下一個合作計畫嗎？",
+      "subtitle": "加入 HomeKey，讓頂級房產行銷更有績效。",
+      "primary": "進入 KOL 儀表板",
+      "secondary": "前往建商後台"
+    }
+  }
+}

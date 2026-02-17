@@ -1,0 +1,386 @@
+{
+  "common": {
+    "homekey": "HomeKey",
+    "loading": "Loading...",
+    "copyLink": "Copy Link",
+    "copied": "Copied!",
+    "viewAll": "View All",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "status": "Status",
+    "actions": "Actions",
+    "date": "Date",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "message": "Message",
+    "submit": "Submit",
+    "success": "Success",
+    "error": "Error",
+    "tbd": "TBD"
+  },
+  "nav": {
+    "publicView": "Public View",
+    "kolDashboard": "KOL Dashboard",
+    "adminPanel": "Admin Panel",
+    "developerPortal": "Developer Portal",
+    "switchRole": "Switch Role"
+  },
+  "kol": {
+    "sidebar": {
+      "overview": "Overview",
+      "myLinks": "My Links",
+      "performance": "Performance",
+      "commissions": "Commissions"
+    },
+    "welcome": "Welcome back",
+    "memberSince": "Member since",
+    "tier": {
+      "bronze": "Bronze",
+      "silver": "Silver",
+      "gold": "Gold",
+      "platinum": "Platinum"
+    },
+    "stats": {
+      "activeProjects": "Active Projects",
+      "totalClicks": "Total Clicks",
+      "bookings": "Bookings",
+      "commission": "Commission"
+    },
+    "overview": {
+      "summary": "Your performance at a glance",
+      "quickLinks": "Affiliate Links",
+      "performance": "Performance Snapshot"
+    },
+    "links": {
+      "title": "My Affiliate Links",
+      "subtitle": "Track and manage your active affiliate links",
+      "project": "Project",
+      "link": "Link",
+      "clicks": "Clicks",
+      "bookings": "Bookings",
+      "sales": "Sales",
+      "commissionStatus": "Commission Status",
+      "active": "Active",
+      "paused": "Paused",
+      "viewAllLinks": "View All Links",
+      "searchPlaceholder": "Search projects or links"
+    },
+    "performance": {
+      "title": "Performance Analytics",
+      "subtitle": "Deep dive into your campaign performance",
+      "dateRange": "Date Range",
+      "selectProject": "Select Project",
+      "allProjects": "All Projects",
+      "conversionFunnel": "Conversion Funnel",
+      "clicksVsBookings": "Clicks vs Bookings",
+      "breakdownTitle": "Property Breakdown",
+      "dateRangeOptions": {
+        "last7": "Last 7 days",
+        "last30": "Last 30 days",
+        "last90": "Last 90 days"
+      },
+      "funnel": {
+        "clicks": "Clicks",
+        "bookings": "Bookings",
+        "tours": "Tours",
+        "sales": "Sales"
+      }
+    },
+    "commissions": {
+      "title": "Commission History",
+      "notice": "Commission structure will be announced at launch",
+      "saleDate": "Sale Date",
+      "salePrice": "Sale Price",
+      "rate": "Rate",
+      "amount": "Amount",
+      "status": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "paid": "Paid"
+      },
+      "summary": {
+        "total": "Total Commission",
+        "pending": "Pending",
+        "paid": "Paid"
+      }
+    },
+    "activity": {
+      "title": "Recent Activity",
+      "types": {
+        "click": "Someone clicked your link",
+        "booking": "New booking through your link",
+        "tourCompleted": "Your referral completed a tour",
+        "saleConfirmed": "Congratulations! Sale confirmed",
+        "commissionPaid": "Commission paid"
+      }
+    }
+  },
+  "admin": {
+    "sidebar": {
+      "overview": "Overview",
+      "projects": "Projects",
+      "kols": "KOLs",
+      "referrals": "Referrals",
+      "settings": "Settings"
+    },
+    "stats": {
+      "totalProjects": "Total Projects",
+      "activeKols": "Active KOLs",
+      "referralsThisMonth": "Referrals This Month",
+      "bookingsThisMonth": "Bookings This Month",
+      "confirmedSales": "Confirmed Sales",
+      "commissionPayable": "Commission Payable"
+    },
+    "quickActions": {
+      "addProject": "Add Project",
+      "inviteKol": "Invite KOL",
+      "exportReports": "Export Reports"
+    },
+    "projects": {
+      "title": "Project Management",
+      "developer": "Developer",
+      "location": "Location",
+      "kolsAssigned": "KOLs Assigned",
+      "referrals": "Referrals",
+      "bookings": "Bookings",
+      "sales": "Sales",
+      "viewLandingPage": "View Page"
+    },
+    "kols": {
+      "title": "KOL Management",
+      "joinedDate": "Joined Date",
+      "viewProfile": "View Profile",
+      "deactivate": "Deactivate"
+    },
+    "referrals": {
+      "title": "Referral Records",
+      "filterByProperty": "Filter by Property",
+      "filterByKol": "Filter by KOL",
+      "filterByStatus": "Filter by Status",
+      "filterByDate": "Filter by Date"
+    },
+    "settings": {
+      "title": "Settings",
+      "commissionStructure": "Commission Structure",
+      "platformBranding": "Platform Branding",
+      "notifications": "Notifications"
+    },
+    "activity": {
+      "title": "Platform Activity",
+      "all": "All",
+      "referrals": "Referrals",
+      "bookings": "Bookings",
+      "sales": "Sales"
+    }
+  },
+  "developer": {
+    "sidebar": {
+      "overview": "Overview",
+      "projects": "Projects",
+      "leads": "Leads",
+      "kolPerformance": "KOL Performance"
+    },
+    "stats": {
+      "activeProjects": "Active Projects",
+      "totalReferrals": "Total Referrals",
+      "tourBookings": "Tour Bookings",
+      "confirmedSales": "Confirmed Sales"
+    },
+    "leads": {
+      "title": "Lead Management",
+      "leadName": "Lead Name",
+      "referredBy": "Referred By",
+      "referralDate": "Referral Date",
+      "tourDate": "Tour Date",
+      "status": {
+        "pendingTour": "Pending Tour",
+        "toured": "Toured",
+        "negotiating": "Negotiating",
+        "saleConfirmed": "Sale Confirmed",
+        "cancelled": "Cancelled"
+      },
+      "confirmSale": "Confirm Sale",
+      "confirmSaleTitle": "Confirm Sale",
+      "confirmSaleDescription": "Confirming this sale will trigger KOL commission calculation. This action cannot be undone.",
+      "saleConfirmedSuccess": "Sale confirmed successfully!"
+    },
+    "kolPerformance": {
+      "title": "KOL Performance",
+      "comparisonChart": "KOL Comparison",
+      "referrals": "Referrals",
+      "conversionRate": "Conversion Rate"
+    },
+    "recentLeads": "Recent Leads"
+  },
+  "property": {
+    "preSale": "Pre-sale",
+    "selling": "Selling",
+    "soldOut": "Sold Out",
+    "completed": "Completed",
+    "priceRange": "Price Range",
+    "location": "Location",
+    "nearestMrt": "Nearest MRT",
+    "walkingDistance": "Walking",
+    "minutes": "min",
+    "highlights": {
+      "totalUnits": "Units",
+      "sizeRange": "Size",
+      "floors": "Floors",
+      "completion": "Completion"
+    },
+    "gallery": {
+      "title": "Gallery",
+      "livingRoom": "Living Room",
+      "masterBedroom": "Master Bedroom",
+      "kitchen": "Kitchen",
+      "bathroom": "Bathroom",
+      "amenities": "Amenities",
+      "exterior": "Exterior",
+      "courtyard": "Courtyard",
+      "rooftop": "Rooftop"
+    },
+    "floorPlans": {
+      "title": "Floor Plans",
+      "popular": "Popular",
+      "rooms": "Rooms",
+      "size": "Size",
+      "price": "Price"
+    },
+    "amenities": {
+      "title": "Nearby Amenities",
+      "mrt": "MRT",
+      "schools": "Schools",
+      "parks": "Parks",
+      "shopping": "Shopping",
+      "hospitals": "Hospitals"
+    },
+    "timeline": {
+      "title": "Construction Timeline",
+      "groundbreaking": "Groundbreaking",
+      "foundation": "Foundation",
+      "structure": "Structure",
+      "interior": "Interior",
+      "handover": "Handover",
+      "expectedCompletion": "Expected Completion"
+    },
+    "bookTour": {
+      "title": "Book a Tour",
+      "lineButton": "Book via LINE",
+      "orFillForm": "Or fill out the form",
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "preferredDate": "Preferred Date",
+      "message": "Message",
+      "submit": "Submit Booking",
+      "referredBy": "Referred by {name}",
+      "thankYou": "Thank you for your booking! We will contact you soon."
+    }
+  },
+  "footer": {
+    "disclaimer": "Information on this page is for reference only. Please refer to the developer for actual details.",
+    "copyright": "© {year} HomeKey. All rights reserved."
+  },
+  "landing": {
+    "hero": {
+      "title": "A New Way to Market Real Estate",
+      "badge": "Trusted Real Estate Network",
+      "subtitle": "Connecting developers with KOLs to create a win-win real estate marketing ecosystem",
+      "cta": "Learn More",
+      "ctaPrimary": "Explore Properties",
+      "ctaSecondary": "See KOL Dashboard",
+      "trustBadge": "Verified Platform",
+      "trustTitle": "Transaction-ready, investor-grade data",
+      "trustBody": "We standardize project details, referrals, and performance metrics so every collaboration is transparent and reportable.",
+      "stats": {
+        "projects": "Active Projects",
+        "kols": "Active KOLs",
+        "tours": "Tours Booked",
+        "conversion": "Avg. Conversion"
+      }
+    },
+    "trust": {
+      "eyebrow": "Why HomeKey",
+      "title": "A trustworthy network for premium listings",
+      "subtitle": "We vet every project and align incentives across developers, KOLs, and buyers so marketing feels premium and data feels accountable.",
+      "cards": {
+        "verified": {
+          "title": "Verified listings",
+          "body": "Only curated projects with clear pricing, progress timelines, and developer transparency."
+        },
+        "compliance": {
+          "title": "Compliance-first process",
+          "body": "Structured referral tracking ensures every booking and sale can be audited."
+        },
+        "quality": {
+          "title": "Premium positioning",
+          "body": "Campaign assets and landing pages match luxury property expectations."
+        },
+        "partners": {
+          "title": "Aligned partnerships",
+          "body": "KOLs and developers share a unified success metric: qualified, engaged buyers."
+        }
+      }
+    },
+    "highlights": {
+      "eyebrow": "Core Capabilities",
+      "title": "Everything needed to scale a referral network",
+      "subtitle": "From campaign creation to sales confirmation, HomeKey keeps every stakeholder aligned and informed.",
+      "items": {
+        "performance": {
+          "title": "Performance signals",
+          "body": "Monitor clicks, bookings, tours, and sales in a single view."
+        },
+        "booking": {
+          "title": "Tour management",
+          "body": "Centralized scheduling to keep leads warm and visible."
+        },
+        "kol": {
+          "title": "KOL enablement",
+          "body": "Trackable links, tiering, and curated assets for creators."
+        },
+        "analytics": {
+          "title": "Executive analytics",
+          "body": "Roll-up dashboards for investors and development teams."
+        }
+      }
+    },
+    "featured": {
+      "eyebrow": "Featured Projects",
+      "title": "Signature properties in collaboration",
+      "subtitle": "A selection of projects currently powered by HomeKey partnerships.",
+      "viewAll": "View All Properties",
+      "cards": {
+        "lightRiver": {
+          "title": "PureCity — Light River",
+          "location": "Banqiao District, New Taipei",
+          "price": "NT$ 1,680萬 ~ 3,200萬"
+        },
+        "cathay": {
+          "title": "Cathay Harvest",
+          "location": "Xinyi District, Taipei",
+          "price": "NT$ 3,500萬 ~ 6,800萬"
+        },
+        "ruentex": {
+          "title": "Ruentex Dufeng",
+          "location": "Da'an District, Taipei",
+          "price": "NT$ 4,200萬 ~ 8,500萬"
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to activate your next campaign?",
+      "subtitle": "Join HomeKey to align premium real estate marketing with measurable results.",
+      "primary": "Enter KOL Dashboard",
+      "secondary": "Explore Developer Portal"
+    }
+  }
+}
