@@ -131,6 +131,10 @@
       "referrals": "推薦紀錄",
       "settings": "系統設定"
     },
+    "overview": {
+      "title": "管理後台總覽",
+      "subtitle": "平台營運與成效的即時概覽。"
+    },
     "stats": {
       "totalProjects": "總建案數",
       "activeKols": "活躍KOL",
@@ -140,12 +144,14 @@
       "commissionPayable": "待付佣金"
     },
     "quickActions": {
+      "title": "快速操作",
       "addProject": "新增建案",
       "inviteKol": "邀請KOL",
       "exportReports": "匯出報表"
     },
     "projects": {
       "title": "建案管理",
+      "subtitle": "掌握目前建案與成效指標。",
       "developer": "建商",
       "location": "地點",
       "kolsAssigned": "合作KOL",
@@ -156,12 +162,24 @@
     },
     "kols": {
       "title": "KOL管理",
+      "subtitle": "管理KOL層級與推廣成效。",
+      "tier": "等級",
+      "activeProjects": "合作建案",
+      "clicks": "點擊",
+      "bookings": "預約",
+      "sales": "成交",
       "joinedDate": "加入日期",
       "viewProfile": "查看資料",
       "deactivate": "停用"
     },
     "referrals": {
       "title": "推薦紀錄",
+      "subtitle": "追蹤每一筆推薦與預約狀態。",
+      "leadName": "客戶姓名",
+      "project": "建案名稱",
+      "kol": "推薦KOL",
+      "tourDate": "看屋日期",
+      "searchPlaceholder": "搜尋客戶或建案",
       "filterByProperty": "依建案篩選",
       "filterByKol": "依KOL篩選",
       "filterByStatus": "依狀態篩選",
@@ -169,9 +187,13 @@
     },
     "settings": {
       "title": "系統設定",
+      "subtitle": "設定佣金規則、品牌與通知。",
       "commissionStructure": "佣金結構設定",
       "platformBranding": "平台品牌設定",
-      "notifications": "通知設定"
+      "notifications": "通知設定",
+      "commissionStructureBody": "設定佣金規則、撥款門檻與分級獎勵。",
+      "platformBrandingBody": "上傳品牌素材並調整色彩與字體。",
+      "notificationsBody": "管理推薦里程碑與成交通知。"
     },
     "activity": {
       "title": "平台動態",
