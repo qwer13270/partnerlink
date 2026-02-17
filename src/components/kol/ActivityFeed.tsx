@@ -49,22 +49,22 @@ export default function ActivityFeed() {
   }
 
   return (
-    <div className="border border-border bg-card p-6">
+    <div className="border border-border bg-card p-4 sm:p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-serif">{t('title')}</h3>
         <Clock className="h-4 w-4 text-muted-foreground" />
       </div>
-      <div className="mt-6 space-y-5">
+      <div className="mt-6 space-y-4 sm:space-y-5">
         {items.map((activity: ActivityType) => {
           const Icon = typeIcons[activity.type]
           const message = isZhTW ? activity.message : activity.messageEn
           return (
-            <div key={activity.id} className="flex gap-4 items-start">
-              <div className="h-9 w-9 rounded-full border border-border bg-muted/40 flex items-center justify-center">
+            <div key={activity.id} className="flex gap-3 sm:gap-4 items-start">
+              <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-border bg-muted/40 flex items-center justify-center">
                 <Icon className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-foreground leading-relaxed">{message}</p>
+                <p className="text-sm text-foreground leading-relaxed break-words">{message}</p>
                 <p className="text-xs text-muted-foreground mt-2">
                   {formatRelativeTime(activity.timestamp, locale)}
                 </p>
