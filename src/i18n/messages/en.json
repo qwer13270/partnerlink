@@ -210,14 +210,36 @@
       "leads": "Leads",
       "kolPerformance": "KOL Performance"
     },
+    "overview": {
+      "title": "Developer Overview",
+      "subtitle": "Performance summary for your active listings.",
+      "projectsTitle": "Project Performance"
+    },
     "stats": {
       "activeProjects": "Active Projects",
       "totalReferrals": "Total Referrals",
       "tourBookings": "Tour Bookings",
       "confirmedSales": "Confirmed Sales"
     },
+    "projects": {
+      "title": "Project Performance",
+      "subtitle": "Conversion metrics for each active project.",
+      "cardLabel": "Conversion Funnel",
+      "referrals": "Referrals",
+      "bookings": "Bookings",
+      "tours": "Tours",
+      "sales": "Sales"
+    },
     "leads": {
       "title": "Lead Management",
+      "subtitle": "Review and confirm qualified sales opportunities.",
+      "filterByStatus": "Filter by Status",
+      "filterByKol": "Filter by KOL",
+      "filterByDate": "Filter by Date",
+      "dateRanges": {
+        "last7": "Last 7 Days",
+        "last30": "Last 30 Days"
+      },
       "leadName": "Lead Name",
       "referredBy": "Referred By",
       "referralDate": "Referral Date",
@@ -236,6 +258,7 @@
     },
     "kolPerformance": {
       "title": "KOL Performance",
+      "subtitle": "Compare KOLs by referral volume and conversion.",
       "comparisonChart": "KOL Comparison",
       "referrals": "Referrals",
       "conversionRate": "Conversion Rate"
