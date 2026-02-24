@@ -210,14 +210,36 @@
       "leads": "客戶名單",
       "kolPerformance": "KOL表現"
     },
+    "overview": {
+      "title": "建商後台總覽",
+      "subtitle": "掌握合作建案的整體成效。",
+      "projectsTitle": "建案成效概覽"
+    },
     "stats": {
       "activeProjects": "進行中建案",
       "totalReferrals": "總推薦數",
       "tourBookings": "預約看屋",
       "confirmedSales": "已成交"
     },
+    "projects": {
+      "title": "建案成效",
+      "subtitle": "每個建案的轉換成效一覽。",
+      "cardLabel": "轉換漏斗",
+      "referrals": "推薦數",
+      "bookings": "預約數",
+      "tours": "看屋數",
+      "sales": "成交數"
+    },
     "leads": {
       "title": "客戶名單",
+      "subtitle": "確認成交並追蹤推薦進度。",
+      "filterByStatus": "依狀態篩選",
+      "filterByKol": "依KOL篩選",
+      "filterByDate": "依日期篩選",
+      "dateRanges": {
+        "last7": "最近 7 天",
+        "last30": "最近 30 天"
+      },
       "leadName": "客戶姓名",
       "referredBy": "推薦KOL",
       "referralDate": "推薦日期",
@@ -236,6 +258,7 @@
     },
     "kolPerformance": {
       "title": "KOL表現",
+      "subtitle": "依推薦量與轉換率比較KOL成效。",
       "comparisonChart": "KOL比較圖表",
       "referrals": "推薦數",
       "conversionRate": "轉換率"
