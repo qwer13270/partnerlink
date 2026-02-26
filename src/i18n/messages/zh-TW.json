@@ -30,7 +30,7 @@
     "publicView": "公開頁面",
     "kolDashboard": "KOL 儀表板",
     "adminPanel": "管理後台",
-    "developerPortal": "建商後台",
+    "merchantPortal": "建商後台",
     "switchRole": "切換角色"
   },
   "kol": {
@@ -152,7 +152,7 @@
     "projects": {
       "title": "建案管理",
       "subtitle": "掌握目前建案與成效指標。",
-      "developer": "建商",
+      "merchant": "建商",
       "location": "地點",
       "kolsAssigned": "合作KOL",
       "referrals": "推薦數",
@@ -203,7 +203,7 @@
       "sales": "成交"
     }
   },
-  "developer": {
+  "merchant": {
     "sidebar": {
       "overview": "總覽",
       "projects": "建案成效",

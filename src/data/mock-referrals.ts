@@ -1,4 +1,4 @@
-import type { Referral, AdminStats, DeveloperStats, KolPerformanceData } from '@/lib/types'
+import type { Referral, AdminStats, MerchantStats, KolPerformanceData } from '@/lib/types'
 
 export const mockReferrals: Referral[] = [
   {
@@ -142,8 +142,8 @@ export const mockReferrals: Referral[] = [
   },
 ]
 
-// Referrals for PureCity Developer (prop-001, prop-005)
-export const developerReferrals = mockReferrals.filter(
+// Referrals for PureCity Merchant (prop-001, prop-005)
+export const merchantReferrals = mockReferrals.filter(
   (r) => r.propertyId === 'prop-001' || r.propertyId === 'prop-005'
 )
 
@@ -158,7 +158,7 @@ export const adminStats: AdminStats = {
   bookingsTrend: 8.7,
 }
 
-export const developerStats: DeveloperStats = {
+export const merchantStats: MerchantStats = {
   activeProjects: 2,
   totalReferrals: 186,
   tourBookings: 42,

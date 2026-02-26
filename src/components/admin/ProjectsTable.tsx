@@ -32,7 +32,7 @@ export default function ProjectsTable() {
       return {
         id: property.id,
         name: isZhTW ? property.name : property.nameEn,
-        developer: isZhTW ? property.developer : property.developerEn,
+        merchant: isZhTW ? property.merchant : property.merchantEn,
         location: isZhTW ? property.location : property.locationEn,
         status: property.status,
         kolsAssigned: kolAssigned,
@@ -53,7 +53,7 @@ export default function ProjectsTable() {
         <TableHeader>
           <TableRow>
             <TableHead>{t('title')}</TableHead>
-            <TableHead>{t('developer')}</TableHead>
+            <TableHead>{t('merchant')}</TableHead>
             <TableHead>{t('location')}</TableHead>
             <TableHead>{tCommon('status')}</TableHead>
             <TableHead className="text-right">{t('kolsAssigned')}</TableHead>
@@ -67,7 +67,7 @@ export default function ProjectsTable() {
           {rows.map((row) => (
             <TableRow key={row.id}>
               <TableCell className="font-medium">{row.name}</TableCell>
-              <TableCell>{row.developer}</TableCell>
+              <TableCell>{row.merchant}</TableCell>
               <TableCell>{row.location}</TableCell>
               <TableCell>
                 <Badge

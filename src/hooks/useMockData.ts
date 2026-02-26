@@ -14,9 +14,9 @@ import {
   getKolById,
   getAffiliateLinksByKolId,
   mockReferrals,
-  developerReferrals,
+  merchantReferrals,
   adminStats,
-  developerStats,
+  merchantStats,
   kolPerformanceData,
   getReferralsByKolId,
   getReferralsByPropertyId,
@@ -32,7 +32,7 @@ import type {
   Activity,
   KolStats,
   AdminStats,
-  DeveloperStats,
+  MerchantStats,
   ChartDataPoint,
   KolPerformanceData,
   LeadStatus,
@@ -115,8 +115,8 @@ export function useReferrals() {
   return useSimulatedFetch(mockReferrals)
 }
 
-export function useDeveloperReferrals() {
-  const [referrals, setReferrals] = useState(developerReferrals)
+export function useMerchantReferrals() {
+  const [referrals, setReferrals] = useState(merchantReferrals)
   const { data, isLoading } = useSimulatedFetch(referrals)
 
   const updateReferralStatus = useCallback((id: string, newStatus: LeadStatus) => {
@@ -145,8 +145,8 @@ export function useAdminStats() {
   return useSimulatedFetch(adminStats)
 }
 
-export function useDeveloperStats() {
-  return useSimulatedFetch(developerStats)
+export function useMerchantStats() {
+  return useSimulatedFetch(merchantStats)
 }
 
 // KOL Performance
@@ -168,14 +168,14 @@ export function useCurrentKolActivities() {
   return useSimulatedFetch(currentKolActivities)
 }
 
-// Developer info
-export const developerInfo = {
+// Merchant info
+export const merchantInfo = {
   id: 'dev-001',
   name: '璞真建設',
   nameEn: 'PureCity Development',
   activeProjects: 2,
 }
 
-export function useDeveloperInfo() {
-  return useSimulatedFetch(developerInfo)
+export function useMerchantInfo() {
+  return useSimulatedFetch(merchantInfo)
 }

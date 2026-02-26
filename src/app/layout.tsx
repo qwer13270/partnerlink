@@ -36,7 +36,7 @@ const notoSansTC = Noto_Sans_TC({
 
 export const metadata: Metadata = {
   title: "HomeKey 房客 | Premium Real Estate Affiliate Platform",
-  description: "Taiwan's premier real estate affiliate marketing platform — connecting developers with influential KOLs",
+  description: "Taiwan's premier real estate affiliate marketing platform — connecting merchants with influential KOLs",
   icons: {
     icon: "/favicon.svg",
   },

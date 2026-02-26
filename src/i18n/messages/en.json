@@ -30,7 +30,7 @@
     "publicView": "Public View",
     "kolDashboard": "KOL Dashboard",
     "adminPanel": "Admin Panel",
-    "developerPortal": "Developer Portal",
+    "merchantPortal": "Merchant Portal",
     "switchRole": "Switch Role"
   },
   "kol": {
@@ -152,7 +152,7 @@
     "projects": {
       "title": "Project Management",
       "subtitle": "Manage active listings and performance indicators.",
-      "developer": "Developer",
+      "merchant": "Merchant",
       "location": "Location",
       "kolsAssigned": "KOLs Assigned",
       "referrals": "Referrals",
@@ -203,7 +203,7 @@
       "sales": "Sales"
     }
   },
-  "developer": {
+  "merchant": {
     "sidebar": {
       "overview": "Overview",
       "projects": "Projects",
@@ -211,7 +211,7 @@
       "kolPerformance": "KOL Performance"
     },
     "overview": {
-      "title": "Developer Overview",
+      "title": "Merchant Overview",
       "subtitle": "Performance summary for your active listings.",
       "projectsTitle": "Project Performance"
     },
@@ -331,14 +331,14 @@
     }
   },
   "footer": {
-    "disclaimer": "Information on this page is for reference only. Please refer to the developer for actual details.",
+    "disclaimer": "Information on this page is for reference only. Please refer to the merchant for actual details.",
     "copyright": "© {year} HomeKey. All rights reserved."
   },
   "landing": {
     "hero": {
       "title": "A New Way to Market Real Estate",
       "badge": "Trusted Real Estate Network",
-      "subtitle": "Connecting developers with KOLs to create a win-win real estate marketing ecosystem",
+      "subtitle": "Connecting merchants with KOLs to create a win-win real estate marketing ecosystem",
       "cta": "Learn More",
       "ctaPrimary": "Explore Properties",
       "ctaSecondary": "See KOL Dashboard",
@@ -355,11 +355,11 @@
     "trust": {
       "eyebrow": "Why HomeKey",
       "title": "A trustworthy network for premium listings",
-      "subtitle": "We vet every project and align incentives across developers, KOLs, and buyers so marketing feels premium and data feels accountable.",
+      "subtitle": "We vet every project and align incentives across merchants, KOLs, and buyers so marketing feels premium and data feels accountable.",
       "cards": {
         "verified": {
           "title": "Verified listings",
-          "body": "Only curated projects with clear pricing, progress timelines, and developer transparency."
+          "body": "Only curated projects with clear pricing, progress timelines, and merchant transparency."
         },
         "compliance": {
           "title": "Compliance-first process",
@@ -371,7 +371,7 @@
         },
         "partners": {
           "title": "Aligned partnerships",
-          "body": "KOLs and developers share a unified success metric: qualified, engaged buyers."
+          "body": "KOLs and merchants share a unified success metric: qualified, engaged buyers."
         }
       }
     },
@@ -425,7 +425,7 @@
       "title": "Ready to activate your next campaign?",
       "subtitle": "Join HomeKey to align premium real estate marketing with measurable results.",
       "primary": "Enter KOL Dashboard",
-      "secondary": "Explore Developer Portal"
+      "secondary": "Explore Merchant Portal"
     }
   }
 }

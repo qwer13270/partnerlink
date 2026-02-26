@@ -3,7 +3,7 @@
 import { Building2, Users, CalendarCheck, BadgeCheck } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useDeveloperStats } from '@/hooks/useMockData'
+import { useMerchantStats } from '@/hooks/useMockData'
 import { useLocale } from '@/hooks/useLocale'
 
 const iconMap = {
@@ -13,10 +13,10 @@ const iconMap = {
   confirmedSales: BadgeCheck,
 }
 
-export default function DeveloperStats() {
-  const t = useTranslations('developer.stats')
+export default function MerchantStats() {
+  const t = useTranslations('merchant.stats')
   const { locale } = useLocale()
-  const { data, isLoading } = useDeveloperStats()
+  const { data, isLoading } = useMerchantStats()
 
   if (isLoading || !data) {
     return (
