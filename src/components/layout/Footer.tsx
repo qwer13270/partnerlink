@@ -14,7 +14,7 @@ export default function Footer() {
   const footerLinks = [
     { label: isZhTW ? '所有建案' : 'Properties', href: `/${locale}/properties` },
     { label: isZhTW ? 'KOL 合作' : 'For KOLs', href: '#' },
-    { label: isZhTW ? '建商合作' : 'For Developers', href: '#' },
+    { label: isZhTW ? '建商合作' : 'For Merchants', href: '#' },
     { label: isZhTW ? '關於我們' : 'About', href: '#' },
   ]
 

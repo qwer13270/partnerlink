@@ -38,8 +38,8 @@ export interface Property {
   slug: string
   name: string                    // e.g., "璞真建設 — 光河"
   nameEn: string                  // e.g., "PureCity — Light River"
-  developer: string
-  developerEn: string
+  merchant: string
+  merchantEn: string
   location: string                // e.g., "新北市板橋區"
   locationEn: string
   nearestMrt: string
@@ -149,7 +149,7 @@ export interface AdminStats {
   bookingsTrend: number
 }
 
-export interface DeveloperStats {
+export interface MerchantStats {
   activeProjects: number
   totalReferrals: number
   tourBookings: number
@@ -173,8 +173,8 @@ export interface KolPerformanceData {
   conversionRate: number
 }
 
-// ---- Developer / Company ----
-export interface Developer {
+// ---- Merchant / Company ----
+export interface Merchant {
   id: string
   name: string
   nameEn: string

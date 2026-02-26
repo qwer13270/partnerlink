@@ -28,11 +28,11 @@ export const ROUTES = {
     referrals: '/admin/referrals',
     settings: '/admin/settings',
   },
-  developer: {
-    dashboard: '/developer',
-    projects: '/developer/projects',
-    leads: '/developer/leads',
-    kols: '/developer/kols',
+  merchant: {
+    dashboard: '/merchant',
+    projects: '/merchant/projects',
+    leads: '/merchant/leads',
+    kols: '/merchant/kols',
   },
 } as const
 
@@ -41,7 +41,7 @@ export const DEMO_ROLES = [
   { id: 'public', icon: '🏠', labelKey: 'nav.publicView', href: '/' },
   { id: 'kol', icon: '📱', labelKey: 'nav.kolDashboard', href: '/kol' },
   { id: 'admin', icon: '⚙️', labelKey: 'nav.adminPanel', href: '/admin' },
-  { id: 'developer', icon: '🏢', labelKey: 'nav.developerPortal', href: '/developer' },
+  { id: 'merchant', icon: '🏢', labelKey: 'nav.merchantPortal', href: '/merchant' },
 ] as const
 
 // Status colors

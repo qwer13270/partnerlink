@@ -7,21 +7,21 @@ import Sidebar, { MobileSidebar } from '@/components/layout/Sidebar'
 import { Button } from '@/components/ui/button'
 
 const sidebarItems = [
-  { href: '/developer', labelKey: 'overview', icon: LayoutDashboard },
-  { href: '/developer/projects', labelKey: 'projects', icon: Building2 },
-  { href: '/developer/leads', labelKey: 'leads', icon: ClipboardList },
-  { href: '/developer/kols', labelKey: 'kolPerformance', icon: Users },
+  { href: '/merchant', labelKey: 'overview', icon: LayoutDashboard },
+  { href: '/merchant/projects', labelKey: 'projects', icon: Building2 },
+  { href: '/merchant/leads', labelKey: 'leads', icon: ClipboardList },
+  { href: '/merchant/kols', labelKey: 'kolPerformance', icon: Users },
 ]
 
-interface DeveloperDashboardLayoutProps {
+interface MerchantDashboardLayoutProps {
   children: ReactNode
 }
 
-export default function DeveloperDashboardLayout({ children }: DeveloperDashboardLayoutProps) {
+export default function MerchantDashboardLayout({ children }: MerchantDashboardLayoutProps) {
   return (
     <div className="editorial-container-wide">
       <div className="flex min-h-[calc(100vh-5rem)]">
-        <Sidebar items={sidebarItems} translationNamespace="developer" />
+        <Sidebar items={sidebarItems} translationNamespace="merchant" />
 
         <div className="flex-1 min-w-0">
           <div className="py-10 lg:py-16 px-6 lg:pl-10 lg:pr-12">
@@ -38,7 +38,7 @@ export default function DeveloperDashboardLayout({ children }: DeveloperDashboar
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0">
-            <MobileSidebar items={sidebarItems} translationNamespace="developer" />
+            <MobileSidebar items={sidebarItems} translationNamespace="merchant" />
           </SheetContent>
         </Sheet>
       </div>

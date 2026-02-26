@@ -1,5 +1,5 @@
-export { default as DeveloperDashboardLayout } from './DeveloperDashboardLayout'
-export { default as DeveloperStats } from './DeveloperStats'
+export { default as MerchantDashboardLayout } from './MerchantDashboardLayout'
+export { default as MerchantStats } from './MerchantStats'
 export { default as ProjectPerformanceCards } from './ProjectPerformanceCards'
 export { default as RecentLeads } from './RecentLeads'
 export { default as LeadsTable } from './LeadsTable'

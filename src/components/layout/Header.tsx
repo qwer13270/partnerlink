@@ -26,7 +26,7 @@ export default function Header() {
   const getCurrentRole = () => {
     if (pathname.includes('/kol')) return 'kol'
     if (pathname.includes('/admin')) return 'admin'
-    if (pathname.includes('/developer')) return 'developer'
+    if (pathname.includes('/merchant')) return 'merchant'
     return 'public'
   }
 
@@ -37,7 +37,7 @@ export default function Header() {
       case 'public': return t('publicView')
       case 'kol': return t('kolDashboard')
       case 'admin': return t('adminPanel')
-      case 'developer': return t('developerPortal')
+      case 'merchant': return t('merchantPortal')
       default: return ''
     }
   }

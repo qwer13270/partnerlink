@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useDeveloperReferrals } from '@/hooks/useMockData'
+import { useMerchantReferrals } from '@/hooks/useMockData'
 import { useLocale } from '@/hooks/useLocale'
 import { STATUS_COLORS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -19,10 +19,10 @@ const statusLabelMap: Record<Referral['status'], string> = {
 }
 
 export default function RecentLeads() {
-  const t = useTranslations('developer')
-  const tLeads = useTranslations('developer.leads.status')
+  const t = useTranslations('merchant')
+  const tLeads = useTranslations('merchant.leads.status')
   const { isZhTW } = useLocale()
-  const { data, isLoading } = useDeveloperReferrals()
+  const { data, isLoading } = useMerchantReferrals()
 
   const rows = useMemo(() => (data ? data.slice(0, 5) : []), [data])
 

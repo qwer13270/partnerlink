@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useDeveloperReferrals } from '@/hooks/useMockData'
+import { useMerchantReferrals } from '@/hooks/useMockData'
 import { useLocale } from '@/hooks/useLocale'
 import { STATUS_COLORS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -24,11 +24,11 @@ const statusLabelMap: Record<Referral['status'], string> = {
 }
 
 export default function LeadsTable() {
-  const t = useTranslations('developer.leads')
-  const tStatus = useTranslations('developer.leads.status')
+  const t = useTranslations('merchant.leads')
+  const tStatus = useTranslations('merchant.leads.status')
   const tCommon = useTranslations('common')
   const { isZhTW } = useLocale()
-  const { data, isLoading, updateReferralStatus } = useDeveloperReferrals()
+  const { data, isLoading, updateReferralStatus } = useMerchantReferrals()
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const rows = useMemo(() => (data ? data : []), [data])

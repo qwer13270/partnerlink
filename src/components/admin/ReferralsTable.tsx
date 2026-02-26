@@ -24,7 +24,7 @@ const statusLabelMap: Record<Referral['status'], string> = {
 export default function ReferralsTable() {
   const t = useTranslations('admin.referrals')
   const tCommon = useTranslations('common')
-  const tLeads = useTranslations('developer.leads.status')
+  const tLeads = useTranslations('merchant.leads.status')
   const { isZhTW } = useLocale()
   const { data, isLoading } = useReferrals()
 

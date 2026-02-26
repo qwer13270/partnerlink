@@ -2,7 +2,7 @@
 
 ## Overview
 
-**HomeKey 房客** is a real estate affiliate marketing platform for Taiwan's apartment market. It connects apartment developers with KOLs (Key Opinion Leaders) who earn commissions by referring potential buyers through trackable affiliate links.
+**HomeKey 房客** is a real estate affiliate marketing platform for Taiwan's apartment market. It connects apartment merchants with KOLs (Key Opinion Leaders) who earn commissions by referring potential buyers through trackable affiliate links.
 
 **Current Phase**: Visual prototype / demo for investors and partners. All data is mock/hardcoded — no real backend, auth, or database yet. However, the project structure should be **production-ready and scalable** so we can plug in a real backend later.
 
@@ -60,9 +60,9 @@ homekey/
 │   │   │   │   └── settings/
 │   │   │   │       └── page.tsx    # Platform settings
 │   │   │   │
-│   │   │   └── developer/          # "developer" = apartment company/developer
-│   │   │       ├── layout.tsx      # Developer dashboard layout (sidebar nav)
-│   │   │       ├── page.tsx        # Developer overview
+│   │   │   └── merchant/          # "merchant" = apartment company/merchant
+│   │   │       ├── layout.tsx      # Merchant dashboard layout (sidebar nav)
+│   │   │       ├── page.tsx        # Merchant overview
 │   │   │       ├── projects/
 │   │   │       │   └── page.tsx    # Their projects' performance
 │   │   │       ├── leads/
@@ -76,7 +76,7 @@ homekey/
 │   │   ├── ui/                     # shadcn/ui components (button, card, table, badge, etc.)
 │   │   ├── layout/
 │   │   │   ├── Header.tsx          # Global header with logo, nav, role switcher, lang toggle
-│   │   │   ├── Sidebar.tsx         # Dashboard sidebar (reused across kol/admin/developer)
+│   │   │   ├── Sidebar.tsx         # Dashboard sidebar (reused across kol/admin/merchant)
 │   │   │   └── Footer.tsx          # Global footer
 │   │   ├── property/
 │   │   │   ├── HeroSection.tsx
@@ -98,7 +98,7 @@ homekey/
 │   │   │   ├── KolsTable.tsx
 │   │   │   ├── ActivityLog.tsx
 │   │   │   └── QuickActions.tsx
-│   │   └── developer/
+│   │   └── merchant/
 │   │       ├── ProjectPerformanceCards.tsx
 │   │       ├── LeadsTable.tsx       # Includes "Confirm Sale" button
 │   │       ├── KolComparison.tsx
@@ -167,8 +167,8 @@ interface Property {
   slug: string
   name: string                    // e.g., "璞真建設 — 光河"
   nameEn: string                  // e.g., "PureCity — Light River"
-  developer: string
-  developerEn: string
+  merchant: string
+  merchantEn: string
   location: string                // e.g., "新北市板橋區"
   locationEn: string
   nearestMrt: string
@@ -398,7 +398,7 @@ Master control panel for platform operators.
    - Button group: "新增建案 Add Project", "邀請KOL Invite KOL", "匯出報表 Export Reports"
 
 **Projects Page (`/admin/projects`):**
-- shadcn Table with columns: Project Name, Developer, Location, Status, KOLs Assigned, Referrals, Bookings, Sales
+- shadcn Table with columns: Project Name, Merchant, Location, Status, KOLs Assigned, Referrals, Bookings, Sales
 - Row actions: Edit, Pause, View Landing Page
 - "Add New Project" button opens a placeholder dialog/modal
 
@@ -418,17 +418,17 @@ Master control panel for platform operators.
 
 ---
 
-### Page 4: Apartment Company Dashboard (`/[locale]/developer`)
+### Page 4: Apartment Company Dashboard (`/[locale]/merchant`)
 
-What the apartment developer/company sees. Named "developer" in the URL for brevity (refers to the property developer, not software developer).
+What the apartment merchant/company sees. Named "merchant" in the URL for brevity (refers to the property merchant, not software merchant).
 
 **Sidebar Navigation:**
-- 總覽 Overview (`/developer`)
-- 建案成效 Projects (`/developer/projects`)
-- 客戶名單 Leads (`/developer/leads`)
-- KOL表現 KOL Performance (`/developer/kols`)
+- 總覽 Overview (`/merchant`)
+- 建案成效 Projects (`/merchant/projects`)
+- 客戶名單 Leads (`/merchant/leads`)
+- KOL表現 KOL Performance (`/merchant/kols`)
 
-**Overview Page (`/developer`):**
+**Overview Page (`/merchant`):**
 
 1. **Company Header**
    - Company name: "璞真建設 PureCity Development"
@@ -448,7 +448,7 @@ What the apartment developer/company sees. Named "developer" in the URL for brev
    - Top 5 most recent leads
    - "View All →" link to leads page
 
-**Leads Page (`/developer/leads`) — CRITICAL PAGE:**
+**Leads Page (`/merchant/leads`) — CRITICAL PAGE:**
 This is where the apartment company confirms sales.
 
 - shadcn Table with columns:
@@ -467,7 +467,7 @@ This is where the apartment company confirms sales.
 - Clicking "Confirm Sale" should visually update the status to "已成交" with a success toast (this is the key interaction that triggers KOL commission)
 - Filter by: Status, KOL, Date Range
 
-**KOL Performance Page (`/developer/kols`):**
+**KOL Performance Page (`/merchant/kols`):**
 - Recharts BarChart comparing KOLs by referrals and conversion rate
 - Table breakdown per KOL
 
@@ -501,7 +501,7 @@ All visible text should come from translation files. This includes:
 Create realistic data in `src/data/` files:
 
 **Properties (5-6 projects):**
-| Project | Developer | Location | Price Range (萬) | Status |
+| Project | Merchant | Location | Price Range (萬) | Status |
 |---------|-----------|----------|-----------------|--------|
 | 璞真光河 | 璞真建設 | 新北市板橋區 | 1,680 ~ 3,200 | Pre-sale |
 | 遠雄新未來 | 遠雄建設 | 桃園市中壢區 | 980 ~ 1,800 | Selling |
@@ -571,7 +571,7 @@ Install and use these shadcn components:
 Since this is a prototype, include a **role switcher** in the header for easy navigation between views:
 
 - Use a shadcn `DropdownMenu` or `Select` in the header
-- Options: "🏠 Public View" | "📱 KOL Dashboard" | "⚙️ Admin Panel" | "🏢 Developer Portal"
+- Options: "🏠 Public View" | "📱 KOL Dashboard" | "⚙️ Admin Panel" | "🏢 Merchant Portal"
 - Selecting a role navigates to that dashboard
 - Current role is highlighted/active
 - This makes it easy for investors to click through all perspectives during a demo
@@ -597,7 +597,7 @@ Include a README with:
 2. **All data is mock** — import from `src/data/` files. Structure the data access through hooks (`useMockData`) so it's easy to swap for real API calls later.
 3. **shadcn/ui setup** — Initialize shadcn/ui properly with `npx shadcn-ui@latest init` and install needed components. Use the "New York" style variant for a cleaner look.
 4. **Bilingual is critical** — Every piece of visible text must come from translation files. Test both languages.
-5. **The "Confirm Sale" flow on the developer leads page is the most important interactive demo** — Make sure clicking it shows a confirmation dialog and updates the UI.
+5. **The "Confirm Sale" flow on the merchant leads page is the most important interactive demo** — Make sure clicking it shows a confirmation dialog and updates the UI.
 6. **Copy affiliate link interaction** — Must feel polished with proper feedback.
 7. **Charts** — Use Recharts with the same color palette. Make them look professional.
 8. **Mobile responsive** — The property landing page especially needs to look great on mobile since KOLs will share it with their followers who are mostly on phones.

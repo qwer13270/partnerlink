@@ -3,20 +3,20 @@
 import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useProperties, useReferrals, useDeveloperInfo } from '@/hooks/useMockData'
+import { useProperties, useReferrals, useMerchantInfo } from '@/hooks/useMockData'
 import { useLocale } from '@/hooks/useLocale'
 
 export default function ProjectPerformanceCards() {
-  const t = useTranslations('developer.projects')
+  const t = useTranslations('merchant.projects')
   const { isZhTW } = useLocale()
   const { data: properties, isLoading } = useProperties()
   const { data: referrals } = useReferrals()
-  const { data: developer } = useDeveloperInfo()
+  const { data: merchant } = useMerchantInfo()
 
   const rows = useMemo(() => {
-    if (!properties || !developer) return []
+    if (!properties || !merchant) return []
     return properties
-      .filter((property) => property.developer === developer.name)
+      .filter((property) => property.merchant === merchant.name)
       .map((property) => {
         const propertyReferrals = referrals?.filter((ref) => ref.propertyId === property.id) ?? []
         const bookings = propertyReferrals.filter((ref) => ref.status !== 'cancelled').length
@@ -32,7 +32,7 @@ export default function ProjectPerformanceCards() {
           sales,
         }
       })
-  }, [properties, referrals, developer, isZhTW])
+  }, [properties, referrals, merchant, isZhTW])
 
   if (isLoading || !properties) {
     return <Skeleton className="h-[240px] w-full" />

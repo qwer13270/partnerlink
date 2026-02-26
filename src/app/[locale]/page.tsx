@@ -234,7 +234,7 @@ function HomePageContent() {
                 <Link href="/zh-TW/kol">{t("cta.primary")}</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/zh-TW/developer">{t("cta.secondary")}</Link>
+                <Link href="/zh-TW/merchant">{t("cta.secondary")}</Link>
               </Button>
             </div>
           </div>

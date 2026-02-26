@@ -9,7 +9,7 @@ import { useLocale } from '@/hooks/useLocale'
 import { CHART_COLORS } from '@/lib/constants'
 
 export default function KolsPerformance() {
-  const t = useTranslations('developer.kolPerformance')
+  const t = useTranslations('merchant.kolPerformance')
   const { isZhTW } = useLocale()
   const { data, isLoading } = useKolPerformanceData()
 
