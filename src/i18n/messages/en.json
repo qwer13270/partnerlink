@@ -330,6 +330,40 @@
       "thankYou": "Thank you for your booking! We will contact you soon."
     }
   },
+  "join": {
+    "kol": {
+      "title": "Join as a KOL",
+      "subtitle": "Apply to become a HomeKey affiliate and earn commissions on every sale."
+    },
+    "merchant": {
+      "title": "List Your Project",
+      "subtitle": "Partner with HomeKey to market your development through our KOL network."
+    }
+  },
+  "login": {
+    "title": "Sign In",
+    "subtitle": "Welcome back to HomeKey.",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign In",
+    "orContinueWith": "Or continue with",
+    "continueWithLine": "Continue with LINE",
+    "continueWithGoogle": "Continue with Google",
+    "noAccount": "Don't have an account?",
+    "getStarted": "Get started"
+  },
+  "onboarding": {
+    "title": "Get Started",
+    "subtitle": "Choose your role to continue."
+  },
+  "merchantEditor": {
+    "title": "Edit Your Page",
+    "subtitle": "Customise your public-facing project page."
+  },
+  "merchantPage": {
+    "title": "Project Page",
+    "subtitle": "Explore this development."
+  },
   "footer": {
     "disclaimer": "Information on this page is for reference only. Please refer to the merchant for actual details.",
     "copyright": "© {year} HomeKey. All rights reserved."

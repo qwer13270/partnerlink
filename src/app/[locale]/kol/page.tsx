@@ -1,13 +1,10 @@
-import { setRequestLocale } from 'next-intl/server'
-import { OverviewPage } from '@/components/kol'
+import { redirect } from 'next/navigation'
 
 type Props = {
   params: Promise<{ locale: string }>
 }
 
-export default async function KolOverviewPage({ params }: Props) {
+export default async function KolPage({ params }: Props) {
   const { locale } = await params
-  setRequestLocale(locale)
-
-  return <OverviewPage />
+  redirect(`/${locale}/kol/dashboard`)
 }

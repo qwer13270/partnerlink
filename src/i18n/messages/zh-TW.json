@@ -330,6 +330,40 @@
       "thankYou": "感謝您的預約！我們將盡快與您聯繫。"
     }
   },
+  "join": {
+    "kol": {
+      "title": "成為推廣夥伴",
+      "subtitle": "申請加入 HomeKey KOL 推廣網絡，每筆成交都有佣金收益。"
+    },
+    "merchant": {
+      "title": "刊登您的建案",
+      "subtitle": "與 HomeKey 合作，透過 KOL 網絡行銷您的建案。"
+    }
+  },
+  "login": {
+    "title": "登入",
+    "subtitle": "歡迎回到 HomeKey。",
+    "email": "電子郵件",
+    "password": "密碼",
+    "signIn": "登入",
+    "orContinueWith": "或快速登入",
+    "continueWithLine": "使用 LINE 登入",
+    "continueWithGoogle": "使用 Google 登入",
+    "noAccount": "還沒有帳號？",
+    "getStarted": "立即加入"
+  },
+  "onboarding": {
+    "title": "開始使用",
+    "subtitle": "選擇您的角色以繼續。"
+  },
+  "merchantEditor": {
+    "title": "編輯頁面",
+    "subtitle": "自訂您的建案公開頁面。"
+  },
+  "merchantPage": {
+    "title": "建案頁面",
+    "subtitle": "探索此建案。"
+  },
   "footer": {
     "disclaimer": "本頁面資訊僅供參考，實際內容以建商公布為準",
     "copyright": "© {year} HomeKey 房客. 保留所有權利."
