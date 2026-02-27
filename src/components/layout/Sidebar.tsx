@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useLocale } from '@/hooks/useLocale'
 
 export interface SidebarItem {
   href: string
@@ -20,15 +19,13 @@ interface SidebarProps {
 
 export default function Sidebar({ items, translationNamespace }: SidebarProps) {
   const pathname = usePathname()
-  const { locale } = useLocale()
   const t = useTranslations(`${translationNamespace}.sidebar`)
 
   const isActive = (href: string) => {
-    const fullPath = `/${locale}${href}`
     if (href.split('/').length <= 2) {
-      return pathname === fullPath
+      return pathname === href
     }
-    return pathname.startsWith(fullPath)
+    return pathname.startsWith(href)
   }
 
   return (
@@ -42,7 +39,7 @@ export default function Sidebar({ items, translationNamespace }: SidebarProps) {
             return (
               <Link
                 key={item.href}
-                href={`/${locale}${item.href}`}
+                href={item.href}
                 className={cn(
                   'sidebar-link',
                   active && 'sidebar-link-active'
@@ -68,15 +65,13 @@ export default function Sidebar({ items, translationNamespace }: SidebarProps) {
 // Mobile sidebar component for use within Sheet
 export function MobileSidebar({ items, translationNamespace }: SidebarProps) {
   const pathname = usePathname()
-  const { locale } = useLocale()
   const t = useTranslations(`${translationNamespace}.sidebar`)
 
   const isActive = (href: string) => {
-    const fullPath = `/${locale}${href}`
     if (href.split('/').length <= 2) {
-      return pathname === fullPath
+      return pathname === href
     }
-    return pathname.startsWith(fullPath)
+    return pathname.startsWith(href)
   }
 
   return (
@@ -89,7 +84,7 @@ export function MobileSidebar({ items, translationNamespace }: SidebarProps) {
           return (
             <Link
               key={item.href}
-              href={`/${locale}${item.href}`}
+              href={item.href}
               className={cn(
                 'flex items-center gap-4 px-4 py-4 transition-all duration-200',
                 active

@@ -1,46 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useTranslations } from 'next-intl'
-import { Menu, X, ChevronDown, ArrowUpRight } from 'lucide-react'
+import { Menu, X, ArrowUpRight } from 'lucide-react'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useLocale } from '@/hooks/useLocale'
-import { DEMO_ROLES } from '@/lib/constants'
-import { cn } from '@/lib/utils'
 
 export default function Header() {
-  const t = useTranslations('nav')
-  const pathname = usePathname()
-  const { locale, switchLocale, isZhTW } = useLocale()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  const getCurrentRole = () => {
-    if (pathname.includes('/kol')) return 'kol'
-    if (pathname.includes('/admin')) return 'admin'
-    if (pathname.includes('/merchant')) return 'merchant'
-    return 'public'
-  }
-
-  const currentRole = getCurrentRole()
-
-  const getRoleLabel = (roleId: string) => {
-    switch (roleId) {
-      case 'public': return t('publicView')
-      case 'kol': return t('kolDashboard')
-      case 'admin': return t('adminPanel')
-      case 'merchant': return t('merchantPortal')
-      default: return ''
-    }
-  }
 
   return (
     <>
@@ -48,57 +15,29 @@ export default function Header() {
         <div className="editorial-container">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <Link href={`/${locale}`} className="flex items-center gap-3 group">
+            <Link href="/" className="flex items-center gap-3 group">
               <span className="text-lg font-semibold">HomeKey</span>
-              {isZhTW && (
-                <span className="text-sm text-muted-foreground tracking-widest">
-                  房客
-                </span>
-              )}
+              <span className="text-sm text-muted-foreground tracking-widest">
+                房客
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-10">
-              {/* Role Switcher */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="nav-link flex items-center gap-2 pb-0">
-                    <span>{getRoleLabel(currentRole)}</span>
-                    <ChevronDown className="h-3 w-3" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="center"
-                  className="w-56 bg-card border-border p-2"
-                >
-                  {DEMO_ROLES.map((role) => (
-                    <DropdownMenuItem key={role.id} asChild>
-                      <Link
-                        href={`/${locale}${role.href}`}
-                        className={cn(
-                          'flex items-center justify-between gap-3 px-4 py-3 cursor-pointer transition-all duration-200',
-                          currentRole === role.id
-                            ? 'bg-muted text-foreground'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                        )}
-                      >
-                        <span className="text-sm">{getRoleLabel(role.id)}</span>
-                        {currentRole === role.id && (
-                          <div className="h-1.5 w-1.5 rounded-full bg-foreground" />
-                        )}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+            <nav className="hidden md:flex items-center gap-3">
+              {/* Join KOL */}
+              <Button asChild variant="outline" size="sm" className="rounded-none text-xs uppercase tracking-widest">
+                <Link href="/join/kol">成為 KOL</Link>
+              </Button>
 
-              {/* Language Toggle */}
-              <button
-                onClick={() => switchLocale(isZhTW ? 'en' : 'zh-TW')}
-                className="nav-link pb-0"
-              >
-                {isZhTW ? 'EN' : '中文'}
-              </button>
+              {/* Join Merchant */}
+              <Button asChild size="sm" className="rounded-none text-xs uppercase tracking-widest bg-foreground text-background hover:bg-foreground/85">
+                <Link href="/join/merchant">成為商家</Link>
+              </Button>
+
+              {/* Login */}
+              <Button asChild variant="ghost" size="sm" className="rounded-none text-xs uppercase tracking-widest ml-2">
+                <Link href="/login">登入</Link>
+              </Button>
             </nav>
 
             {/* Mobile Menu Button */}
@@ -148,41 +87,38 @@ export default function Header() {
 
                 {/* Navigation Links */}
                 <div className="flex-1 py-8 px-6 space-y-2">
-                  {DEMO_ROLES.map((role, index) => (
+                  {[
+                    { label: '成為 KOL', href: '/join/kol' },
+                    { label: '成為商家', href: '/join/merchant' },
+                  ].map((item, index) => (
                     <motion.div
-                      key={role.id}
+                      key={item.href}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.1 + index * 0.05 }}
                     >
                       <Link
-                        href={`/${locale}${role.href}`}
+                        href={item.href}
                         onClick={() => setMobileMenuOpen(false)}
-                        className={cn(
-                          'flex items-center justify-between py-4 border-b border-border transition-colors duration-200',
-                          currentRole === role.id
-                            ? 'text-foreground'
-                            : 'text-muted-foreground hover:text-foreground'
-                        )}
+                        className="flex items-center justify-between py-4 border-b border-border text-foreground hover:text-muted-foreground transition-colors duration-200"
                       >
-                        <span className="text-lg">{getRoleLabel(role.id)}</span>
+                        <span className="text-lg">{item.label}</span>
                         <ArrowUpRight className="h-4 w-4" />
                       </Link>
                     </motion.div>
                   ))}
                 </div>
 
-                {/* Language Toggle */}
+                {/* Login */}
                 <div className="p-6 border-t border-border">
-                  <button
-                    onClick={() => {
-                      switchLocale(isZhTW ? 'en' : 'zh-TW')
-                      setMobileMenuOpen(false)
-                    }}
-                    className="w-full py-4 text-center text-sm uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between w-full py-3 text-sm uppercase tracking-widest text-foreground hover:text-muted-foreground transition-colors"
                   >
-                    {isZhTW ? 'Switch to English' : '切換至中文'}
-                  </button>
+                    <span>登入</span>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
                 </div>
               </div>
             </motion.div>

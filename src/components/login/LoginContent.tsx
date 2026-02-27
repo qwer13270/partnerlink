@@ -5,8 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
-import { ArrowRight, Eye, EyeOff } from 'lucide-react'
-import { useLocale } from '@/hooks/useLocale'
+import { ArrowRight, Eye, EyeOff, X } from 'lucide-react'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -36,17 +35,29 @@ function IconGoogle() {
   )
 }
 
+const MOCK_CREDENTIALS: Record<string, { password: string; redirect: string }> = {
+  'kol@kol':           { password: 'kol',      redirect: '/kol/home' },
+  'merchant@merchant': { password: 'merchant', redirect: '/merchant/home' },
+  'admin@admin':       { password: 'admin',    redirect: '/admin/dashboard' },
+}
+
 export default function LoginContent() {
   const t = useTranslations('login')
   const router = useRouter()
-  const { locale, isZhTW } = useLocale()
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    router.push(`/${locale}/kol/dashboard`)
+    setError('')
+    const match = MOCK_CREDENTIALS[email.toLowerCase().trim()]
+    if (match && password === match.password) {
+      router.push(match.redirect)
+    } else {
+      setError('電子郵件或密碼錯誤，請再試一次。')
+    }
   }
 
   return (
@@ -56,7 +67,7 @@ export default function LoginContent() {
       <div className="hidden lg:flex lg:w-[45%] bg-[#1A1A1A] flex-col justify-between p-16 relative overflow-hidden">
         {/* subtle grid texture */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.03] pointer-events-none"
           style={{
             backgroundImage:
               'repeating-linear-gradient(0deg, #FAF9F6 0px, #FAF9F6 1px, transparent 1px, transparent 60px), repeating-linear-gradient(90deg, #FAF9F6 0px, #FAF9F6 1px, transparent 1px, transparent 60px)',
@@ -65,11 +76,9 @@ export default function LoginContent() {
 
         {/* logo */}
         <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
-          <Link href={`/${locale}`} className="inline-flex items-center gap-3">
+          <Link href="/" className="inline-flex items-center gap-3">
             <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">HomeKey</span>
-            {isZhTW && (
-              <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
-            )}
+            <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
           </Link>
         </motion.div>
 
@@ -77,12 +86,12 @@ export default function LoginContent() {
         <div className="space-y-10">
           <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="space-y-3">
             <p className="text-xs uppercase tracking-[0.4em] text-[#6B6560]">
-              {isZhTW ? '房地產推廣平台' : 'Real Estate Platform'}
+              品牌聯盟推廣平台
             </p>
             <h1
               className="text-5xl font-serif text-[#FAF9F6] leading-[1.1] whitespace-pre-line"
             >
-              {isZhTW ? '房地產\n推廣新模式' : 'A New Way\nto Market\nReal Estate'}
+              {'品牌推廣\n新模式'}
             </h1>
           </motion.div>
 
@@ -94,9 +103,9 @@ export default function LoginContent() {
             className="grid grid-cols-3 gap-px bg-[#2A2A2A] border border-[#2A2A2A]"
           >
             {[
-              { value: '18+',   label: isZhTW ? '合作建案' : 'Projects' },
-              { value: '120+',  label: isZhTW ? '合作 KOL' : 'KOLs' },
-              { value: '18.4%', label: isZhTW ? '平均轉換率' : 'Conversion' },
+              { value: '18+',   label: '合作商案' },
+              { value: '120+',  label: '合作 KOL' },
+              { value: '18.4%', label: '平均轉換率' },
             ].map((s) => (
               <div key={s.label} className="bg-[#1A1A1A] px-5 py-6">
                 <p className="text-2xl font-serif text-[#FAF9F6]">{s.value}</p>
@@ -121,13 +130,19 @@ export default function LoginContent() {
       {/* ── Right panel — form ── */}
       <div className="flex-1 bg-[#FAF9F6] flex flex-col overflow-auto">
 
-        {/* mobile logo */}
-        <div className="lg:hidden flex items-center justify-between px-8 pt-8">
-          <Link href={`/${locale}`} className="flex items-center gap-2">
+        {/* top bar — logo (mobile) + close button */}
+        <div className="flex items-center justify-between px-8 pt-8">
+          <Link href="/" className="lg:hidden flex items-center gap-2">
             <span className="text-[#1A1A1A] font-semibold tracking-tight">HomeKey</span>
-            {isZhTW && (
-              <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
-            )}
+            <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
+          </Link>
+          <div className="hidden lg:block" />
+          <Link
+            href="/"
+            aria-label="返回首頁"
+            className="flex items-center justify-center w-9 h-9 text-[#6B6560] hover:text-[#1A1A1A] hover:bg-[#E8E4DF] rounded-full transition-colors duration-200"
+          >
+            <X className="h-4 w-4" />
           </Link>
         </div>
 
@@ -182,6 +197,17 @@ export default function LoginContent() {
                   </button>
                 </div>
               </motion.div>
+
+              {/* error */}
+              {error && (
+                <motion.p
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-xs text-red-500 -mt-2"
+                >
+                  {error}
+                </motion.p>
+              )}
 
               {/* submit */}
               <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp}>
@@ -254,7 +280,7 @@ export default function LoginContent() {
             >
               {t('noAccount')}{' '}
               <Link
-                href={`/${locale}/onboarding`}
+                href="/onboarding"
                 className="text-[#1A1A1A] underline underline-offset-4 hover:text-[#B5886C] transition-colors duration-200"
               >
                 {t('getStarted')}

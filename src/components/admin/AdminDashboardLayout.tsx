@@ -21,7 +21,7 @@ interface AdminDashboardLayoutProps {
 export default function AdminDashboardLayout({ children }: AdminDashboardLayoutProps) {
   return (
     <div className="editorial-container-wide">
-      <div className="flex min-h-[calc(100vh-5rem)]">
+      <div className="flex min-h-screen">
         <Sidebar items={sidebarItems} translationNamespace="admin" />
 
         <div className="flex-1 min-w-0">

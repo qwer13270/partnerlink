@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl'
 import { MessageCircle, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
-import { useLocale } from '@/hooks/useLocale'
 import type { Property } from '@/lib/types'
 
 interface BookTourCTAProps {
@@ -15,7 +14,6 @@ interface BookTourCTAProps {
 
 export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
   const t = useTranslations('property.bookTour')
-  const { isZhTW, getLocalizedValue } = useLocale()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [formData, setFormData] = useState({
@@ -72,7 +70,7 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
           className="text-center mb-16 md:mb-24"
         >
           <p className="text-xs uppercase tracking-widest text-background/60 mb-4">
-            {isZhTW ? '預約參觀' : 'Schedule a Visit'}
+            預約參觀
           </p>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif mb-6">
             {t('title')}
@@ -99,15 +97,13 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
               </span>
             </div>
             <h3 className="text-2xl md:text-3xl font-serif mb-6">
-              {isZhTW ? '透過 LINE 預約' : 'Book via LINE'}
+              透過 LINE 預約
             </h3>
             <p className="text-background/70 mb-8 leading-relaxed">
-              {isZhTW
-                ? '加入官方 LINE 帳號，專人為您服務。即時回覆您的問題，安排最適合的參觀時間。'
-                : 'Add our official LINE account for personal assistance. Get instant responses and schedule the perfect visit time.'}
+              加入官方 LINE 帳號，專人為您服務。即時回覆您的問題，安排最適合的參觀時間。
             </p>
             <button
-              onClick={() => toast.info(isZhTW ? '即將開放 LINE 預約功能' : 'LINE booking coming soon')}
+              onClick={() => toast.info('即將開放 LINE 預約功能')}
               className="group inline-flex items-center gap-4 text-lg font-medium hover:gap-6 transition-all duration-300"
             >
               <span className="flex items-center justify-center h-14 w-14 rounded-full bg-[#06C755]">
@@ -224,7 +220,7 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
                   {isSubmitting ? (
                     <>
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-foreground border-t-transparent" />
-                      <span>{isZhTW ? '送出中' : 'Submitting'}</span>
+                      <span>送出中</span>
                     </>
                   ) : (
                     <>
