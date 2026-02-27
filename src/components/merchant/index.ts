@@ -1,6 +1,1 @@
 export { default as MerchantDashboardLayout } from './MerchantDashboardLayout'
-export { default as MerchantStats } from './MerchantStats'
-export { default as ProjectPerformanceCards } from './ProjectPerformanceCards'
-export { default as RecentLeads } from './RecentLeads'
-export { default as LeadsTable } from './LeadsTable'
-export { default as KolsPerformance } from './KolsPerformance'

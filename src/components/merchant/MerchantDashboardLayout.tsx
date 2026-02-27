@@ -1,16 +1,16 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { Menu, LayoutDashboard, Building2, ClipboardList, Users } from 'lucide-react'
+import { Menu, Home, LayoutGrid, Users, ClipboardList } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import Sidebar, { MobileSidebar } from '@/components/layout/Sidebar'
 import { Button } from '@/components/ui/button'
 
 const sidebarItems = [
-  { href: '/merchant', labelKey: 'overview', icon: LayoutDashboard },
-  { href: '/merchant/projects', labelKey: 'projects', icon: Building2 },
-  { href: '/merchant/leads', labelKey: 'leads', icon: ClipboardList },
-  { href: '/merchant/kols', labelKey: 'kolPerformance', icon: Users },
+  { href: '/merchant/home',     labelKey: 'home',     icon: Home          },
+  { href: '/merchant/projects', labelKey: 'projects', icon: LayoutGrid    },
+  { href: '/merchant/kols',     labelKey: 'kols',     icon: Users         },
+  { href: '/merchant/leads',    labelKey: 'leads',    icon: ClipboardList },
 ]
 
 interface MerchantDashboardLayoutProps {
@@ -20,7 +20,7 @@ interface MerchantDashboardLayoutProps {
 export default function MerchantDashboardLayout({ children }: MerchantDashboardLayoutProps) {
   return (
     <div className="editorial-container-wide">
-      <div className="flex min-h-[calc(100vh-5rem)]">
+      <div className="flex min-h-screen">
         <Sidebar items={sidebarItems} translationNamespace="merchant" />
 
         <div className="flex-1 min-w-0">

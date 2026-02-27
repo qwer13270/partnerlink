@@ -30,14 +30,14 @@
     "publicView": "公開頁面",
     "kolDashboard": "KOL 儀表板",
     "adminPanel": "管理後台",
-    "merchantPortal": "建商後台",
+    "merchantPortal": "商家後台",
     "switchRole": "切換角色"
   },
   "kol": {
     "sidebar": {
-      "overview": "總覽",
-      "myLinks": "推廣連結",
-      "performance": "成效分析",
+      "home": "首頁",
+      "marketplace": "商案廣場",
+      "myPromo": "我的推廣",
       "commissions": "佣金紀錄"
     },
     "welcome": "歡迎回來",
@@ -62,7 +62,7 @@
     "links": {
       "title": "我的推廣連結",
       "subtitle": "管理與追蹤所有推廣連結",
-      "project": "建案名稱",
+      "project": "商案名稱",
       "link": "連結",
       "clicks": "點擊",
       "bookings": "預約",
@@ -71,17 +71,17 @@
       "active": "進行中",
       "paused": "已暫停",
       "viewAllLinks": "查看全部連結",
-      "searchPlaceholder": "搜尋建案或連結"
+      "searchPlaceholder": "搜尋商案或連結"
     },
     "performance": {
       "title": "成效分析",
       "subtitle": "深入檢視推廣活動成效",
       "dateRange": "日期範圍",
-      "selectProject": "選擇建案",
-      "allProjects": "所有建案",
+      "selectProject": "選擇商案",
+      "allProjects": "所有商案",
       "conversionFunnel": "轉換漏斗",
       "clicksVsBookings": "點擊數 vs 預約數",
-      "breakdownTitle": "建案成效拆解",
+      "breakdownTitle": "商案成效拆解",
       "dateRangeOptions": {
         "last7": "最近 7 天",
         "last30": "最近 30 天",
@@ -126,7 +126,7 @@
   "admin": {
     "sidebar": {
       "overview": "總覽",
-      "projects": "建案管理",
+      "projects": "商案管理",
       "kols": "KOL管理",
       "referrals": "推薦紀錄",
       "settings": "系統設定"
@@ -136,7 +136,7 @@
       "subtitle": "平台營運與成效的即時概覽。"
     },
     "stats": {
-      "totalProjects": "總建案數",
+      "totalProjects": "總商案數",
       "activeKols": "活躍KOL",
       "referralsThisMonth": "本月推薦數",
       "bookingsThisMonth": "本月預約數",
@@ -145,14 +145,14 @@
     },
     "quickActions": {
       "title": "快速操作",
-      "addProject": "新增建案",
+      "addProject": "新增商案",
       "inviteKol": "邀請KOL",
       "exportReports": "匯出報表"
     },
     "projects": {
-      "title": "建案管理",
-      "subtitle": "掌握目前建案與成效指標。",
-      "merchant": "建商",
+      "title": "商案管理",
+      "subtitle": "掌握目前商案與成效指標。",
+      "merchant": "商家",
       "location": "地點",
       "kolsAssigned": "合作KOL",
       "referrals": "推薦數",
@@ -164,7 +164,7 @@
       "title": "KOL管理",
       "subtitle": "管理KOL層級與推廣成效。",
       "tier": "等級",
-      "activeProjects": "合作建案",
+      "activeProjects": "合作商案",
       "clicks": "點擊",
       "bookings": "預約",
       "sales": "成交",
@@ -176,11 +176,11 @@
       "title": "推薦紀錄",
       "subtitle": "追蹤每一筆推薦與預約狀態。",
       "leadName": "客戶姓名",
-      "project": "建案名稱",
+      "project": "商案名稱",
       "kol": "推薦KOL",
       "tourDate": "看屋日期",
-      "searchPlaceholder": "搜尋客戶或建案",
-      "filterByProperty": "依建案篩選",
+      "searchPlaceholder": "搜尋客戶或商案",
+      "filterByProperty": "依商案篩選",
       "filterByKol": "依KOL篩選",
       "filterByStatus": "依狀態篩選",
       "filterByDate": "依日期篩選"
@@ -205,25 +205,25 @@
   },
   "merchant": {
     "sidebar": {
-      "overview": "總覽",
-      "projects": "建案成效",
-      "leads": "客戶名單",
-      "kolPerformance": "KOL表現"
+      "home": "首頁",
+      "projects": "商案管理",
+      "kols": "KOL 管理",
+      "leads": "客戶名單"
     },
     "overview": {
-      "title": "建商後台總覽",
-      "subtitle": "掌握合作建案的整體成效。",
-      "projectsTitle": "建案成效概覽"
+      "title": "商家後台總覽",
+      "subtitle": "掌握合作商案的整體成效。",
+      "projectsTitle": "商案成效概覽"
     },
     "stats": {
-      "activeProjects": "進行中建案",
+      "activeProjects": "進行中商案",
       "totalReferrals": "總推薦數",
       "tourBookings": "預約看屋",
       "confirmedSales": "已成交"
     },
     "projects": {
-      "title": "建案成效",
-      "subtitle": "每個建案的轉換成效一覽。",
+      "title": "商案成效",
+      "subtitle": "每個商案的轉換成效一覽。",
       "cardLabel": "轉換漏斗",
       "referrals": "推薦數",
       "bookings": "預約數",
@@ -336,8 +336,8 @@
       "subtitle": "申請加入 HomeKey KOL 推廣網絡，每筆成交都有佣金收益。"
     },
     "merchant": {
-      "title": "刊登您的建案",
-      "subtitle": "與 HomeKey 合作，透過 KOL 網絡行銷您的建案。"
+      "title": "刊登您的商案",
+      "subtitle": "與 HomeKey 合作，透過 KOL 網絡行銷您的商案。"
     }
   },
   "login": {
@@ -358,29 +358,29 @@
   },
   "merchantEditor": {
     "title": "編輯頁面",
-    "subtitle": "自訂您的建案公開頁面。"
+    "subtitle": "自訂您的商案公開頁面。"
   },
   "merchantPage": {
-    "title": "建案頁面",
-    "subtitle": "探索此建案。"
+    "title": "商案頁面",
+    "subtitle": "探索此商案。"
   },
   "footer": {
-    "disclaimer": "本頁面資訊僅供參考，實際內容以建商公布為準",
+    "disclaimer": "本頁面資訊僅供參考，實際內容以商家公布為準",
     "copyright": "© {year} HomeKey 房客. 保留所有權利."
   },
   "landing": {
     "hero": {
-      "title": "房地產推廣新模式",
-      "badge": "信賴的房地產聯盟",
-      "subtitle": "連結建商與KOL，創造共贏的房產行銷生態",
+      "title": "品牌推廣新模式",
+      "badge": "信賴的品牌聯盟",
+      "subtitle": "連結商家與KOL，創造共贏的行銷生態",
       "cta": "了解更多",
-      "ctaPrimary": "探索所有建案",
-      "ctaSecondary": "查看 KOL 儀表板",
+      "ctaPrimary": "我是 KOL，立即加入",
+      "ctaSecondary": "我是商家，刊登商案",
       "trustBadge": "平台認證",
       "trustTitle": "透明、可追溯的合作機制",
-      "trustBody": "整合建案資訊、推薦流量與成交數據，讓每一次合作都可被檢視與放大。",
+      "trustBody": "整合商案資訊、推薦流量與成交數據，讓每一次合作都可被檢視與放大。",
       "stats": {
-        "projects": "合作建案",
+        "projects": "合作商案",
         "kols": "合作 KOL",
         "tours": "看屋預約",
         "conversion": "平均轉換率"
@@ -388,12 +388,12 @@
     },
     "trust": {
       "eyebrow": "為何選擇 HomeKey",
-      "title": "值得信賴的頂級房產聯盟",
-      "subtitle": "我們嚴選建案並對齊所有合作方的利益，讓行銷更專業、數據更透明。",
+      "title": "值得信賴的頂級品牌聯盟",
+      "subtitle": "我們嚴選商案並對齊所有合作方的利益，讓行銷更專業、數據更透明。",
       "cards": {
         "verified": {
-          "title": "嚴選建案",
-          "body": "清楚的價格區間、工程進度與建商資訊，建立信任感。"
+          "title": "嚴選商案",
+          "body": "清楚的價格區間、工程進度與商家資訊，建立信任感。"
         },
         "compliance": {
           "title": "流程可驗證",
@@ -401,11 +401,11 @@
         },
         "quality": {
           "title": "高質感呈現",
-          "body": "行銷素材與頁面呈現符合高端房產定位。"
+          "body": "行銷素材與頁面呈現符合品牌高端定位。"
         },
         "partners": {
           "title": "合作一致目標",
-          "body": "建商與KOL以「有效且高品質的客戶」為共同 KPI。"
+          "body": "商家與KOL以「有效且高品質的客戶」為共同 KPI。"
         }
       }
     },
@@ -428,15 +428,15 @@
         },
         "analytics": {
           "title": "高層報表",
-          "body": "投資人與建商可快速掌握整體成效。"
+          "body": "投資人與商家可快速掌握整體成效。"
         }
       }
     },
     "featured": {
-      "eyebrow": "合作建案",
-      "title": "目前合作中的重點建案",
-      "subtitle": "精選 HomeKey 合作建案，立即查看詳情。",
-      "viewAll": "查看所有建案",
+      "eyebrow": "合作商案",
+      "title": "目前合作中的重點商案",
+      "subtitle": "精選 HomeKey 合作商案，立即查看詳情。",
+      "viewAll": "查看所有商案",
       "cards": {
         "lightRiver": {
           "title": "璞真建設 — 光河",
@@ -457,9 +457,9 @@
     },
     "cta": {
       "title": "準備好啟動下一個合作計畫嗎？",
-      "subtitle": "加入 HomeKey，讓頂級房產行銷更有績效。",
-      "primary": "進入 KOL 儀表板",
-      "secondary": "前往建商後台"
+      "subtitle": "加入 HomeKey，讓品牌行銷更有績效。",
+      "primary": "成為 KOL",
+      "secondary": "成為商家"
     }
   }
 }

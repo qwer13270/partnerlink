@@ -1,15 +1,15 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { Menu, LayoutDashboard, Link2, LineChart, BadgeDollarSign } from 'lucide-react'
+import { Menu, Home, LayoutGrid, Link2, BadgeDollarSign } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import Sidebar, { MobileSidebar } from '@/components/layout/Sidebar'
 import { Button } from '@/components/ui/button'
 
 const sidebarItems = [
-  { href: '/kol', labelKey: 'overview', icon: LayoutDashboard },
-  { href: '/kol/links', labelKey: 'myLinks', icon: Link2 },
-  { href: '/kol/performance', labelKey: 'performance', icon: LineChart },
+  { href: '/kol/home',        labelKey: 'home',        icon: Home            },
+  { href: '/kol/marketplace', labelKey: 'marketplace', icon: LayoutGrid      },
+  { href: '/kol/links',       labelKey: 'myPromo',     icon: Link2           },
   { href: '/kol/commissions', labelKey: 'commissions', icon: BadgeDollarSign },
 ]
 
@@ -20,7 +20,7 @@ interface KOLDashboardLayoutProps {
 export default function KOLDashboardLayout({ children }: KOLDashboardLayoutProps) {
   return (
     <div className="editorial-container-wide">
-      <div className="flex min-h-[calc(100vh-5rem)]">
+      <div className="flex min-h-screen">
         <Sidebar items={sidebarItems} translationNamespace="kol" />
 
         <div className="flex-1 min-w-0">
