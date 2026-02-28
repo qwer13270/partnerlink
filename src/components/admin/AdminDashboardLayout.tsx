@@ -1,17 +1,17 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { Menu, LayoutDashboard, Building2, Users, ClipboardList, Settings } from 'lucide-react'
+import { Menu, LayoutDashboard, UserPlus, Building2, Users, Store } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import Sidebar, { MobileSidebar } from '@/components/layout/Sidebar'
 import { Button } from '@/components/ui/button'
 
 const sidebarItems = [
-  { href: '/admin', labelKey: 'overview', icon: LayoutDashboard },
-  { href: '/admin/projects', labelKey: 'projects', icon: Building2 },
-  { href: '/admin/kols', labelKey: 'kols', icon: Users },
-  { href: '/admin/referrals', labelKey: 'referrals', icon: ClipboardList },
-  { href: '/admin/settings', labelKey: 'settings', icon: Settings },
+  { href: '/admin',                        labelKey: 'overview',             icon: LayoutDashboard },
+  { href: '/admin/kol-applications',       labelKey: 'kolApplications',      icon: UserPlus        },
+  { href: '/admin/merchant-applications',  labelKey: 'merchantApplications', icon: Building2       },
+  { href: '/admin/kols',                   labelKey: 'kols',                 icon: Users           },
+  { href: '/admin/merchants',              labelKey: 'merchants',            icon: Store           },
 ]
 
 interface AdminDashboardLayoutProps {

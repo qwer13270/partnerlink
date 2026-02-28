@@ -76,7 +76,7 @@ function PropertyRow({ group, index }: { group: PropertyGroup; index: number }) 
   return (
     <motion.div
       custom={3 + index} initial="hidden" animate="visible" variants={fadeUp}
-      className="border-b border-border last:border-b-0"
+      className="border-b border-foreground/[0.08] last:border-b-0"
     >
       {/* ── Clickable header ── */}
       <button
@@ -115,7 +115,7 @@ function PropertyRow({ group, index }: { group: PropertyGroup; index: number }) 
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <div className="border-t border-border bg-muted/20 divide-y divide-border">
+            <div className="border-t border-foreground/[0.08] bg-muted/20 divide-y divide-foreground/[0.06]">
               {group.entries.map((entry) => {
                 const cfg = STATUS_CFG[entry.status]
                 return (
@@ -137,7 +137,7 @@ function PropertyRow({ group, index }: { group: PropertyGroup; index: number }) 
                         { label: '佣金比率', value: entry.rate                                           },
                         { label: '佣金金額', value: `${entry.amountWan.toFixed(1)} 萬`                  },
                       ].map((s) => (
-                        <div key={s.label} className="border border-border px-3 py-2.5 text-center bg-background">
+                        <div key={s.label} className="border border-foreground/15 px-3 py-2.5 text-center bg-background">
                           <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">{s.label}</p>
                           <p className="text-base font-serif mt-1">{s.value}</p>
                         </div>
@@ -171,7 +171,7 @@ export default function KolCommissionsPage() {
       {/* ── Summary stats ── */}
       <motion.div
         custom={1} initial="hidden" animate="visible" variants={fadeUp}
-        className="grid grid-cols-3 gap-px bg-border border border-border"
+        className="grid grid-cols-3 gap-px bg-foreground/10 border border-foreground/15"
       >
         {[
           { label: '累計佣金', value: totalAmount   },
@@ -198,7 +198,7 @@ export default function KolCommissionsPage() {
           </span>
         </motion.div>
 
-        <div className="border border-border">
+        <div className="border border-foreground/15">
           {PROPERTY_GROUPS.map((group, i) => (
             <PropertyRow key={group.propertyId} group={group} index={i} />
           ))}

@@ -63,14 +63,14 @@ export default function MerchantProjectsPage() {
       </motion.div>
 
       {/* ── Projects list ── */}
-      <div className="border border-border divide-y divide-border">
+      <div className="border border-foreground/15 divide-y divide-foreground/[0.08]">
         {PROJECTS.map((project, i) => {
           const cfg = STATUS_CFG[project.status]
           return (
             <motion.div
               key={project.id}
               custom={1 + i} initial="hidden" animate="visible" variants={fadeUp}
-              className="px-5 py-6"
+              className="px-5 py-9"
             >
               {/* Name + status */}
               <div className="flex items-start justify-between gap-4 mb-5">
@@ -94,7 +94,7 @@ export default function MerchantProjectsPage() {
                   { label: '累計預約',  value: project.totalBookings  },
                   { label: '累計成交',  value: project.totalSales     },
                 ].map((s) => (
-                  <div key={s.label} className="border border-border px-3 py-3 text-center">
+                  <div key={s.label} className="border border-foreground/15 px-3 py-3 text-center">
                     <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground">{s.label}</p>
                     <p className="text-2xl font-serif mt-1">{s.value}</p>
                   </div>

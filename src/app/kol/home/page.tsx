@@ -82,8 +82,8 @@ export default function KolHomePage() {
         {/* Quick stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {QUICK_STATS.map((s) => (
-            <div key={s.label} className="border border-border p-5 flex gap-4 items-start">
-              <div className="w-8 h-8 border border-border flex items-center justify-center shrink-0">
+            <div key={s.label} className="border border-foreground/15 p-5 flex gap-4 items-start">
+              <div className="w-8 h-8 border border-foreground/15 flex items-center justify-center shrink-0">
                 <s.icon className="h-4 w-4 text-muted-foreground" />
               </div>
               <div>
@@ -96,7 +96,7 @@ export default function KolHomePage() {
         </div>
 
         {/* Application status widget */}
-        <div className="border border-border p-5 min-w-[260px] lg:min-w-[280px]">
+        <div className="border border-foreground/15 p-5 min-w-[260px] lg:min-w-[280px]">
           <div className="flex items-center justify-between mb-4">
             <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">申請狀態</p>
             {pendingCount > 0 && (
@@ -160,7 +160,7 @@ export default function KolHomePage() {
               <motion.div
                 key={prop.id}
                 custom={3 + i} initial="hidden" animate="visible" variants={fadeUp}
-                className="border border-border hover:border-foreground/30 transition-colors duration-300 flex flex-col"
+                className="border border-foreground/15 hover:border-foreground/40 transition-colors duration-300 flex flex-col"
               >
                 <div className="bg-muted/40 h-28 flex items-center justify-center relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted/50" />
@@ -184,12 +184,12 @@ export default function KolHomePage() {
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {meta.tags.map((tag) => (
-                      <span key={tag} className="text-[0.62rem] px-2 py-0.5 border border-border text-muted-foreground flex items-center gap-1">
+                      <span key={tag} className="text-[0.62rem] px-2 py-0.5 border border-foreground/15 text-muted-foreground flex items-center gap-1">
                         <Tag className="h-2.5 w-2.5" />{tag}
                       </span>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-border mt-auto">
+                  <div className="flex items-center justify-between pt-2 border-t border-foreground/10 mt-auto">
                     <div>
                       <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">佣金比例</p>
                       <p className="text-lg font-serif">{meta.commission}</p>

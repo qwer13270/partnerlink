@@ -106,7 +106,7 @@ export default function KolMarketplacePage() {
       {/* ── Grid ── */}
       {filtered.length === 0 ? (
         <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp}
-          className="border border-border py-20 text-center">
+          className="border border-foreground/15 py-20 text-center">
           <p className="text-muted-foreground text-sm">找不到符合條件的商案</p>
         </motion.div>
       ) : (
@@ -119,7 +119,7 @@ export default function KolMarketplacePage() {
               <motion.div
                 key={prop.id}
                 custom={3 + i} initial="hidden" animate="visible" variants={fadeUp}
-                className="border border-border hover:border-foreground/30 transition-colors duration-300 flex flex-col"
+                className="border border-foreground/15 hover:border-foreground/40 transition-colors duration-300 flex flex-col"
               >
                 {/* Image placeholder */}
                 <div className="h-24 bg-muted/40 relative overflow-hidden flex items-center justify-center">
@@ -154,13 +154,13 @@ export default function KolMarketplacePage() {
 
                   <div className="flex flex-wrap gap-1">
                     {meta.tags.map((tag) => (
-                      <span key={tag} className="text-[0.6rem] px-1.5 py-0.5 border border-border text-muted-foreground flex items-center gap-1">
+                      <span key={tag} className="text-[0.6rem] px-1.5 py-0.5 border border-foreground/15 text-muted-foreground flex items-center gap-1">
                         <Tag className="h-2 w-2" />{tag}
                       </span>
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-border mt-auto">
+                  <div className="flex items-center justify-between pt-2 border-t border-foreground/10 mt-auto">
                     <div>
                       <p className="text-[0.55rem] uppercase tracking-widest text-muted-foreground">佣金</p>
                       <p className="text-base font-serif">{meta.commission}</p>

@@ -57,7 +57,7 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
       className={`text-[0.65rem] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-150 ${
         active
           ? 'bg-foreground text-background border-foreground'
-          : 'border-border text-muted-foreground hover:border-foreground hover:text-foreground'
+          : 'border-foreground/15 text-muted-foreground hover:border-foreground hover:text-foreground'
       }`}
     >
       {label}
@@ -146,15 +146,15 @@ export default function MerchantLeadsPage() {
         </motion.div>
 
         {isLoading ? (
-          <div className="border border-border px-5 py-8 text-center">
+          <div className="border border-foreground/15 px-5 py-8 text-center">
             <p className="text-sm text-muted-foreground">載入中⋯</p>
           </div>
         ) : rows.length === 0 ? (
-          <div className="border border-border px-5 py-8 text-center">
+          <div className="border border-foreground/15 px-5 py-8 text-center">
             <p className="text-sm text-muted-foreground">沒有符合條件的紀錄。</p>
           </div>
         ) : (
-          <div className="border border-border divide-y divide-border">
+          <div className="border border-foreground/15 divide-y divide-foreground/[0.08]">
             {rows.map((lead, i) => {
               const cfg = STATUS_CFG[lead.status]
               return (
@@ -207,7 +207,7 @@ export default function MerchantLeadsPage() {
 
       {/* ── Confirm dialog ── */}
       <Dialog open={Boolean(selectedId)} onOpenChange={(open) => !open && setSelectedId(null)}>
-        <DialogContent className="rounded-none border-border gap-6 max-w-sm">
+        <DialogContent className="rounded-none border-foreground/15 gap-6 max-w-sm">
           <DialogHeader className="gap-2">
             <DialogTitle className="font-serif text-xl font-normal">確認成交</DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
