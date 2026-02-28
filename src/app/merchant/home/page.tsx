@@ -60,7 +60,7 @@ export default function MerchantHomePage() {
       {/* ── Stats ── */}
       <motion.div
         custom={1} initial="hidden" animate="visible" variants={fadeUp}
-        className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border border border-border"
+        className="grid grid-cols-2 md:grid-cols-4 gap-px bg-foreground/10 border border-foreground/15"
       >
         {[
           { label: '進行中商案', value: MERCHANT.activeProjects  },
@@ -88,7 +88,7 @@ export default function MerchantHomePage() {
               </span>
             )}
           </div>
-          <div className="border border-border divide-y divide-border">
+          <div className="border border-foreground/15 divide-y divide-foreground/[0.08]">
             {PENDING_APPLICATIONS.map((app) => (
               <div key={app.id} className="px-5 py-4">
                 <div className="flex items-start justify-between gap-3 mb-3">
@@ -129,7 +129,7 @@ export default function MerchantHomePage() {
             <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">近期客戶</p>
             <span className="text-[0.65rem] text-muted-foreground">{RECENT_LEADS.length} 筆</span>
           </div>
-          <div className="border border-border divide-y divide-border">
+          <div className="border border-foreground/15 divide-y divide-foreground/[0.08]">
             {RECENT_LEADS.map((lead) => {
               const cfg = LEAD_STATUS_CFG[lead.status]
               return (

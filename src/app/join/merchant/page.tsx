@@ -269,15 +269,15 @@ export default function JoinMerchantPage() {
           {/* Steps */}
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-            className="grid grid-cols-2 md:grid-cols-4 border border-border divide-x divide-y md:divide-y-0 divide-border"
+            className="grid grid-cols-2 md:grid-cols-4 border border-foreground/20 divide-x divide-y md:divide-y-0 divide-foreground/10"
           >
             {STEPS.map((step) => (
               <div
                 key={step.num}
-                className="bg-[#f5f0eb] hover:bg-white transition-colors duration-200 p-8 md:p-10"
+                className="bg-background hover:bg-[#f5f0eb] transition-colors duration-200 p-8 md:p-10"
               >
-                <div className="font-serif text-5xl font-light text-border leading-none mb-5">{step.num}</div>
-                <div className="w-9 h-9 border border-[#d4b89a] rounded-sm flex items-center justify-center text-[#b8936a] mb-5">
+                <div className="font-serif text-5xl font-light text-[#c4913a]/35 leading-none mb-5">{step.num}</div>
+                <div className="w-9 h-9 border border-[#c4913a]/40 rounded-sm flex items-center justify-center text-[#b8936a] mb-5">
                   {step.icon}
                 </div>
                 <div className="text-sm font-medium mb-2">{step.title}</div>

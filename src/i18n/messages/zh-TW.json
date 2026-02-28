@@ -125,11 +125,11 @@
   },
   "admin": {
     "sidebar": {
-      "overview": "總覽",
-      "projects": "商案管理",
-      "kols": "KOL管理",
-      "referrals": "推薦紀錄",
-      "settings": "系統設定"
+      "overview": "首頁",
+      "kolApplications": "KOL 申請",
+      "merchantApplications": "商家申請",
+      "kols": "KOL 管理",
+      "merchants": "商家管理"
     },
     "overview": {
       "title": "管理後台總覽",
@@ -208,6 +208,7 @@
       "home": "首頁",
       "projects": "商案管理",
       "kols": "KOL 管理",
+      "kolBrowse": "探索 KOL",
       "leads": "客戶名單"
     },
     "overview": {

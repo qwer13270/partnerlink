@@ -87,7 +87,7 @@ function CampaignKolGroup({ group, index }: { group: KolGroup; index: number }) 
   return (
     <motion.div
       custom={5 + index} initial="hidden" animate="visible" variants={fadeUp}
-      className="border-b border-border last:border-b-0"
+      className="border-b border-foreground/[0.08] last:border-b-0"
     >
       {/* Campaign header — clickable */}
       <button
@@ -113,7 +113,7 @@ function CampaignKolGroup({ group, index }: { group: KolGroup; index: number }) 
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <div className="border-t border-border bg-muted/20 divide-y divide-border">
+            <div className="border-t border-foreground/[0.08] bg-muted/20 divide-y divide-foreground/[0.06]">
               {group.kols.map((kol) => {
                 const tier = TIER_CFG[kol.tier]
                 return (
@@ -129,7 +129,7 @@ function CampaignKolGroup({ group, index }: { group: KolGroup; index: number }) 
                         { label: '點擊數', value: kol.clicks.toLocaleString('zh-TW') },
                         { label: '預約數', value: kol.bookings                        },
                       ].map((s) => (
-                        <div key={s.label} className="border border-border px-3 py-2.5 text-center bg-background">
+                        <div key={s.label} className="border border-foreground/15 px-3 py-2.5 text-center bg-background">
                           <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">{s.label}</p>
                           <p className="text-base font-serif mt-1">{s.value}</p>
                         </div>
@@ -191,7 +191,7 @@ export default function MerchantKolsPage() {
             <motion.div
               key="app-list"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="border border-border divide-y divide-border"
+              className="border border-foreground/15 divide-y divide-foreground/[0.08]"
             >
               {appGroups.map((group, gi) => (
                 <motion.div key={group.propertyId} custom={2 + gi} initial="hidden" animate="visible" variants={fadeUp}>
@@ -209,7 +209,7 @@ export default function MerchantKolsPage() {
                         key={app.id}
                         exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
                         transition={{ duration: 0.2 }}
-                        className="px-5 py-4 pl-8 flex items-start justify-between gap-4 border-t border-border"
+                        className="px-5 py-4 pl-8 flex items-start justify-between gap-4 border-t border-foreground/[0.08]"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
@@ -248,7 +248,7 @@ export default function MerchantKolsPage() {
             <motion.div
               key="app-empty"
               custom={2} initial="hidden" animate="visible" variants={fadeUp}
-              className="border border-border px-5 py-8 text-center"
+              className="border border-foreground/15 px-5 py-8 text-center"
             >
               <p className="text-sm text-muted-foreground">目前沒有待審核的 KOL 申請。</p>
             </motion.div>
@@ -270,7 +270,7 @@ export default function MerchantKolsPage() {
           </span>
         </motion.div>
 
-        <div className="border border-border">
+        <div className="border border-foreground/15">
           {CAMPAIGN_KOLS.map((group, i) => (
             <CampaignKolGroup key={group.propertyId} group={group} index={i} />
           ))}

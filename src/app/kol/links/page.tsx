@@ -98,7 +98,7 @@ function ApplicationRow({ app, index }: { app: typeof APPLICATIONS[number]; inde
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <div className="px-5 pb-5 pt-3 bg-red-50/50 border-t border-red-100">
+            <div className="px-5 pb-5 pt-3 bg-red-50/60 border-t border-red-200">
               <p className="text-[0.62rem] uppercase tracking-[0.25em] text-red-500 mb-2">拒絕原因</p>
               <p className="text-sm text-foreground/80 leading-relaxed mb-4">{app.reason}</p>
               <button className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-foreground border border-foreground px-3 py-2 hover:bg-foreground hover:text-background transition-colors duration-200 group">
@@ -161,7 +161,7 @@ export default function MyPromoPage() {
         </motion.div>
 
         <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp}
-          className="border border-border">
+          className="border border-foreground/15">
           {APPLICATIONS.map((app, i) => (
             <ApplicationRow key={app.id} app={app} index={3 + i} />
           ))}
@@ -179,7 +179,7 @@ export default function MyPromoPage() {
         </motion.div>
 
         {isLoading || !links ? (
-          <div className="border border-border divide-y divide-border">
+          <div className="border border-foreground/15 divide-y divide-foreground/[0.08]">
             {[1, 2, 3].map((n) => (
               <div key={n} className="px-5 py-5 animate-pulse">
                 <div className="h-3 w-40 bg-muted rounded mb-3" />
@@ -191,7 +191,7 @@ export default function MyPromoPage() {
             ))}
           </div>
         ) : (
-          <div className="border border-border divide-y divide-border">
+          <div className="border border-foreground/15 divide-y divide-foreground/[0.08]">
             {links.map((link, i) => {
               const statusCfg = LINK_STATUS[link.commissionStatus] ?? LINK_STATUS['pending']
               const isCopied = copiedId === link.id
@@ -215,7 +215,7 @@ export default function MyPromoPage() {
                   </div>
 
                   {/* Link + copy */}
-                  <div className="flex items-center gap-2 mb-4 bg-muted/30 px-3 py-2 border border-border/60">
+                  <div className="flex items-center gap-2 mb-4 bg-muted/30 px-3 py-2 border border-foreground/10">
                     <span className="text-[0.7rem] text-muted-foreground font-mono truncate flex-1">
                       {link.link}
                     </span>
@@ -237,7 +237,7 @@ export default function MyPromoPage() {
                       { label: '預約', value: link.bookings.toLocaleString('zh-TW') },
                       { label: '成交', value: link.confirmedSales.toLocaleString('zh-TW') },
                     ].map((s) => (
-                      <div key={s.label} className="border border-border px-3 py-3 text-center">
+                      <div key={s.label} className="border border-foreground/15 px-3 py-3 text-center">
                         <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground">{s.label}</p>
                         <p className="text-xl font-serif mt-1">{s.value}</p>
                       </div>

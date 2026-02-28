@@ -1,16 +1,17 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { Menu, Home, LayoutGrid, Users, ClipboardList } from 'lucide-react'
+import { Menu, Home, LayoutGrid, Users, ClipboardList, Search } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import Sidebar, { MobileSidebar } from '@/components/layout/Sidebar'
 import { Button } from '@/components/ui/button'
 
 const sidebarItems = [
-  { href: '/merchant/home',     labelKey: 'home',     icon: Home          },
-  { href: '/merchant/projects', labelKey: 'projects', icon: LayoutGrid    },
-  { href: '/merchant/kols',     labelKey: 'kols',     icon: Users         },
-  { href: '/merchant/leads',    labelKey: 'leads',    icon: ClipboardList },
+  { href: '/merchant/home',       labelKey: 'home',      icon: Home          },
+  { href: '/merchant/projects',   labelKey: 'projects',  icon: LayoutGrid    },
+  { href: '/merchant/kols',       labelKey: 'kols',      icon: Users         },
+  { href: '/merchant/kol-browse', labelKey: 'kolBrowse', icon: Search        },
+  { href: '/merchant/leads',      labelKey: 'leads',     icon: ClipboardList },
 ]
 
 interface MerchantDashboardLayoutProps {
