@@ -199,17 +199,21 @@ export default function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          DUAL ROLE — white, strict 50/50 split
+          DUAL ROLE — centered content, 50/50 split
       ══════════════════════════════════════════════════════ */}
       <section className="grid md:grid-cols-2 border-y border-foreground/10">
 
         {/* KOL — white */}
         <motion.div
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-          className="px-10 py-20 md:px-16 border-r border-foreground/10"
+          className="flex flex-col items-center text-center px-10 py-24 md:px-16 border-r border-foreground/10"
         >
-          <div className="text-[0.6rem] tracking-[4px] uppercase text-muted-foreground mb-10">
-            KOL 合作計畫
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-5 h-px bg-[#c4913a]/40" />
+            <span className="text-[0.6rem] tracking-[4px] uppercase text-muted-foreground">
+              KOL 合作計畫
+            </span>
+            <div className="w-5 h-px bg-[#c4913a]/40" />
           </div>
           <h2 className="font-serif text-3xl md:text-[2.4rem] font-light leading-[1.2] mb-5">
             用影響力<br />
@@ -219,13 +223,13 @@ export default function HomePage() {
             與頂級建案合作，取得專屬推廣連結，每次成交自動計算佣金，完全透明可追蹤。
           </p>
 
-          <div className="space-y-4 mb-12">
+          <div className="space-y-3 mb-12 w-full max-w-xs">
             {KOL_FEATURES.map((f, i) => (
               <motion.div
                 key={f}
                 initial="hidden" whileInView="visible" viewport={{ once: true }}
                 variants={slideIn(i * 0.06)}
-                className="flex items-center gap-3 text-xs text-muted-foreground"
+                className="flex items-center justify-center gap-3 text-xs text-muted-foreground"
               >
                 <div className="w-1 h-1 rounded-full bg-[#c4913a] shrink-0" />
                 {f}
@@ -246,11 +250,15 @@ export default function HomePage() {
         {/* Merchant — very light grey */}
         <motion.div
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-          className="px-10 py-20 md:px-16"
+          className="flex flex-col items-center text-center px-10 py-24 md:px-16"
           style={{ background: '#f7f6f4' }}
         >
-          <div className="text-[0.6rem] tracking-[4px] uppercase text-muted-foreground mb-10">
-            商家合作方案
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-5 h-px bg-[#c4913a]/40" />
+            <span className="text-[0.6rem] tracking-[4px] uppercase text-muted-foreground">
+              商家合作方案
+            </span>
+            <div className="w-5 h-px bg-[#c4913a]/40" />
           </div>
           <h2 className="font-serif text-3xl md:text-[2.4rem] font-light leading-[1.2] mb-5">
             精準觸及<br />
@@ -260,13 +268,13 @@ export default function HomePage() {
             透過 KOL 聯盟將商案推送至精準受眾，按成效付費，全程透明，由商家掌控合作流程。
           </p>
 
-          <div className="space-y-4 mb-12">
+          <div className="space-y-3 mb-12 w-full max-w-xs">
             {MERCHANT_FEATURES.map((f, i) => (
               <motion.div
                 key={f}
                 initial="hidden" whileInView="visible" viewport={{ once: true }}
                 variants={slideIn(i * 0.06)}
-                className="flex items-center gap-3 text-xs text-muted-foreground"
+                className="flex items-center justify-center gap-3 text-xs text-muted-foreground"
               >
                 <div className="w-1 h-1 rounded-full bg-[#c4913a] shrink-0" />
                 {f}
