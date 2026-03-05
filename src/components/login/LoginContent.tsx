@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import { ArrowRight, Eye, EyeOff, X } from 'lucide-react'
+import { getRoleFromUser, resolveRoleHomePath } from '@/lib/auth'
+import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -35,29 +37,68 @@ function IconGoogle() {
   )
 }
 
-const MOCK_CREDENTIALS: Record<string, { password: string; redirect: string }> = {
-  'kol@kol':           { password: 'kol',      redirect: '/kol/home' },
-  'merchant@merchant': { password: 'merchant', redirect: '/merchant/home' },
-  'admin@admin':       { password: 'admin',    redirect: '/admin/dashboard' },
-}
-
 export default function LoginContent() {
   const t = useTranslations('login')
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const notice = searchParams.get('notice')
+  const confirmEmail = searchParams.get('email')
+  const prefillEmail = searchParams.get('email') ?? ''
   const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(prefillEmail)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) return
+    setIsSubmitting(true)
     setError('')
-    const match = MOCK_CREDENTIALS[email.toLowerCase().trim()]
-    if (match && password === match.password) {
-      router.push(match.redirect)
-    } else {
-      setError('電子郵件或密碼錯誤，請再試一次。')
+
+    const supabase = getSupabaseBrowserClient()
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    })
+
+    if (signInError || !data.user) {
+      setError(signInError?.message ?? '電子郵件或密碼錯誤，請再試一次。')
+      setIsSubmitting(false)
+      return
     }
+
+    let role = getRoleFromUser(data.user)
+    if (!role && data.session?.access_token) {
+      const syncResponse = await fetch('/api/auth/sync-role', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${data.session.access_token}`,
+        },
+      })
+
+      if (syncResponse.ok) {
+        const payload = await syncResponse.json().catch(() => null) as { role?: unknown } | null
+        if (payload?.role === 'kol' || payload?.role === 'merchant' || payload?.role === 'admin') {
+          role = payload.role
+        }
+      }
+    }
+
+    if (!role) {
+      await supabase.auth.signOut()
+      setError('帳號尚未指派角色，請聯繫管理員。')
+      setIsSubmitting(false)
+      return
+    }
+
+    const nextPath = searchParams.get('next')
+    if (nextPath && nextPath.startsWith('/')) {
+      router.push(nextPath)
+      return
+    }
+
+    router.push(resolveRoleHomePath(role))
   }
 
   return (
@@ -156,6 +197,16 @@ export default function LoginContent() {
               <p className="text-sm text-[#6B6560] mt-2">{t('subtitle')}</p>
             </motion.div>
 
+            {notice === 'confirm-email' && (
+              <motion.p
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-5 text-xs text-[#6B6560]"
+              >
+                已寄送驗證信到 {confirmEmail ?? '你的信箱'}，請先完成驗證後再登入。
+              </motion.p>
+            )}
+
             {/* form */}
             <form onSubmit={handleSubmit} className="space-y-8">
 
@@ -213,10 +264,24 @@ export default function LoginContent() {
               <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp}>
                 <button
                   type="submit"
-                  className="group w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] transition-colors duration-300"
+                  disabled={isSubmitting}
+                  className="group relative overflow-hidden w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] disabled:opacity-90 transition-colors duration-300"
                 >
-                  <span>{t('signIn')}</span>
-                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  {isSubmitting && (
+                    <motion.span
+                      initial={{ x: '-120%' }}
+                      animate={{ x: '120%' }}
+                      transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
+                      className="pointer-events-none absolute inset-y-0 w-1/3 bg-white/15 blur-sm"
+                    />
+                  )}
+                  <span>{isSubmitting ? '登入中...' : t('signIn')}</span>
+                  <motion.span
+                    animate={isSubmitting ? { x: [0, 4, 0] } : { x: 0 }}
+                    transition={isSubmitting ? { repeat: Infinity, duration: 0.7, ease: 'easeInOut' } : undefined}
+                  >
+                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </motion.span>
                 </button>
               </motion.div>
             </form>

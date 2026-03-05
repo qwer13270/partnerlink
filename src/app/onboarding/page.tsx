@@ -4,7 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, X, Check, Eye, EyeOff, Building2, Mic2 } from 'lucide-react'
+import { ArrowRight, X, Eye, EyeOff, Building2, Mic2 } from 'lucide-react'
+import { resolveRoleHomePath } from '@/lib/auth'
+import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
 // ── Animation variants ─────────────────────────────────────────────────────
 const slideIn = {
@@ -24,7 +26,7 @@ const fadeUp = {
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Role = 'kol' | 'merchant' | null
-type Step = 1 | 2 | 3
+type Step = 1 | 2
 
 // ── Left panel content by role ─────────────────────────────────────────────
 const LEFT_CONTENT = {
@@ -71,7 +73,7 @@ const PROJECT_COUNTS = ['1 個', '2–3 個', '4–6 個', '7 個以上']
 function StepDots({ step }: { step: Step }) {
   return (
     <div className="flex items-center gap-2">
-      {([1, 2, 3] as Step[]).map((s) => (
+      {([1, 2] as Step[]).map((s) => (
         <div
           key={s}
           className={`h-1 rounded-full transition-all duration-300 ${
@@ -143,18 +145,35 @@ function RoleStep({ onSelect }: { onSelect: (r: Role) => void }) {
 }
 
 // ── Step 2 — KOL form ──────────────────────────────────────────────────────
-function KolForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () => void }) {
+function KolForm({
+  onBack,
+  onSubmit,
+  error,
+  submitting,
+}: {
+  onBack: () => void
+  onSubmit: (input: { email: string; password: string }) => void
+  error: string
+  submitting: boolean
+}) {
   const [showPassword, setShowPassword] = useState(false)
+  const [password, setPassword] = useState('')
   const [platforms, setPlatforms] = useState<string[]>([])
   const [follower, setFollower] = useState('')
   const [contentType, setContentType] = useState('')
+  const passwordTooShort = password.length > 0 && password.length < 6
 
   const togglePlatform = (p: string) =>
     setPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit()
+    const form = e.currentTarget as HTMLFormElement
+    const formData = new FormData(form)
+    onSubmit({
+      email: String(formData.get('email') ?? ''),
+      password: String(formData.get('password') ?? ''),
+    })
   }
 
   return (
@@ -176,7 +195,7 @@ function KolForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () => voi
           </div>
           <div>
             <label className="label-editorial">電子郵件</label>
-            <input type="email" required placeholder="you@example.com" className="input-editorial text-sm" />
+            <input name="email" type="email" required placeholder="you@example.com" className="input-editorial text-sm" />
           </div>
         </motion.div>
 
@@ -185,9 +204,13 @@ function KolForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () => voi
           <label className="label-editorial">密碼</label>
           <div className="relative">
             <input
+              name="password"
               type={showPassword ? 'text' : 'password'}
               required
+              minLength={6}
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="input-editorial text-sm pr-8"
             />
             <button
@@ -199,6 +222,9 @@ function KolForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () => voi
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
+          {passwordTooShort && (
+            <p className="mt-2 text-xs text-red-500">密碼至少需要 6 個字元</p>
+          )}
         </motion.div>
 
         {/* Platforms */}
@@ -247,13 +273,24 @@ function KolForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () => voi
           </div>
         </motion.div>
 
+        {error && (
+          <motion.p
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-xs text-red-500 -mt-2"
+          >
+            {error}
+          </motion.p>
+        )}
+
         {/* Submit */}
         <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp} className="pt-2">
           <button
             type="submit"
+            disabled={submitting || passwordTooShort}
             className="group w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] transition-colors duration-300"
           >
-            <span>建立帳號</span>
+            <span>{submitting ? '建立中…' : '建立帳號'}</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </button>
         </motion.div>
@@ -263,14 +300,31 @@ function KolForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () => voi
 }
 
 // ── Step 2 — Merchant form ─────────────────────────────────────────────────
-function MerchantForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () => void }) {
+function MerchantForm({
+  onBack,
+  onSubmit,
+  error,
+  submitting,
+}: {
+  onBack: () => void
+  onSubmit: (input: { email: string; password: string }) => void
+  error: string
+  submitting: boolean
+}) {
   const [showPassword, setShowPassword] = useState(false)
+  const [password, setPassword] = useState('')
   const [city, setCity] = useState('')
   const [projectCount, setProjectCount] = useState('')
+  const passwordTooShort = password.length > 0 && password.length < 6
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit()
+    const form = e.currentTarget as HTMLFormElement
+    const formData = new FormData(form)
+    onSubmit({
+      email: String(formData.get('email') ?? ''),
+      password: String(formData.get('password') ?? ''),
+    })
   }
 
   return (
@@ -300,7 +354,7 @@ function MerchantForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () =
         <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp} className="grid grid-cols-2 gap-4">
           <div>
             <label className="label-editorial">電子郵件</label>
-            <input type="email" required placeholder="contact@company.tw" className="input-editorial text-sm" />
+            <input name="email" type="email" required placeholder="contact@company.tw" className="input-editorial text-sm" />
           </div>
           <div>
             <label className="label-editorial">聯絡電話</label>
@@ -313,9 +367,13 @@ function MerchantForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () =
           <label className="label-editorial">密碼</label>
           <div className="relative">
             <input
+              name="password"
               type={showPassword ? 'text' : 'password'}
               required
+              minLength={6}
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="input-editorial text-sm pr-8"
             />
             <button
@@ -327,6 +385,9 @@ function MerchantForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () =
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
+          {passwordTooShort && (
+            <p className="mt-2 text-xs text-red-500">密碼至少需要 6 個字元</p>
+          )}
         </motion.div>
 
         {/* City + Project count */}
@@ -355,13 +416,24 @@ function MerchantForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () =
           </div>
         </motion.div>
 
+        {error && (
+          <motion.p
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-xs text-red-500 -mt-2"
+          >
+            {error}
+          </motion.p>
+        )}
+
         {/* Submit */}
         <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp} className="pt-2">
           <button
             type="submit"
+            disabled={submitting || passwordTooShort}
             className="group w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] transition-colors duration-300"
           >
-            <span>送出申請</span>
+            <span>{submitting ? '送出中…' : '送出申請'}</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </button>
         </motion.div>
@@ -370,67 +442,80 @@ function MerchantForm({ onBack, onSubmit }: { onBack: () => void; onSubmit: () =
   )
 }
 
-// ── Step 3 — Success ───────────────────────────────────────────────────────
-function SuccessStep({ role }: { role: Role }) {
-  const isKol = role === 'kol'
-
-  return (
-    <motion.div key="step3" {...slideIn} className="flex flex-col items-center text-center py-8">
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 18, delay: 0.1 }}
-        className="w-16 h-16 bg-[#1A1A1A] flex items-center justify-center mb-8"
-      >
-        <Check className="h-7 w-7 text-[#FAF9F6]" />
-      </motion.div>
-
-      <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp}>
-        <h2 className="text-3xl font-serif text-[#1A1A1A] mb-3">
-          {isKol ? '申請已送出！' : '申請已收到！'}
-        </h2>
-        <p className="text-sm text-[#6B6560] leading-relaxed max-w-xs mx-auto">
-          {isKol
-            ? '我們將在 1–2 個工作天內審核你的 KOL 申請。審核通過後，你將收到電子郵件通知。'
-            : '我們的團隊將在 1–2 個工作天內審核你的商家資料，並安排專人與你聯繫。'}
-        </p>
-      </motion.div>
-
-      <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp} className="mt-10 space-y-3 w-full max-w-xs">
-        <Link
-          href={isKol ? '/kol/home' : '/merchant/home'}
-          className="group w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] transition-colors duration-300"
-        >
-          <span>前往儀表板</span>
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-        </Link>
-        <Link
-          href="/"
-          className="block w-full py-4 text-xs uppercase tracking-widest text-[#6B6560] hover:text-[#1A1A1A] text-center transition-colors"
-        >
-          返回首頁
-        </Link>
-      </motion.div>
-    </motion.div>
-  )
-}
-
 // ── Main page ──────────────────────────────────────────────────────────────
 export default function OnboardingPage() {
+  const router = useRouter()
   const [step, setStep] = useState<Step>(1)
   const [role, setRole] = useState<Role>(null)
+  const [submitError, setSubmitError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   const selectRole = (r: Role) => {
+    setSubmitError('')
     setRole(r)
     setStep(2)
   }
 
   const goBack = () => {
+    setSubmitError('')
     setRole(null)
     setStep(1)
   }
 
-  const goToSuccess = () => setStep(3)
+  const createAccount = async ({ email, password }: { email: string; password: string }) => {
+    if (!role) return
+
+    setSubmitting(true)
+    setSubmitError('')
+    try {
+      const supabase = getSupabaseBrowserClient()
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: {
+            signup_role: role,
+          },
+        },
+      })
+
+      if (error || !data.user) {
+        setSubmitError(error?.message ?? '註冊失敗，請稍後再試。')
+        return
+      }
+
+      const token = data.session?.access_token
+      if (!token) {
+        router.push(`/verify-email?email=${encodeURIComponent(email.trim())}`)
+        return
+      }
+
+      const assignRoleResponse = await fetch('/api/auth/assign-role', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ role }),
+      })
+
+      if (!assignRoleResponse.ok) {
+        const payload = await assignRoleResponse.json().catch(() => null) as { error?: string } | null
+        setSubmitError(payload?.error ?? '角色設定失敗，請稍後再試。')
+        return
+      }
+
+      router.push(resolveRoleHomePath(role))
+    } catch (caughtError) {
+      const message =
+        caughtError instanceof Error && caughtError.message
+          ? caughtError.message
+          : '註冊失敗，請稍後再試。'
+      setSubmitError(message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   const leftKey = role ?? 'null'
   const content = LEFT_CONTENT[leftKey as keyof typeof LEFT_CONTENT]
@@ -502,7 +587,7 @@ export default function OnboardingPage() {
           </Link>
           <div className="hidden lg:flex items-center gap-3">
             <StepDots step={step} />
-            <span className="text-xs text-[#6B6560]">{step} / 3</span>
+            <span className="text-xs text-[#6B6560]">{step} / 2</span>
           </div>
           <Link
             href="/"
@@ -518,9 +603,8 @@ export default function OnboardingPage() {
           <div className="w-full max-w-sm">
             <AnimatePresence mode="wait">
               {step === 1 && <RoleStep onSelect={selectRole} />}
-              {step === 2 && role === 'kol' && <KolForm onBack={goBack} onSubmit={goToSuccess} />}
-              {step === 2 && role === 'merchant' && <MerchantForm onBack={goBack} onSubmit={goToSuccess} />}
-              {step === 3 && <SuccessStep role={role} />}
+              {step === 2 && role === 'kol' && <KolForm onBack={goBack} onSubmit={createAccount} error={submitError} submitting={submitting} />}
+              {step === 2 && role === 'merchant' && <MerchantForm onBack={goBack} onSubmit={createAccount} error={submitError} submitting={submitting} />}
             </AnimatePresence>
           </div>
         </div>
@@ -528,7 +612,7 @@ export default function OnboardingPage() {
         {/* Mobile step dots */}
         <div className="lg:hidden flex items-center justify-center gap-2 pb-8">
           <StepDots step={step} />
-          <span className="text-xs text-[#6B6560]">{step} / 3</span>
+          <span className="text-xs text-[#6B6560]">{step} / 2</span>
         </div>
       </div>
     </div>

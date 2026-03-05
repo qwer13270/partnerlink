@@ -1,13 +1,62 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { Menu, X, ArrowUpRight } from 'lucide-react'
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from '@/components/ui/button'
+import Link from "next/link";
+import { Menu, X, ArrowUpRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import type { User } from "@supabase/supabase-js";
+import { getRoleFromUser, resolveRoleHomePath } from "@/lib/auth";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null | undefined>(undefined);
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user ?? null);
+    });
+
+    const { data: subscription } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      },
+    );
+
+    return () => {
+      subscription.subscription.unsubscribe();
+    };
+  }, []);
+
+  const authResolved = user !== undefined;
+  const isLoggedIn = Boolean(user);
+  const role = getRoleFromUser(user ?? null);
+  const dashboardHref = role ? resolveRoleHomePath(role) : null;
+  const dashboardLabel =
+    role === "merchant"
+      ? "商家儀表板"
+      : role === "admin"
+        ? "管理者儀表板"
+        : "KOL 儀表板";
+  const displayName = useMemo(() => {
+    const fromMeta = user?.user_metadata?.full_name;
+    if (typeof fromMeta === "string" && fromMeta.trim()) return fromMeta.trim();
+    const fromEmail = user?.email?.split("@")[0];
+    return fromEmail || "user";
+  }, [user]);
+
+  const handleLogout = async () => {
+    const supabase = getSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+    setMobileMenuOpen(false);
+  };
 
   return (
     <>
@@ -24,20 +73,72 @@ export default function Header() {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-3">
-              {/* Join KOL */}
-              <Button asChild variant="outline" size="sm" className="rounded-none text-xs uppercase tracking-widest">
-                <Link href="/join/kol">成為 KOL</Link>
-              </Button>
+              {user ? (
+                <>
+                  <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground mr-1">
+                    歡迎回來, {displayName}
+                  </span>
+                  {dashboardHref && (
+                    <Button
+                      asChild
+                      size="sm"
+                      className="rounded-none text-xs uppercase tracking-widest bg-foreground text-background hover:bg-foreground/85"
+                    >
+                      <Link href={dashboardHref}>{dashboardLabel}</Link>
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="rounded-none text-xs uppercase tracking-widest"
+                  >
+                    登出
+                  </Button>
+                </>
+              ) : authResolved ? (
+                <>
+                  {/* Join KOL */}
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="rounded-none text-xs uppercase tracking-widest"
+                  >
+                    <Link href="/join/kol">成為 KOL</Link>
+                  </Button>
 
-              {/* Join Merchant */}
-              <Button asChild size="sm" className="rounded-none text-xs uppercase tracking-widest bg-foreground text-background hover:bg-foreground/85">
-                <Link href="/join/merchant">成為商家</Link>
-              </Button>
+                  {/* Join Merchant */}
+                  <Button
+                    asChild
+                    size="sm"
+                    className="rounded-none text-xs uppercase tracking-widest bg-foreground text-background hover:bg-foreground/85"
+                  >
+                    <Link href="/join/merchant">成為商家</Link>
+                  </Button>
 
-              {/* Login */}
-              <Button asChild variant="ghost" size="sm" className="rounded-none text-xs uppercase tracking-widest ml-2">
-                <Link href="/login">登入</Link>
-              </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="rounded-none text-xs uppercase tracking-widest"
+                  >
+                    <Link href="/onboarding">現在加入</Link>
+                  </Button>
+
+                  {/* Login */}
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-none text-xs uppercase tracking-widest ml-2"
+                  >
+                    <Link href="/login">登入</Link>
+                  </Button>
+                </>
+              ) : (
+                <div className="h-8 w-[280px]" />
+              )}
             </nav>
 
             {/* Mobile Menu Button */}
@@ -67,9 +168,9 @@ export default function Header() {
 
             {/* Menu Panel */}
             <motion.div
-              initial={{ x: '100%' }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              exit={{ x: "100%" }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-sm bg-background border-l border-border md:hidden"
             >
@@ -87,10 +188,16 @@ export default function Header() {
 
                 {/* Navigation Links */}
                 <div className="flex-1 py-8 px-6 space-y-2">
-                  {[
-                    { label: '成為 KOL', href: '/join/kol' },
-                    { label: '成為商家', href: '/join/merchant' },
-                  ].map((item, index) => (
+                  {(isLoggedIn
+                    ? dashboardHref
+                      ? [{ label: dashboardLabel, href: dashboardHref }]
+                      : []
+                    : [
+                        { label: "成為 KOL", href: "/join/kol" },
+                        { label: "成為商家", href: "/join/merchant" },
+                        { label: "現在加入", href: "/onboarding" },
+                      ]
+                  ).map((item, index) => (
                     <motion.div
                       key={item.href}
                       initial={{ opacity: 0, x: 20 }}
@@ -109,16 +216,33 @@ export default function Header() {
                   ))}
                 </div>
 
-                {/* Login */}
+                {/* Login / Logout */}
                 <div className="p-6 border-t border-border">
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between w-full py-3 text-sm uppercase tracking-widest text-foreground hover:text-muted-foreground transition-colors"
-                  >
-                    <span>登入</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </Link>
+                  {isLoggedIn ? (
+                    <>
+                      <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground mb-3">
+                        歡迎回來, {displayName}
+                      </p>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center justify-between w-full py-3 text-sm uppercase tracking-widest text-foreground hover:text-muted-foreground transition-colors"
+                      >
+                        <span>登出</span>
+                        <ArrowUpRight className="h-4 w-4" />
+                      </button>
+                    </>
+                  ) : authResolved ? (
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-between w-full py-3 text-sm uppercase tracking-widest text-foreground hover:text-muted-foreground transition-colors"
+                    >
+                      <span>登入</span>
+                      <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                  ) : (
+                    <div className="h-10" />
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -129,5 +253,5 @@ export default function Header() {
       {/* Spacer for fixed header */}
       <div className="h-20" />
     </>
-  )
+  );
 }
