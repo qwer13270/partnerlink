@@ -2,6 +2,34 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Environment Variables
+
+Create `.env.local` from `.env.example` and set:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=...
+SUPABASE_SECRET_KEY=...
+```
+
+- Keep `SUPABASE_SECRET_KEY` server-only.
+- Do not expose `SUPABASE_SECRET_KEY` in client-side code.
+- `SUPABASE_SERVICE_ROLE_KEY` is supported only as a legacy fallback.
+
+### API Route Protection
+
+Use the shared guards in `src/lib/server/api-auth.ts` for all protected API routes:
+
+- `requireApiUser(request)` for authenticated endpoints.
+- `requireApiRole(request, ['admin'])` for role-restricted endpoints.
+
+Pattern:
+
+```ts
+const auth = await requireApiRole(request, ['admin'])
+if (!auth.ok) return auth.response
+```
+
 First, run the development server:
 
 ```bash

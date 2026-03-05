@@ -110,7 +110,7 @@ export default function JoinMerchantPage() {
               asChild
               className="rounded-none px-9 h-12 text-xs tracking-widest uppercase bg-foreground text-background hover:bg-foreground/80"
             >
-              <Link href="/login">立即刊登商案</Link>
+              <Link href="/onboarding">立即刊登商案</Link>
             </Button>
             <Link
               href="#how"
@@ -489,7 +489,7 @@ export default function JoinMerchantPage() {
               size="lg"
               className="rounded-none px-10 h-12 text-xs tracking-widest uppercase bg-foreground text-background hover:bg-foreground/80"
             >
-              <Link href="/login">立即刊登商案</Link>
+              <Link href="/onboarding">立即刊登商案</Link>
             </Button>
           </motion.div>
 
