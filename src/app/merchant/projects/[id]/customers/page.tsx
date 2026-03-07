@@ -283,7 +283,7 @@ export default function CustomersPage() {
                 <Sparkles className="w-3.5 h-3.5" style={{ color: '#c4913a' }} />
                 <p className="text-[0.62rem] uppercase tracking-[0.25em]" style={{ color: '#c4913a' }}>AI 洞察摘要</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x" style={{ divideColor: 'rgba(196,145,58,0.1)' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-amber-900/10">
                 {INSIGHTS.map(({ icon: Icon, text }, i) => (
                   <motion.div
                     key={i}

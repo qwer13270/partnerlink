@@ -123,7 +123,7 @@ export default function ProjectHubPage() {
         {/* Key stats row */}
         <div
           className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0"
-          style={{ border: '1px solid rgba(26,26,26,0.1)', divideColor: 'rgba(26,26,26,0.08)' }}
+          style={{ border: '1px solid rgba(26,26,26,0.1)' }}
         >
           {[
             { icon: Star,     label: '佣金比率', value: project.rate         },
