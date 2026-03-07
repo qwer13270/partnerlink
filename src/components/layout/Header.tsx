@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X, ArrowUpRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Menu, X, ArrowUpRight, ChevronDown } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,35 @@ import type { User } from "@supabase/supabase-js";
 import { getRoleFromUser, resolveRoleHomePath } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
+const NAV_LINKS = [
+  { label: "關於我們", href: "/about" },
+  { label: "定價", href: "/pricing" },
+  { label: "合作商案", href: "/properties" },
+  { label: "成為 KOL", href: "/join/kol" },
+  { label: "成為商家", href: "/join/merchant" },
+];
+
+function Avatar({ name }: { name: string }) {
+  const initials = name
+    .split(/[\s@_-]/)
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  return (
+    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-foreground text-background text-[11px] font-medium tracking-wide shrink-0">
+      {initials || "U"}
+    </span>
+  );
+}
+
 export default function Header() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null | undefined>(undefined);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
@@ -28,9 +53,21 @@ export default function Header() {
       },
     );
 
-    return () => {
-      subscription.subscription.unsubscribe();
+    return () => subscription.subscription.unsubscribe();
+  }, []);
+
+  // Close user menu on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
     };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
   const authResolved = user !== undefined;
@@ -43,6 +80,9 @@ export default function Header() {
       : role === "admin"
         ? "管理者儀表板"
         : "KOL 儀表板";
+  const roleLabel =
+    role === "merchant" ? "商家" : role === "admin" ? "管理者" : "KOL";
+
   const displayName = useMemo(() => {
     const fromMeta = user?.user_metadata?.full_name;
     if (typeof fromMeta === "string" && fromMeta.trim()) return fromMeta.trim();
@@ -53,106 +93,151 @@ export default function Header() {
   const handleLogout = async () => {
     const supabase = getSupabaseBrowserClient();
     await supabase.auth.signOut();
+    setUserMenuOpen(false);
+    setMobileMenuOpen(false);
     router.push("/");
     router.refresh();
-    setMobileMenuOpen(false);
   };
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="editorial-container">
-          <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 group">
-              <span className="text-lg font-semibold">HomeKey</span>
-              <span className="text-sm text-muted-foreground tracking-widest">
-                房客
-              </span>
-            </Link>
+      <header className="fixed top-0 left-0 right-0 z-50">
+        <div className="bg-background/95 backdrop-blur-md border-b border-border">
+          <div className="editorial-container">
+            <div className="flex items-center justify-between h-16">
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-2 shrink-0 group">
+                <span className="font-serif text-[15px] font-normal tracking-tight group-hover:opacity-70 transition-opacity duration-200">
+                  HomeKey
+                </span>
+                <span className="text-[9px] tracking-[0.22em] text-muted-foreground uppercase mt-0.5">
+                  房客
+                </span>
+              </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-3">
-              {user ? (
-                <>
-                  <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground mr-1">
-                    歡迎回來, {displayName}
-                  </span>
-                  {dashboardHref && (
+              {/* Desktop Center Nav — shown only when logged out */}
+              {!isLoggedIn && authResolved && (
+                <nav className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+                  {NAV_LINKS.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="relative text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors duration-200 group py-1"
+                    >
+                      {item.label}
+                      <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground group-hover:w-full transition-all duration-300 ease-out" />
+                    </Link>
+                  ))}
+                </nav>
+              )}
+
+              {/* Desktop Right */}
+              <div className="hidden md:flex items-center gap-4">
+                {user ? (
+                  <>
+                    {/* Role pill */}
+                    {role && (
+                      <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground border border-border px-2.5 py-1 leading-none">
+                        {roleLabel}
+                      </span>
+                    )}
+
+                    {/* Dashboard link */}
+                    {dashboardHref && (
+                      <Link
+                        href={dashboardHref}
+                        className="flex items-center gap-1 text-[11px] uppercase tracking-[0.15em] text-foreground hover:text-muted-foreground transition-colors duration-200"
+                      >
+                        {dashboardLabel}
+                        <ArrowUpRight className="w-3 h-3" />
+                      </Link>
+                    )}
+
+                    {/* Divider */}
+                    <div className="w-px h-4 bg-border" />
+
+                    {/* Avatar + dropdown */}
+                    <div className="relative" ref={userMenuRef}>
+                      <button
+                        onClick={() => setUserMenuOpen(!userMenuOpen)}
+                        className="flex items-center gap-1.5 hover:opacity-75 transition-opacity duration-200"
+                        aria-label="用戶選單"
+                      >
+                        <Avatar name={displayName} />
+                        <ChevronDown
+                          className={`w-3 h-3 text-muted-foreground transition-transform duration-200 ${
+                            userMenuOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+
+                      <AnimatePresence>
+                        {userMenuOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 6 }}
+                            transition={{ duration: 0.18 }}
+                            className="absolute right-0 top-full mt-3 w-52 bg-background border border-border shadow-sm"
+                          >
+                            <div className="px-4 py-3 border-b border-border">
+                              <p className="text-xs font-medium truncate leading-none">
+                                {displayName}
+                              </p>
+                              {role && (
+                                <p className="text-[10px] text-muted-foreground mt-1.5 uppercase tracking-[0.15em]">
+                                  {roleLabel}
+                                </p>
+                              )}
+                            </div>
+                            <button
+                              onClick={handleLogout}
+                              className="flex items-center justify-between w-full px-4 py-3 text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150"
+                            >
+                              <span>登出</span>
+                              <ArrowUpRight className="w-3 h-3" />
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </>
+                ) : authResolved ? (
+                  <>
+                    <Link
+                      href="/login"
+                      className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    >
+                      登入
+                    </Link>
+                    <div className="w-px h-4 bg-border" />
                     <Button
                       asChild
                       size="sm"
-                      className="rounded-none text-xs uppercase tracking-widest bg-foreground text-background hover:bg-foreground/85"
+                      className="rounded-none text-[11px] uppercase tracking-[0.15em] bg-foreground text-background hover:bg-foreground/85 h-8 px-4"
                     >
-                      <Link href={dashboardHref}>{dashboardLabel}</Link>
+                      <Link href="/onboarding">立即加入</Link>
                     </Button>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleLogout}
-                    className="rounded-none text-xs uppercase tracking-widest"
-                  >
-                    登出
-                  </Button>
-                </>
-              ) : authResolved ? (
-                <>
-                  {/* Join KOL */}
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="rounded-none text-xs uppercase tracking-widest"
-                  >
-                    <Link href="/join/kol">成為 KOL</Link>
-                  </Button>
+                  </>
+                ) : (
+                  <div className="h-8 w-32" />
+                )}
+              </div>
 
-                  {/* Join Merchant */}
-                  <Button
-                    asChild
-                    size="sm"
-                    className="rounded-none text-xs uppercase tracking-widest bg-foreground text-background hover:bg-foreground/85"
-                  >
-                    <Link href="/join/merchant">成為商家</Link>
-                  </Button>
-
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="rounded-none text-xs uppercase tracking-widest"
-                  >
-                    <Link href="/onboarding">現在加入</Link>
-                  </Button>
-
-                  {/* Login */}
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-none text-xs uppercase tracking-widest ml-2"
-                  >
-                    <Link href="/login">登入</Link>
-                  </Button>
-                </>
-              ) : (
-                <div className="h-8 w-[280px]" />
-              )}
-            </nav>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden p-2 -mr-2"
-              onClick={() => setMobileMenuOpen(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </button>
+              {/* Mobile Hamburger */}
+              <button
+                className="md:hidden p-1.5 -mr-1.5 text-foreground hover:opacity-60 transition-opacity duration-200"
+                onClick={() => setMobileMenuOpen(true)}
+                aria-label="開啟選單"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
@@ -161,89 +246,101 @@ export default function Header() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.25 }}
               className="fixed inset-0 z-50 bg-foreground/20 backdrop-blur-sm md:hidden"
               onClick={() => setMobileMenuOpen(false)}
             />
 
-            {/* Menu Panel */}
+            {/* Panel */}
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-sm bg-background border-l border-border md:hidden"
+              transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-xs bg-background border-l border-border md:hidden flex flex-col"
             >
-              <div className="flex flex-col h-full">
-                {/* Close Button */}
-                <div className="flex items-center justify-between p-6 border-b border-border">
-                  <span className="text-xl font-serif">Menu</span>
-                  <button
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="p-2 -mr-2"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-
-                {/* Navigation Links */}
-                <div className="flex-1 py-8 px-6 space-y-2">
-                  {(isLoggedIn
-                    ? dashboardHref
-                      ? [{ label: dashboardLabel, href: dashboardHref }]
-                      : []
-                    : [
-                        { label: "成為 KOL", href: "/join/kol" },
-                        { label: "成為商家", href: "/join/merchant" },
-                        { label: "現在加入", href: "/onboarding" },
-                      ]
-                  ).map((item, index) => (
-                    <motion.div
-                      key={item.href}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 + index * 0.05 }}
-                    >
-                      <Link
-                        href={item.href}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center justify-between py-4 border-b border-border text-foreground hover:text-muted-foreground transition-colors duration-200"
-                      >
-                        <span className="text-lg">{item.label}</span>
-                        <ArrowUpRight className="h-4 w-4" />
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Login / Logout */}
-                <div className="p-6 border-t border-border">
-                  {isLoggedIn ? (
-                    <>
-                      <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground mb-3">
-                        歡迎回來, {displayName}
+              {/* Panel Header */}
+              <div className="flex items-center justify-between px-6 h-16 border-b border-border shrink-0">
+                {isLoggedIn ? (
+                  <div className="flex items-center gap-3">
+                    <Avatar name={displayName} />
+                    <div>
+                      <p className="text-sm font-medium leading-none truncate max-w-[140px]">
+                        {displayName}
                       </p>
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center justify-between w-full py-3 text-sm uppercase tracking-widest text-foreground hover:text-muted-foreground transition-colors"
-                      >
-                        <span>登出</span>
-                        <ArrowUpRight className="h-4 w-4" />
-                      </button>
-                    </>
-                  ) : authResolved ? (
+                      {role && (
+                        <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mt-1">
+                          {roleLabel}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <span className="font-serif text-sm tracking-tight text-muted-foreground">
+                    選單
+                  </span>
+                )}
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1.5 -mr-1.5 hover:opacity-60 transition-opacity duration-200"
+                  aria-label="關閉選單"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Nav Links */}
+              <div className="flex-1 overflow-y-auto px-6 py-4">
+                {(isLoggedIn
+                  ? dashboardHref
+                    ? [{ label: dashboardLabel, href: dashboardHref }]
+                    : []
+                  : [...NAV_LINKS, { label: "立即加入", href: "/onboarding" }]
+                ).map((item, i) => (
+                  <motion.div
+                    key={item.href}
+                    initial={{ opacity: 0, x: 12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{
+                      delay: 0.06 + i * 0.04,
+                      duration: 0.28,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                  >
                     <Link
-                      href="/login"
+                      href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-between w-full py-3 text-sm uppercase tracking-widest text-foreground hover:text-muted-foreground transition-colors"
+                      className="flex items-center justify-between py-4 border-b border-border/60 text-foreground hover:text-muted-foreground transition-colors duration-200"
                     >
-                      <span>登入</span>
-                      <ArrowUpRight className="h-4 w-4" />
+                      <span className="text-[12px] uppercase tracking-[0.14em]">
+                        {item.label}
+                      </span>
+                      <ArrowUpRight className="h-3.5 w-3.5 shrink-0" />
                     </Link>
-                  ) : (
-                    <div className="h-10" />
-                  )}
-                </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Panel Footer */}
+              <div className="px-6 py-5 border-t border-border shrink-0">
+                {isLoggedIn ? (
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center justify-between w-full text-[12px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  >
+                    <span>登出</span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </button>
+                ) : authResolved ? (
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between w-full text-[12px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  >
+                    <span>登入</span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </Link>
+                ) : null}
               </div>
             </motion.div>
           </>
@@ -251,7 +348,7 @@ export default function Header() {
       </AnimatePresence>
 
       {/* Spacer for fixed header */}
-      <div className="h-20" />
+      <div className="h-16" />
     </>
   );
 }

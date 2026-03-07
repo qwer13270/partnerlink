@@ -195,7 +195,7 @@ export default function JoinKolPage() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how" className="bg-[#f5f0eb] border-y border-border py-24 px-10 md:px-20">
+      <section id="how" className="py-24 px-10 md:px-20" style={{ borderTop: '1px solid rgba(26,26,26,0.08)' }}>
         <div className="max-w-5xl mx-auto">
 
           {/* Header */}
@@ -227,7 +227,7 @@ export default function JoinKolPage() {
           {/* Steps */}
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-            className="grid grid-cols-2 md:grid-cols-4 border border-foreground/20 divide-x divide-y md:divide-y-0 divide-foreground/10"
+            className="grid grid-cols-2 md:grid-cols-4 border border-border divide-x divide-y md:divide-y-0 divide-border"
           >
             {STEPS.map((step) => (
               <div
@@ -291,7 +291,12 @@ export default function JoinKolPage() {
             {/* Commission visual */}
             <motion.div
               initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-              className="bg-[#f5f0eb] border border-border rounded-sm p-10"
+              className="rounded-sm p-10"
+              style={{
+                background: 'hsl(var(--background))',
+                border: '1px solid rgba(26,26,26,0.14)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+              }}
             >
               <div className="mb-8">
                 <div className="text-[0.68rem] tracking-[2px] uppercase text-muted-foreground mb-2">平均 KOL 月收益</div>

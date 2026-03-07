@@ -60,6 +60,14 @@ const BENEFITS = [
   },
 ]
 
+const COMPARISON_ROWS = [
+  { aspect: '付款時機',   traditional: '先付費，不保成效',   homekey: '成交後才支付佣金'   },
+  { aspect: '受眾精準度', traditional: '曝光廣、轉換低',     homekey: '精準觸及目標受眾'   },
+  { aspect: '數據追蹤',   traditional: '難以追蹤真實效果',   homekey: '全程數據透明可查'   },
+  { aspect: '買家信任',   traditional: '買家缺乏信任感',     homekey: 'KOL 口碑建立信任'  },
+  { aspect: '預算控制',   traditional: '預算浪費難量化',     homekey: '行銷預算零浪費'     },
+]
+
 const FUNNEL_ROWS = [
   { label: '觸及潛在買家', value: '12,400', width: '100%', note: '月均曝光' },
   { label: '連結點擊',     value: '2,847',  width: '73%',  note: '點擊率 23%' },
@@ -237,7 +245,7 @@ export default function JoinMerchantPage() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how" className="bg-[#f5f0eb] border-y border-border py-24 px-10 md:px-20">
+      <section id="how" className="py-24 px-10 md:px-20" style={{ borderTop: '1px solid rgba(26,26,26,0.08)' }}>
         <div className="max-w-5xl mx-auto">
 
           {/* Header */}
@@ -269,7 +277,7 @@ export default function JoinMerchantPage() {
           {/* Steps */}
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-            className="grid grid-cols-2 md:grid-cols-4 border border-foreground/20 divide-x divide-y md:divide-y-0 divide-foreground/10"
+            className="grid grid-cols-2 md:grid-cols-4 border border-border divide-x divide-y md:divide-y-0 divide-border"
           >
             {STEPS.map((step) => (
               <div
@@ -333,7 +341,12 @@ export default function JoinMerchantPage() {
             {/* Funnel visual */}
             <motion.div
               initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-              className="bg-[#f5f0eb] border border-border rounded-sm p-10 sticky top-28"
+              className="rounded-sm p-10 sticky top-28"
+              style={{
+                background: 'hsl(var(--background))',
+                border: '1px solid rgba(26,26,26,0.14)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+              }}
             >
               <div className="mb-8">
                 <div className="text-[0.68rem] tracking-[2px] uppercase text-muted-foreground mb-2">典型商案成效漏斗</div>
@@ -385,7 +398,7 @@ export default function JoinMerchantPage() {
       </section>
 
       {/* ── COMPARISON ── */}
-      <section className="bg-[#f5f0eb] border-y border-border py-24 px-10 md:px-20">
+      <section className="py-24 px-10 md:px-20">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
@@ -403,41 +416,59 @@ export default function JoinMerchantPage() {
 
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-            className="grid md:grid-cols-2 gap-px bg-border border border-border"
+            className="overflow-hidden"
           >
-            {/* Traditional */}
-            <div className="bg-[#f5f0eb] p-10">
-              <div className="text-[0.68rem] tracking-[2px] uppercase text-muted-foreground mb-6">傳統廣告模式</div>
-              {[
-                '先付費，不保成效',
-                '曝光廣、轉換低',
-                '難以追蹤真實效果',
-                '買家缺乏信任感',
-                '預算浪費難量化',
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-3 py-3 border-b border-border/50 last:border-0">
-                  <div className="w-4 h-px bg-muted-foreground/30" />
-                  <span className="text-sm text-muted-foreground">{item}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* HomeKey */}
-            <div className="bg-foreground p-10">
-              <div className="text-[0.68rem] tracking-[2px] uppercase text-[#c4913a] mb-6">HomeKey KOL 模式</div>
-              {[
-                '成交後才支付佣金',
-                '精準觸及目標受眾',
-                '全程數據透明可查',
-                'KOL 口碑建立信任',
-                '行銷預算零浪費',
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-3 py-3 border-b border-white/10 last:border-0">
-                  <div className="w-4 h-px bg-[#c4913a]" />
-                  <span className="text-sm text-background/90">{item}</span>
-                </div>
-              ))}
-            </div>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(26,26,26,0.1)' }}>
+                  <th className="text-left py-5 px-7 w-[28%]">
+                    <span className="text-[0.65rem] tracking-[2px] uppercase text-muted-foreground font-normal">面向</span>
+                  </th>
+                  <th className="py-5 px-7 w-[36%] text-center">
+                    <span className="text-[0.65rem] tracking-[2px] uppercase text-muted-foreground font-normal">
+                      傳統廣告模式
+                    </span>
+                  </th>
+                  <th
+                    className="py-5 px-7 w-[36%] text-center"
+                    style={{ background: 'rgba(196,145,58,0.04)' }}
+                  >
+                    <div className="flex flex-col items-center gap-1.5">
+                      <span
+                        className="text-[0.65rem] tracking-[2px] uppercase font-normal"
+                        style={{ color: '#c4913a' }}
+                      >
+                        HomeKey KOL
+                      </span>
+                      <span
+                        className="text-[8px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full"
+                        style={{ background: 'rgba(196,145,58,0.1)', color: '#c4913a' }}
+                      >
+                        推薦
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON_ROWS.map((row) => (
+                  <tr key={row.aspect} style={{ borderTop: '1px solid rgba(26,26,26,0.06)' }}>
+                    <td className="py-4 px-7">
+                      <span className="text-xs tracking-wide text-muted-foreground">{row.aspect}</span>
+                    </td>
+                    <td className="py-4 px-7 text-center">
+                      <span className="text-sm text-muted-foreground">{row.traditional}</span>
+                    </td>
+                    <td
+                      className="py-4 px-7 text-center"
+                      style={{ background: 'rgba(196,145,58,0.04)' }}
+                    >
+                      <span className="text-sm font-medium text-foreground">{row.homekey}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </motion.div>
         </div>
       </section>

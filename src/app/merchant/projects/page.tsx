@@ -112,9 +112,12 @@ export default function MerchantProjectsPage() {
                   查看商案
                   <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-100" />
                 </Link>
-                <button className="text-[0.65rem] uppercase tracking-widest text-muted-foreground border border-border px-3 py-2 hover:border-foreground hover:text-foreground transition-colors duration-150">
-                  編輯商案
-                </button>
+                <Link
+                  href={`/merchant/projects/${project.id}`}
+                  className="text-[0.65rem] uppercase tracking-widest text-muted-foreground border border-border px-3 py-2 hover:border-foreground hover:text-foreground transition-colors duration-150"
+                >
+                  管理
+                </Link>
               </div>
             </motion.div>
           )
