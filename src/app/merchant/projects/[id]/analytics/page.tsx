@@ -374,7 +374,7 @@ export default function AnalyticsPage() {
             <p className="text-[0.55rem] text-muted-foreground/60 mt-0.5">距離 {meta.name} 3km 以內</p>
           </div>
 
-          <div className="divide-y" style={{ divideColor: 'rgba(26,26,26,0.05)' }}>
+          <div className="divide-y divide-black/5">
             {COMPARABLE.map((c, i) => (
               <motion.div
                 key={c.name}
