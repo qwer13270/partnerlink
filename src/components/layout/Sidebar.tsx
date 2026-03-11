@@ -31,13 +31,6 @@ export default function Sidebar({ items, translationNamespace }: SidebarProps) {
   return (
     <aside className="hidden lg:block w-72 min-h-[calc(100vh-5rem)] border-r border-border bg-background">
       <nav className="sticky top-24 py-8 px-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 mb-6 pb-4 border-b border-border/70"
-        >
-          <span className="text-lg font-semibold">HomeKey</span>
-          <span className="text-xs text-muted-foreground tracking-widest">房客</span>
-        </Link>
         <div className="space-y-1">
           {items.map((item) => {
             const Icon = item.icon

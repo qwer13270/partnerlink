@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, X, Eye, EyeOff, Building2, Mic2 } from 'lucide-react'
+import { ArrowRight, X, Eye, EyeOff, Building2, Mic2, ImagePlus, Film, Sparkles, Plus } from 'lucide-react'
 import { resolveRoleHomePath } from '@/lib/auth'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
@@ -26,7 +26,7 @@ const fadeUp = {
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Role = 'kol' | 'merchant' | null
-type Step = 1 | 2
+type Step = 1 | 2 | 3
 
 // ── Left panel content by role ─────────────────────────────────────────────
 const LEFT_CONTENT = {
@@ -70,10 +70,10 @@ const CITIES = ['台北市', '新北市', '桃園市', '台中市', '台南市',
 const PROJECT_COUNTS = ['1 個', '2–3 個', '4–6 個', '7 個以上']
 
 // ── Step indicator ─────────────────────────────────────────────────────────
-function StepDots({ step }: { step: Step }) {
+function StepDots({ step, total = 2 }: { step: Step; total?: number }) {
   return (
     <div className="flex items-center gap-2">
-      {([1, 2] as Step[]).map((s) => (
+      {Array.from({ length: total }, (_, i) => i + 1).map((s) => (
         <div
           key={s}
           className={`h-1 rounded-full transition-all duration-300 ${
@@ -144,19 +144,17 @@ function RoleStep({ onSelect }: { onSelect: (r: Role) => void }) {
   )
 }
 
-// ── Step 2 — KOL form ──────────────────────────────────────────────────────
+// ── Step 2 — KOL info form ─────────────────────────────────────────────────
 function KolForm({
   onBack,
-  onSubmit,
-  error,
-  submitting,
+  onNext,
 }: {
   onBack: () => void
-  onSubmit: (input: { email: string; password: string }) => void
-  error: string
-  submitting: boolean
+  onNext: (data: { name: string; email: string; password: string }) => void
 }) {
   const [showPassword, setShowPassword] = useState(false)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [platforms, setPlatforms] = useState<string[]>([])
   const [follower, setFollower] = useState('')
@@ -168,12 +166,8 @@ function KolForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const form = e.currentTarget as HTMLFormElement
-    const formData = new FormData(form)
-    onSubmit({
-      email: String(formData.get('email') ?? ''),
-      password: String(formData.get('password') ?? ''),
-    })
+    if (passwordTooShort) return
+    onNext({ name, email, password })
   }
 
   return (
@@ -183,7 +177,7 @@ function KolForm({
           <span className="rotate-180 inline-block">→</span> 返回
         </button>
         <h2 className="text-3xl font-serif text-[#1A1A1A] mb-1">建立 KOL 帳號</h2>
-        <p className="text-sm text-[#6B6560]">填寫基本資料，完成後即可開始合作</p>
+        <p className="text-sm text-[#6B6560]">填寫基本資料，完成後進行作品上傳</p>
       </motion.div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -191,11 +185,19 @@ function KolForm({
         <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="grid grid-cols-2 gap-4">
           <div>
             <label className="label-editorial">姓名</label>
-            <input type="text" required placeholder="陳小安" className="input-editorial text-sm" />
+            <input
+              type="text" required placeholder="陳小安"
+              value={name} onChange={(e) => setName(e.target.value)}
+              className="input-editorial text-sm"
+            />
           </div>
           <div>
             <label className="label-editorial">電子郵件</label>
-            <input name="email" type="email" required placeholder="you@example.com" className="input-editorial text-sm" />
+            <input
+              type="email" required placeholder="you@example.com"
+              value={email} onChange={(e) => setEmail(e.target.value)}
+              className="input-editorial text-sm"
+            />
           </div>
         </motion.div>
 
@@ -204,18 +206,13 @@ function KolForm({
           <label className="label-editorial">密碼</label>
           <div className="relative">
             <input
-              name="password"
               type={showPassword ? 'text' : 'password'}
-              required
-              minLength={6}
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              required minLength={6} placeholder="••••••••"
+              value={password} onChange={(e) => setPassword(e.target.value)}
               className="input-editorial text-sm pr-8"
             />
             <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
+              type="button" onClick={() => setShowPassword(!showPassword)}
               tabIndex={-1}
               className="absolute right-0 bottom-4 text-[#6B6560] hover:text-[#1A1A1A] transition-colors"
             >
@@ -252,8 +249,7 @@ function KolForm({
           <div>
             <label className="label-editorial">粉絲數量</label>
             <select
-              value={follower}
-              onChange={(e) => setFollower(e.target.value)}
+              value={follower} onChange={(e) => setFollower(e.target.value)}
               className="input-editorial text-sm appearance-none bg-transparent cursor-pointer"
             >
               <option value="">請選擇</option>
@@ -263,8 +259,7 @@ function KolForm({
           <div>
             <label className="label-editorial">內容類型</label>
             <select
-              value={contentType}
-              onChange={(e) => setContentType(e.target.value)}
+              value={contentType} onChange={(e) => setContentType(e.target.value)}
               className="input-editorial text-sm appearance-none bg-transparent cursor-pointer"
             >
               <option value="">請選擇</option>
@@ -273,28 +268,228 @@ function KolForm({
           </div>
         </motion.div>
 
-        {error && (
-          <motion.p
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-xs text-red-500 -mt-2"
-          >
-            {error}
-          </motion.p>
-        )}
-
-        {/* Submit */}
+        {/* Next */}
         <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp} className="pt-2">
           <button
             type="submit"
-            disabled={submitting || passwordTooShort}
-            className="group w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] transition-colors duration-300"
+            disabled={passwordTooShort}
+            className="group w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] disabled:opacity-50 transition-colors duration-300"
           >
-            <span>{submitting ? '建立中…' : '建立帳號'}</span>
+            <span>下一步</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </button>
         </motion.div>
       </form>
+    </motion.div>
+  )
+}
+
+// ── Step 3 — KOL media upload ──────────────────────────────────────────────
+function KolMediaStep({
+  onBack,
+  onSubmit,
+  error,
+  submitting,
+}: {
+  onBack: () => void
+  onSubmit: () => void
+  error: string
+  submitting: boolean
+}) {
+  const photoInputRef = useRef<HTMLInputElement>(null)
+  const videoInputRef = useRef<HTMLInputElement>(null)
+  const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([])
+  const [videos, setVideos] = useState<File[]>([])
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    setPhotos((prev) => {
+      const combined = [
+        ...prev,
+        ...files.map((f) => ({ file: f, preview: URL.createObjectURL(f) })),
+      ]
+      return combined.slice(0, 6)
+    })
+    e.target.value = ''
+  }
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    setVideos((prev) => [...prev, ...files].slice(0, 3))
+    e.target.value = ''
+  }
+
+  const removePhoto = (i: number) =>
+    setPhotos((prev) => prev.filter((_, idx) => idx !== i))
+
+  const removeVideo = (i: number) =>
+    setVideos((prev) => prev.filter((_, idx) => idx !== i))
+
+  const photoSlots = 6
+  const videoSlots = 3
+
+  return (
+    <motion.div key="step3-kol" {...slideIn}>
+      {/* Header */}
+      <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp} className="mb-6">
+        <button onClick={onBack} className="flex items-center gap-2 text-xs text-[#6B6560] hover:text-[#1A1A1A] transition-colors mb-4">
+          <span className="rotate-180 inline-block">→</span> 返回
+        </button>
+        <h2 className="text-3xl font-serif text-[#1A1A1A] mb-1">上傳作品集</h2>
+        <p className="text-sm text-[#6B6560]">讓商家更了解你的內容風格與質感</p>
+      </motion.div>
+
+      {/* Recommendation notice */}
+      <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp}>
+        <div className="flex gap-3 p-4 bg-[#FFF8EE] border border-[#F0D9A8] mb-6">
+          <Sparkles className="h-4 w-4 text-[#B07D2E] shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs font-medium text-[#7A5520] uppercase tracking-widest mb-1">強烈建議上傳</p>
+            <p className="text-xs text-[#9A7040] leading-relaxed">
+              有作品集的 KOL 獲得商家邀約的機率高出 <span className="font-semibold text-[#7A5520]">3.2 倍</span>。此步驟為選填，但我們強烈建議上傳。
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Photos */}
+      <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp} className="mb-6">
+        <div className="flex items-baseline justify-between mb-3">
+          <label className="label-editorial flex items-center gap-2">
+            <ImagePlus className="h-3.5 w-3.5" />
+            個人照片
+          </label>
+          <span className="text-[0.65rem] text-[#6B6560]">選填 · 最多 6 張</span>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          {Array.from({ length: photoSlots }).map((_, i) => {
+            const photo = photos[i]
+            return photo ? (
+              <div key={i} className="relative aspect-square group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photo.preview}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removePhoto(i)}
+                  className="absolute top-1 right-1 w-5 h-5 bg-[#1A1A1A]/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <button
+                key={i}
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                className="aspect-square border border-dashed border-[#D8D4CF] flex flex-col items-center justify-center gap-1.5 text-[#C0BAB3] hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors duration-200"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            )
+          })}
+        </div>
+        <input
+          ref={photoInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={handlePhotoChange}
+        />
+      </motion.div>
+
+      {/* Videos */}
+      <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp} className="mb-6">
+        <div className="flex items-baseline justify-between mb-3">
+          <label className="label-editorial flex items-center gap-2">
+            <Film className="h-3.5 w-3.5" />
+            作品影片
+          </label>
+          <span className="text-[0.65rem] text-[#6B6560]">選填 · 最多 3 部</span>
+        </div>
+
+        <div className="space-y-2">
+          {Array.from({ length: videoSlots }).map((_, i) => {
+            const video = videos[i]
+            return video ? (
+              <div key={i} className="flex items-center justify-between px-4 py-3 border border-[#E8E4DF] bg-[#FAF9F6]">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Film className="h-4 w-4 text-[#6B6560] shrink-0" />
+                  <p className="text-xs text-[#1A1A1A] truncate">{video.name}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeVideo(i)}
+                  className="text-[#6B6560] hover:text-[#1A1A1A] transition-colors ml-3 shrink-0"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                key={i}
+                type="button"
+                onClick={() => videoInputRef.current?.click()}
+                className="w-full flex items-center gap-3 px-4 py-3 border border-dashed border-[#D8D4CF] text-[#C0BAB3] hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors duration-200"
+              >
+                <Plus className="h-4 w-4 shrink-0" />
+                <span className="text-xs uppercase tracking-widest">上傳影片</span>
+              </button>
+            )
+          })}
+        </div>
+        <input
+          ref={videoInputRef}
+          type="file"
+          accept="video/*"
+          className="hidden"
+          onChange={handleVideoChange}
+        />
+      </motion.div>
+
+      {error && (
+        <motion.p
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-xs text-red-500 mb-4"
+        >
+          {error}
+        </motion.p>
+      )}
+
+      {/* Submit */}
+      <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp} className="space-y-3">
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={submitting}
+          className="group relative overflow-hidden w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] disabled:opacity-90 transition-colors duration-300"
+        >
+          {submitting && (
+            <motion.span
+              initial={{ x: '-120%' }}
+              animate={{ x: '120%' }}
+              transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
+              className="pointer-events-none absolute inset-y-0 w-1/3 bg-white/15 blur-sm"
+            />
+          )}
+          <span>{submitting ? '送出中…' : '送出申請'}</span>
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </button>
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={submitting}
+          className="w-full text-center text-xs text-[#6B6560] hover:text-[#1A1A1A] transition-colors py-1 underline underline-offset-4"
+        >
+          略過，直接送出申請
+        </button>
+      </motion.div>
     </motion.div>
   )
 }
@@ -369,16 +564,12 @@ function MerchantForm({
             <input
               name="password"
               type={showPassword ? 'text' : 'password'}
-              required
-              minLength={6}
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              required minLength={6} placeholder="••••••••"
+              value={password} onChange={(e) => setPassword(e.target.value)}
               className="input-editorial text-sm pr-8"
             />
             <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
+              type="button" onClick={() => setShowPassword(!showPassword)}
               tabIndex={-1}
               className="absolute right-0 bottom-4 text-[#6B6560] hover:text-[#1A1A1A] transition-colors"
             >
@@ -395,8 +586,7 @@ function MerchantForm({
           <div>
             <label className="label-editorial">商案所在縣市</label>
             <select
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
+              value={city} onChange={(e) => setCity(e.target.value)}
               className="input-editorial text-sm appearance-none bg-transparent cursor-pointer"
             >
               <option value="">請選擇</option>
@@ -406,8 +596,7 @@ function MerchantForm({
           <div>
             <label className="label-editorial">預計合作商案數</label>
             <select
-              value={projectCount}
-              onChange={(e) => setProjectCount(e.target.value)}
+              value={projectCount} onChange={(e) => setProjectCount(e.target.value)}
               className="input-editorial text-sm appearance-none bg-transparent cursor-pointer"
             >
               <option value="">請選擇</option>
@@ -447,8 +636,11 @@ export default function OnboardingPage() {
   const router = useRouter()
   const [step, setStep] = useState<Step>(1)
   const [role, setRole] = useState<Role>(null)
+  const [kolData, setKolData] = useState<{ name: string; email: string; password: string } | null>(null)
   const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  const totalSteps = role === 'kol' ? 3 : 2
 
   const selectRole = (r: Role) => {
     setSubmitError('')
@@ -458,8 +650,17 @@ export default function OnboardingPage() {
 
   const goBack = () => {
     setSubmitError('')
-    setRole(null)
-    setStep(1)
+    if (step === 3) {
+      setStep(2)
+    } else {
+      setRole(null)
+      setStep(1)
+    }
+  }
+
+  const handleKolNext = (data: { name: string; email: string; password: string }) => {
+    setKolData(data)
+    setStep(3)
   }
 
   const createAccount = async ({ email, password }: { email: string; password: string }) => {
@@ -475,6 +676,7 @@ export default function OnboardingPage() {
         options: {
           data: {
             signup_role: role,
+            full_name: kolData?.name ?? '',
           },
         },
       })
@@ -515,6 +717,10 @@ export default function OnboardingPage() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleKolMediaSubmit = () => {
+    if (kolData) createAccount({ email: kolData.email, password: kolData.password })
   }
 
   const leftKey = role ?? 'null'
@@ -586,8 +792,8 @@ export default function OnboardingPage() {
             <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
           </Link>
           <div className="hidden lg:flex items-center gap-3">
-            <StepDots step={step} />
-            <span className="text-xs text-[#6B6560]">{step} / 2</span>
+            <StepDots step={step} total={totalSteps} />
+            <span className="text-xs text-[#6B6560]">{step} / {totalSteps}</span>
           </div>
           <Link
             href="/"
@@ -603,16 +809,28 @@ export default function OnboardingPage() {
           <div className="w-full max-w-sm">
             <AnimatePresence mode="wait">
               {step === 1 && <RoleStep onSelect={selectRole} />}
-              {step === 2 && role === 'kol' && <KolForm onBack={goBack} onSubmit={createAccount} error={submitError} submitting={submitting} />}
-              {step === 2 && role === 'merchant' && <MerchantForm onBack={goBack} onSubmit={createAccount} error={submitError} submitting={submitting} />}
+              {step === 2 && role === 'kol' && (
+                <KolForm onBack={goBack} onNext={handleKolNext} />
+              )}
+              {step === 3 && role === 'kol' && (
+                <KolMediaStep
+                  onBack={goBack}
+                  onSubmit={handleKolMediaSubmit}
+                  error={submitError}
+                  submitting={submitting}
+                />
+              )}
+              {step === 2 && role === 'merchant' && (
+                <MerchantForm onBack={goBack} onSubmit={createAccount} error={submitError} submitting={submitting} />
+              )}
             </AnimatePresence>
           </div>
         </div>
 
         {/* Mobile step dots */}
         <div className="lg:hidden flex items-center justify-center gap-2 pb-8">
-          <StepDots step={step} />
-          <span className="text-xs text-[#6B6560]">{step} / 2</span>
+          <StepDots step={step} total={totalSteps} />
+          <span className="text-xs text-[#6B6560]">{step} / {totalSteps}</span>
         </div>
       </div>
     </div>
