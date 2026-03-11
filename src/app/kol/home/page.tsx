@@ -1,13 +1,15 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   ArrowRight, MapPin, Tag, Sparkles, TrendingUp,
-  Link2, BadgeDollarSign, Clock, CheckCircle2, XCircle,
+  Link2, Clock, CheckCircle2, XCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { mockProperties } from '@/data/mock-properties'
+import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
 // ── Animation ──────────────────────────────────────────────────────────────
 const fadeUp = {
@@ -38,9 +40,8 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 
 // ── Quick stats ─────────────────────────────────────────────────────────────
 const QUICK_STATS = [
-  { icon: BadgeDollarSign, label: '本月收益', value: 'NT$12,400', sub: '+18% 較上月'  },
-  { icon: Link2,           label: '活躍連結', value: '5',         sub: '3 個合作中'   },
-  { icon: TrendingUp,      label: '本月成交', value: '23',        sub: '轉換率 6.2%'  },
+  { icon: Link2,      label: '活躍連結', value: '5',  sub: '3 個合作中'  },
+  { icon: TrendingUp, label: '本月成交', value: '23', sub: '轉換率 6.2%' },
 ]
 
 // ── Mock application statuses ───────────────────────────────────────────────
@@ -64,6 +65,20 @@ const APP_STATUS_CONFIG: Record<AppStatus, {
 export default function KolHomePage() {
   const featured = mockProperties.slice(0, 3)
   const pendingCount = APPLICATIONS.filter((a) => a.status === 'pending').length
+  const [displayName, setDisplayName] = useState<string>('')
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient()
+    supabase.auth.getUser().then(({ data }) => {
+      const user = data.user
+      const fullName = user?.user_metadata?.full_name
+      if (typeof fullName === 'string' && fullName.trim()) {
+        setDisplayName(fullName.trim())
+      } else if (user?.email) {
+        setDisplayName(user.email.split('@')[0])
+      }
+    })
+  }, [])
 
   return (
     <div className="space-y-10">
@@ -71,41 +86,39 @@ export default function KolHomePage() {
       {/* ── Greeting ── */}
       <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">歡迎回來</p>
-        <h1 className="text-3xl font-serif">林小雨 👋</h1>
+        <h1 className="text-3xl font-serif">{displayName ? `${displayName} 👋` : <span className="inline-block w-32 h-8 bg-muted animate-pulse rounded" />}</h1>
       </motion.div>
 
-      {/* ── Stats + Application status side by side ── */}
+      {/* ── Stats + Application status ── */}
       <motion.div
         custom={1} initial="hidden" animate="visible" variants={fadeUp}
-        className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4"
+        className="grid grid-cols-1 sm:grid-cols-3 gap-4"
       >
-        {/* Quick stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {QUICK_STATS.map((s) => (
-            <div key={s.label} className="border border-foreground/15 p-5 flex gap-4 items-start">
-              <div className="w-8 h-8 border border-foreground/15 flex items-center justify-center shrink-0">
-                <s.icon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{s.label}</p>
-                <p className="text-xl font-serif">{s.value}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{s.sub}</p>
-              </div>
+        {/* Quick stats — 2 cards */}
+        {QUICK_STATS.map((s) => (
+          <div key={s.label} className="border border-foreground/15 p-6 flex flex-col justify-between gap-6">
+            <div className="flex items-center justify-between">
+              <p className="text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">{s.label}</p>
+              <s.icon className="h-3.5 w-3.5 text-muted-foreground/50" />
             </div>
-          ))}
-        </div>
+            <div>
+              <p className="text-4xl font-serif tracking-tight leading-none">{s.value}</p>
+              <p className="text-[0.65rem] text-muted-foreground mt-2 tracking-wide">{s.sub}</p>
+            </div>
+          </div>
+        ))}
 
         {/* Application status widget */}
-        <div className="border border-foreground/15 p-5 min-w-[260px] lg:min-w-[280px]">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">申請狀態</p>
+        <div className="border border-foreground/15 p-6 flex flex-col">
+          <div className="flex items-center justify-between mb-5">
+            <p className="text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">申請狀態</p>
             {pendingCount > 0 && (
-              <span className="text-[0.6rem] uppercase tracking-widest px-1.5 py-0.5 bg-amber-500 text-white">
+              <span className="text-[0.58rem] uppercase tracking-widest px-1.5 py-0.5 bg-amber-500 text-white">
                 {pendingCount} 待回覆
               </span>
             )}
           </div>
-          <div className="space-y-2.5">
+          <div className="space-y-3 flex-1">
             {APPLICATIONS.map((app) => {
               const cfg = APP_STATUS_CONFIG[app.status]
               const Icon = cfg.icon
@@ -113,9 +126,9 @@ export default function KolHomePage() {
                 <div key={app.id} className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-xs font-medium truncate">{app.name}</p>
-                    <p className="text-[0.65rem] text-muted-foreground">{app.date}</p>
+                    <p className="text-[0.63rem] text-muted-foreground">{app.date}</p>
                   </div>
-                  <span className={`flex items-center gap-1 text-[0.6rem] uppercase tracking-widest px-1.5 py-0.5 border shrink-0 ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+                  <span className={`flex items-center gap-1 text-[0.58rem] uppercase tracking-widest px-1.5 py-0.5 border shrink-0 ${cfg.bg} ${cfg.text} ${cfg.border}`}>
                     <Icon className="h-2.5 w-2.5" />
                     {cfg.label}
                   </span>
@@ -125,7 +138,7 @@ export default function KolHomePage() {
           </div>
           <Link
             href="/kol/marketplace"
-            className="mt-4 flex items-center gap-1 text-[0.65rem] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group"
+            className="mt-5 pt-4 border-t border-foreground/10 flex items-center gap-1 text-[0.63rem] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group"
           >
             瀏覽更多商案
             <ArrowRight className="h-2.5 w-2.5 transition-transform group-hover:translate-x-0.5" />

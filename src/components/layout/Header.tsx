@@ -12,10 +12,8 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const NAV_LINKS = [
   { label: "關於我們", href: "/about" },
-  { label: "定價", href: "/pricing" },
   { label: "合作商案", href: "/properties" },
   { label: "成為 KOL", href: "/join/kol" },
-  { label: "成為商家", href: "/join/merchant" },
 ];
 
 function Avatar({ name }: { name: string }) {
