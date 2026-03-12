@@ -68,6 +68,14 @@ export default function LoginContent() {
     }
 
     if (!role) {
+      const signupRole = data.user.user_metadata?.signup_role
+      if (signupRole === 'kol') {
+        await supabase.auth.signOut()
+        setError('KOL 帳號審核中，通過後即可登入儀表板。')
+        setIsSubmitting(false)
+        return
+      }
+
       await supabase.auth.signOut()
       setError('帳號尚未指派角色，請聯繫管理員。')
       setIsSubmitting(false)

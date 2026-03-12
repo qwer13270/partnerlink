@@ -16,7 +16,7 @@ const NAV_LINKS = [
   { label: "成為 KOL", href: "/join/kol" },
 ];
 
-function Avatar({ name }: { name: string }) {
+function Avatar({ name, imageUrl }: { name: string; imageUrl?: string | null }) {
   const initials = name
     .split(/[\s@_-]/)
     .filter(Boolean)
@@ -25,8 +25,13 @@ function Avatar({ name }: { name: string }) {
     .slice(0, 2)
     .toUpperCase();
   return (
-    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-foreground text-background text-[11px] font-medium tracking-wide shrink-0">
-      {initials || "U"}
+    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full overflow-hidden bg-foreground text-background text-[11px] font-medium tracking-wide shrink-0">
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+      ) : (
+        initials || "U"
+      )}
     </span>
   );
 }
@@ -36,6 +41,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null | undefined>(undefined);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -54,6 +60,44 @@ export default function Header() {
     return () => subscription.subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const role = getRoleFromUser(user ?? null);
+
+    if (!user || !role || role !== "kol") {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    fetch("/api/account/profile-photo", {
+      method: "GET",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        const payload = (await response.json().catch(() => null)) as
+          | { profilePhotoUrl?: string | null }
+          | null;
+
+        if (!response.ok) {
+          setProfilePhotoUrl(null);
+          return;
+        }
+
+        setProfilePhotoUrl(
+          typeof payload?.profilePhotoUrl === "string"
+            ? payload.profilePhotoUrl
+            : null,
+        );
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setProfilePhotoUrl(null);
+        }
+      });
+
+    return () => controller.abort();
+  }, [user]);
+
   // Close user menu on outside click
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -68,9 +112,10 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const authResolved = user !== undefined;
-  const isLoggedIn = Boolean(user);
   const role = getRoleFromUser(user ?? null);
+  const authResolved = user !== undefined;
+  const isLoggedIn = Boolean(user && role);
+  const avatarImageUrl = role === "kol" ? profilePhotoUrl : null;
   const dashboardHref = role ? resolveRoleHomePath(role) : null;
   const dashboardLabel =
     role === "merchant"
@@ -131,7 +176,7 @@ export default function Header() {
 
               {/* Desktop Right */}
               <div className="hidden md:flex items-center gap-4">
-                {user ? (
+                {isLoggedIn ? (
                   <>
                     {/* Role pill */}
                     {role && (
@@ -161,7 +206,7 @@ export default function Header() {
                         className="flex items-center gap-1.5 hover:opacity-75 transition-opacity duration-200"
                         aria-label="用戶選單"
                       >
-                        <Avatar name={displayName} />
+                        <Avatar name={displayName} imageUrl={avatarImageUrl} />
                         <ChevronDown
                           className={`w-3 h-3 text-muted-foreground transition-transform duration-200 ${
                             userMenuOpen ? "rotate-180" : ""
@@ -261,7 +306,7 @@ export default function Header() {
               <div className="flex items-center justify-between px-6 h-16 border-b border-border shrink-0">
                 {isLoggedIn ? (
                   <div className="flex items-center gap-3">
-                    <Avatar name={displayName} />
+                    <Avatar name={displayName} imageUrl={avatarImageUrl} />
                     <div>
                       <p className="text-sm font-medium leading-none truncate max-w-[140px]">
                         {displayName}

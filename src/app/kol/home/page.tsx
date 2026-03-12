@@ -61,11 +61,22 @@ const APP_STATUS_CONFIG: Record<AppStatus, {
   rejected: { label: '未通過', icon: XCircle,       bg: 'bg-red-50',     text: 'text-red-600',     border: 'border-red-200'     },
 }
 
+type PortfolioSummaryResponse = {
+  portfolio?: {
+    summary?: {
+      totalPhotos?: number
+      totalVideos?: number
+    }
+  }
+}
+
 // ── Page ────────────────────────────────────────────────────────────────────
 export default function KolHomePage() {
   const featured = mockProperties.slice(0, 3)
   const pendingCount = APPLICATIONS.filter((a) => a.status === 'pending').length
   const [displayName, setDisplayName] = useState<string>('')
+  const [portfolioCounts, setPortfolioCounts] = useState({ totalPhotos: 0, totalVideos: 0 })
+  const totalPortfolioAssets = portfolioCounts.totalPhotos + portfolioCounts.totalVideos
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient()
@@ -78,6 +89,18 @@ export default function KolHomePage() {
         setDisplayName(user.email.split('@')[0])
       }
     })
+
+    fetch('/api/kol/portfolio', { cache: 'no-store' })
+      .then(async (response) => {
+        const payload = (await response.json().catch(() => null)) as PortfolioSummaryResponse | null
+        if (!response.ok) return
+
+        setPortfolioCounts({
+          totalPhotos: Number(payload?.portfolio?.summary?.totalPhotos ?? 0),
+          totalVideos: Number(payload?.portfolio?.summary?.totalVideos ?? 0),
+        })
+      })
+      .catch(() => {})
   }, [])
 
   return (
@@ -89,9 +112,36 @@ export default function KolHomePage() {
         <h1 className="text-3xl font-serif">{displayName ? `${displayName} 👋` : <span className="inline-block w-32 h-8 bg-muted animate-pulse rounded" />}</h1>
       </motion.div>
 
+      {totalPortfolioAssets === 0 && (
+        <motion.div
+          custom={1}
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          className="border border-[#D8C2A8] bg-[linear-gradient(135deg,#FBF2E6_0%,#F7F4EE_55%,#F1E3D0_100%)] p-6"
+        >
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-[0.65rem] uppercase tracking-[0.3em] text-[#8B6846] mb-2">第一步建議</p>
+              <h2 className="text-2xl font-serif text-[#1A1A1A]">把作品集補齊，商家才看得到你的內容質感。</h2>
+              <p className="mt-3 text-sm text-[#6B6258] leading-relaxed">
+                你已經通過審核，現在最值得先做的是上傳幾張代表照片或影片。這會直接影響商家對你的第一印象。
+              </p>
+            </div>
+            <Link
+              href="/kol/portfolio"
+              className="inline-flex items-center justify-between gap-3 border border-[#1A1A1A] bg-[#1A1A1A] px-5 py-3 text-xs uppercase tracking-[0.25em] text-white transition-colors hover:bg-[#2A2A2A]"
+            >
+              上傳作品集
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </motion.div>
+      )}
+
       {/* ── Stats + Application status ── */}
       <motion.div
-        custom={1} initial="hidden" animate="visible" variants={fadeUp}
+        custom={2} initial="hidden" animate="visible" variants={fadeUp}
         className="grid grid-cols-1 sm:grid-cols-3 gap-4"
       >
         {/* Quick stats — 2 cards */}
@@ -149,7 +199,7 @@ export default function KolHomePage() {
       {/* ── Featured 商案 ── */}
       <div>
         <motion.div
-          custom={2} initial="hidden" animate="visible" variants={fadeUp}
+          custom={3} initial="hidden" animate="visible" variants={fadeUp}
           className="flex items-center justify-between mb-6"
         >
           <div className="flex items-center gap-3">
@@ -172,7 +222,7 @@ export default function KolHomePage() {
             return (
               <motion.div
                 key={prop.id}
-                custom={3 + i} initial="hidden" animate="visible" variants={fadeUp}
+                custom={4 + i} initial="hidden" animate="visible" variants={fadeUp}
                 className="border border-foreground/15 hover:border-foreground/40 transition-colors duration-300 flex flex-col"
               >
                 <div className="bg-muted/40 h-28 flex items-center justify-center relative overflow-hidden">
@@ -222,7 +272,7 @@ export default function KolHomePage() {
           })}
         </div>
 
-        <motion.div custom={6} initial="hidden" animate="visible" variants={fadeUp} className="mt-5">
+        <motion.div custom={7} initial="hidden" animate="visible" variants={fadeUp} className="mt-5">
           <Button asChild variant="outline" className="rounded-none text-xs uppercase tracking-widest w-full gap-2">
             <Link href="/kol/marketplace">
               查看全部 {mockProperties.length} 個商案

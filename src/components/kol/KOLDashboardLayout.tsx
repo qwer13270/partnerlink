@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { Menu, Home, LayoutGrid, Link2, BadgeDollarSign } from 'lucide-react'
+import { Menu, Home, LayoutGrid, Link2, BadgeDollarSign, UserCircle2, Images } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import Sidebar, { MobileSidebar } from '@/components/layout/Sidebar'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,8 @@ const sidebarItems = [
   { href: '/kol/home',        labelKey: 'home',        icon: Home            },
   { href: '/kol/marketplace', labelKey: 'marketplace', icon: LayoutGrid      },
   { href: '/kol/links',       labelKey: 'myPromo',     icon: Link2           },
+  { href: '/kol/profile',     labelKey: 'profile',     icon: UserCircle2     },
+  { href: '/kol/portfolio',   labelKey: 'portfolio',   icon: Images          },
   { href: '/kol/commissions', labelKey: 'commissions', icon: BadgeDollarSign },
 ]
 
