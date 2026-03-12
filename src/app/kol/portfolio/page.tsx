@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
-import { ArrowUpRight, Film, ImagePlus, LoaderCircle, Sparkles, Trash2, UploadCloud } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Film, ImagePlus, LoaderCircle, Play, Trash2, UploadCloud, X } from 'lucide-react'
 
+// ── Types ──────────────────────────────────────────────────────────────────
 type PortfolioAsset = {
   id: string
   mediaType: 'image' | 'video'
@@ -28,20 +29,19 @@ type PortfolioResponse = {
   portfolio?: {
     photos: PortfolioAsset[]
     videos: PortfolioAsset[]
-    summary: {
-      totalPhotos: number
-      totalVideos: number
-    }
+    summary: { totalPhotos: number; totalVideos: number }
   }
   asset?: PortfolioAsset
   error?: string
 }
 
+type GalleryTab = 'photos' | 'videos'
+
+// ── Helpers ────────────────────────────────────────────────────────────────
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
+  hidden:  { opacity: 0, y: 16 },
   visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
+    opacity: 1, y: 0,
     transition: { duration: 0.45, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] as const },
   }),
 }
@@ -55,14 +55,9 @@ function formatBytes(value: number) {
 }
 
 function uploadPortfolioFile({
-  file,
-  mediaType,
-  sortOrder,
-  onProgress,
+  file, mediaType, sortOrder, onProgress,
 }: {
-  file: File
-  mediaType: 'image' | 'video'
-  sortOrder: number
+  file: File; mediaType: 'image' | 'video'; sortOrder: number
   onProgress: (progress: number) => void
 }) {
   const formData = new FormData()
@@ -73,13 +68,10 @@ function uploadPortfolioFile({
   return new Promise<PortfolioAsset>((resolve, reject) => {
     const xhr = new XMLHttpRequest()
     xhr.open('POST', '/api/kol/portfolio')
-
     xhr.upload.onprogress = (event) => {
       if (!event.lengthComputable) return
-      const progress = Math.min(100, Math.round((event.loaded / event.total) * 100))
-      onProgress(progress)
+      onProgress(Math.min(100, Math.round((event.loaded / event.total) * 100)))
     }
-
     xhr.onerror = () => reject(new Error('上傳失敗，請檢查網路後再試。'))
     xhr.onabort = () => reject(new Error('上傳已中止。'))
     xhr.onload = () => {
@@ -90,126 +82,80 @@ function uploadPortfolioFile({
       }
       reject(new Error(payload.error ?? `上傳失敗（${xhr.status}）`))
     }
-
     xhr.send(formData)
   })
 }
 
+// ── Page ───────────────────────────────────────────────────────────────────
 export default function KolPortfolioPage() {
   const imageInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
-  const [photos, setPhotos] = useState<PortfolioAsset[]>([])
-  const [videos, setVideos] = useState<PortfolioAsset[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [uploadStates, setUploadStates] = useState<UploadState[]>([])
+  const dragCounter   = useRef(0)
+
+  const [photos,          setPhotos]          = useState<PortfolioAsset[]>([])
+  const [videos,          setVideos]          = useState<PortfolioAsset[]>([])
+  const [loading,         setLoading]         = useState(true)
+  const [error,           setError]           = useState('')
+  const [uploadStates,    setUploadStates]    = useState<UploadState[]>([])
   const [deletingAssetId, setDeletingAssetId] = useState<string | null>(null)
+  const [activeTab,       setActiveTab]       = useState<GalleryTab>('photos')
+  const [previewVideoId,  setPreviewVideoId]  = useState<string | null>(null)
+  const [isDragging,      setIsDragging]      = useState(false)
 
   const totalAssets = photos.length + videos.length
 
-  const summary = useMemo(() => ([
-    { label: '作品照片', value: photos.length.toString().padStart(2, '0'), tone: 'from-[#D89B6B] to-[#F2C28E]' },
-    { label: '作品影片', value: videos.length.toString().padStart(2, '0'), tone: 'from-[#4F6D7A] to-[#7FA6B8]' },
-    { label: '完整度', value: totalAssets > 0 ? '已啟用' : '待補齊', tone: 'from-[#1A1A1A] to-[#56524D]' },
-  ]), [photos.length, totalAssets, videos.length])
+  const statCards = useMemo(() => ([
+    { label: '照片', value: photos.length.toString().padStart(2, '0') },
+    { label: '影片', value: videos.length.toString().padStart(2, '0') },
+    { label: '完整度', value: totalAssets > 0 ? '已啟用' : '待補齊' },
+  ]), [photos.length, videos.length, totalAssets])
 
   useEffect(() => {
     let active = true
-
-    async function loadPortfolio() {
-      setLoading(true)
-      setError('')
-
-      try {
-        const response = await fetch('/api/kol/portfolio', { cache: 'no-store' })
-        const payload = (await response.json().catch(() => null)) as PortfolioResponse | null
-        if (!response.ok) {
-          if (active) setError(payload?.error ?? '讀取作品集失敗。')
-          return
-        }
-
+    setLoading(true)
+    setError('')
+    fetch('/api/kol/portfolio', { cache: 'no-store' })
+      .then(async (res) => {
+        const payload = (await res.json().catch(() => null)) as PortfolioResponse | null
+        if (!res.ok) { if (active) setError(payload?.error ?? '讀取作品集失敗。'); return }
         if (!active) return
         setPhotos(payload?.portfolio?.photos ?? [])
         setVideos(payload?.portfolio?.videos ?? [])
-      } catch (caughtError) {
-        if (active) {
-          setError(caughtError instanceof Error ? caughtError.message : '讀取作品集失敗。')
-        }
-      } finally {
-        if (active) setLoading(false)
-      }
-    }
-
-    loadPortfolio()
-
-    return () => {
-      active = false
-    }
+      })
+      .catch((e) => { if (active) setError(e instanceof Error ? e.message : '讀取作品集失敗。') })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
   }, [])
 
-  const upsertUploadState = (nextState: UploadState) => {
+  const upsertUpload = (s: UploadState) =>
     setUploadStates((prev) => {
-      const existingIndex = prev.findIndex((state) => state.key === nextState.key)
-      if (existingIndex === -1) return [...prev, nextState]
-      const next = [...prev]
-      next[existingIndex] = nextState
-      return next
+      const i = prev.findIndex((x) => x.key === s.key)
+      if (i === -1) return [...prev, s]
+      const next = [...prev]; next[i] = s; return next
     })
-  }
 
-  const removeUploadState = (key: string) => {
-    setUploadStates((prev) => prev.filter((state) => state.key !== key))
-  }
+  const removeUpload = (key: string) =>
+    setUploadStates((prev) => prev.filter((s) => s.key !== key))
 
   const handleFilesSelected = async (mediaType: 'image' | 'video', files: File[]) => {
     if (files.length === 0) return
     setError('')
     const baseCount = mediaType === 'image' ? photos.length : videos.length
-
     for (const [index, file] of files.entries()) {
       const key = `${mediaType}-${file.name}-${file.size}-${crypto.randomUUID()}`
-      const nextSortOrder = baseCount + index
-
-      upsertUploadState({
-        key,
-        fileName: file.name,
-        mediaType,
-        progress: 0,
-        status: 'uploading',
-      })
-
+      upsertUpload({ key, fileName: file.name, mediaType, progress: 0, status: 'uploading' })
       try {
         const asset = await uploadPortfolioFile({
-          file,
-          mediaType,
-          sortOrder: nextSortOrder,
-          onProgress: (progress) => {
-            upsertUploadState({
-              key,
-              fileName: file.name,
-              mediaType,
-              progress,
-              status: 'uploading',
-            })
-          },
+          file, mediaType, sortOrder: baseCount + index,
+          onProgress: (progress) => upsertUpload({ key, fileName: file.name, mediaType, progress, status: 'uploading' }),
         })
-
-        if (mediaType === 'image') {
-          setPhotos((prev) => [...prev, asset].sort((a, b) => a.sortOrder - b.sortOrder))
-        } else {
-          setVideos((prev) => [...prev, asset].sort((a, b) => a.sortOrder - b.sortOrder))
-        }
-        removeUploadState(key)
-      } catch (caughtError) {
-        upsertUploadState({
-          key,
-          fileName: file.name,
-          mediaType,
-          progress: 0,
-          status: 'error',
-          error: caughtError instanceof Error ? caughtError.message : '上傳失敗',
-        })
-        setError(caughtError instanceof Error ? caughtError.message : '上傳失敗')
+        if (mediaType === 'image') setPhotos((prev) => [...prev, asset].sort((a, b) => a.sortOrder - b.sortOrder))
+        else setVideos((prev) => [...prev, asset].sort((a, b) => a.sortOrder - b.sortOrder))
+        removeUpload(key)
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : '上傳失敗'
+        upsertUpload({ key, fileName: file.name, mediaType, progress: 0, status: 'error', error: msg })
+        setError(msg)
       }
     }
   }
@@ -217,276 +163,443 @@ export default function KolPortfolioPage() {
   const handleDelete = async (asset: PortfolioAsset) => {
     setDeletingAssetId(asset.id)
     setError('')
-
     try {
-      const response = await fetch('/api/kol/portfolio', {
+      const res = await fetch('/api/kol/portfolio', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ assetId: asset.id }),
       })
-
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null
-      if (!response.ok) {
-        setError(payload?.error ?? '刪除失敗，請稍後再試。')
-        return
-      }
-
-      if (asset.mediaType === 'image') {
-        setPhotos((prev) => prev.filter((item) => item.id !== asset.id))
-      } else {
-        setVideos((prev) => prev.filter((item) => item.id !== asset.id))
-      }
-    } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : '刪除失敗，請稍後再試。')
+      const payload = (await res.json().catch(() => null)) as { error?: string } | null
+      if (!res.ok) { setError(payload?.error ?? '刪除失敗，請稍後再試。'); return }
+      if (asset.mediaType === 'image') setPhotos((prev) => prev.filter((x) => x.id !== asset.id))
+      else setVideos((prev) => prev.filter((x) => x.id !== asset.id))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '刪除失敗，請稍後再試。')
     } finally {
       setDeletingAssetId(null)
     }
   }
 
+  // Drag-and-drop handlers
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    dragCounter.current++
+    setIsDragging(true)
+  }
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    dragCounter.current--
+    if (dragCounter.current === 0) setIsDragging(false)
+  }
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault() }
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    dragCounter.current = 0
+    setIsDragging(false)
+    const files = Array.from(e.dataTransfer.files)
+    const images = files.filter((f) => f.type.startsWith('image/'))
+    const vids   = files.filter((f) => f.type.startsWith('video/'))
+    if (images.length > 0) void handleFilesSelected('image', images)
+    if (vids.length > 0)   void handleFilesSelected('video', vids)
+  }
+
+  // Gallery filtered content
+  const showPhotos = activeTab === 'photos'
+  const showVideos = activeTab === 'videos'
+
+  const tabs: { id: GalleryTab; label: string; count: number }[] = [
+    { id: 'photos', label: '照片', count: photos.length },
+    { id: 'videos', label: '影片', count: videos.length },
+  ]
+
   return (
     <div className="space-y-8">
-      <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp} className="relative overflow-hidden border border-foreground/15 bg-[#F7F1E7] p-7 lg:p-9">
-        <div className="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_top_right,_rgba(216,155,107,0.18),_transparent_58%)]" />
-        <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-xs uppercase tracking-[0.35em] text-[#7A6B59] mb-2">作品集管理</p>
-            <h1 className="text-3xl lg:text-4xl font-serif text-[#1A1A1A]">把你的作品整理成一個能被商家快速判斷的門面。</h1>
-            <p className="mt-3 text-sm text-[#6A6258] leading-relaxed">
-              上傳照片與影片後，管理員與商家在後台看到的會更完整。先放最能代表你的作品，之後再慢慢擴充。
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-3 lg:min-w-[360px]">
-            {summary.map((item) => (
-              <div key={item.label} className="border border-black/10 bg-white/70 p-4 backdrop-blur-sm">
-                <div className={`h-1 w-full bg-gradient-to-r ${item.tone}`} />
-                <p className="mt-4 text-[0.65rem] uppercase tracking-[0.25em] text-[#7A6B59]">{item.label}</p>
-                <p className="mt-2 text-2xl font-serif text-[#1A1A1A]">{item.value}</p>
-              </div>
-            ))}
-          </div>
+
+      {/* ── Header ── */}
+      <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}
+        className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+      >
+        <div>
+          <p className="text-[0.62rem] uppercase tracking-[0.4em] text-muted-foreground mb-1.5">作品集管理</p>
+          <h1 className="text-3xl font-serif leading-tight">把你的作品整理成<br className="sm:hidden" />商家一眼看懂的門面。</h1>
+        </div>
+
+        {/* Inline stat strip */}
+        <div className="flex items-stretch gap-px border border-foreground/10 shrink-0">
+          {statCards.map((s) => (
+            <div key={s.label} className="px-5 py-3 bg-background flex flex-col items-center gap-0.5 min-w-[72px]">
+              <p className="text-xl font-serif leading-none tracking-tight">{s.value}</p>
+              <p className="text-[0.58rem] uppercase tracking-[0.25em] text-muted-foreground">{s.label}</p>
+            </div>
+          ))}
         </div>
       </motion.div>
 
-      <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="border border-foreground/15 bg-[#FBF8F2] p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">建議順序</p>
-              <h2 className="mt-2 text-xl font-serif">先放 6 張代表作品，再補 1 到 3 支短影片</h2>
-            </div>
-            <Sparkles className="h-4 w-4 text-[#B27A4A] shrink-0" />
-          </div>
-          <div className="mt-5 space-y-3 text-sm text-muted-foreground">
-            <p>照片適合放空間感、人物互動、品牌合作結果。</p>
-            <p>影片適合放口播、導覽、開箱，讓商家更容易判斷你的鏡頭表現。</p>
-            <p>若作品還不多，先上傳最強的幾個案例就夠了。</p>
-          </div>
-        </section>
+      {/* ── Upload zone ── */}
+      <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp}>
+        <div
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          className="relative overflow-hidden transition-all duration-200"
+          style={{
+            border: `2px dashed ${isDragging ? '#B5886C' : 'rgba(26,26,26,0.15)'}`,
+            backgroundColor: isDragging ? 'rgba(181,136,108,0.06)' : '#F7F3EE',
+          }}
+        >
+          {/* Dot grid texture */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none opacity-[0.35]"
+            style={{
+              backgroundImage: 'radial-gradient(circle, rgba(26,26,26,0.18) 1px, transparent 1px)',
+              backgroundSize: '24px 24px',
+            }}
+          />
 
-        <section className="border border-foreground/15 p-6 bg-white">
-          <p className="text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">快速操作</p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={() => imageInputRef.current?.click()}
-              className="group border border-[#D9C6B4] bg-[#FAF3EA] px-4 py-4 text-left transition-colors hover:bg-[#F2E6D8]"
+          <div className="relative flex flex-col items-center justify-center gap-5 py-12 px-6 text-center">
+            <motion.div
+              animate={{ scale: isDragging ? 1.15 : 1, opacity: isDragging ? 1 : 0.45 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             >
-              <ImagePlus className="h-4 w-4 text-[#9D6D45]" />
-              <p className="mt-3 text-sm font-medium text-[#1A1A1A]">新增照片</p>
-              <p className="mt-1 text-xs text-[#7A6B59]">JPG / PNG，單檔上限 10MB</p>
-            </button>
-            <button
-              type="button"
-              onClick={() => videoInputRef.current?.click()}
-              className="group border border-[#BFD1DA] bg-[#EEF5F8] px-4 py-4 text-left transition-colors hover:bg-[#E2EEF3]"
-            >
-              <Film className="h-4 w-4 text-[#4F6D7A]" />
-              <p className="mt-3 text-sm font-medium text-[#1A1A1A]">新增影片</p>
-              <p className="mt-1 text-xs text-[#637985]">MP4 / MOV，單檔上限 100MB</p>
-            </button>
+              <UploadCloud
+                className="h-10 w-10"
+                style={{ color: isDragging ? '#B5886C' : '#1A1A1A' }}
+              />
+            </motion.div>
+
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-foreground">
+                {isDragging ? '放開以上傳' : '拖拉照片或影片到此處'}
+              </p>
+              <p className="text-xs text-muted-foreground">照片與影片皆可，自動辨識格式</p>
+            </div>
+
+            {/* Upload buttons */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                className="inline-flex items-center gap-2 border border-foreground/20 bg-white px-4 py-2 text-xs uppercase tracking-widest text-foreground/70 hover:border-foreground/40 hover:text-foreground transition-all duration-150"
+              >
+                <ImagePlus className="h-3.5 w-3.5" />
+                上傳照片
+              </button>
+              <button
+                type="button"
+                onClick={() => videoInputRef.current?.click()}
+                className="inline-flex items-center gap-2 border border-foreground/20 bg-white px-4 py-2 text-xs uppercase tracking-widest text-foreground/70 hover:border-foreground/40 hover:text-foreground transition-all duration-150"
+              >
+                <Film className="h-3.5 w-3.5" />
+                上傳影片
+              </button>
+            </div>
+
+            <p className="text-[0.6rem] text-muted-foreground/60 tracking-wide">
+              JPG / PNG，上限 10 MB　·　MP4 / MOV，上限 100 MB
+            </p>
           </div>
-          <input
-            ref={imageInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={(event) => {
-              void handleFilesSelected('image', Array.from(event.target.files ?? []))
-              event.target.value = ''
-            }}
-          />
-          <input
-            ref={videoInputRef}
-            type="file"
-            accept="video/*"
-            multiple
-            className="hidden"
-            onChange={(event) => {
-              void handleFilesSelected('video', Array.from(event.target.files ?? []))
-              event.target.value = ''
-            }}
-          />
-        </section>
+        </div>
+
+        {/* Hidden inputs */}
+        <input ref={imageInputRef} type="file" accept="image/*" multiple className="hidden"
+          onChange={(e) => { void handleFilesSelected('image', Array.from(e.target.files ?? [])); e.target.value = '' }} />
+        <input ref={videoInputRef} type="file" accept="video/*" multiple className="hidden"
+          onChange={(e) => { void handleFilesSelected('video', Array.from(e.target.files ?? [])); e.target.value = '' }} />
       </motion.div>
 
-      {uploadStates.length > 0 && (
-        <motion.section custom={2} initial="hidden" animate="visible" variants={fadeUp} className="border border-foreground/15 bg-white p-5">
-          <div className="flex items-center gap-2 text-[0.7rem] uppercase tracking-[0.25em] text-muted-foreground">
-            <UploadCloud className="h-3.5 w-3.5" />
-            上傳進度
-          </div>
-          <div className="mt-4 space-y-3">
+      {/* ── Upload progress ── */}
+      <AnimatePresence>
+        {uploadStates.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-2"
+          >
             {uploadStates.map((state) => (
-              <div key={state.key} className="border border-foreground/10 bg-[#FCFBF8] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{state.fileName}</p>
-                    <p className={`mt-1 text-xs ${state.status === 'error' ? 'text-red-600' : 'text-muted-foreground'}`}>
-                      {state.status === 'uploading' ? `上傳中 ${state.progress}%` : state.error ?? '上傳失敗'}
-                    </p>
+              <div key={state.key} className="border border-foreground/10 bg-background px-4 py-3">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    {state.status === 'uploading'
+                      ? <LoaderCircle className="h-3.5 w-3.5 animate-spin text-muted-foreground shrink-0" />
+                      : <span className="w-3.5 h-3.5 shrink-0 text-red-500 text-xs">✕</span>
+                    }
+                    <p className="truncate text-xs font-medium">{state.fileName}</p>
                   </div>
-                  {state.status === 'uploading' ? <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
+                  <p className={`text-[0.62rem] uppercase tracking-wider shrink-0 ${state.status === 'error' ? 'text-red-500' : 'text-muted-foreground'}`}>
+                    {state.status === 'uploading' ? `${state.progress}%` : '失敗'}
+                  </p>
                 </div>
-                <div className="mt-3 h-1.5 bg-black/8">
+                <div className="h-px bg-foreground/8">
                   <div
-                    className={`h-full transition-all duration-300 ${state.status === 'error' ? 'bg-red-500' : 'bg-[#1A1A1A]'}`}
+                    className={`h-full transition-all duration-200 ${state.status === 'error' ? 'bg-red-500' : 'bg-foreground'}`}
                     style={{ width: `${state.status === 'error' ? 100 : state.progress}%` }}
                   />
                 </div>
               </div>
             ))}
-          </div>
-        </motion.section>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {error && (
-        <motion.p custom={3} initial="hidden" animate="visible" variants={fadeUp} className="text-sm text-red-600">
-          {error}
-        </motion.p>
-      )}
+      {/* ── Error ── */}
+      <AnimatePresence>
+        {error && (
+          <motion.p
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="text-sm text-red-600 border border-red-200 bg-red-50 px-4 py-2.5"
+          >
+            {error}
+          </motion.p>
+        )}
+      </AnimatePresence>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <motion.section custom={4} initial="hidden" animate="visible" variants={fadeUp} className="border border-foreground/15 bg-white p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">照片</p>
-              <h2 className="mt-2 text-xl font-serif">作品照片庫</h2>
-            </div>
+      {/* ── Gallery ── */}
+      <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp}>
+
+        {/* Tab bar */}
+        <div className="flex items-end gap-0 border-b border-foreground/10 mb-6">
+          {tabs.map((tab) => (
             <button
+              key={tab.id}
               type="button"
-              onClick={() => imageInputRef.current?.click()}
-              className="inline-flex items-center gap-2 border border-foreground/15 px-3 py-2 text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground hover:border-foreground/35 transition-colors"
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative px-5 py-2.5 text-xs uppercase tracking-[0.25em] transition-colors duration-150 ${
+                activeTab === tab.id
+                  ? 'text-foreground'
+                  : 'text-muted-foreground hover:text-foreground/70'
+              }`}
             >
-              上傳
-              <ArrowUpRight className="h-3.5 w-3.5" />
+              {tab.label}
+              {tab.count > 0 && (
+                <span className={`ml-1.5 text-[0.55rem] ${activeTab === tab.id ? 'text-foreground/50' : 'text-muted-foreground/50'}`}>
+                  {tab.count}
+                </span>
+              )}
+              {activeTab === tab.id && (
+                <motion.div
+                  layoutId="tab-indicator"
+                  className="absolute bottom-0 left-0 right-0 h-px bg-foreground"
+                  transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                />
+              )}
             </button>
-          </div>
+          ))}
+        </div>
 
-          {loading ? (
-            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="aspect-square animate-pulse bg-muted/40" />
-              ))}
-            </div>
-          ) : photos.length === 0 ? (
-            <div className="mt-6 border border-dashed border-foreground/15 bg-[#FBF8F2] p-8 text-center">
-              <ImagePlus className="mx-auto h-5 w-5 text-muted-foreground" />
-              <p className="mt-4 text-sm font-medium">還沒有作品照片</p>
-              <p className="mt-2 text-xs text-muted-foreground">先上傳幾張最能代表你合作質感的內容。</p>
-            </div>
-          ) : (
-            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {photos.map((photo) => (
-                <div key={photo.id} className="group relative aspect-square overflow-hidden border border-foreground/10 bg-[#F7F3ED]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={photo.url} alt={photo.fileName} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-3 text-white">
-                    <p className="truncate text-xs font-medium">{photo.fileName}</p>
-                    <p className="mt-1 text-[0.65rem] text-white/70">{formatBytes(photo.fileSizeBytes)}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => void handleDelete(photo)}
-                    disabled={deletingAssetId === photo.id}
-                    className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-100"
-                  >
-                    {deletingAssetId === photo.id ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                  </button>
+        <div className="space-y-8">
+          {/* ── Photos ── */}
+          {showPhotos && (
+            <div>
+              {loading ? (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="aspect-square animate-pulse bg-muted/40" />
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </motion.section>
-
-        <motion.section custom={5} initial="hidden" animate="visible" variants={fadeUp} className="border border-foreground/15 bg-white p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">影片</p>
-              <h2 className="mt-2 text-xl font-serif">作品影片庫</h2>
-            </div>
-            <button
-              type="button"
-              onClick={() => videoInputRef.current?.click()}
-              className="inline-flex items-center gap-2 border border-foreground/15 px-3 py-2 text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground hover:border-foreground/35 transition-colors"
-            >
-              上傳
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          {loading ? (
-            <div className="mt-6 space-y-3">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="h-24 animate-pulse bg-muted/40" />
-              ))}
-            </div>
-          ) : videos.length === 0 ? (
-            <div className="mt-6 border border-dashed border-foreground/15 bg-[#F4F8FA] p-8 text-center">
-              <Film className="mx-auto h-5 w-5 text-muted-foreground" />
-              <p className="mt-4 text-sm font-medium">還沒有作品影片</p>
-              <p className="mt-2 text-xs text-muted-foreground">可以先上傳導覽、口播或合作短片。</p>
-            </div>
-          ) : (
-            <div className="mt-6 space-y-3">
-              {videos.map((video) => (
-                <div key={video.id} className="border border-foreground/10 bg-[#FBFBFA] p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex items-start gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E8F0F3] text-[#4F6D7A]">
-                        <Film className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{video.fileName}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">{formatBytes(video.fileSizeBytes)}</p>
-                        <a
-                          href={video.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-3 inline-flex items-center gap-1 text-[0.65rem] uppercase tracking-[0.2em] text-[#4F6D7A] hover:text-[#2F4650]"
-                        >
-                          開啟影片
-                          <ArrowUpRight className="h-3 w-3" />
-                        </a>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => void handleDelete(video)}
-                      disabled={deletingAssetId === video.id}
-                      className="inline-flex h-9 w-9 items-center justify-center border border-foreground/10 text-muted-foreground hover:text-foreground hover:border-foreground/30 disabled:opacity-70"
+              ) : photos.length === 0 ? (
+                <div
+                  className="flex flex-col items-center justify-center gap-4 py-16 border border-dashed border-foreground/15 cursor-pointer hover:border-foreground/25 transition-colors"
+                  onClick={() => imageInputRef.current?.click()}
+                >
+                  <ImagePlus className="h-8 w-8 text-muted-foreground/40" />
+                  <div className="text-center space-y-1">
+                    <p className="text-sm font-medium text-foreground/70">還沒有作品照片</p>
+                    <p className="text-xs text-muted-foreground">點擊或拖拉照片到此處上傳</p>
+                  </div>
+                </div>
+              ) : photos.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                  {photos.map((photo) => (
+                    <motion.div
+                      key={photo.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="group relative aspect-square overflow-hidden bg-[#F0EBE4]"
                     >
-                      {deletingAssetId === video.id ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                    </button>
-                  </div>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photo.url}
+                        alt={photo.fileName}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                      />
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/45 transition-colors duration-200" />
+                      {/* File info — shown on hover */}
+                      <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-200 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                        <p className="truncate text-[0.65rem] text-white font-medium">{photo.fileName}</p>
+                        <p className="text-[0.58rem] text-white/60 mt-0.5">{formatBytes(photo.fileSizeBytes)}</p>
+                      </div>
+                      {/* Delete button */}
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete(photo)}
+                        disabled={deletingAssetId === photo.id}
+                        className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-100 hover:bg-red-600/80"
+                      >
+                        {deletingAssetId === photo.id
+                          ? <LoaderCircle className="h-3 w-3 animate-spin" />
+                          : <Trash2 className="h-3 w-3" />}
+                      </button>
+                    </motion.div>
+                  ))}
                 </div>
-              ))}
+              ) : null}
             </div>
           )}
-        </motion.section>
-      </div>
+
+          {/* ── Videos ── */}
+          {showVideos && (
+            <div>
+              {loading ? (
+                  <div className="space-y-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="h-20 animate-pulse bg-muted/40" />
+                    ))}
+                  </div>
+                ) : videos.length === 0 ? (
+                  <div
+                    className="flex flex-col items-center justify-center gap-4 py-16 border border-dashed border-foreground/15 cursor-pointer hover:border-foreground/25 transition-colors"
+                    onClick={() => videoInputRef.current?.click()}
+                  >
+                    <Film className="h-8 w-8 text-muted-foreground/40" />
+                    <div className="text-center space-y-1">
+                      <p className="text-sm font-medium text-foreground/70">還沒有作品影片</p>
+                      <p className="text-xs text-muted-foreground">點擊或拖拉影片到此處上傳</p>
+                    </div>
+                  </div>
+                ) : videos.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                    {videos.map((video) => (
+                      <motion.div
+                        key={video.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="group relative aspect-square overflow-hidden bg-[#1C2530]"
+                        style={{
+                          backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.04\'/%3E%3C/svg%3E")',
+                        }}
+                      >
+                        {/* Gradient depth */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#2E4052]/60 via-[#1C2530] to-[#0F161C]" />
+
+                        {/* Play button — breathing ring on hover */}
+                        <button
+                          type="button"
+                          onClick={() => setPreviewVideoId(video.id)}
+                          aria-label="預覽影片"
+                          className="absolute inset-0 flex items-center justify-center z-10"
+                        >
+                          <span className="relative flex items-center justify-center">
+                            {/* Outer ring — appears on hover */}
+                            <span className="absolute w-14 h-14 rounded-full border border-white/20 opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-110 transition-all duration-500" />
+                            {/* Inner circle */}
+                            <span className="relative flex items-center justify-center w-10 h-10 rounded-full bg-white/10 border border-white/25 backdrop-blur-sm group-hover:bg-white/20 group-hover:border-white/50 transition-all duration-300">
+                              <Play className="h-4 w-4 text-white fill-white translate-x-px" />
+                            </span>
+                          </span>
+                        </button>
+
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200 z-[5]" />
+
+                        {/* Bottom info bar — slides up on hover */}
+                        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-200 p-3 bg-gradient-to-t from-black/90 to-transparent z-20">
+                          <p className="truncate text-[0.65rem] text-white font-medium">{video.fileName}</p>
+                          <p className="text-[0.58rem] text-white/50 mt-0.5">{formatBytes(video.fileSizeBytes)}</p>
+                        </div>
+
+                        {/* Delete button — top-right, same as photos */}
+                        <button
+                          type="button"
+                          onClick={() => void handleDelete(video)}
+                          disabled={deletingAssetId === video.id}
+                          className="absolute right-2 top-2 z-30 flex h-7 w-7 items-center justify-center bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-100 hover:bg-red-600/80"
+                        >
+                          {deletingAssetId === video.id
+                            ? <LoaderCircle className="h-3 w-3 animate-spin" />
+                            : <Trash2 className="h-3 w-3" />}
+                        </button>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : null}
+            </div>
+          )}
+
+        </div>
+      </motion.div>
+
+      {/* ── Video preview modal (phone-frame) ── */}
+      <AnimatePresence>
+        {previewVideoId && (() => {
+          const video = videos.find((v) => v.id === previewVideoId)
+          if (!video) return null
+          return (
+            <motion.div
+              key="video-modal"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4"
+              onClick={() => setPreviewVideoId(null)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92, y: 24 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.92, y: 24 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="relative w-full max-w-[390px]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Phone frame chrome */}
+                <div className="rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl bg-black"
+                  style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 40px 80px rgba(0,0,0,0.7)' }}
+                >
+                  {/* Notch bar */}
+                  <div className="flex items-center justify-center h-8 bg-[#0A0A0A]">
+                    <div className="w-20 h-1.5 rounded-full bg-white/10" />
+                  </div>
+
+                  {/* Video */}
+                  <video
+                    src={video.url}
+                    controls
+                    autoPlay
+                    className="w-full block bg-black"
+                  />
+
+                  {/* Bottom bar */}
+                  <div className="h-6 bg-[#0A0A0A] flex items-center justify-center">
+                    <div className="w-28 h-1 rounded-full bg-white/15" />
+                  </div>
+                </div>
+
+                {/* File label */}
+                <p className="mt-4 text-center text-[0.65rem] text-white/40 tracking-wide truncate px-4">{video.fileName}</p>
+
+                {/* Close button */}
+                <button
+                  type="button"
+                  onClick={() => setPreviewVideoId(null)}
+                  className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </motion.div>
+            </motion.div>
+          )
+        })()}
+      </AnimatePresence>
+
     </div>
   )
 }
