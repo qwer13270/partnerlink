@@ -1,7 +1,7 @@
 // App-wide constants
 
-export const APP_NAME = 'HomeKey 房客'
-export const APP_NAME_EN = 'HomeKey'
+export const APP_NAME = 'PartnerLink 夥伴'
+export const APP_NAME_EN = 'PartnerLink'
 
 // Currency formatting
 export const CURRENCY = 'TWD'

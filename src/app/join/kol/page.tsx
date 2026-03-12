@@ -27,7 +27,7 @@ const STEPS = [
 const BENEFITS = [
   { title: '自訂佣金比例',   desc: '你可以在申請合作時自行設定佣金比例，由商家審核確認，保障雙方利益。' },
   { title: '即時數據儀表板', desc: '點擊、看屋預約、成交數據一目瞭然，掌握每一筆推廣的實際成效。' },
-  { title: '嚴選頂級商案',   desc: 'HomeKey 只與信譽良好的商家合作，讓你的受眾接觸到真正值得信賴的商家品牌。' },
+  { title: '嚴選頂級商案',   desc: 'PartnerLink 只與信譽良好的商家合作，讓你的受眾接觸到真正值得信賴的商家品牌。' },
   { title: '零門檻免費加入', desc: '不需要任何費用，只需填寫申請資料，審核通過即可立即開始合作。' },
 ]
 
@@ -77,7 +77,7 @@ export default function JoinKolPage() {
             {...fadeUp(0.5)}
             className="text-muted-foreground font-light leading-loose text-base mb-12 max-w-md"
           >
-            加入 HomeKey，與台灣各類優質商家合作。<br />
+            加入 PartnerLink，與台灣各類優質商家合作。<br />
             每一次推薦，都能帶來透明、可追蹤的佣金收入。
           </motion.p>
 
@@ -220,7 +220,7 @@ export default function JoinKolPage() {
               initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
               className="text-muted-foreground font-light leading-loose text-sm"
             >
-              從申請到收款，HomeKey 提供全程透明的追蹤機制，讓你專注於創作，我們負責其餘的一切。
+              從申請到收款，PartnerLink 提供全程透明的追蹤機制，讓你專注於創作，我們負責其餘的一切。
             </motion.p>
           </div>
 
@@ -255,7 +255,7 @@ export default function JoinKolPage() {
             className="flex items-center gap-3 mb-5"
           >
             <div className="w-7 h-px bg-[#c4913a]" />
-            <span className="text-[0.68rem] tracking-[3px] uppercase text-[#c4913a]">為何選擇 HomeKey</span>
+            <span className="text-[0.68rem] tracking-[3px] uppercase text-[#c4913a]">為何選擇 PartnerLink</span>
           </motion.div>
           <motion.h2
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
@@ -339,7 +339,7 @@ export default function JoinKolPage() {
       <div className="bg-foreground text-background py-24 px-10 md:px-20 text-center">
         <div className="font-serif text-8xl leading-none text-[#b8936a] opacity-40 mb-8">&ldquo;</div>
         <p className="font-serif text-xl md:text-2xl font-light italic leading-relaxed max-w-2xl mx-auto mb-8 text-[#e8e0d8]">
-          加入 HomeKey 之後，我不需要再主動找廠商談合作。平台上的商案資訊清楚、佣金透明，讓我可以專心做內容。
+          加入 PartnerLink 之後，我不需要再主動找廠商談合作。平台上的商案資訊清楚、佣金透明，讓我可以專心做內容。
         </p>
         <div className="text-[0.72rem] tracking-[2px] uppercase text-muted-foreground">
           <span className="text-[#c4913a] mr-2">—</span>
@@ -370,7 +370,7 @@ export default function JoinKolPage() {
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
             className="text-muted-foreground font-light leading-loose text-sm mb-12"
           >
-            現在申請加入 HomeKey KOL 計畫，免費建立帳號，<br />
+            現在申請加入 PartnerLink KOL 計畫，免費建立帳號，<br />
             立即瀏覽所有合作商案並開始創造收益。
           </motion.p>
 

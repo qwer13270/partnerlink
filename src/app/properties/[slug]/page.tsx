@@ -8,6 +8,7 @@ import {
   NearbyAmenities,
   ConstructionTimeline,
   BookTourCTA,
+  TongchuangWingPage,
 } from '@/components/property'
 
 type Props = {
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: Props) {
   }
 
   return {
-    title: `${property.name} | HomeKey 房客`,
+    title: `${property.name} | PartnerLink 夥伴`,
     description: `${property.name} - ${property.location}. NT$ ${property.priceRange.min.toLocaleString()}萬 ~ NT$ ${property.priceRange.max.toLocaleString()}萬`,
   }
 }
@@ -45,6 +46,10 @@ export default async function PropertyPage({ params, searchParams }: Props) {
 
   if (!property) {
     notFound()
+  }
+
+  if (property.slug === 'tongchuang-wing') {
+    return <TongchuangWingPage property={property} referrer={ref} />
   }
 
   return (

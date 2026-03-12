@@ -151,10 +151,10 @@ export default function Header() {
               {/* Logo */}
               <Link href="/" className="flex items-center gap-2 shrink-0 group">
                 <span className="font-serif text-[15px] font-normal tracking-tight group-hover:opacity-70 transition-opacity duration-200">
-                  HomeKey
+                  PartnerLink
                 </span>
                 <span className="text-[9px] tracking-[0.22em] text-muted-foreground uppercase mt-0.5">
-                  房客
+                  夥伴
                 </span>
               </Link>
 

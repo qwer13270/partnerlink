@@ -108,8 +108,8 @@ export default function LoginContent() {
         {/* logo */}
         <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
           <Link href="/" className="inline-flex items-center gap-3">
-            <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">HomeKey</span>
-            <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
+            <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">PartnerLink</span>
+            <span className="text-[#6B6560] text-sm tracking-widest">夥伴</span>
           </Link>
         </motion.div>
 
@@ -154,7 +154,7 @@ export default function LoginContent() {
           variants={fadeUp}
           className="text-xs uppercase tracking-[0.3em] text-[#3A3A3A]"
         >
-          © {new Date().getFullYear()} HomeKey
+          © {new Date().getFullYear()} PartnerLink
         </motion.p>
       </div>
 
@@ -164,8 +164,8 @@ export default function LoginContent() {
         {/* top bar — logo (mobile) + close button */}
         <div className="flex items-center justify-between px-8 pt-8">
           <Link href="/" className="lg:hidden flex items-center gap-2">
-            <span className="text-[#1A1A1A] font-semibold tracking-tight">HomeKey</span>
-            <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
+            <span className="text-[#1A1A1A] font-semibold tracking-tight">PartnerLink</span>
+            <span className="text-[#6B6560] text-sm tracking-widest">夥伴</span>
           </Link>
           <div className="hidden lg:block" />
           <Link

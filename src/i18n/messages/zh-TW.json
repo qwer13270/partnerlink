@@ -1,6 +1,6 @@
 {
   "common": {
-    "homekey": "HomeKey 房客",
+    "homekey": "PartnerLink 夥伴",
     "loading": "載入中...",
     "copyLink": "複製連結",
     "copied": "已複製！",
@@ -336,16 +336,16 @@
   "join": {
     "kol": {
       "title": "成為推廣夥伴",
-      "subtitle": "申請加入 HomeKey KOL 推廣網絡，每筆成交都有佣金收益。"
+      "subtitle": "申請加入 PartnerLink KOL 推廣網絡，每筆成交都有佣金收益。"
     },
     "merchant": {
       "title": "刊登您的商案",
-      "subtitle": "與 HomeKey 合作，透過 KOL 網絡行銷您的商案。"
+      "subtitle": "與 PartnerLink 合作，透過 KOL 網絡行銷您的商案。"
     }
   },
   "login": {
     "title": "登入",
-    "subtitle": "歡迎回到 HomeKey。",
+    "subtitle": "歡迎回到 PartnerLink。",
     "email": "電子郵件",
     "password": "密碼",
     "signIn": "登入",
@@ -369,7 +369,7 @@
   },
   "footer": {
     "disclaimer": "本頁面資訊僅供參考，實際內容以商家公布為準",
-    "copyright": "© {year} HomeKey 房客. 保留所有權利."
+    "copyright": "© {year} PartnerLink 夥伴. 保留所有權利."
   },
   "landing": {
     "hero": {
@@ -390,7 +390,7 @@
       }
     },
     "trust": {
-      "eyebrow": "為何選擇 HomeKey",
+      "eyebrow": "為何選擇 PartnerLink",
       "title": "值得信賴的頂級品牌聯盟",
       "subtitle": "我們嚴選商案並對齊所有合作方的利益，讓行銷更專業、數據更透明。",
       "cards": {
@@ -438,7 +438,7 @@
     "featured": {
       "eyebrow": "合作商案",
       "title": "目前合作中的重點商案",
-      "subtitle": "精選 HomeKey 合作商案，立即查看詳情。",
+      "subtitle": "精選 PartnerLink 合作商案，立即查看詳情。",
       "viewAll": "查看所有商案",
       "cards": {
         "lightRiver": {
@@ -460,7 +460,7 @@
     },
     "cta": {
       "title": "準備好啟動下一個合作計畫嗎？",
-      "subtitle": "加入 HomeKey，讓品牌行銷更有績效。",
+      "subtitle": "加入 PartnerLink，讓品牌行銷更有績效。",
       "primary": "成為 KOL",
       "secondary": "成為商家"
     }

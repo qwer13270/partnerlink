@@ -16,6 +16,7 @@ import { KolForm }      from './_components/KolForm'
 import { KolMediaStep } from './_components/KolMediaStep'
 import { MerchantForm } from './_components/MerchantForm'
 
+
 export default function OnboardingPage() {
   const router = useRouter()
   const [step, setStep] = useState<Step>(1)
@@ -191,8 +192,8 @@ export default function OnboardingPage() {
           }}
         />
         <Link href="/" className="inline-flex items-center gap-3 relative z-10">
-          <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">HomeKey</span>
-          <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
+          <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">PartnerLink</span>
+          <span className="text-[#6B6560] text-sm tracking-widest">夥伴</span>
         </Link>
 
         <AnimatePresence mode="wait">
@@ -221,7 +222,7 @@ export default function OnboardingPage() {
         </AnimatePresence>
 
         <p className="text-xs uppercase tracking-[0.3em] text-[#3A3A3A] relative z-10">
-          © {new Date().getFullYear()} HomeKey
+          © {new Date().getFullYear()} PartnerLink
         </p>
       </div>
 
@@ -229,8 +230,8 @@ export default function OnboardingPage() {
       <div className="flex-1 bg-[#FAF9F6] flex flex-col overflow-auto">
         <div className="flex items-center justify-between px-8 pt-8">
           <Link href="/" className="lg:hidden flex items-center gap-2">
-            <span className="text-[#1A1A1A] font-semibold tracking-tight">HomeKey</span>
-            <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
+            <span className="text-[#1A1A1A] font-semibold tracking-tight">PartnerLink</span>
+            <span className="text-[#6B6560] text-sm tracking-widest">夥伴</span>
           </Link>
           <div className="hidden lg:flex items-center gap-3">
             <StepDots step={step} total={totalSteps} />

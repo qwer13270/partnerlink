@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { DM_Serif_Display, DM_Sans, Noto_Serif_TC, Noto_Sans_TC } from "next/font/google"
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
@@ -39,11 +39,16 @@ const notoSansTC = Noto_Sans_TC({
 })
 
 export const metadata: Metadata = {
-  title: "HomeKey 房客 | Premium Brand Affiliate Platform",
+  title: "PartnerLink 夥伴 | Premium Brand Affiliate Platform",
   description: "Taiwan's premier real estate affiliate marketing platform — connecting merchants with influential KOLs",
   icons: {
     icon: "/favicon.svg",
   },
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 }
 
 export default async function RootLayout({

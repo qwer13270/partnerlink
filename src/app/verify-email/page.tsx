@@ -30,8 +30,8 @@ export default function VerifyEmailPage() {
           }}
         />
         <Link href="/" className="inline-flex items-center gap-3 relative z-10">
-          <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">HomeKey</span>
-          <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
+          <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">PartnerLink</span>
+          <span className="text-[#6B6560] text-sm tracking-widest">夥伴</span>
         </Link>
         <div className="space-y-4 relative z-10">
           <p className="text-xs uppercase tracking-[0.4em] text-[#6B6560]">Email Verification</p>
@@ -45,7 +45,7 @@ export default function VerifyEmailPage() {
           </p>
         </div>
         <p className="text-xs uppercase tracking-[0.3em] text-[#3A3A3A] relative z-10">
-          © {new Date().getFullYear()} HomeKey
+          © {new Date().getFullYear()} PartnerLink
         </p>
       </div>
 
