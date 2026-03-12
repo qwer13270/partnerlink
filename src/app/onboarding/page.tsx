@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, X, Eye, EyeOff, Building2, Mic2, ImagePlus, Film, Sparkles, Plus } from 'lucide-react'
+import { ArrowRight, X, Eye, EyeOff, Building2, Mic2, ImagePlus, Plus } from 'lucide-react'
 import { resolveRoleHomePath } from '@/lib/auth'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
@@ -27,6 +27,77 @@ const fadeUp = {
 // ── Types ──────────────────────────────────────────────────────────────────
 type Role = 'kol' | 'merchant' | null
 type Step = 1 | 2 | 3
+type KolSignupDraft = {
+  name: string
+  email: string
+  password: string
+  platforms: string[]
+  platformAccounts: Record<string, string>
+  followerRange: string
+  contentType: string
+  bio: string
+}
+type KolMediaDraft = {
+  profilePhoto: File | null
+}
+type UploadItemStatus = 'pending' | 'uploading' | 'success' | 'error'
+type UploadProgressMap = Record<string, { status: UploadItemStatus; progress: number; error?: string }>
+
+function getUploadKey(mediaType: 'image' | 'video', sortOrder: number, file: File) {
+  return `${mediaType}-${sortOrder}-${file.name}-${file.size}`
+}
+
+async function uploadKolMediaFile({
+  token,
+  applicationId,
+  mediaType,
+  sortOrder,
+  isProfile,
+  file,
+  onProgress,
+}: {
+  token: string
+  applicationId: string
+  mediaType: 'image' | 'video'
+  sortOrder: number
+  isProfile: boolean
+  file: File
+  onProgress: (progress: number) => void
+}) {
+  const formData = new FormData()
+  formData.append('applicationId', applicationId)
+  formData.append('mediaType', mediaType)
+  formData.append('sortOrder', String(sortOrder))
+  formData.append('isProfile', isProfile ? 'true' : 'false')
+  formData.append('file', file)
+
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', '/api/kol/media')
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+
+    xhr.upload.onprogress = (event) => {
+      if (!event.lengthComputable) return
+      const progress = Math.min(100, Math.round((event.loaded / event.total) * 100))
+      onProgress(progress)
+    }
+
+    xhr.onerror = () => reject(new Error('媒體上傳失敗，網路連線中斷。'))
+    xhr.onabort = () => reject(new Error('媒體上傳已中止。'))
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        onProgress(100)
+        resolve()
+        return
+      }
+
+      const payload = JSON.parse(xhr.responseText || '{}') as { error?: string }
+      reject(new Error(payload.error ?? `媒體上傳失敗（${xhr.status}）`))
+    }
+
+    xhr.send(formData)
+  })
+}
 
 // ── Left panel content by role ─────────────────────────────────────────────
 const LEFT_CONTENT = {
@@ -63,7 +134,7 @@ const LEFT_CONTENT = {
 }
 
 // ── Platform options ───────────────────────────────────────────────────────
-const PLATFORMS = ['Instagram', 'YouTube', 'TikTok', 'Facebook', 'Line', '其他']
+const PLATFORMS = ['Instagram', 'Facebook', 'TikTok', 'Threads']
 const FOLLOWER_RANGES = ['1萬以下', '1–5萬', '5–20萬', '20–100萬', '100萬以上']
 const CONTENT_TYPES = ['商品', '生活風格', '財經理財', '旅遊', '美食', '其他']
 const CITIES = ['台北市', '新北市', '桃園市', '台中市', '台南市', '高雄市', '其他']
@@ -150,24 +221,63 @@ function KolForm({
   onNext,
 }: {
   onBack: () => void
-  onNext: (data: { name: string; email: string; password: string }) => void
+  onNext: (data: KolSignupDraft) => void
 }) {
   const [showPassword, setShowPassword] = useState(false)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [platforms, setPlatforms] = useState<string[]>([])
+  const [platformAccounts, setPlatformAccounts] = useState<Record<string, string>>({})
   const [follower, setFollower] = useState('')
   const [contentType, setContentType] = useState('')
+  const [bio, setBio] = useState('')
   const passwordTooShort = password.length > 0 && password.length < 6
 
-  const togglePlatform = (p: string) =>
-    setPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p])
+  const togglePlatform = (platform: string) => {
+    setPlatforms((prev) => (
+      prev.includes(platform)
+        ? prev.filter((item) => item !== platform)
+        : [...prev, platform]
+    ))
+
+    setPlatformAccounts((prev) => {
+      if (platform in prev) {
+        const next = { ...prev }
+        delete next[platform]
+        return next
+      }
+      return {
+        ...prev,
+        [platform]: '',
+      }
+    })
+  }
+
+  const handlePlatformAccountChange = (platform: string, value: string) => {
+    setPlatformAccounts((prev) => ({
+      ...prev,
+      [platform]: value,
+    }))
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (passwordTooShort) return
-    onNext({ name, email, password })
+    const hasMissingPlatformAccount = platforms.some((platform) => !platformAccounts[platform]?.trim())
+    if (hasMissingPlatformAccount) return
+    onNext({
+      name,
+      email,
+      password,
+      platforms,
+      platformAccounts: Object.fromEntries(
+        platforms.map((platform) => [platform, platformAccounts[platform]?.trim() ?? '']),
+      ),
+      followerRange: follower,
+      contentType,
+      bio,
+    })
   }
 
   return (
@@ -177,7 +287,7 @@ function KolForm({
           <span className="rotate-180 inline-block">→</span> 返回
         </button>
         <h2 className="text-3xl font-serif text-[#1A1A1A] mb-1">建立 KOL 帳號</h2>
-        <p className="text-sm text-[#6B6560]">填寫基本資料，完成後進行作品上傳</p>
+        <p className="text-sm text-[#6B6560]">填寫基本資料，完成後上傳個人頭像送出審核</p>
       </motion.div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -242,6 +352,23 @@ function KolForm({
               </button>
             ))}
           </div>
+          {platforms.length > 0 && (
+            <div className="mt-4 space-y-3">
+              {platforms.map((platform) => (
+                <div key={platform}>
+                  <label className="label-editorial">{platform} 帳號</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder={`輸入 ${platform} 的 @handle 或個人頁面連結`}
+                    value={platformAccounts[platform] ?? ''}
+                    onChange={(e) => handlePlatformAccountChange(platform, e.target.value)}
+                    className="input-editorial text-sm"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </motion.div>
 
         {/* Follower range + Content type */}
@@ -268,11 +395,25 @@ function KolForm({
           </div>
         </motion.div>
 
+        <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp}>
+          <label className="label-editorial">自我介紹（選填）</label>
+          <textarea
+            rows={3}
+            placeholder="簡短描述你的受眾與內容風格，幫助商家判斷合作匹配度。"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            className="input-editorial text-sm resize-none"
+          />
+        </motion.div>
+
         {/* Next */}
-        <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp} className="pt-2">
+        <motion.div custom={6} initial="hidden" animate="visible" variants={fadeUp} className="pt-2">
+          {platforms.some((platform) => !platformAccounts[platform]?.trim()) && (
+            <p className="mb-3 text-xs text-red-500">請為每個已選平台填寫帳號或連結。</p>
+          )}
           <button
             type="submit"
-            disabled={passwordTooShort}
+            disabled={passwordTooShort || platforms.some((platform) => !platformAccounts[platform]?.trim())}
             className="group w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] disabled:opacity-50 transition-colors duration-300"
           >
             <span>下一步</span>
@@ -284,49 +425,29 @@ function KolForm({
   )
 }
 
-// ── Step 3 — KOL media upload ──────────────────────────────────────────────
+// ── Step 3 — KOL profile photo upload ──────────────────────────────────────
 function KolMediaStep({
   onBack,
   onSubmit,
   error,
   submitting,
+  uploadProgress,
 }: {
   onBack: () => void
-  onSubmit: () => void
+  onSubmit: (media: KolMediaDraft) => void
   error: string
   submitting: boolean
+  uploadProgress: UploadProgressMap
 }) {
-  const photoInputRef = useRef<HTMLInputElement>(null)
-  const videoInputRef = useRef<HTMLInputElement>(null)
-  const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([])
-  const [videos, setVideos] = useState<File[]>([])
+  const profileInputRef = useRef<HTMLInputElement>(null)
+  const [profilePhoto, setProfilePhoto] = useState<{ file: File; preview: string } | null>(null)
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? [])
-    setPhotos((prev) => {
-      const combined = [
-        ...prev,
-        ...files.map((f) => ({ file: f, preview: URL.createObjectURL(f) })),
-      ]
-      return combined.slice(0, 6)
-    })
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0]
+    if (!selected) return
+    setProfilePhoto({ file: selected, preview: URL.createObjectURL(selected) })
     e.target.value = ''
   }
-
-  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? [])
-    setVideos((prev) => [...prev, ...files].slice(0, 3))
-    e.target.value = ''
-  }
-
-  const removePhoto = (i: number) =>
-    setPhotos((prev) => prev.filter((_, idx) => idx !== i))
-
-  const removeVideo = (i: number) =>
-    setVideos((prev) => prev.filter((_, idx) => idx !== i))
-
-  const photoSlots = 6
-  const videoSlots = 3
 
   return (
     <motion.div key="step3-kol" {...slideIn}>
@@ -335,120 +456,56 @@ function KolMediaStep({
         <button onClick={onBack} className="flex items-center gap-2 text-xs text-[#6B6560] hover:text-[#1A1A1A] transition-colors mb-4">
           <span className="rotate-180 inline-block">→</span> 返回
         </button>
-        <h2 className="text-3xl font-serif text-[#1A1A1A] mb-1">上傳作品集</h2>
-        <p className="text-sm text-[#6B6560]">讓商家更了解你的內容風格與質感</p>
+        <h2 className="text-3xl font-serif text-[#1A1A1A] mb-1">上傳個人頭像</h2>
+        <p className="text-sm text-[#6B6560]">管理員會用這張照片辨識你的申請，作品照片與影片可在核准後再補上。</p>
       </motion.div>
 
-      {/* Recommendation notice */}
+      {/* Context notice */}
       <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp}>
-        <div className="flex gap-3 p-4 bg-[#FFF8EE] border border-[#F0D9A8] mb-6">
-          <Sparkles className="h-4 w-4 text-[#B07D2E] shrink-0 mt-0.5" />
+        <div className="p-4 bg-[#FFF8EE] border border-[#F0D9A8] mb-6">
           <div>
-            <p className="text-xs font-medium text-[#7A5520] uppercase tracking-widest mb-1">強烈建議上傳</p>
+            <p className="text-xs font-medium text-[#7A5520] uppercase tracking-widest mb-1">審核階段</p>
             <p className="text-xs text-[#9A7040] leading-relaxed">
-              有作品集的 KOL 獲得商家邀約的機率高出 <span className="font-semibold text-[#7A5520]">3.2 倍</span>。此步驟為選填，但我們強烈建議上傳。
+              目前只需要完成基本資料與個人頭像。通過審核後，你可以登入 KOL 後台再補完整作品集。
             </p>
           </div>
         </div>
       </motion.div>
 
-      {/* Photos */}
+      {/* Profile photo (required) */}
       <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp} className="mb-6">
         <div className="flex items-baseline justify-between mb-3">
           <label className="label-editorial flex items-center gap-2">
             <ImagePlus className="h-3.5 w-3.5" />
-            個人照片
+            個人頭像
           </label>
-          <span className="text-[0.65rem] text-[#6B6560]">選填 · 最多 6 張</span>
+          <span className="text-[0.65rem] text-[#A15B49]">必填</span>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
-          {Array.from({ length: photoSlots }).map((_, i) => {
-            const photo = photos[i]
-            return photo ? (
-              <div key={i} className="relative aspect-square group">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={photo.preview}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => removePhoto(i)}
-                  className="absolute top-1 right-1 w-5 h-5 bg-[#1A1A1A]/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => profileInputRef.current?.click()}
+            className="relative w-20 h-20 rounded-full border border-dashed border-[#D8D4CF] overflow-hidden flex items-center justify-center text-[#C0BAB3] hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors duration-200"
+          >
+            {profilePhoto ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profilePhoto.preview} alt="" className="w-full h-full object-cover" />
             ) : (
-              <button
-                key={i}
-                type="button"
-                onClick={() => photoInputRef.current?.click()}
-                className="aspect-square border border-dashed border-[#D8D4CF] flex flex-col items-center justify-center gap-1.5 text-[#C0BAB3] hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors duration-200"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            )
-          })}
+              <Plus className="h-4 w-4" />
+            )}
+          </button>
+          <div>
+            <p className="text-xs text-[#6B6560]">請上傳清晰正面照片，將作為申請列表圓形頭像。</p>
+            <p className="text-[0.65rem] text-[#9A9288] mt-1">建議尺寸：至少 512 × 512</p>
+          </div>
         </div>
         <input
-          ref={photoInputRef}
+          ref={profileInputRef}
           type="file"
           accept="image/*"
-          multiple
           className="hidden"
-          onChange={handlePhotoChange}
-        />
-      </motion.div>
-
-      {/* Videos */}
-      <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp} className="mb-6">
-        <div className="flex items-baseline justify-between mb-3">
-          <label className="label-editorial flex items-center gap-2">
-            <Film className="h-3.5 w-3.5" />
-            作品影片
-          </label>
-          <span className="text-[0.65rem] text-[#6B6560]">選填 · 最多 3 部</span>
-        </div>
-
-        <div className="space-y-2">
-          {Array.from({ length: videoSlots }).map((_, i) => {
-            const video = videos[i]
-            return video ? (
-              <div key={i} className="flex items-center justify-between px-4 py-3 border border-[#E8E4DF] bg-[#FAF9F6]">
-                <div className="flex items-center gap-3 min-w-0">
-                  <Film className="h-4 w-4 text-[#6B6560] shrink-0" />
-                  <p className="text-xs text-[#1A1A1A] truncate">{video.name}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeVideo(i)}
-                  className="text-[#6B6560] hover:text-[#1A1A1A] transition-colors ml-3 shrink-0"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ) : (
-              <button
-                key={i}
-                type="button"
-                onClick={() => videoInputRef.current?.click()}
-                className="w-full flex items-center gap-3 px-4 py-3 border border-dashed border-[#D8D4CF] text-[#C0BAB3] hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors duration-200"
-              >
-                <Plus className="h-4 w-4 shrink-0" />
-                <span className="text-xs uppercase tracking-widest">上傳影片</span>
-              </button>
-            )
-          })}
-        </div>
-        <input
-          ref={videoInputRef}
-          type="file"
-          accept="video/*"
-          className="hidden"
-          onChange={handleVideoChange}
+          onChange={handleProfileChange}
         />
       </motion.div>
 
@@ -463,11 +520,31 @@ function KolMediaStep({
       )}
 
       {/* Submit */}
-      <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp} className="space-y-3">
+      <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp} className="space-y-3">
+        {(() => {
+          const uploadKey = profilePhoto ? `profile-${getUploadKey('image', 0, profilePhoto.file)}` : null
+          const state = uploadKey ? uploadProgress[uploadKey] : null
+          if (!state) return null
+
+          const statusText =
+            state.status === 'uploading'
+              ? `頭像上傳中 ${state.progress}%`
+              : state.status === 'success'
+                ? '頭像上傳完成'
+                : state.status === 'error'
+                  ? `頭像上傳失敗${state.error ? `：${state.error}` : ''}`
+                  : '等待上傳'
+
+          return (
+            <p className={`text-xs text-center ${state.status === 'error' ? 'text-red-500' : 'text-[#6B6560]'}`}>
+              {statusText}
+            </p>
+          )
+        })()}
         <button
           type="button"
-          onClick={onSubmit}
-          disabled={submitting}
+          onClick={() => onSubmit({ profilePhoto: profilePhoto?.file ?? null })}
+          disabled={submitting || !profilePhoto}
           className="group relative overflow-hidden w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] disabled:opacity-90 transition-colors duration-300"
         >
           {submitting && (
@@ -481,14 +558,9 @@ function KolMediaStep({
           <span>{submitting ? '送出中…' : '送出申請'}</span>
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </button>
-        <button
-          type="button"
-          onClick={onSubmit}
-          disabled={submitting}
-          className="w-full text-center text-xs text-[#6B6560] hover:text-[#1A1A1A] transition-colors py-1 underline underline-offset-4"
-        >
-          略過，直接送出申請
-        </button>
+        {!profilePhoto && (
+          <p className="text-xs text-[#A15B49] text-center">請先上傳個人頭像</p>
+        )}
       </motion.div>
     </motion.div>
   )
@@ -636,9 +708,10 @@ export default function OnboardingPage() {
   const router = useRouter()
   const [step, setStep] = useState<Step>(1)
   const [role, setRole] = useState<Role>(null)
-  const [kolData, setKolData] = useState<{ name: string; email: string; password: string } | null>(null)
+  const [kolData, setKolData] = useState<KolSignupDraft | null>(null)
   const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<UploadProgressMap>({})
 
   const totalSteps = role === 'kol' ? 3 : 2
 
@@ -650,6 +723,7 @@ export default function OnboardingPage() {
 
   const goBack = () => {
     setSubmitError('')
+    setUploadProgress({})
     if (step === 3) {
       setStep(2)
     } else {
@@ -658,13 +732,20 @@ export default function OnboardingPage() {
     }
   }
 
-  const handleKolNext = (data: { name: string; email: string; password: string }) => {
+  const handleKolNext = (data: KolSignupDraft) => {
     setKolData(data)
     setStep(3)
   }
 
-  const createAccount = async ({ email, password }: { email: string; password: string }) => {
+  const createAccount = async (
+    { email, password }: { email: string; password: string },
+    kolMedia?: KolMediaDraft,
+  ) => {
     if (!role) return
+    if (role === 'kol' && !kolMedia?.profilePhoto) {
+      setSubmitError('請先上傳個人頭像。')
+      return
+    }
 
     setSubmitting(true)
     setSubmitError('')
@@ -687,27 +768,123 @@ export default function OnboardingPage() {
       }
 
       const token = data.session?.access_token
+      if (role === 'merchant') {
+        if (!token) {
+          router.push(`/verify-email?email=${encodeURIComponent(email.trim())}`)
+          return
+        }
+
+        const assignRoleResponse = await fetch('/api/auth/assign-role', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ role }),
+        })
+
+        if (!assignRoleResponse.ok) {
+          const payload = await assignRoleResponse.json().catch(() => null) as { error?: string } | null
+          setSubmitError(payload?.error ?? '角色設定失敗，請稍後再試。')
+          return
+        }
+
+        router.push(resolveRoleHomePath(role))
+        return
+      }
+
       if (!token) {
         router.push(`/verify-email?email=${encodeURIComponent(email.trim())}`)
         return
       }
 
-      const assignRoleResponse = await fetch('/api/auth/assign-role', {
+      if (!kolData) {
+        setSubmitError('缺少 KOL 申請資料，請返回上一步重試。')
+        return
+      }
+
+      const applicationResponse = await fetch('/api/kol/application', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ role }),
+        body: JSON.stringify({
+          fullName: kolData.name,
+          platforms: kolData.platforms,
+          platformAccounts: kolData.platformAccounts,
+          followerRange: kolData.followerRange,
+          contentType: kolData.contentType,
+          bio: kolData.bio,
+          photos: [],
+          videos: [],
+        }),
       })
 
-      if (!assignRoleResponse.ok) {
-        const payload = await assignRoleResponse.json().catch(() => null) as { error?: string } | null
-        setSubmitError(payload?.error ?? '角色設定失敗，請稍後再試。')
+      if (!applicationResponse.ok) {
+        const payload = await applicationResponse.json().catch(() => null) as { error?: string } | null
+        setSubmitError(payload?.error ?? '送出 KOL 申請失敗，請稍後再試。')
         return
       }
 
-      router.push(resolveRoleHomePath(role))
+      const applicationPayload = await applicationResponse.json().catch(() => null) as {
+        application?: { id?: string }
+      } | null
+      const applicationId = applicationPayload?.application?.id
+      if (!applicationId) {
+        setSubmitError('申請建立成功，但缺少申請編號，請聯繫管理員。')
+        return
+      }
+
+      const filesToUpload = kolMedia?.profilePhoto
+        ? [{ file: kolMedia.profilePhoto, mediaType: 'image' as const, sortOrder: 0, isProfile: true, key: `profile-${getUploadKey('image', 0, kolMedia.profilePhoto)}` }]
+        : []
+
+      if (filesToUpload.length > 0) {
+        const initialMap = filesToUpload.reduce<UploadProgressMap>((acc, item) => {
+          acc[item.key] = { status: 'pending', progress: 0 }
+          return acc
+        }, {})
+        setUploadProgress(initialMap)
+      }
+
+      for (const item of filesToUpload) {
+        setUploadProgress((prev) => ({
+          ...prev,
+          [item.key]: { status: 'uploading', progress: 0 },
+        }))
+
+        try {
+          await uploadKolMediaFile({
+            token,
+            applicationId,
+            mediaType: item.mediaType,
+            sortOrder: item.sortOrder,
+            isProfile: item.isProfile,
+            file: item.file,
+            onProgress: (progress) => {
+              setUploadProgress((prev) => ({
+                ...prev,
+                [item.key]: { status: 'uploading', progress },
+              }))
+            },
+          })
+          setUploadProgress((prev) => ({
+            ...prev,
+            [item.key]: { status: 'success', progress: 100 },
+          }))
+        } catch (uploadError) {
+          const message = uploadError instanceof Error ? uploadError.message : '媒體上傳失敗，請稍後再試。'
+          setUploadProgress((prev) => ({
+            ...prev,
+            [item.key]: { status: 'error', progress: prev[item.key]?.progress ?? 0, error: message },
+          }))
+          setSubmitError(`${item.file.name} 上傳失敗：${message}`)
+          return
+        }
+      }
+
+      router.push('/pending-approval')
     } catch (caughtError) {
       const message =
         caughtError instanceof Error && caughtError.message
@@ -719,8 +896,8 @@ export default function OnboardingPage() {
     }
   }
 
-  const handleKolMediaSubmit = () => {
-    if (kolData) createAccount({ email: kolData.email, password: kolData.password })
+  const handleKolMediaSubmit = (media: KolMediaDraft) => {
+    if (kolData) createAccount({ email: kolData.email, password: kolData.password }, media)
   }
 
   const leftKey = role ?? 'null'
@@ -818,6 +995,7 @@ export default function OnboardingPage() {
                   onSubmit={handleKolMediaSubmit}
                   error={submitError}
                   submitting={submitting}
+                  uploadProgress={uploadProgress}
                 />
               )}
               {step === 2 && role === 'merchant' && (

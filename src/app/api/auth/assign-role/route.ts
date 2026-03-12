@@ -12,6 +12,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid role.' }, { status: 400 })
   }
 
+  if (body.role === 'kol') {
+    return NextResponse.json(
+      { error: 'KOL role is assigned only after admin approval.' },
+      { status: 403 },
+    )
+  }
+
   const admin = getSupabaseAdminClient()
   const { error: updateError } = await admin.auth.admin.updateUserById(
     auth.user.id,

@@ -20,6 +20,13 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  if (signupRole === 'kol') {
+    return NextResponse.json(
+      { error: 'KOL application is pending approval.' },
+      { status: 403 },
+    )
+  }
+
   const admin = getSupabaseAdminClient()
   const { error } = await admin.auth.admin.updateUserById(auth.user.id, {
     app_metadata: {
