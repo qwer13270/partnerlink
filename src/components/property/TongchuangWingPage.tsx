@@ -27,10 +27,16 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
 });
 
-const skylineDesktop = "/images/properties/tongchuang-wing/3.jpg";
-const skylineMobile = "/images/properties/tongchuang-wing/2.jpg";
-const towerDesktop = "/images/properties/tongchuang-wing/1.jpg";
-const towerMobile = "/images/properties/tongchuang-wing/4.jpg";
+const firstSectionImage = {
+  desktop: "/images/properties/tongchuang-wing/2.jpg",
+  mobile: "/images/properties/tongchuang-wing/11.jpg",
+} as const;
+const secondSectionImage = {
+  desktop: "/images/properties/tongchuang-wing/1.jpg",
+  mobile: "/images/properties/tongchuang-wing/22.jpg",
+} as const;
+const firstSectionMobileImage = firstSectionImage.mobile;
+const firstSectionDesktopImage = firstSectionImage.desktop;
 
 const anchors = [
   ["核心地段", "建國濟南門牌"],
@@ -102,22 +108,26 @@ export default function TongchuangWingPage({
     <div className="min-h-screen bg-[#e7edf0] text-[#12324a]">
       <section className="relative isolate min-h-screen overflow-hidden bg-[#7eb8d5]">
         <div className="absolute inset-0">
-          <Image
-            src={skylineDesktop}
-            alt="統創翼城市天際線"
-            fill
-            priority
-            className="hidden object-cover md:block"
-            sizes="100vw"
-          />
-          <Image
-            src={skylineMobile}
-            alt="統創翼城市天際線"
-            fill
-            priority
-            className="object-cover md:hidden"
-            sizes="100vw"
-          />
+          <div className="absolute inset-0 hidden md:block">
+            <Image
+              src={firstSectionDesktopImage}
+              alt="統創翼城市天際線"
+              fill
+              priority
+              className="object-cover"
+              sizes="100vw"
+            />
+          </div>
+          <div className="absolute inset-0 md:hidden">
+            <Image
+              src={firstSectionMobileImage}
+              alt="統創翼城市天際線"
+              fill
+              priority
+              className="object-cover"
+              sizes="100vw"
+            />
+          </div>
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,22,36,0.64),rgba(7,40,63,0.38)_32%,rgba(9,27,41,0.42)_70%,rgba(228,239,243,0.72)_100%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_30%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,24,36,0.22),transparent_45%,rgba(7,24,36,0.1))]" />
@@ -195,20 +205,24 @@ export default function TongchuangWingPage({
 
       <section className="relative isolate min-h-screen overflow-hidden bg-[#e6ecee]">
         <motion.div {...fadeUp(0.05)} className="absolute inset-0">
-          <Image
-            src={towerDesktop}
-            alt="統創翼建築立面"
-            fill
-            className="hidden object-cover object-center md:block"
-            sizes="100vw"
-          />
-          <Image
-            src={towerMobile}
-            alt="統創翼建築立面"
-            fill
-            className="object-cover object-center md:hidden"
-            sizes="100vw"
-          />
+          <div className="absolute inset-0 hidden md:block">
+            <Image
+              src={secondSectionImage.desktop}
+              alt="統創翼建築立面"
+              fill
+              className="object-cover object-center"
+              sizes="100vw"
+            />
+          </div>
+          <div className="absolute inset-0 md:hidden">
+            <Image
+              src={secondSectionImage.mobile}
+              alt="統創翼建築立面"
+              fill
+              className="object-cover object-center"
+              sizes="100vw"
+            />
+          </div>
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02)_36%,rgba(18,38,52,0.08)_100%)]" />
         </motion.div>
       </section>

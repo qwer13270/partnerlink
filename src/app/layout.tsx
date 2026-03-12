@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { DM_Serif_Display, DM_Sans, Noto_Serif_TC, Noto_Sans_TC } from "next/font/google"
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
@@ -44,6 +44,11 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
   },
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 }
 
 export default async function RootLayout({
