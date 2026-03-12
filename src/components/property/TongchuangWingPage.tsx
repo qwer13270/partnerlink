@@ -28,11 +28,11 @@ const fadeUp = (delay = 0) => ({
 });
 
 const firstSectionImage = {
-  desktop: "/images/properties/tongchuang-wing/2.jpg",
+  desktop: "/images/properties/tongchuang-wing/1.jpg",
   mobile: "/images/properties/tongchuang-wing/11.jpg",
 } as const;
 const secondSectionImage = {
-  desktop: "/images/properties/tongchuang-wing/1.jpg",
+  desktop: "/images/properties/tongchuang-wing/2.jpg",
   mobile: "/images/properties/tongchuang-wing/22.jpg",
 } as const;
 const firstSectionMobileImage = firstSectionImage.mobile;
