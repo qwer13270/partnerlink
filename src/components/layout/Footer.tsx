@@ -30,8 +30,8 @@ export default function Footer() {
             className="md:col-span-5"
           >
             <Link href="/" className="inline-flex items-center gap-3 mb-6">
-              <span className="text-xl font-semibold">HomeKey</span>
-              <span className="text-lg text-muted-foreground">房客</span>
+              <span className="text-xl font-semibold">PartnerLink</span>
+              <span className="text-lg text-muted-foreground">夥伴</span>
             </Link>
             <p className="text-muted-foreground max-w-sm leading-relaxed">
               台灣領先的品牌聯盟行銷平台。我們連結優質商案與具影響力的KOL，創造共贏的行銷新模式。

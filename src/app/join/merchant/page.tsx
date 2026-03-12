@@ -27,7 +27,7 @@ const STEPS = [
   {
     num: '02', icon: <Users className="h-4 w-4" />,
     title: '配對專屬 KOL',
-    desc: 'HomeKey 依據商案特性，為你媒合最適合的 KOL，由雙方確認合作條件。',
+    desc: 'PartnerLink 依據商案特性，為你媒合最適合的 KOL，由雙方確認合作條件。',
   },
   {
     num: '03', icon: <TrendingUp className="h-4 w-4" />,
@@ -52,7 +52,7 @@ const BENEFITS = [
   },
   {
     title: '只付成效費用',
-    desc: '不同於傳統廣告預先燒錢，HomeKey 採成效計費——有成交才有佣金，將行銷預算用在刀口上。',
+    desc: '不同於傳統廣告預先燒錢，PartnerLink 採成效計費——有成交才有佣金，將行銷預算用在刀口上。',
   },
   {
     title: '120+ 專業 KOL 網絡',
@@ -108,7 +108,7 @@ export default function JoinMerchantPage() {
             {...fadeUp(0.5)}
             className="text-muted-foreground font-light leading-loose text-base mb-12 max-w-md"
           >
-            HomeKey 連結台灣最具影響力的 KOL 與優質商案。<br />
+            PartnerLink 連結台灣最具影響力的 KOL 與優質商案。<br />
             精準觸及有消費意願的買家，成效透明，只付成交佣金。
           </motion.p>
 
@@ -270,7 +270,7 @@ export default function JoinMerchantPage() {
               initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
               className="text-muted-foreground font-light leading-loose text-sm"
             >
-              從刊登到成交，HomeKey 全程提供數據支援與 KOL 媒合服務，讓你的商案精準觸及每一位潛在買家。
+              從刊登到成交，PartnerLink 全程提供數據支援與 KOL 媒合服務，讓你的商案精準觸及每一位潛在買家。
             </motion.p>
           </div>
 
@@ -305,7 +305,7 @@ export default function JoinMerchantPage() {
             className="flex items-center gap-3 mb-5"
           >
             <div className="w-7 h-px bg-[#c4913a]" />
-            <span className="text-[0.68rem] tracking-[3px] uppercase text-[#c4913a]">為何選擇 HomeKey</span>
+            <span className="text-[0.68rem] tracking-[3px] uppercase text-[#c4913a]">為何選擇 PartnerLink</span>
           </motion.div>
           <motion.h2
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
@@ -438,7 +438,7 @@ export default function JoinMerchantPage() {
                         className="text-[0.65rem] tracking-[2px] uppercase font-normal"
                         style={{ color: '#c4913a' }}
                       >
-                        HomeKey KOL
+                        PartnerLink KOL
                       </span>
                       <span
                         className="text-[8px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full"
@@ -477,7 +477,7 @@ export default function JoinMerchantPage() {
       <div className="bg-foreground text-background py-24 px-10 md:px-20 text-center">
         <div className="font-serif text-8xl leading-none text-[#b8936a] opacity-40 mb-8">&ldquo;</div>
         <p className="font-serif text-xl md:text-2xl font-light italic leading-relaxed max-w-2xl mx-auto mb-8 text-[#e8e0d8]">
-          HomeKey 讓我們的商案在三個月內累積超過 40 組預約看屋，轉換效率遠高於以往投放的數位廣告。最重要的是，數據完全透明。
+          PartnerLink 讓我們的商案在三個月內累積超過 40 組預約看屋，轉換效率遠高於以往投放的數位廣告。最重要的是，數據完全透明。
         </p>
         <div className="text-[0.72rem] tracking-[2px] uppercase text-muted-foreground">
           <span className="text-[#c4913a] mr-2">—</span>
@@ -508,7 +508,7 @@ export default function JoinMerchantPage() {
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
             className="text-muted-foreground font-light leading-loose text-sm mb-12"
           >
-            立即刊登商案，HomeKey 團隊將在 1–2 個工作天內<br />
+            立即刊登商案，PartnerLink 團隊將在 1–2 個工作天內<br />
             完成審核並為你配對最適合的合作 KOL。
           </motion.p>
 
