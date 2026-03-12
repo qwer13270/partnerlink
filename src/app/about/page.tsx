@@ -33,7 +33,7 @@ const VALUES = [
   {
     num: '02',
     title: '成效優先',
-    desc: '我們不收預付廣告費，只在成交後收取佣金。HomeKey 的利益與你的成效完全一致，我們一起贏。',
+    desc: '我們不收預付廣告費，只在成交後收取佣金。PartnerLink 的利益與你的成效完全一致，我們一起贏。',
   },
   {
     num: '03',
@@ -43,7 +43,7 @@ const VALUES = [
 ]
 
 const TIMELINE = [
-  { year: '2023 Q1', event: '創立 HomeKey，完成種子輪融資' },
+  { year: '2023 Q1', event: '創立 PartnerLink，完成種子輪融資' },
   { year: '2023 Q3', event: '上線首批 20 位合作 KOL，媒合第一筆成交' },
   { year: '2024 Q1', event: '平台累積破百位 KOL，擴展至桃園、台中市場' },
   { year: '2024 Q3', event: '推出即時儀表板，數據追蹤精度提升至分鐘級' },
@@ -92,7 +92,7 @@ export default function AboutPage() {
           <motion.div {...fadeUp(0.15)} className="flex items-center gap-3 mb-8">
             <div className="w-8 h-px" style={{ background: '#c4913a' }} />
             <span className="text-[0.68rem] tracking-[3px] uppercase" style={{ color: '#c4913a' }}>
-              關於 HomeKey
+              關於 PartnerLink
             </span>
           </motion.div>
 
@@ -109,7 +109,7 @@ export default function AboutPage() {
             {...fadeUp(0.45)}
             className="text-muted-foreground font-light leading-loose text-base mb-12 max-w-md"
           >
-            HomeKey 誕生於一個簡單的信念：<br />
+            PartnerLink 誕生於一個簡單的信念：<br />
             行銷費用應該只在帶來真實成效時才被支付。<br />
             我們連結台灣最具影響力的 KOL 與優質建案，<br />
             讓每一分預算都花在刀口上。
@@ -168,7 +168,7 @@ export default function AboutPage() {
             <div className="flex items-center justify-center gap-3">
               <div className="w-6 h-px" style={{ background: '#c4913a' }} />
               <span className="text-[0.65rem] tracking-[2px] uppercase" style={{ color: 'rgba(196,145,58,0.7)' }}>
-                HomeKey 創立宗旨
+                PartnerLink 創立宗旨
               </span>
               <div className="w-6 h-px" style={{ background: '#c4913a' }} />
             </div>
@@ -204,7 +204,7 @@ export default function AboutPage() {
               {[
                 '2023 年初，我們在與多位建商朋友的對話中，反覆聽到同一個痛點：數位廣告費用不斷攀升，但轉換率始終低迷，預算幾乎是在「賭博」。',
                 '與此同時，我們也觀察到一個現象——台灣有一群具有真實影響力的 KOL，他們的粉絲信任度遠高於任何廣告版位，卻沒有一個平台能有效媒合他們與不動產建商合作。',
-                '於是 HomeKey 誕生了。我們建立一套完整的追蹤機制，讓每一次推薦、每一筆點擊、每一組預約都清晰可查。商家只在成交後付費，KOL 的每一次推廣都能帶來透明的佣金回報。',
+                '於是 PartnerLink 誕生了。我們建立一套完整的追蹤機制，讓每一次推薦、每一筆點擊、每一組預約都清晰可查。商家只在成交後付費，KOL 的每一次推廣都能帶來透明的佣金回報。',
                 '這不只是一個媒合平台，而是一種新的合作哲學：讓所有參與方的利益真正一致，讓台灣的房市行銷更誠信、更有效率。',
               ].map((text, i) => (
                 <motion.p
@@ -320,7 +320,7 @@ export default function AboutPage() {
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
             className="font-serif text-4xl md:text-5xl font-light leading-[1.2] mb-16"
           >
-            打造 HomeKey<br />
+            打造 PartnerLink<br />
             <span style={{ color: '#b8936a' }}>的人們</span>
           </motion.h2>
 
@@ -387,7 +387,7 @@ export default function AboutPage() {
             className="font-serif text-4xl md:text-5xl font-light leading-[1.2] mb-14"
           >
             找到你在<br />
-            <span style={{ color: '#b8936a' }}>HomeKey 的位置</span>
+            <span style={{ color: '#b8936a' }}>PartnerLink 的位置</span>
           </motion.h2>
 
           <div className="grid md:grid-cols-2 gap-5">
@@ -431,7 +431,7 @@ export default function AboutPage() {
                   讓頂級 KOL<br />成為銷售引擎
                 </h3>
                 <p className="text-sm leading-loose mb-8" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  刊登商案，HomeKey 為你媒合最適合的 KOL。成交後才付佣金，零風險啟動精準行銷。
+                  刊登商案，PartnerLink 為你媒合最適合的 KOL。成交後才付佣金，零風險啟動精準行銷。
                 </p>
                 <div
                   className="flex items-center gap-2 text-xs tracking-wide transition-colors duration-200"

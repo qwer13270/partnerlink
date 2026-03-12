@@ -60,7 +60,7 @@ export default function AdminMerchantApplicationsPage() {
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">管理後台</p>
         <h1 className="text-3xl font-serif">商家申請</h1>
         <p className="text-sm text-muted-foreground mt-2">
-          審核希望在 HomeKey 刊登商案的建商申請。
+          審核希望在 PartnerLink 刊登商案的建商申請。
         </p>
       </motion.div>
 

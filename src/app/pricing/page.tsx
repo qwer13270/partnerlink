@@ -308,7 +308,7 @@ export default function PricingPage() {
             {...fadeUp(0.26)}
             className="text-[13px] text-muted-foreground leading-relaxed mb-10 max-w-sm mx-auto"
           >
-            無論你是 KOL 還是商家，HomeKey 都有對應的方案幫助你最大化每次合作的價值。
+            無論你是 KOL 還是商家，PartnerLink 都有對應的方案幫助你最大化每次合作的價值。
           </motion.p>
 
           {/* Toggle — pill style */}

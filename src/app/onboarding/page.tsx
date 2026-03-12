@@ -102,9 +102,9 @@ async function uploadKolMediaFile({
 // ── Left panel content by role ─────────────────────────────────────────────
 const LEFT_CONTENT = {
   null: {
-    eyebrow: '加入 HomeKey',
+    eyebrow: '加入 PartnerLink',
     headline: '選擇你的\n合作身份',
-    desc: '無論你是內容創作者或商案商家，HomeKey 都有專屬方案等你加入。',
+    desc: '無論你是內容創作者或商案商家，PartnerLink 都有專屬方案等你加入。',
     stats: [
       { value: '120+', label: '合作 KOL' },
       { value: '18+',  label: '精選商案' },
@@ -919,8 +919,8 @@ export default function OnboardingPage() {
 
         {/* Logo */}
         <Link href="/" className="inline-flex items-center gap-3 relative z-10">
-          <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">HomeKey</span>
-          <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
+          <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">PartnerLink</span>
+          <span className="text-[#6B6560] text-sm tracking-widest">夥伴</span>
         </Link>
 
         {/* Dynamic content */}
@@ -954,7 +954,7 @@ export default function OnboardingPage() {
 
         {/* Copyright */}
         <p className="text-xs uppercase tracking-[0.3em] text-[#3A3A3A] relative z-10">
-          © {new Date().getFullYear()} HomeKey
+          © {new Date().getFullYear()} PartnerLink
         </p>
       </div>
 
@@ -965,8 +965,8 @@ export default function OnboardingPage() {
         <div className="flex items-center justify-between px-8 pt-8">
           {/* Mobile logo */}
           <Link href="/" className="lg:hidden flex items-center gap-2">
-            <span className="text-[#1A1A1A] font-semibold tracking-tight">HomeKey</span>
-            <span className="text-[#6B6560] text-sm tracking-widest">房客</span>
+            <span className="text-[#1A1A1A] font-semibold tracking-tight">PartnerLink</span>
+            <span className="text-[#6B6560] text-sm tracking-widest">夥伴</span>
           </Link>
           <div className="hidden lg:flex items-center gap-3">
             <StepDots step={step} total={totalSteps} />
