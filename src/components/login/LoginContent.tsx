@@ -286,7 +286,7 @@ export default function LoginContent() {
             >
               {t('noAccount')}{' '}
               <Link
-                href="/onboarding"
+                href="/signup"
                 className="text-[#1A1A1A] underline underline-offset-4 hover:text-[#B5886C] transition-colors duration-200"
               >
                 {t('getStarted')}
