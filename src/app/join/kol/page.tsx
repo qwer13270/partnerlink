@@ -87,7 +87,7 @@ export default function JoinKolPage() {
               asChild
               className="rounded-none px-9 h-12 text-xs tracking-widest uppercase bg-foreground text-background hover:bg-foreground/80"
             >
-              <Link href="/onboarding">免費申請加入</Link>
+              <Link href="/signup">免費申請加入</Link>
             </Button>
             <Link
               href="#how"
@@ -382,7 +382,7 @@ export default function JoinKolPage() {
               size="lg"
               className="rounded-none px-10 h-12 text-xs tracking-widest uppercase bg-foreground text-background hover:bg-foreground/80"
             >
-              <Link href="/onboarding">免費申請加入</Link>
+              <Link href="/signup">免費申請加入</Link>
             </Button>
           </motion.div>
 

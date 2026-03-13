@@ -259,7 +259,7 @@ export default function Header() {
                       size="sm"
                       className="rounded-none text-[11px] uppercase tracking-[0.15em] bg-foreground text-background hover:bg-foreground/85 h-8 px-4"
                     >
-                      <Link href="/onboarding">立即加入</Link>
+                      <Link href="/signup">立即加入</Link>
                     </Button>
                   </>
                 ) : (
@@ -338,7 +338,7 @@ export default function Header() {
                   ? dashboardHref
                     ? [{ label: dashboardLabel, href: dashboardHref }]
                     : []
-                  : [...NAV_LINKS, { label: "立即加入", href: "/onboarding" }]
+                  : [...NAV_LINKS, { label: "立即加入", href: "/signup" }]
                 ).map((item, i) => (
                   <motion.div
                     key={item.href}
