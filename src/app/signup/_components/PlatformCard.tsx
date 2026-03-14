@@ -54,17 +54,21 @@ export function PlatformCard({
   platform,
   isSelected,
   accountValue,
+  showAccountInput = true,
+  inputRequired = true,
   onToggle,
   onAccountChange,
 }: {
   platform: string
   isSelected: boolean
   accountValue: string
+  showAccountInput?: boolean
+  inputRequired?: boolean
   onToggle: () => void
   onAccountChange: (v: string) => void
 }) {
   const meta = PLATFORM_META[platform] ?? { color: '#1A1A1A', bg: 'rgba(0,0,0,0.04)', Icon: IgIcon, prefix: '@', hint: 'yourhandle' }
-  const isFilled = isSelected && accountValue.trim().length > 0
+  const isFilled = isSelected && (!showAccountInput || accountValue.trim().length > 0)
 
   return (
     <div
@@ -141,7 +145,7 @@ export function PlatformCard({
 
       {/* Animated username input */}
       <AnimatePresence>
-        {isSelected && (
+        {isSelected && showAccountInput && (
           <motion.div
             key="input-area"
             initial={{ height: 0, opacity: 0 }}
@@ -166,10 +170,9 @@ export function PlatformCard({
                   {meta.prefix}
                 </span>
                 <input
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus
                   type="text"
-                  required
+                  required={inputRequired}
                   placeholder={meta.hint}
                   value={accountValue}
                   onChange={(e) => onAccountChange(e.target.value)}

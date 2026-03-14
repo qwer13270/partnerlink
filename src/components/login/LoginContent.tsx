@@ -51,7 +51,34 @@ export default function LoginContent() {
     }
 
     let role = getRoleFromUser(data.user)
-    if (!role && data.session?.access_token) {
+    const signupRole = data.user.user_metadata?.signup_role
+
+    if (!role && signupRole === 'kol' && data.session?.access_token) {
+      const completeResponse = await fetch('/api/auth/complete-kol-signup', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${data.session.access_token}`,
+        },
+      })
+
+      const completePayload = await completeResponse.json().catch(() => null) as {
+        status?: string
+        code?: string
+      } | null
+
+      if (completeResponse.ok && completePayload?.status === 'approved') {
+        role = 'kol'
+      } else if (completePayload?.status === 'pending_admin_review') {
+        router.push('/pending-approval')
+        return
+      } else if (completePayload?.status === 'denied') {
+        router.push('/pending-approval')
+        return
+      } else if (completePayload?.code === 'MISSING_APPLICATION') {
+        router.push('/pending-approval')
+        return
+      }
+    } else if (!role && data.session?.access_token) {
       const syncResponse = await fetch('/api/auth/sync-role', {
         method: 'POST',
         headers: {
@@ -68,11 +95,8 @@ export default function LoginContent() {
     }
 
     if (!role) {
-      const signupRole = data.user.user_metadata?.signup_role
       if (signupRole === 'kol') {
-        await supabase.auth.signOut()
-        setError('KOL 帳號審核中，通過後即可登入儀表板。')
-        setIsSubmitting(false)
+        router.push('/pending-approval')
         return
       }
 

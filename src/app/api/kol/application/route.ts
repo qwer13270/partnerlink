@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  if (existing && existing.status !== 'pending') {
+  if (existing && existing.status !== 'pending_email_confirmation' && existing.status !== 'pending_admin_review') {
     return NextResponse.json(
       { error: `Application is already ${existing.status}.` },
       { status: 409 },
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     engagement_rate: engagementRate,
     photos,
     videos,
-    status: 'pending' as const,
+    status: 'pending_admin_review' as const,
     submitted_at: new Date().toISOString(),
   }
 

@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
   if (signupRole === 'kol') {
     return NextResponse.json(
-      { error: 'KOL application is pending approval.' },
+      { code: 'KOL_ROLE_PENDING_APPROVAL' },
       { status: 403 },
     )
   }

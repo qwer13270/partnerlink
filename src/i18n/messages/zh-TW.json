@@ -355,6 +355,26 @@
     "noAccount": "還沒有帳號？",
     "getStarted": "立即加入"
   },
+  "signup": {
+    "nav": {
+      "backToHome": "返回首頁"
+    },
+    "brand": {
+      "name": "PartnerLink",
+      "tagline": "夥伴",
+      "copyright": "© {year} PartnerLink"
+    },
+    "errors": {
+      "profilePhotoRequired": "請先上傳個人頭像。",
+      "signupFailed": "註冊失敗，請稍後再試。",
+      "roleAssignFailed": "角色設定失敗，請稍後再試。",
+      "kolDataMissing": "缺少 KOL 申請資料，請返回上一步重試。",
+      "kolApplicationFailed": "送出 KOL 申請失敗，請稍後再試。",
+      "applicationIdMissing": "申請建立成功，但缺少申請編號，請聯繫管理員。",
+      "mediaUploadFailed": "媒體上傳失敗，請稍後再試。",
+      "mediaUploadFailedWithFile": "{fileName} 上傳失敗：{message}"
+    }
+  },
   "onboarding": {
     "title": "開始使用",
     "subtitle": "選擇您的角色以繼續。"

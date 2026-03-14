@@ -3,28 +3,28 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { resolveRoleHomePath } from '@/lib/auth'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 import { LEFT_CONTENT } from './_constants'
-import { getUploadKey, uploadKolMediaFile } from './_upload'
-import type { Role, Step, KolSignupDraft, KolMediaDraft, UploadProgressMap } from './_types'
+import type { Role, Step, KolSignupDraft } from './_types'
 import { StepDots }     from './_components/StepDots'
 import { RoleStep }     from './_components/RoleStep'
 import { KolForm }      from './_components/KolForm'
-import { KolMediaStep } from './_components/KolMediaStep'
+import { KolPlatformAccountsStep } from './_components/KolPlatformAccountsStep'
 import { MerchantForm } from './_components/MerchantForm'
 
 
 export default function OnboardingPage() {
   const router = useRouter()
+  const t = useTranslations('signup')
   const [step, setStep] = useState<Step>(1)
   const [role, setRole] = useState<Role>(null)
   const [kolData, setKolData] = useState<KolSignupDraft | null>(null)
   const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState<UploadProgressMap>({})
 
   const totalSteps = role === 'kol' ? 3 : 2
 
@@ -36,7 +36,6 @@ export default function OnboardingPage() {
 
   const goBack = () => {
     setSubmitError('')
-    setUploadProgress({})
     if (step === 3) {
       setStep(2)
     } else {
@@ -50,15 +49,18 @@ export default function OnboardingPage() {
     setStep(3)
   }
 
-  const createAccount = async (
-    { email, password }: { email: string; password: string },
-    kolMedia?: KolMediaDraft,
-  ) => {
+  const createAccount = async ({
+    email,
+    password,
+    platforms,
+    platformAccounts,
+  }: {
+    email: string
+    password: string
+    platforms?: string[]
+    platformAccounts?: Record<string, string>
+  }) => {
     if (!role) return
-    if (role === 'kol' && !kolMedia?.profilePhoto) {
-      setSubmitError('請先上傳個人頭像。')
-      return
-    }
 
     setSubmitting(true)
     setSubmitError('')
@@ -67,17 +69,22 @@ export default function OnboardingPage() {
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
-        options: { data: { signup_role: role, full_name: kolData?.name ?? '' } },
+        options: {
+          emailRedirectTo: `${window.location.origin}/api/auth/confirm`,
+          data: {
+            signup_role: role,
+            full_name: kolData?.name ?? '',
+          },
+        },
       })
 
       if (error || !data.user) {
-        setSubmitError(error?.message ?? '註冊失敗，請稍後再試。')
+        setSubmitError(error?.message ?? t('errors.signupFailed'))
         return
       }
 
-      const token = data.session?.access_token
-
       if (role === 'merchant') {
+        const token = data.session?.access_token
         if (!token) {
           router.push(`/verify-email?email=${encodeURIComponent(email.trim())}`)
           return
@@ -89,29 +96,31 @@ export default function OnboardingPage() {
         })
         if (!res.ok) {
           const payload = await res.json().catch(() => null) as { error?: string } | null
-          setSubmitError(payload?.error ?? '角色設定失敗，請稍後再試。')
+          setSubmitError(payload?.error ?? t('errors.roleAssignFailed'))
           return
         }
         router.push(resolveRoleHomePath(role))
         return
       }
 
-      if (!token) {
-        router.push(`/verify-email?email=${encodeURIComponent(email.trim())}`)
-        return
-      }
       if (!kolData) {
-        setSubmitError('缺少 KOL 申請資料，請返回上一步重試。')
+        setSubmitError(t('errors.kolDataMissing'))
         return
       }
 
-      const appRes = await fetch('/api/kol/application', {
+      const token = data.session?.access_token
+      const appRes = await fetch('/api/kol/application/preconfirm', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
+          userId: data.user.id,
+          email: email.trim(),
           fullName: kolData.name,
-          platforms: kolData.platforms,
-          platformAccounts: kolData.platformAccounts,
+          platforms: platforms ?? kolData.platforms,
+          platformAccounts: platformAccounts ?? {},
           followerRange: kolData.followerRange,
           contentType: kolData.contentType,
           bio: kolData.bio,
@@ -121,63 +130,48 @@ export default function OnboardingPage() {
       })
       if (!appRes.ok) {
         const payload = await appRes.json().catch(() => null) as { error?: string } | null
-        setSubmitError(payload?.error ?? '送出 KOL 申請失敗，請稍後再試。')
+        setSubmitError(payload?.error ?? t('errors.kolApplicationFailed'))
         return
       }
 
-      const appPayload = await appRes.json().catch(() => null) as { application?: { id?: string } } | null
-      const applicationId = appPayload?.application?.id
-      if (!applicationId) {
-        setSubmitError('申請建立成功，但缺少申請編號，請聯繫管理員。')
-        return
-      }
-
-      const filesToUpload = kolMedia?.profilePhoto
-        ? [{ file: kolMedia.profilePhoto, mediaType: 'image' as const, sortOrder: 0, isProfile: true, key: `profile-${getUploadKey('image', 0, kolMedia.profilePhoto)}` }]
-        : []
-
-      if (filesToUpload.length > 0) {
-        setUploadProgress(
-          filesToUpload.reduce<UploadProgressMap>((acc, item) => {
-            acc[item.key] = { status: 'pending', progress: 0 }
-            return acc
-          }, {}),
-        )
-      }
-
-      for (const item of filesToUpload) {
-        setUploadProgress((prev) => ({ ...prev, [item.key]: { status: 'uploading', progress: 0 } }))
-        try {
-          await uploadKolMediaFile({
-            token, applicationId,
-            mediaType: item.mediaType, sortOrder: item.sortOrder, isProfile: item.isProfile,
-            file: item.file,
-            onProgress: (progress) => setUploadProgress((prev) => ({ ...prev, [item.key]: { status: 'uploading', progress } })),
-          })
-          setUploadProgress((prev) => ({ ...prev, [item.key]: { status: 'success', progress: 100 } }))
-        } catch (uploadError) {
-          const message = uploadError instanceof Error ? uploadError.message : '媒體上傳失敗，請稍後再試。'
-          setUploadProgress((prev) => ({ ...prev, [item.key]: { status: 'error', progress: prev[item.key]?.progress ?? 0, error: message } }))
-          setSubmitError(`${item.file.name} 上傳失敗：${message}`)
+      if (token) {
+        const completeRes = await fetch('/api/auth/complete-kol-signup', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (!completeRes.ok) {
+          const payload = await completeRes.json().catch(() => null) as { error?: string } | null
+          setSubmitError(payload?.error ?? t('errors.signupFailed'))
           return
         }
+        router.push('/pending-approval')
+        return
       }
 
-      router.push('/pending-approval')
+      router.push(`/verify-email?email=${encodeURIComponent(email.trim())}`)
     } catch (caughtError) {
       setSubmitError(
-        caughtError instanceof Error && caughtError.message ? caughtError.message : '註冊失敗，請稍後再試。',
+        caughtError instanceof Error && caughtError.message ? caughtError.message : t('errors.signupFailed'),
       )
     } finally {
       setSubmitting(false)
     }
   }
 
-  const handleKolMediaSubmit = (media: KolMediaDraft) => {
-    if (kolData) createAccount({ email: kolData.email, password: kolData.password }, media)
+  const handleKolPlatformAccountsSubmit = ({ platforms, platformAccounts }: { platforms: string[]; platformAccounts: Record<string, string> }) => {
+    if (kolData) {
+      createAccount({
+        email: kolData.email,
+        password: kolData.password,
+        platforms,
+        platformAccounts,
+      })
+    }
   }
 
   const content = LEFT_CONTENT[(role ?? 'null') as keyof typeof LEFT_CONTENT]
+  const brandName = t('brand.name')
+  const brandTagline = t('brand.tagline')
 
   return (
     <div className="fixed inset-0 z-[100] flex overflow-hidden">
@@ -192,8 +186,8 @@ export default function OnboardingPage() {
           }}
         />
         <Link href="/" className="inline-flex items-center gap-3 relative z-10">
-          <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">PartnerLink</span>
-          <span className="text-[#6B6560] text-sm tracking-widest">夥伴</span>
+          <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">{brandName}</span>
+          <span className="text-[#6B6560] text-sm tracking-widest">{brandTagline}</span>
         </Link>
 
         <AnimatePresence mode="wait">
@@ -222,7 +216,7 @@ export default function OnboardingPage() {
         </AnimatePresence>
 
         <p className="text-xs uppercase tracking-[0.3em] text-[#3A3A3A] relative z-10">
-          © {new Date().getFullYear()} PartnerLink
+          {t('brand.copyright', { year: new Date().getFullYear() })}
         </p>
       </div>
 
@@ -230,8 +224,8 @@ export default function OnboardingPage() {
       <div className="flex-1 bg-[#FAF9F6] flex flex-col overflow-auto">
         <div className="flex items-center justify-between px-8 pt-8">
           <Link href="/" className="lg:hidden flex items-center gap-2">
-            <span className="text-[#1A1A1A] font-semibold tracking-tight">PartnerLink</span>
-            <span className="text-[#6B6560] text-sm tracking-widest">夥伴</span>
+            <span className="text-[#1A1A1A] font-semibold tracking-tight">{brandName}</span>
+            <span className="text-[#6B6560] text-sm tracking-widest">{brandTagline}</span>
           </Link>
           <div className="hidden lg:flex items-center gap-3">
             <StepDots step={step} total={totalSteps} />
@@ -239,7 +233,7 @@ export default function OnboardingPage() {
           </div>
           <Link
             href="/"
-            aria-label="返回首頁"
+            aria-label={t('nav.backToHome')}
             className="flex items-center justify-center w-9 h-9 text-[#6B6560] hover:text-[#1A1A1A] hover:bg-[#E8E4DF] rounded-full transition-colors duration-200"
           >
             <X className="h-4 w-4" />
@@ -254,12 +248,12 @@ export default function OnboardingPage() {
                 <KolForm onBack={goBack} onNext={handleKolNext} />
               )}
               {step === 3 && role === 'kol' && (
-                <KolMediaStep
+                <KolPlatformAccountsStep
+                  initialPlatforms={kolData?.platforms ?? []}
                   onBack={goBack}
-                  onSubmit={handleKolMediaSubmit}
+                  onSubmit={handleKolPlatformAccountsSubmit}
                   error={submitError}
                   submitting={submitting}
-                  uploadProgress={uploadProgress}
                 />
               )}
               {step === 2 && role === 'merchant' && (
