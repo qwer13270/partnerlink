@@ -69,7 +69,9 @@ export default function KolProfilePage() {
       const res     = await fetch('/api/kol/profile', { method: 'PUT', body: formData })
       const payload = (await res.json().catch(() => null)) as ProfileResponse | null
       if (!res.ok) { setError(payload?.error ?? '儲存失敗，請稍後再試。'); return }
-      setProfilePhotoUrl(payload?.profile?.profilePhotoUrl ?? profilePhotoUrl)
+      const newUrl = payload?.profile?.profilePhotoUrl ?? profilePhotoUrl
+      setProfilePhotoUrl(newUrl)
+      window.dispatchEvent(new CustomEvent('profile-photo-updated', { detail: { url: newUrl } }))
       setSelectedPhoto(null); setSelectedPreview(null)
       setSuccess('個人檔案已更新。')
     } catch (e) {
