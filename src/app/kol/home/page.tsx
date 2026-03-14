@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   ArrowRight, MapPin, Tag, Sparkles, TrendingUp,
-  Link2, Clock, CheckCircle2, XCircle,
+  Link2, Clock, CheckCircle2, XCircle, Camera, Film, Layers3,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { mockProperties } from '@/data/mock-properties'
@@ -70,14 +70,48 @@ type PortfolioSummaryResponse = {
   }
 }
 
+type ProfileSummaryResponse = {
+  profile?: {
+    profilePhotoUrl?: string | null
+  }
+}
+
 // ── Page ────────────────────────────────────────────────────────────────────
 export default function KolHomePage() {
   const featured = mockProperties.slice(0, 3)
   const pendingCount = APPLICATIONS.filter((a) => a.status === 'pending').length
   const [displayName, setDisplayName] = useState<string>('')
   const [portfolioCounts, setPortfolioCounts] = useState({ totalPhotos: 0, totalVideos: 0 })
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null)
   const [portfolioLoaded, setPortfolioLoaded] = useState(false)
+  const [profileLoaded, setProfileLoaded] = useState(false)
   const totalPortfolioAssets = portfolioCounts.totalPhotos + portfolioCounts.totalVideos
+  const needsProfilePhoto = profileLoaded && !profilePhotoUrl
+  const needsPortfolio = portfolioLoaded && totalPortfolioAssets === 0
+  const shouldShowSetupGuide = needsProfilePhoto || needsPortfolio
+  const setupItems = [
+    {
+      key: 'profile-photo',
+      title: '補上個人頭像',
+      body: '讓商家在合作清單與檔案頁裡第一眼就記住你。',
+      href: '/kol/profile',
+      cta: needsProfilePhoto ? '設定頭像' : '已完成',
+      done: !needsProfilePhoto,
+      icon: Camera,
+      accent: '#b06e4f',
+    },
+    {
+      key: 'portfolio',
+      title: '整理作品集',
+      body: '上傳代表照片與影片，把內容質感直接展示出來。',
+      href: '/kol/portfolio',
+      cta: needsPortfolio ? '前往上傳' : '已完成',
+      done: !needsPortfolio,
+      icon: Film,
+      accent: '#245346',
+    },
+  ]
+  const setupCompletedCount = setupItems.filter((item) => item.done).length
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient()
@@ -90,6 +124,16 @@ export default function KolHomePage() {
         setDisplayName(user.email.split('@')[0])
       }
     })
+
+    fetch('/api/kol/profile', { cache: 'no-store' })
+      .then(async (response) => {
+        const payload = (await response.json().catch(() => null)) as ProfileSummaryResponse | null
+        if (!response.ok) return
+
+        setProfilePhotoUrl(payload?.profile?.profilePhotoUrl ?? null)
+      })
+      .catch(() => {})
+      .finally(() => setProfileLoaded(true))
 
     fetch('/api/kol/portfolio', { cache: 'no-store' })
       .then(async (response) => {
@@ -114,41 +158,108 @@ export default function KolHomePage() {
         <h1 className="text-3xl font-serif">{displayName ? `${displayName} 👋` : <span className="inline-block w-32 h-8 bg-muted animate-pulse rounded" />}</h1>
       </motion.div>
 
-      {portfolioLoaded && totalPortfolioAssets === 0 && (
+      {shouldShowSetupGuide && (
         <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp}>
-          <div
-            className="relative overflow-hidden px-6 py-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border border-[#E8D5BC]"
-            style={{ background: 'linear-gradient(135deg, #fbf2e6 0%, #f7f4ee 55%, #f1e3d0 100%)' }}
-          >
-            {/* Left terracotta edge */}
-            <div aria-hidden="true" className="absolute left-0 inset-y-0 w-[3px] bg-[#B5886C]" />
-
-            <div className="pl-3">
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="inline-flex items-center justify-center w-4 h-4 bg-[#B5886C] text-white text-[0.52rem] font-bold shrink-0">1</span>
-                <p className="text-[0.6rem] uppercase tracking-[0.35em] text-[#B5886C]">第一步建議</p>
+          <div className="relative overflow-hidden border border-[#d9c5ae] bg-[linear-gradient(135deg,#fbf1e5_0%,#f7f2ec_48%,#f0e1d2_100%)]">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 opacity-[0.28] pointer-events-none"
+              style={{
+                backgroundImage:
+                  'linear-gradient(90deg, rgba(176,110,79,0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(36,83,70,0.06) 1px, transparent 1px)',
+                backgroundSize: '34px 34px',
+              }}
+            />
+            <div className="relative grid gap-6 p-6 lg:grid-cols-[1.05fr_0.95fr] lg:p-7">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#b06e4f]/20 bg-white/75 text-[#b06e4f]">
+                    <Layers3 className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <p className="text-[0.62rem] uppercase tracking-[0.35em] text-[#9a7059]">Creator Setup</p>
+                    <p className="text-[0.72rem] text-[#897768]">{setupCompletedCount} / {setupItems.length} 項已完成</p>
+                  </div>
+                </div>
+                <div>
+                  <h2 className="text-[1.65rem] font-serif leading-[1.1] text-[#1b1712]">
+                    把你的 KOL 門面整理好，
+                    <br className="hidden sm:block" />
+                    商家才會更快看見你的內容價值。
+                  </h2>
+                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#776658]">
+                    現在先完成頭像與作品集，讓你的個人檔案從基本資料升級成真正能促成合作的展示頁。
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {setupItems.map((item, index) => (
+                    <div
+                      key={item.key}
+                      className={`inline-flex items-center gap-2 border px-3 py-1.5 text-[0.62rem] uppercase tracking-[0.22em] ${
+                        item.done
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                          : 'border-[#d3b79a] bg-white/65 text-[#8b664f]'
+                      }`}
+                    >
+                      <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-current/10 text-[0.55rem] font-semibold">
+                        {item.done ? <CheckCircle2 className="h-2.5 w-2.5" /> : index + 1}
+                      </span>
+                      {item.title}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <h2 className="text-lg font-serif text-[#1A1A1A] leading-snug">
-                把作品集補齊，商家才看得到你的內容質感。
-              </h2>
-              <p className="mt-1 text-xs text-[#7A6A5A] leading-relaxed">
-                上傳幾張代表照片或影片，直接影響商家對你的第一印象。
-              </p>
+
+              <div className="grid gap-3">
+                {setupItems.map((item, index) => {
+                  const Icon = item.icon
+                  return (
+                    <div key={item.key} className="group relative overflow-hidden border border-black/10 bg-white/72 p-4 backdrop-blur-[2px] transition-transform duration-200 hover:-translate-y-0.5">
+                      <div aria-hidden="true" className="absolute inset-y-0 left-0 w-1" style={{ background: item.accent }} />
+                      <div className="ml-2 flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <div className="mb-2 flex items-center gap-2">
+                            <span
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-full border"
+                              style={{
+                                borderColor: `${item.accent}33`,
+                                color: item.accent,
+                                background: `${item.accent}10`,
+                              }}
+                            >
+                              <Icon className="h-3.5 w-3.5" />
+                            </span>
+                            <div>
+                              <p className="text-[0.58rem] uppercase tracking-[0.28em] text-[#94715d]">Step {index + 1}</p>
+                              <h3 className="text-sm font-medium text-[#1b1712]">{item.title}</h3>
+                            </div>
+                          </div>
+                          <p className="text-xs leading-relaxed text-[#7a695b]">{item.body}</p>
+                        </div>
+                        <Link
+                          href={item.href}
+                          className={`shrink-0 inline-flex items-center gap-1.5 border px-3 py-2 text-[0.58rem] uppercase tracking-[0.22em] transition-all duration-200 ${
+                            item.done
+                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                              : 'border-[#1b1712] bg-[#1b1712] text-white hover:bg-[#33271f]'
+                          }`}
+                        >
+                          <span>{item.cta}</span>
+                          {!item.done && <ArrowRight className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" />}
+                        </Link>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
-            <Link
-              href="/kol/portfolio"
-              className="shrink-0 inline-flex items-center gap-2 border border-[#B5886C] px-4 py-2 text-xs uppercase tracking-[0.2em] text-[#B5886C] hover:bg-[#B5886C] hover:text-white transition-all duration-200"
-            >
-              上傳作品集
-              <ArrowRight className="h-3 w-3" />
-            </Link>
           </div>
         </motion.div>
       )}
 
       {/* ── Stats + Application status ── */}
       <motion.div
-        custom={2} initial="hidden" animate="visible" variants={fadeUp}
+        custom={shouldShowSetupGuide ? 2 : 1} initial="hidden" animate="visible" variants={fadeUp}
         className="grid grid-cols-1 sm:grid-cols-3 gap-4"
       >
         {/* Quick stats — 2 cards */}
@@ -206,7 +317,7 @@ export default function KolHomePage() {
       {/* ── Featured 商案 ── */}
       <div>
         <motion.div
-          custom={3} initial="hidden" animate="visible" variants={fadeUp}
+          custom={shouldShowSetupGuide ? 3 : 2} initial="hidden" animate="visible" variants={fadeUp}
           className="flex items-center justify-between mb-6"
         >
           <div className="flex items-center gap-3">
@@ -229,7 +340,7 @@ export default function KolHomePage() {
             return (
               <motion.div
                 key={prop.id}
-                custom={4 + i} initial="hidden" animate="visible" variants={fadeUp}
+                custom={(shouldShowSetupGuide ? 4 : 3) + i} initial="hidden" animate="visible" variants={fadeUp}
                 className="border border-foreground/15 hover:border-foreground/40 transition-colors duration-300 flex flex-col"
               >
                 <div className="bg-muted/40 h-28 flex items-center justify-center relative overflow-hidden">
@@ -279,7 +390,7 @@ export default function KolHomePage() {
           })}
         </div>
 
-        <motion.div custom={7} initial="hidden" animate="visible" variants={fadeUp} className="mt-5">
+        <motion.div custom={shouldShowSetupGuide ? 7 : 6} initial="hidden" animate="visible" variants={fadeUp} className="mt-5">
           <Button asChild variant="outline" className="rounded-none text-xs uppercase tracking-widest w-full gap-2">
             <Link href="/kol/marketplace">
               查看全部 {mockProperties.length} 個商案

@@ -26,7 +26,7 @@ export async function POST(
     return NextResponse.json({ error: 'Application not found.' }, { status: 404 })
   }
 
-  if (application.status !== 'pending') {
+  if (!['pending_admin_review', 'denied'].includes(application.status)) {
     return NextResponse.json(
       { error: `Application is already ${application.status}.` },
       { status: 409 },
@@ -48,10 +48,6 @@ export async function POST(
         ...userResult.user.app_metadata,
         role: 'kol',
       },
-      user_metadata: {
-        ...userResult.user.user_metadata,
-        profile_photo_path: application.profile_photo_path ?? null,
-      },
     },
   )
 
@@ -68,6 +64,7 @@ export async function POST(
       status: 'approved',
       reviewed_at: new Date().toISOString(),
       reviewed_by: auth.user.id,
+      rejection_reason: null,
     })
     .eq('id', id)
 

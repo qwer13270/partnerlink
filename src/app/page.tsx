@@ -1,9 +1,30 @@
 'use client'
 
+import { Suspense, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowUpRight, Building2, MapPin } from 'lucide-react'
+
+// Detects Supabase auth error redirects that land on the site root
+// (happens when emailRedirectTo URL is not in the Supabase allowlist or OTP expires)
+function AuthErrorRedirect() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const errorCode = searchParams.get('error_code') ?? searchParams.get('error')
+    if (!errorCode) return
+    const params = new URLSearchParams()
+    params.set('error_code', errorCode)
+    const desc = searchParams.get('error_description')
+    if (desc) params.set('error_description', desc)
+    router.replace(`/auth/error?${params}`)
+  }, [router, searchParams])
+
+  return null
+}
 
 // ── Animation helpers ──────────────────────────────────────────────────────
 const fadeUp = (delay = 0) => ({
@@ -63,6 +84,9 @@ export default function HomePage() {
 
   return (
     <div className="overflow-x-hidden">
+      <Suspense fallback={null}>
+        <AuthErrorRedirect />
+      </Suspense>
 
       {/* ══════════════════════════════════════════════════════
           HERO — light, full-width, centered

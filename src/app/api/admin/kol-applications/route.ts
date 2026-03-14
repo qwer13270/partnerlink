@@ -14,8 +14,13 @@ export async function GET(request: NextRequest) {
   const auth = await requireApiRole(request, ['admin'])
   if (!auth.ok) return auth.response
 
+  const searchParams = request.nextUrl.searchParams
+  const statusParam = searchParams.get('status')
+  const status = statusParam === 'denied' ? 'denied' : 'pending_admin_review'
+  const queryText = searchParams.get('q')?.trim() ?? ''
+
   const admin = getSupabaseAdminClient()
-  const { data, error } = await admin
+  let query = admin
     .from('kol_applications')
     .select([
       'id',
@@ -34,11 +39,20 @@ export async function GET(request: NextRequest) {
       'photos',
       'videos',
       'submitted_at',
+      'reviewed_at',
+      'rejection_reason',
       'status',
       'created_at',
     ].join(','))
-    .eq('status', 'pending')
+    .eq('status', status)
     .order('submitted_at', { ascending: true })
+
+  if (queryText) {
+    const escaped = queryText.replace(/[%_,]/g, (token) => `\\${token}`)
+    query = query.or(`full_name.ilike.%${escaped}%,email.ilike.%${escaped}%`)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     return NextResponse.json(
