@@ -221,6 +221,19 @@ export default function LoginContent() {
               </motion.p>
             )}
 
+            {notice === 'complete-kol-application' && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-5 border border-[#E8E4DF] bg-white/70 px-4 py-3"
+              >
+                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-[#8A837B]">KOL 申請提醒</p>
+                <p className="mt-2 text-xs leading-relaxed text-[#6B6560]">
+                  登入成功後，系統才會正式送出你的 KOL 申請並進入審核流程。
+                </p>
+              </motion.div>
+            )}
+
             {/* form */}
             <form onSubmit={handleSubmit} className="space-y-8">
 

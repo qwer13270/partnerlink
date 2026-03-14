@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { CheckCircle2, ArrowRight } from 'lucide-react'
+import { CheckCircle2, ArrowRight, ShieldCheck, LogIn } from 'lucide-react'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
@@ -37,15 +37,14 @@ export default function AuthConfirmedPage() {
         </Link>
 
         <div className="space-y-4 relative z-10">
-          <p className="text-xs uppercase tracking-[0.4em] text-[#6B6560]">Email Confirmed</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-[#6B6560]">One Last Step</p>
           <h1 className="text-4xl font-serif text-[#FAF9F6] leading-[1.12]">
-            信箱已完成驗證
+            信箱已驗證完成
             <br />
-            等待審核與開通
+            還差登入這一步
           </h1>
           <p className="text-sm text-[#6B6560] leading-relaxed max-w-xs">
-            你的登入信箱已成功啟用。我們正在為你準備對應的帳號權限與後台入口，很快就能開始使用 PartnerLink
-            的完整功能。
+            KOL 申請不會在驗證信箱後自動送出。請使用剛剛完成驗證的帳號登入一次，系統才會正式建立申請並送進審核流程。
           </p>
         </div>
 
@@ -63,42 +62,70 @@ export default function AuthConfirmedPage() {
             </div>
             <h2 className="text-3xl font-serif text-[#1A1A1A]">Email 驗證完成</h2>
             <p className="text-sm text-[#6B6560] mt-3 leading-relaxed">
-              <span className="text-[#1A1A1A]">{safeEmail}</span> 已成功完成驗證。
-              若你是 KOL，申請資料將由團隊進行審核；若你是商家帳號，我們會為你啟用後台權限。
+              <span className="text-[#1A1A1A]">{safeEmail}</span> 已成功完成驗證，但 KOL 申請還沒有真正送出。
+              請先登入一次，系統才會把你的申請資料送進審核。
             </p>
           </motion.div>
 
-          <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="space-y-3">
-            <p className="text-xs text-[#6B6560]">
-              目前狀態：<span className="text-[#1A1A1A]">等待審核 / 權限同步</span>
-            </p>
-            <p className="text-xs text-[#8A837B]">
-              完成審核後，你可以使用剛剛驗證的信箱登入，系統會自動導向對應的儀表板首頁。
+          <motion.div
+            custom={1}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="mb-6 border border-[#E8E4DF] bg-[#FAF9F6] p-4"
+          >
+            <p className="text-[0.68rem] uppercase tracking-[0.24em] text-[#8A837B]">重要提醒</p>
+            <p className="mt-2 text-sm text-[#1A1A1A] leading-relaxed">
+              只有完成登入後，KOL 申請才會正式送出。
             </p>
           </motion.div>
 
-          <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp} className="mt-8">
+          <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp} className="space-y-3">
+            {[
+              {
+                icon: LogIn,
+                title: '1. 先登入帳號',
+                body: '用剛剛完成驗證的 Email 與密碼登入一次。',
+              },
+              {
+                icon: ShieldCheck,
+                title: '2. 系統送出申請',
+                body: '登入成功後，系統才會把你的 KOL 申請資料送進審核流程。',
+              },
+            ].map(({ icon: Icon, title, body }) => (
+              <div key={title} className="flex gap-3 border-t border-[#ECE7E1] pt-3 first:border-t-0 first:pt-0">
+                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center border border-[#E8E4DF] bg-white">
+                  <Icon className="h-4 w-4 text-[#1A1A1A]" />
+                </div>
+                <div>
+                  <p className="text-sm text-[#1A1A1A]">{title}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-[#6B6560]">{body}</p>
+                </div>
+              </div>
+            ))}
+          </motion.div>
+
+          <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp} className="mt-8">
             <Link
-              href={`/login?email=${encodeURIComponent(safeEmail)}`}
+              href={`/login?email=${encodeURIComponent(safeEmail)}&notice=complete-kol-application`}
               className="group w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] transition-colors duration-300"
             >
-              <span>前往登入</span>
+              <span>立即登入送出申請</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </motion.div>
 
           <motion.p
-            custom={3}
+            custom={4}
             initial="hidden"
             animate="visible"
             variants={fadeUp}
             className="mt-5 text-xs text-[#6B6560]"
           >
-            若你尚未完成註冊流程，請返回 Onboarding 頁面重新送出資料，或聯繫 PartnerLink 團隊協助處理。
+            如果你現在先離開也沒關係，但記得回來登入一次；未登入前，申請不會進入審核。
           </motion.p>
         </div>
       </div>
     </div>
   )
 }
-
