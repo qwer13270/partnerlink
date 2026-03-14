@@ -50,41 +50,34 @@ export default async function KolHomePage() {
   }
 
   const admin = getSupabaseAdminClient()
-  const { data: application } = await admin
-    .from('kol_applications')
-    .select('id,full_name,profile_photo_path')
-    .eq('user_id', user.id)
-    .eq('status', 'approved')
-    .maybeSingle<ApplicationRecord>()
+  const [{ data: application }, { data: assets }] = await Promise.all([
+    admin
+      .from('kol_applications')
+      .select('id,full_name,profile_photo_path')
+      .eq('user_id', user.id)
+      .eq('status', 'approved')
+      .maybeSingle<ApplicationRecord>(),
+    admin
+      .from('kol_media_assets')
+      .select('media_type,storage_path')
+      .eq('user_id', user.id)
+      .returns<PortfolioAssetRecord[]>(),
+  ])
 
-  const applicationId = typeof application?.id === 'string' ? application.id : null
   const profilePhotoPath =
     typeof application?.profile_photo_path === 'string'
       ? application.profile_photo_path
       : ''
 
-  let portfolioCounts = { totalPhotos: 0, totalVideos: 0 }
-
-  if (applicationId) {
-    const { data: assets } = await admin
-      .from('kol_media_assets')
-      .select('media_type,storage_path')
-      .eq('application_id', applicationId)
-      .eq('user_id', user.id)
-      .returns<PortfolioAssetRecord[]>()
-
-    const summary = (assets ?? []).reduce(
-      (acc, asset) => {
-        if (asset.storage_path === profilePhotoPath) return acc
-        if (asset.media_type === 'image') acc.totalPhotos += 1
-        if (asset.media_type === 'video') acc.totalVideos += 1
-        return acc
-      },
-      { totalPhotos: 0, totalVideos: 0 },
-    )
-
-    portfolioCounts = summary
-  }
+  const portfolioCounts = (assets ?? []).reduce(
+    (acc, asset) => {
+      if (asset.storage_path === profilePhotoPath) return acc
+      if (asset.media_type === 'image') acc.totalPhotos += 1
+      if (asset.media_type === 'video') acc.totalVideos += 1
+      return acc
+    },
+    { totalPhotos: 0, totalVideos: 0 },
+  )
 
   const displayName =
     (typeof application?.full_name === 'string' && application.full_name.trim()) ||

@@ -98,6 +98,16 @@ export default function Header() {
     return () => controller.abort();
   }, [user]);
 
+  // Sync avatar when profile photo is updated elsewhere (e.g. /kol/profile)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const url = (e as CustomEvent<{ url: string | null }>).detail?.url ?? null
+      setProfilePhotoUrl(url)
+    }
+    window.addEventListener('profile-photo-updated', handler)
+    return () => window.removeEventListener('profile-photo-updated', handler)
+  }, [])
+
   // Close user menu on outside click
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
