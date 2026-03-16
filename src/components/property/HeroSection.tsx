@@ -1,10 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
 import { MapPin, ArrowDown } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useLocale } from '@/hooks/useLocale'
+import strings from '@/lib/strings'
 import type { Property } from '@/lib/types'
 
 interface HeroSectionProps {
@@ -12,14 +12,14 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ property }: HeroSectionProps) {
-  const t = useTranslations('property')
   const { getLocalizedValue } = useLocale()
+  const t = strings.property
 
   const statusLabel = {
-    'pre-sale': t('preSale'),
-    'selling': t('selling'),
-    'sold-out': t('soldOut'),
-    'completed': t('completed'),
+    'pre-sale': t.preSale,
+    'selling': t.selling,
+    'sold-out': t.soldOut,
+    'completed': t.completed,
   }
 
   const formatPrice = (price: number) => {
@@ -98,7 +98,7 @@ export default function HeroSection({ property }: HeroSectionProps) {
             {/* Price */}
             <div className="py-8 pr-8">
               <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                {t('priceRange')}
+                {t.priceRange}
               </p>
               <p className="text-2xl md:text-3xl font-serif">
                 {formatPrice(property.priceRange.min)}
@@ -110,20 +110,20 @@ export default function HeroSection({ property }: HeroSectionProps) {
             {/* MRT */}
             <div className="py-8 px-8">
               <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                {t('nearestMrt')}
+                {t.nearestMrt}
               </p>
               <p className="text-lg font-serif">
                 {getLocalizedValue(property.nearestMrt, property.nearestMrtEn)}
               </p>
               <p className="text-sm text-muted-foreground">
-                {property.mrtWalkTime} {t('minutes')} {t('walkingDistance')}
+                {property.mrtWalkTime} {t.minutes} {t.walkingDistance}
               </p>
             </div>
 
             {/* Units */}
             <div className="py-8 px-8 hidden md:block">
               <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                {t('highlights.totalUnits')}
+                {t.highlights.totalUnits}
               </p>
               <p className="text-3xl font-serif">{property.totalUnits}</p>
             </div>
@@ -131,7 +131,7 @@ export default function HeroSection({ property }: HeroSectionProps) {
             {/* Completion */}
             <div className="py-8 pl-8 hidden md:block">
               <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                {t('highlights.completion')}
+                {t.highlights.completion}
               </p>
               <p className="text-2xl font-serif">{property.completionDate}</p>
             </div>

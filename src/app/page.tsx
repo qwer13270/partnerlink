@@ -1,8 +1,8 @@
 'use client'
 
 import { Suspense, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import strings from '@/lib/strings'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowUpRight, Building2, MapPin } from 'lucide-react'
@@ -80,7 +80,7 @@ const FEATURED_PROPERTIES = [
 
 // ── Page ──────────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const t = useTranslations('landing')
+  const t = strings.landing
 
   return (
     <div className="overflow-x-hidden">
@@ -106,7 +106,7 @@ export default function HomePage() {
         <motion.div {...fadeUp(0.15)} className="flex items-center gap-4 mb-12">
           <div className="w-8 h-px bg-[#c4913a]/50" />
           <span className="text-[0.62rem] tracking-[4px] uppercase text-[#c4913a]">
-            {t('hero.badge')}
+            {t.hero.badge}
           </span>
           <div className="w-8 h-px bg-[#c4913a]/50" />
         </motion.div>
@@ -125,7 +125,7 @@ export default function HomePage() {
           {...fadeUp(0.45)}
           className="font-light text-base leading-loose mb-14 max-w-md text-muted-foreground"
         >
-          {t('hero.subtitle')}
+          {t.hero.subtitle}
         </motion.p>
 
         {/* CTA pair */}
@@ -134,7 +134,7 @@ export default function HomePage() {
             href="/join/kol"
             className="group inline-flex items-center gap-2.5 text-[0.68rem] tracking-[3px] uppercase px-8 py-3.5 border border-foreground/20 text-foreground hover:border-[#c4913a] hover:text-[#c4913a] transition-colors duration-200"
           >
-            {t('hero.ctaPrimary')}
+            {t.hero.ctaPrimary}
             <ArrowUpRight className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
           </Link>
           <Link
@@ -142,7 +142,7 @@ export default function HomePage() {
             className="inline-flex items-center gap-2.5 text-[0.68rem] tracking-[3px] uppercase px-8 py-3.5 text-white hover:bg-[#b8936a] transition-colors duration-200"
             style={{ background: '#c4913a' }}
           >
-            {t('hero.ctaSecondary')}
+            {t.hero.ctaSecondary}
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </motion.div>
@@ -266,7 +266,7 @@ export default function HomePage() {
             className="group inline-flex items-center gap-2 text-[0.65rem] tracking-[2.5px] uppercase text-foreground transition-colors duration-200 hover:text-[#c4913a]"
             style={{ borderBottom: '1px solid currentColor', paddingBottom: '2px' }}
           >
-            {t('cta.primary')}
+            {t.cta.primary}
             <ArrowUpRight className="h-3 w-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
         </motion.div>
@@ -311,7 +311,7 @@ export default function HomePage() {
             className="group inline-flex items-center gap-2 text-[0.65rem] tracking-[2.5px] uppercase text-foreground transition-colors duration-200 hover:text-[#c4913a]"
             style={{ borderBottom: '1px solid currentColor', paddingBottom: '2px' }}
           >
-            {t('cta.secondary')}
+            {t.cta.secondary}
             <ArrowUpRight className="h-3 w-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
         </motion.div>
@@ -327,20 +327,20 @@ export default function HomePage() {
           <div className="flex items-end justify-between mb-10">
             <div>
               <p className="text-[0.6rem] tracking-[4px] uppercase text-muted-foreground mb-3">
-                {t('featured.eyebrow')}
+                {t.featured.eyebrow}
               </p>
               <motion.h2
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
                 className="font-serif text-3xl font-light"
               >
-                {t('featured.title')}
+                {t.featured.title}
               </motion.h2>
             </div>
             <Link
               href="/properties"
               className="group hidden md:inline-flex items-center gap-1.5 text-[0.62rem] tracking-[2px] uppercase text-muted-foreground hover:text-foreground transition-colors"
             >
-              {t('featured.viewAll')}
+              {t.featured.viewAll}
               <ArrowUpRight className="h-3 w-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </Link>
           </div>
@@ -448,7 +448,7 @@ export default function HomePage() {
             className="font-serif text-4xl md:text-5xl font-light leading-[1.15] mb-5"
             style={{ color: '#fff' }}
           >
-            {t('cta.title')}
+            {t.cta.title}
           </motion.h2>
 
           {/* Subtitle */}
@@ -457,7 +457,7 @@ export default function HomePage() {
             className="font-light text-sm leading-loose mb-12"
             style={{ color: '#5a5048' }}
           >
-            {t('cta.subtitle')}
+            {t.cta.subtitle}
           </motion.p>
 
           {/* Buttons */}
@@ -472,7 +472,7 @@ export default function HomePage() {
               onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#c4913a'; (e.currentTarget as HTMLAnchorElement).style.color = '#c4913a' }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.2)'; (e.currentTarget as HTMLAnchorElement).style.color = '#fff' }}
             >
-              {t('cta.primary')}
+              {t.cta.primary}
             </Link>
             <Link
               href="/join/merchant"
@@ -481,7 +481,7 @@ export default function HomePage() {
               onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = '#b8936a' }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = '#c4913a' }}
             >
-              {t('cta.secondary')}
+              {t.cta.secondary}
             </Link>
           </motion.div>
         </div>

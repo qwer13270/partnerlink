@@ -2,9 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useTranslations } from 'next-intl'
 import { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import strings from '@/lib/strings'
 
 export interface SidebarItem {
   href: string
@@ -17,9 +17,17 @@ interface SidebarProps {
   translationNamespace: string
 }
 
+function getSidebarLabels(ns: string): Record<string, string> {
+  const namespace = strings[ns as keyof typeof strings]
+  if (namespace && typeof namespace === 'object' && 'sidebar' in namespace) {
+    return namespace.sidebar as Record<string, string>
+  }
+  return {}
+}
+
 export default function Sidebar({ items, translationNamespace }: SidebarProps) {
   const pathname = usePathname()
-  const t = useTranslations(`${translationNamespace}.sidebar`)
+  const labels = getSidebarLabels(translationNamespace)
 
   const isActive = (href: string) => {
     if (href.split('/').length <= 2) {
@@ -52,7 +60,7 @@ export default function Sidebar({ items, translationNamespace }: SidebarProps) {
                   )}
                   strokeWidth={1.5}
                 />
-                <span className="text-sm">{t(item.labelKey)}</span>
+                <span className="text-sm">{labels[item.labelKey] ?? item.labelKey}</span>
               </Link>
             )
           })}
@@ -65,7 +73,7 @@ export default function Sidebar({ items, translationNamespace }: SidebarProps) {
 // Mobile sidebar component for use within Sheet
 export function MobileSidebar({ items, translationNamespace }: SidebarProps) {
   const pathname = usePathname()
-  const t = useTranslations(`${translationNamespace}.sidebar`)
+  const labels = getSidebarLabels(translationNamespace)
 
   const isActive = (href: string) => {
     if (href.split('/').length <= 2) {
@@ -93,7 +101,7 @@ export function MobileSidebar({ items, translationNamespace }: SidebarProps) {
               )}
             >
               <Icon className="h-5 w-5" strokeWidth={1.5} />
-              <span className="text-sm">{t(item.labelKey)}</span>
+              <span className="text-sm">{labels[item.labelKey] ?? item.labelKey}</span>
             </Link>
           )
         })}

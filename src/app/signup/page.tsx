@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
+import { strings, interpolate } from '@/lib/strings'
 import { X } from 'lucide-react'
 import { resolveRoleHomePath } from '@/lib/auth'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
@@ -19,7 +19,7 @@ import { MerchantForm } from './_components/MerchantForm'
 
 export default function OnboardingPage() {
   const router = useRouter()
-  const t = useTranslations('signup')
+  const t = strings.signup
   const [step, setStep] = useState<Step>(1)
   const [role, setRole] = useState<Role>(null)
   const [kolData, setKolData] = useState<KolSignupDraft | null>(null)
@@ -79,7 +79,7 @@ export default function OnboardingPage() {
       })
 
       if (error || !data.user) {
-        setSubmitError(error?.message ?? t('errors.signupFailed'))
+        setSubmitError(error?.message ?? t.errors.signupFailed)
         return
       }
 
@@ -96,7 +96,7 @@ export default function OnboardingPage() {
         })
         if (!res.ok) {
           const payload = await res.json().catch(() => null) as { error?: string } | null
-          setSubmitError(payload?.error ?? t('errors.roleAssignFailed'))
+          setSubmitError(payload?.error ?? t.errors.roleAssignFailed)
           return
         }
         router.push(resolveRoleHomePath(role))
@@ -104,7 +104,7 @@ export default function OnboardingPage() {
       }
 
       if (!kolData) {
-        setSubmitError(t('errors.kolDataMissing'))
+        setSubmitError(t.errors.kolDataMissing)
         return
       }
 
@@ -130,7 +130,7 @@ export default function OnboardingPage() {
       })
       if (!appRes.ok) {
         const payload = await appRes.json().catch(() => null) as { error?: string } | null
-        setSubmitError(payload?.error ?? t('errors.kolApplicationFailed'))
+        setSubmitError(payload?.error ?? t.errors.kolApplicationFailed)
         return
       }
 
@@ -141,7 +141,7 @@ export default function OnboardingPage() {
         })
         if (!completeRes.ok) {
           const payload = await completeRes.json().catch(() => null) as { error?: string } | null
-          setSubmitError(payload?.error ?? t('errors.signupFailed'))
+          setSubmitError(payload?.error ?? t.errors.signupFailed)
           return
         }
         router.push('/pending-approval')
@@ -151,7 +151,7 @@ export default function OnboardingPage() {
       router.push(`/verify-email?email=${encodeURIComponent(email.trim())}`)
     } catch (caughtError) {
       setSubmitError(
-        caughtError instanceof Error && caughtError.message ? caughtError.message : t('errors.signupFailed'),
+        caughtError instanceof Error && caughtError.message ? caughtError.message : t.errors.signupFailed,
       )
     } finally {
       setSubmitting(false)
@@ -170,8 +170,8 @@ export default function OnboardingPage() {
   }
 
   const content = LEFT_CONTENT[(role ?? 'null') as keyof typeof LEFT_CONTENT]
-  const brandName = t('brand.name')
-  const brandTagline = t('brand.tagline')
+  const brandName = t.brand.name
+  const brandTagline = t.brand.tagline
 
   return (
     <div className="fixed inset-0 z-[100] flex overflow-hidden">
@@ -216,7 +216,7 @@ export default function OnboardingPage() {
         </AnimatePresence>
 
         <p className="text-xs uppercase tracking-[0.3em] text-[#3A3A3A] relative z-10">
-          {t('brand.copyright', { year: new Date().getFullYear() })}
+          {interpolate(t.brand.copyright, { year: new Date().getFullYear() })}
         </p>
       </div>
 
@@ -233,7 +233,7 @@ export default function OnboardingPage() {
           </div>
           <Link
             href="/"
-            aria-label={t('nav.backToHome')}
+            aria-label={t.nav.backToHome}
             className="flex items-center justify-center w-9 h-9 text-[#6B6560] hover:text-[#1A1A1A] hover:bg-[#E8E4DF] rounded-full transition-colors duration-200"
           >
             <X className="h-4 w-4" />

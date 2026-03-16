@@ -1,12 +1,11 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { strings, interpolate } from '@/lib/strings'
 
 export default function Footer() {
-  const t = useTranslations('footer')
   const currentYear = new Date().getFullYear()
 
   const footerLinks = [
@@ -97,9 +96,9 @@ export default function Footer() {
       <div className="border-t border-border">
         <div className="editorial-container py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>{t('copyright', { year: currentYear })}</p>
+            <p>{interpolate(strings.footer.copyright, { year: currentYear })}</p>
             <p className="text-center md:text-right max-w-md">
-              {t('disclaimer')}
+              {strings.footer.disclaimer}
             </p>
           </div>
         </div>

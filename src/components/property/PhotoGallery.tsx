@@ -1,10 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
 import { ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useLocale } from '@/hooks/useLocale'
+import strings from '@/lib/strings'
 import type { Property } from '@/lib/types'
 
 interface PhotoGalleryProps {
@@ -24,8 +24,8 @@ const galleryImages = [
 ]
 
 export default function PhotoGallery({ property }: PhotoGalleryProps) {
-  const t = useTranslations('property.gallery')
   const { getLocalizedValue } = useLocale()
+  const t = strings.property.gallery
 
   // Create an editorial asymmetric layout pattern
   const getGridClass = (index: number) => {
@@ -71,7 +71,7 @@ export default function PhotoGallery({ property }: PhotoGalleryProps) {
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">
               Gallery
             </p>
-            <h2 className="text-4xl md:text-5xl font-serif">{t('title')}</h2>
+            <h2 className="text-4xl md:text-5xl font-serif">{t.title}</h2>
           </div>
           <button className="btn-circle-arrow-outline hidden md:flex">
             <ArrowRight className="h-5 w-5" strokeWidth={1.5} />

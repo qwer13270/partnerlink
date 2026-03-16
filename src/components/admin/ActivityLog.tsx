@@ -1,30 +1,31 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { useTranslations } from 'next-intl'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useActivities } from '@/hooks/useMockData'
 import { useLocale } from '@/hooks/useLocale'
 import type { Activity } from '@/lib/types'
+import strings from '@/lib/strings'
+
+const t = strings.admin.activity
 
 const FILTERS = [
-  { value: 'all', key: 'all' },
-  { value: 'referrals', key: 'referrals' },
-  { value: 'bookings', key: 'bookings' },
-  { value: 'sales', key: 'sales' },
+  { value: 'all',       label: t.all       },
+  { value: 'referrals', label: t.referrals },
+  { value: 'bookings',  label: t.bookings  },
+  { value: 'sales',     label: t.sales     },
 ]
 
 function filterActivities(activities: Activity[], filter: string) {
-  if (filter === 'all') return activities
-  if (filter === 'sales') return activities.filter((item) => item.type === 'sale-confirmed')
+  if (filter === 'all')      return activities
+  if (filter === 'sales')    return activities.filter((item) => item.type === 'sale-confirmed')
   if (filter === 'bookings') return activities.filter((item) => item.type === 'booking')
   if (filter === 'referrals') return activities.filter((item) => item.type === 'click')
   return activities
 }
 
 export default function ActivityLog() {
-  const t = useTranslations('admin.activity')
   const { isZhTW } = useLocale()
   const { data, isLoading } = useActivities()
   const [filter, setFilter] = useState('all')
@@ -41,14 +42,14 @@ export default function ActivityLog() {
   return (
     <div className="border border-border bg-card p-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-serif">{t('title')}</h3>
+        <h3 className="text-lg font-serif">{t.title}</h3>
       </div>
 
       <Tabs value={filter} onValueChange={setFilter} className="mt-4">
         <TabsList>
           {FILTERS.map((item) => (
             <TabsTrigger key={item.value} value={item.value}>
-              {t(item.key)}
+              {item.label}
             </TabsTrigger>
           ))}
         </TabsList>

@@ -3,7 +3,6 @@
 import { useMemo } from 'react'
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,14 +11,20 @@ import { useProperties, useReferrals } from '@/hooks/useMockData'
 import { useLocale } from '@/hooks/useLocale'
 import { PROPERTY_STATUS_COLORS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import strings from '@/lib/strings'
+
+const statusLabels: Record<string, string> = {
+  'pre-sale':  strings.property.preSale,
+  'selling':   strings.property.selling,
+  'sold-out':  strings.property.soldOut,
+  'completed': strings.property.completed,
+}
 
 export default function ProjectsTable() {
-  const t = useTranslations('admin.projects')
-  const tCommon = useTranslations('common')
-  const tProperty = useTranslations('property')
   const { isZhTW } = useLocale()
   const { data: properties, isLoading } = useProperties()
   const { data: referrals } = useReferrals()
+  const t = strings.admin.projects
 
   const rows = useMemo(() => {
     if (!properties) return []
@@ -52,15 +57,15 @@ export default function ProjectsTable() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t('title')}</TableHead>
-            <TableHead>{t('merchant')}</TableHead>
-            <TableHead>{t('location')}</TableHead>
-            <TableHead>{tCommon('status')}</TableHead>
-            <TableHead className="text-right">{t('kolsAssigned')}</TableHead>
-            <TableHead className="text-right">{t('referrals')}</TableHead>
-            <TableHead className="text-right">{t('bookings')}</TableHead>
-            <TableHead className="text-right">{t('sales')}</TableHead>
-            <TableHead>{tCommon('actions')}</TableHead>
+            <TableHead>{t.title}</TableHead>
+            <TableHead>{t.merchant}</TableHead>
+            <TableHead>{t.location}</TableHead>
+            <TableHead>{strings.common.status}</TableHead>
+            <TableHead className="text-right">{t.kolsAssigned}</TableHead>
+            <TableHead className="text-right">{t.referrals}</TableHead>
+            <TableHead className="text-right">{t.bookings}</TableHead>
+            <TableHead className="text-right">{t.sales}</TableHead>
+            <TableHead>{strings.common.actions}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -74,15 +79,7 @@ export default function ProjectsTable() {
                   variant="outline"
                   className={cn('text-xs capitalize', PROPERTY_STATUS_COLORS[row.status])}
                 >
-                  {tProperty(
-                    row.status === 'pre-sale'
-                      ? 'preSale'
-                      : row.status === 'selling'
-                        ? 'selling'
-                        : row.status === 'sold-out'
-                          ? 'soldOut'
-                          : 'completed'
-                  )}
+                  {statusLabels[row.status] ?? row.status}
                 </Badge>
               </TableCell>
               <TableCell className="text-right">{row.kolsAssigned}</TableCell>
@@ -91,8 +88,8 @@ export default function ProjectsTable() {
               <TableCell className="text-right">{row.sales}</TableCell>
               <TableCell>
                 <Button asChild size="sm" variant="ghost">
-                  <Link href="/zh-TW/properties" className="inline-flex items-center gap-2">
-                    {t('viewLandingPage')}
+                  <Link href="/properties" className="inline-flex items-center gap-2">
+                    {t.viewLandingPage}
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </Link>
                 </Button>

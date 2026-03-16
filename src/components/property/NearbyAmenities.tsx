@@ -1,9 +1,9 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
 import { Train, School, Trees, ShoppingBag, Hospital } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useLocale } from '@/hooks/useLocale'
+import strings from '@/lib/strings'
 import type { Property, Amenity } from '@/lib/types'
 
 interface NearbyAmenitiesProps {
@@ -19,8 +19,8 @@ const categoryIcons = {
 }
 
 export default function NearbyAmenities({ property }: NearbyAmenitiesProps) {
-  const t = useTranslations('property.amenities')
   const { getLocalizedValue } = useLocale()
+  const t = strings.property.amenities
 
   // Group amenities by category
   const groupedAmenities = property.amenities.reduce(
@@ -35,11 +35,11 @@ export default function NearbyAmenities({ property }: NearbyAmenitiesProps) {
   )
 
   const categoryLabels: Record<Amenity['category'], string> = {
-    mrt: t('mrt'),
-    school: t('schools'),
-    park: t('parks'),
-    shopping: t('shopping'),
-    hospital: t('hospitals'),
+    mrt: t.mrt,
+    school: t.schools,
+    park: t.parks,
+    shopping: t.shopping,
+    hospital: t.hospitals,
   }
 
   const categoryOrder: Amenity['category'][] = [
@@ -64,7 +64,7 @@ export default function NearbyAmenities({ property }: NearbyAmenitiesProps) {
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">
             Location
           </p>
-          <h2 className="text-4xl md:text-5xl font-serif">{t('title')}</h2>
+          <h2 className="text-4xl md:text-5xl font-serif">{t.title}</h2>
         </motion.div>
 
         {/* Amenities Grid */}
