@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useTranslations } from 'next-intl'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -9,12 +8,12 @@ import { useKols } from '@/hooks/useMockData'
 import { useLocale } from '@/hooks/useLocale'
 import { TIER_COLORS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import strings from '@/lib/strings'
 
 export default function KolsTable() {
-  const t = useTranslations('admin.kols')
-  const tCommon = useTranslations('common')
   const { isZhTW, locale } = useLocale()
   const { data, isLoading } = useKols()
+  const t = strings.admin.kols
 
   const rows = useMemo(() => {
     if (!data) return []
@@ -40,14 +39,14 @@ export default function KolsTable() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{tCommon('name')}</TableHead>
-            <TableHead>{tCommon('email')}</TableHead>
-            <TableHead>{t('tier')}</TableHead>
-            <TableHead className="text-right">{t('activeProjects')}</TableHead>
-            <TableHead className="text-right">{t('clicks')}</TableHead>
-            <TableHead className="text-right">{t('bookings')}</TableHead>
-            <TableHead className="text-right">{t('sales')}</TableHead>
-            <TableHead>{t('joinedDate')}</TableHead>
+            <TableHead>{strings.common.name}</TableHead>
+            <TableHead>{strings.common.email}</TableHead>
+            <TableHead>{t.tier}</TableHead>
+            <TableHead className="text-right">{t.activeProjects}</TableHead>
+            <TableHead className="text-right">{t.clicks}</TableHead>
+            <TableHead className="text-right">{t.bookings}</TableHead>
+            <TableHead className="text-right">{t.sales}</TableHead>
+            <TableHead>{t.joinedDate}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

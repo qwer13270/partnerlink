@@ -1,466 +1,808 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
-import {
-  ArrowUpRight,
-  Building2,
-  Leaf,
-  MapPin,
-  ShieldCheck,
-  Sparkles,
-  Train,
-} from "lucide-react";
+import dynamic from "next/dynamic";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import type { Property } from "@/lib/types";
-import BookTourCTA from "./BookTourCTA";
-import ConstructionTimeline from "./ConstructionTimeline";
+
+// Leaflet must be client-only (no SSR)
+const PropertyMap = dynamic(() => import("./PropertyMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full bg-[#141416] flex items-center justify-center">
+      <span className="font-serif text-[11px] tracking-[0.3em] text-[#5A574F] uppercase">載入地圖中…</span>
+    </div>
+  ),
+});
 
 interface TongchuangWingPageProps {
   property: Property;
   referrer?: string | null;
 }
 
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 30 },
+const reveal = (delay = 0) => ({
+  initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true },
+  viewport: { once: true, margin: "-60px" },
   transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
 });
 
-const firstSectionImage = {
-  desktop: "/images/properties/tongchuang-wing/1.jpg",
-  mobile: "/images/properties/tongchuang-wing/11.jpg",
-} as const;
-const secondSectionImage = {
-  desktop: "/images/properties/tongchuang-wing/2.jpg",
-  mobile: "/images/properties/tongchuang-wing/22.jpg",
-} as const;
-const firstSectionMobileImage = firstSectionImage.mobile;
-const firstSectionDesktopImage = firstSectionImage.desktop;
+const fadeIn = (delay = 0) => ({
+  initial: { opacity: 0 },
+  whileInView: { opacity: 1 },
+  viewport: { once: true, margin: "-40px" },
+  transition: { duration: 1.4, delay, ease: "easeOut" as const },
+});
 
-const anchors = [
-  ["核心地段", "建國濟南門牌"],
-  ["空總首席", "21,000 坪開闊視野"],
-  ["雙線樞紐", "忠孝新生串聯台北"],
-];
-
-const siteMoments = [
+const features = [
   {
-    label: "城景第一排",
-    title: "不是看見一片台北，而是直接住進台北最稀缺的留白。",
-    body: "從高空視野到街區尺度，這個案子的魅力在於「大安少有的新鮮感」。對望仁愛空總，城市並不擁擠，反而因為大片開放視野而顯得從容。",
+    num: "01",
+    title: "SC 鋼骨雙制震",
+    desc: "頂級鋼骨結構搭配雙重制震系統，給您和家人最安心的保障。",
   },
   {
-    label: "雙站雙軸",
-    title: "忠孝新生在前，大安森林公園在側，移動與休息都保有節奏感。",
-    body: "這裡的交通價值不只是抵達更快，而是可以自由切換北車、東區、信義與中山，讓工作、採買與休閒不需要彼此妥協。",
+    num: "02",
+    title: "忠孝新生捷運",
+    desc: "步行即達，板南線與新店線交會，串聯台北全域。",
   },
   {
-    label: "文化生活圈",
-    title: "華山、SOGO、餐飲名店與綠意散策，同時落在生活半徑之內。",
-    body: "它不是單點式機能，而是一整圈成熟而講究的日常。這種便利與質感兼得的城市片段，在台北中心很少見。",
+    num: "03",
+    title: "城市天際視野",
+    desc: "對望空總綠地，台北盆地全景盡收眼底，留白而從容。",
   },
 ];
 
-const team = [
-  ["營造工程", "中鹿營造", "台日精工系統，著重品質與工地節奏。"],
-  ["建築設計", "李天鐸建築師", "以新東方格柵語彙形塑辨識度立面。"],
-  ["公設美學", "十邑設計 王勝正", "Museum Lobby 概念延展成迎賓與會所氛圍。"],
-  ["結構設計", "築遠工程 張盈智", "將高規格耐震與比例美感同步推高。"],
+const transitItems = [
+  { dot: "#0070BD", name: "忠孝新生站（板南線）", time: "3", unit: "分鐘步行" },
+  { dot: "#EF4723", name: "忠孝新生站（新店線）", time: "3", unit: "分鐘步行" },
+  { dot: "#C9A96E", name: "帝寶商圈", time: "5", unit: "分鐘" },
+  { dot: "#4A7C8E", name: "元利One Park", time: "10", unit: "分鐘" },
+  { dot: "#6A8A60", name: "台北大安森林公園", time: "8", unit: "分鐘" },
+];
+
+const navLinks = [
+  ["建案介紹", "#intro"],
+  ["特色亮點", "#features"],
+  ["工程進度", "#progress"],
+  ["地理位置", "#location"],
+  ["預約賞屋", "#contact"],
 ] as const;
 
-const engineering = [
+const progressMilestones = [
   {
-    icon: ShieldCheck,
-    title: "SC 鋼骨雙制震",
-    body: "22 層地上建築搭配鋼骨與制震系統，將住宅安全感做成真正可被理解的產品價值。",
+    label: "建照取得", date: "2022 Q4", completed: true, current: false,
+    image: "/images/placeholders/exterior/exterior-1.webp",
+    caption: "建造執照核發，正式取得合法建築許可。",
   },
   {
-    icon: Building2,
-    title: "高規格基礎工法",
-    body: "深開挖、厚連續壁與筏式基礎構成穩定骨架，把豪宅等級的工程標準放進城市核心住宅。",
+    label: "動工開工", date: "2023 Q2", completed: true, current: false,
+    image: "/images/placeholders/projects/project-1.webp",
+    caption: "開工典禮暨地基開挖作業啟動。",
   },
   {
-    icon: Leaf,
-    title: "黃金級綠建築目標",
-    body: "節能、減廢、水資源與室內環境品質同步推進，讓高端生活不只是好看，也具備長期舒適性。",
+    label: "基礎工程", date: "2023 Q4", completed: true, current: false,
+    image: "/images/placeholders/projects/project-2.webp",
+    caption: "樁基礎與地下室結構完工，驗收通過。",
+  },
+  {
+    label: "結構體工程", date: "2024 Q3", completed: false, current: true,
+    image: "/images/placeholders/projects/project-3.webp",
+    caption: "SC 鋼骨主結構持續施工中，目前進度約 60%。",
+  },
+  {
+    label: "室內裝修", date: "2025 Q3", completed: false, current: false,
+    image: "/images/placeholders/interior/interior-1.webp",
+    caption: "精裝修工程預計 2025 Q3 啟動。",
+  },
+  {
+    label: "驗收交屋", date: "2026 Q1", completed: false, current: false,
+    image: "/images/placeholders/interior/interior-3.webp",
+    caption: "全棟驗收完成，預計 2026 Q1 正式交屋。",
   },
 ];
 
-const infoStrips = [
-  {
-    eyebrow: "A DA-AN ADDRESS",
-    title: "把城市景觀做成整頁主角，後面的段落就該懂得收。",
-    body: "因此第三段開始改成更克制的長幅章節。不是把資訊塞滿，而是讓每一段像高級建案型錄中的一頁，仍然保有呼吸與畫面感。",
-  },
-  {
-    eyebrow: "CURATED LIVING",
-    title: "從空總、華山、SOGO 到忠孝新生，生活不是機能堆疊，而是品味半徑。",
-    body: "這裡的價值不只是捷運近，而是文化、購物、散策與工作動線自然交會，讓住址本身成為生活方式的起點。",
-  },
-];
+// How many milestones are done (for progress line width)
+const completedCount = progressMilestones.filter((m) => m.completed).length;
+const progressPct = (completedCount / (progressMilestones.length - 1)) * 100;
 
 export default function TongchuangWingPage({
-  property,
-  referrer,
+  property: _property,
+  referrer: _referrer,
 }: TongchuangWingPageProps) {
+  const [submitted, setSubmitted] = useState(false);
+  const [selectedMilestone, setSelectedMilestone] = useState<typeof progressMilestones[number] | null>(null);
+
   return (
-    <div className="min-h-screen bg-[#e7edf0] text-[#12324a]">
-      <section className="relative isolate min-h-screen overflow-hidden bg-[#7eb8d5]">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 hidden md:block">
-            <Image
-              src={firstSectionDesktopImage}
-              alt="統創翼城市天際線"
-              fill
-              priority
-              className="object-cover"
-              sizes="100vw"
-            />
-          </div>
-          <div className="absolute inset-0 md:hidden">
-            <Image
-              src={firstSectionMobileImage}
-              alt="統創翼城市天際線"
-              fill
-              priority
-              className="object-cover"
-              sizes="100vw"
-            />
-          </div>
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,22,36,0.64),rgba(7,40,63,0.38)_32%,rgba(9,27,41,0.42)_70%,rgba(228,239,243,0.72)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_30%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,24,36,0.22),transparent_45%,rgba(7,24,36,0.1))]" />
+    <div className="bg-[#0D0D0E] text-[#F0EDE8] overflow-x-hidden">
+
+      {/* ── NAV ── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5 md:px-14 bg-gradient-to-b from-[#0D0D0E]/70 to-transparent pointer-events-none">
+        <div className="font-serif text-[12px] tracking-[0.35em] text-[#C9A96E] uppercase pointer-events-auto">
+          Phoenix One · 統創翼
         </div>
+        <ul className="hidden md:flex gap-10 list-none pointer-events-auto">
+          {navLinks.map(([label, href]) => (
+            <li key={label}>
+              <a
+                href={href}
+                className="[font-family:var(--font-serif-tc)] text-[11px] text-[#8A8680] no-underline tracking-[0.1em] hover:text-[#C9A96E] transition-colors duration-300"
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <a
+          href="#contact"
+          className="text-[11px] tracking-[0.2em] uppercase text-[#C9A96E] border border-[#C9A96E]/40 px-5 py-2 no-underline hover:bg-[#C9A96E] hover:text-[#0D0D0E] transition-all duration-300 pointer-events-auto"
+        >
+          立即預約
+        </a>
+      </nav>
 
-        <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col justify-between px-5 pb-10 pt-8 md:px-10 md:pb-14 md:pt-10 lg:px-16">
-          <motion.div
-            {...fadeUp(0.05)}
-            className="flex items-center justify-between text-white/90"
-          >
-            <div className="text-[0.72rem] uppercase tracking-[0.45em]">
-              Phoenix One
-            </div>
-            <div className="hidden text-[0.68rem] uppercase tracking-[0.4em] md:block">
-              Taipei Da-an Landmark Residence
-            </div>
-          </motion.div>
-
-          <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
-            <motion.div {...fadeUp(0.12)} className="max-w-3xl pt-14 md:pt-10">
-              <p className="text-[0.78rem] uppercase tracking-[0.45em] text-white/85">
-                九皋羽翼 翱翔天際
-              </p>
-              <h1 className="mt-5 font-serif text-5xl font-light leading-[0.95] text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.18)] md:text-7xl lg:text-[6.6rem]">
-                統創翼
-              </h1>
-              <p className="mt-6 max-w-2xl text-base leading-7 text-white/90 md:text-lg">
-                以大安核心的天際視野開場，讓建築、文化公園與城市流線在同一個畫面裡成立。
-                第一眼就該像品牌形象頁，而不是一般房地產列表頁。
-              </p>
-            </motion.div>
-
-            <motion.div
-              {...fadeUp(0.2)}
-              className="grid gap-3 self-end md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3"
-            >
-              {anchors.map(([label, value]) => (
-                <div
-                  key={label}
-                  className="border border-white/30 bg-white/12 px-4 py-4 backdrop-blur-md"
-                >
-                  <div className="text-[0.65rem] uppercase tracking-[0.3em] text-white/65">
-                    {label}
-                  </div>
-                  <div className="mt-2 text-sm leading-6 text-white">
-                    {value}
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          </div>
-
-          <motion.div
-            {...fadeUp(0.28)}
-            className="grid gap-px overflow-hidden border border-white/25 bg-white/20 backdrop-blur-md md:grid-cols-4"
-          >
-            {[
-              ["地段", "濟南路三段 67 號"],
-              ["產品", "35-58 坪 ・ 精奢 2-3 房"],
-              ["結構", "SC 鋼骨雙制震"],
-              ["專線", "02-2752-8628"],
-            ].map(([label, value]) => (
-              <div key={label} className="bg-[#0f5f8f]/35 px-5 py-4 text-white">
-                <div className="text-[0.65rem] uppercase tracking-[0.28em] text-white/60">
-                  {label}
-                </div>
-                <div className="mt-2 text-sm leading-6 md:text-base">
-                  {value}
-                </div>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="relative isolate min-h-screen overflow-hidden bg-[#e6ecee]">
-        <motion.div {...fadeUp(0.05)} className="absolute inset-0">
-          <div className="absolute inset-0 hidden md:block">
-            <Image
-              src={secondSectionImage.desktop}
-              alt="統創翼建築立面"
-              fill
-              className="object-cover object-center"
-              sizes="100vw"
-            />
-          </div>
-          <div className="absolute inset-0 md:hidden">
-            <Image
-              src={secondSectionImage.mobile}
-              alt="統創翼建築立面"
-              fill
-              className="object-cover object-center"
-              sizes="100vw"
-            />
-          </div>
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02)_36%,rgba(18,38,52,0.08)_100%)]" />
+      {/* ══════════════════════════════════════════
+          SECTION 1 — PURE IMAGE, NATURAL SIZE
+      ══════════════════════════════════════════ */}
+      <section className="overflow-hidden">
+        <motion.div
+          initial={{ scale: 1.06 }}
+          animate={{ scale: 1.0 }}
+          transition={{ duration: 18, ease: "easeOut" }}
+        >
+          {/* Desktop 1920×1080 — full width, height follows natural 16:9 ratio */}
+          <Image
+            src="/images/properties/tongchuang-wing/1.jpg"
+            alt="統創翼"
+            width={1920}
+            height={1080}
+            priority
+            className="hidden md:block w-full h-auto"
+            sizes="100vw"
+          />
+          {/* Mobile 1080×1920 — full width, height follows natural 9:16 ratio */}
+          <Image
+            src="/images/properties/tongchuang-wing/3.jpg"
+            alt="統創翼"
+            width={1080}
+            height={1920}
+            priority
+            className="md:hidden w-full h-auto"
+            sizes="100vw"
+          />
         </motion.div>
       </section>
 
-      <section className="bg-[#edf1f2]">
-        {infoStrips.map((strip, index) => (
-          <div
-            key={strip.title}
-            className={index === 0 ? "border-b border-[#18354b]/10" : ""}
-          >
-            <div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 md:px-10 lg:grid-cols-[0.9fr_1.1fr] lg:px-16 lg:py-20">
-              <motion.div {...fadeUp(index * 0.05)}>
-                <p className="text-[0.72rem] uppercase tracking-[0.38em] text-[#b58d55]">
-                  {strip.eyebrow}
-                </p>
-              </motion.div>
-              <motion.div {...fadeUp(0.08 + index * 0.05)}>
-                <h2 className="font-serif text-3xl font-light leading-tight text-[#18354b] md:text-5xl">
-                  {strip.title}
-                </h2>
-                <p className="mt-5 max-w-3xl text-base leading-8 text-[#587185] md:text-lg">
-                  {strip.body}
-                </p>
-              </motion.div>
-            </div>
-          </div>
-        ))}
+      {/* ══════════════════════════════════════════
+          SECTION 2 — PURE IMAGE, NATURAL SIZE
+      ══════════════════════════════════════════ */}
+      <section className="overflow-hidden">
+        {/* Desktop 1920×1080 */}
+        <Image
+          src="/images/properties/tongchuang-wing/2.jpg"
+          alt="統創翼建築外觀"
+          width={1920}
+          height={1080}
+          className="hidden md:block w-full h-auto"
+          sizes="100vw"
+        />
+        {/* Mobile 1080×1920 */}
+        <Image
+          src="/images/properties/tongchuang-wing/4.jpg"
+          alt="統創翼建築外觀"
+          width={1080}
+          height={1920}
+          className="md:hidden w-full h-auto"
+          sizes="100vw"
+        />
       </section>
 
-      <section className="bg-[linear-gradient(180deg,#edf1f2_0%,#f5f1eb_100%)]">
-        <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 lg:px-16 lg:py-24">
-          <div className="mb-12 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-[0.72rem] uppercase tracking-[0.38em] text-[#b58d55]">
-                Site Narrative
-              </p>
-              <h2 className="mt-4 font-serif text-4xl font-light leading-tight text-[#18354b] md:text-6xl">
-                留下少量文字，
-                <br />
-                讓段落仍像一頁一頁的大圖型錄。
-              </h2>
-            </div>
-            <p className="max-w-xl text-base leading-8 text-[#537086] md:text-lg">
-              我把中段縮成較少但更完整的敘事模組，避免頁面掉回一般建案資訊站的密度。
-              這樣更接近你描述的那種「整頁都像主視覺延伸」的感覺。
+      {/* ══════════════════════════════════════════
+          IDENTITY REVEAL — after the two pure images
+      ══════════════════════════════════════════ */}
+      <motion.div
+        {...fadeIn(0)}
+        className="border-b border-[#C9A96E]/10"
+        id="intro"
+      >
+        <div className="px-6 pt-20 pb-0 md:px-14 md:pt-28 flex flex-col md:flex-row items-start md:items-end justify-between gap-10">
+          <div>
+            <p className="font-serif text-[10px] tracking-[0.5em] text-[#C9A96E] uppercase mb-5">
+              大安 · 忠孝新生 · Taipei
+            </p>
+            <h1
+              className="[font-family:var(--font-serif-tc)] font-light text-[#FAFAF8] leading-none"
+              style={{ fontSize: "clamp(60px, 9vw, 120px)" }}
+            >
+              統創翼
+            </h1>
+            <p
+              className="font-serif italic text-[#E8D5AA]/50 tracking-[0.3em] mt-3"
+              style={{ fontSize: "clamp(14px, 2vw, 20px)" }}
+            >
+              Phoenix One
             </p>
           </div>
-
-          <div className="grid gap-5 lg:grid-cols-3">
-            {siteMoments.map((item, index) => (
-              <motion.article
-                key={item.title}
-                {...fadeUp(index * 0.08)}
-                className="min-h-[22rem] border border-[#18354b]/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(228,238,243,0.88))] p-6 shadow-[0_14px_40px_rgba(24,53,75,0.06)]"
-              >
-                <div className="text-[0.68rem] uppercase tracking-[0.3em] text-[#b58d55]">
-                  {item.label}
-                </div>
-                <h3 className="mt-4 font-serif text-2xl font-light leading-tight text-[#18354b]">
-                  {item.title}
-                </h3>
-                <p className="mt-4 text-sm leading-7 text-[#587185] md:text-base">
-                  {item.body}
-                </p>
-              </motion.article>
-            ))}
+          <div className="flex flex-col gap-3 md:text-right pb-0 md:pb-2">
+            <span className="font-serif text-[11px] tracking-[0.3em] text-[#5A574F] uppercase">
+              預計竣工
+            </span>
+            <span
+              className="font-serif text-[#C9A96E] leading-none"
+              style={{ fontSize: "clamp(24px, 3vw, 36px)" }}
+            >
+              2026 Q1
+            </span>
+            <a
+              href="#contact"
+              className="mt-3 self-start md:self-end bg-[#C9A96E] text-[#0D0D0E] px-8 py-3 [font-family:var(--font-serif-tc)] text-[12px] tracking-[0.2em] no-underline hover:bg-[#E8D5AA] transition-all duration-300"
+            >
+              預約賞屋
+            </a>
           </div>
         </div>
-      </section>
 
-      <section className="bg-[#f3f0ea] py-16 md:py-24">
-        <div className="mx-auto max-w-7xl px-5 md:px-10 lg:px-16">
-          <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-[0.72rem] uppercase tracking-[0.38em] text-[#b58d55]">
-                Engineering Progress
-              </p>
+        {/* Key specs strip */}
+        <div className="grid grid-cols-2 md:grid-cols-4 mt-14 border-t border-[#C9A96E]/10">
+          {[
+            ["地段", "濟南路三段 67 號"],
+            ["產品", "35–58 坪 · 2–3 房"],
+            ["結構", "SC 鋼骨雙制震"],
+            ["專線", "02-2752-8628"],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="px-6 py-6 md:px-10 border-r border-[#C9A96E]/10 last:border-r-0 odd:md:border-r"
+            >
+              <div className="[font-family:var(--font-serif-tc)] text-[9px] tracking-[0.35em] text-[#5A574F] uppercase mb-2">
+                {label}
+              </div>
+              <div className="font-serif text-[15px] text-[#C9A96E]">{value}</div>
             </div>
-            <p className="max-w-xl text-base leading-8 text-[#587185] md:text-lg">
-              這段沿用其他建案已有的時間軸功能，但換上更貼近本頁的底色與排版節奏，
-              讓它像型錄的一個章節，而不是突然切回另一套模板。
-            </p>
-          </div>
+          ))}
         </div>
-        <div className="[&_.section-editorial]:py-0 [&_.editorial-container]:max-w-7xl [&_.editorial-container]:px-5 md:[&_.editorial-container]:px-10 lg:[&_.editorial-container]:px-16 [&_.text-muted-foreground]:text-[#6f8090] [&_.text-foreground]:text-[#18354b] [&_.bg-border]:bg-[#d4dde3] [&_.border-border]:border-[#d4dde3] [&_.bg-background]:bg-[#f3f0ea] [&_.bg-foreground]:bg-[#18354b] [&_.border-foreground]:border-[#18354b] [&_.text-background]:text-[#f3f0ea]">
-          <ConstructionTimeline property={property} />
-        </div>
-      </section>
+      </motion.div>
 
-      <section className="border-y border-[#18354b]/10 bg-[#18354b] text-[#eff5f7]">
-        <div className="mx-auto grid max-w-7xl gap-0 lg:grid-cols-[0.92fr_1.08fr]">
-          <div className="border-b border-white/10 px-5 py-16 md:px-10 lg:border-b-0 lg:border-r lg:px-16 lg:py-24">
-            <motion.div {...fadeUp(0)}>
-              <p className="text-[0.72rem] uppercase tracking-[0.38em] text-[#d8bb8b]">
-                Project Team
-              </p>
-              <h2 className="mt-4 font-serif text-4xl font-light leading-tight md:text-6xl">
-                專業團隊，
-                <br />
-                用更沉穩的段落收住信任感。
-              </h2>
-              <p className="mt-6 max-w-xl text-base leading-8 text-white/72 md:text-lg">
-                這裡不再做花俏裝飾，而是像高端簡報一樣，把品牌背書排得乾淨有秩序。
-                氣質延續前面兩段，但節奏更內斂。
-              </p>
-            </motion.div>
-          </div>
-
-          <div className="grid gap-px bg-white/10">
-            {team.map(([label, name, detail], index) => (
-              <motion.div
-                key={name}
-                {...fadeUp(index * 0.08)}
-                className="bg-[#214660] px-5 py-8 md:px-8"
-              >
-                <div className="text-[0.68rem] uppercase tracking-[0.3em] text-[#d8bb8b]">
-                  {label}
-                </div>
-                <h3 className="mt-3 font-serif text-3xl font-light">{name}</h3>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72 md:text-base">
-                  {detail}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[#f2f0eb]">
-        <div className="mx-auto max-w-7xl px-5 py-18 md:px-10 lg:px-16 lg:py-24">
-          <div className="mb-10 max-w-3xl">
-            <p className="text-[0.72rem] uppercase tracking-[0.38em] text-[#b58d55]">
-              Structure & Sustainability
-            </p>
-            <h2 className="mt-4 font-serif text-4xl font-light leading-tight text-[#18354b] md:text-6xl">
-              把結構、安全與永續，
-              <br />
-              排成更像精品型錄的方式。
+      {/* ══════════════════════════════════════════
+          BUILDING INTRO + SPECS GRID
+      ══════════════════════════════════════════ */}
+      <section className="bg-[#141416] px-6 py-20 md:px-14 md:py-28">
+        <div className="max-w-5xl mx-auto">
+          <motion.div {...reveal(0)} className="mb-16">
+            <SectionLabel>建案介紹</SectionLabel>
+            <h2
+              className="[font-family:var(--font-serif-tc)] font-light text-[#FAFAF8] leading-[1.3] mb-6"
+              style={{ fontSize: "clamp(26px, 3.5vw, 44px)" }}
+            >
+              城市天際的精品美學
             </h2>
-          </div>
-
-          <div className="grid gap-5 lg:grid-cols-3">
-            {engineering.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <motion.article
-                  key={item.title}
-                  {...fadeUp(index * 0.08)}
-                  className="border border-[#18354b]/10 bg-white p-7 shadow-[0_14px_40px_rgba(24,53,75,0.05)]"
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e6edf1] text-[#18354b]">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="mt-5 font-serif text-2xl font-light text-[#18354b]">
-                    {item.title}
-                  </h3>
-                  <p className="mt-4 text-sm leading-7 text-[#587185] md:text-base">
-                    {item.body}
-                  </p>
-                </motion.article>
-              );
-            })}
-          </div>
-
-          <motion.div
-            {...fadeUp(0.16)}
-            className="mt-10 grid gap-5 lg:grid-cols-[1.05fr_0.95fr]"
-          >
-            <div className="border border-[#18354b]/10 bg-[#ecf2f5] p-8">
-              <div className="text-[0.72rem] uppercase tracking-[0.36em] text-[#b58d55]">
-                Property Data
-              </div>
-              <div className="mt-8 grid gap-y-4 md:grid-cols-2 md:gap-x-8">
-                {[
-                  ["案名", property.name],
-                  ["建設公司", "統創建設開發股份有限公司"],
-                  ["基地地址", property.location],
-                  ["產品規劃", "35-58 坪 ・ 精奢 2-3 房"],
-                  ["結構系統", "SC 鋼骨雙制震"],
-                  ["接待中心", "台北市大安區市民大道三段198號7樓"],
-                ].map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="border-b border-[#18354b]/10 pb-4"
-                  >
-                    <div className="text-[0.68rem] uppercase tracking-[0.28em] text-[#a08258]">
-                      {label}
-                    </div>
-                    <div className="mt-2 text-sm leading-6 text-[#18354b] md:text-base">
-                      {value}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="border border-[#18354b]/10 bg-[#dfe8ed] p-8 text-[#18354b]">
-              <div className="flex items-center gap-3 text-[0.72rem] uppercase tracking-[0.36em] text-[#a08258]">
-                <Sparkles className="h-4 w-4" />
-                Concierge Contact
-              </div>
-              <h3 className="mt-5 font-serif text-3xl font-light md:text-4xl">
-                預約賞屋與索取資料
-              </h3>
-              <div className="mt-8 space-y-6">
-                <div>
-                  <div className="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-[#6f8090]">
-                    <MapPin className="h-3.5 w-3.5" />
-                    接待位址
-                  </div>
-                  <div className="mt-2 text-lg leading-7">
-                    台北市大安區市民大道三段198號7樓
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-[#6f8090]">
-                    <Train className="h-3.5 w-3.5" />
-                    最近捷運
-                  </div>
-                  <div className="mt-2 text-lg">{property.nearestMrt}</div>
-                </div>
-                <div>
-                  <div className="text-xs uppercase tracking-[0.24em] text-[#6f8090]">
-                    貴賓專線
-                  </div>
-                  <div className="mt-2 font-serif text-4xl">02-2752-8628</div>
-                </div>
-                <div className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-[#18354b]">
-                  35-58 坪 精奢席位
-                  <ArrowUpRight className="h-4 w-4" />
-                </div>
-              </div>
-            </div>
+            <p className="font-serif text-[14px] text-[#8A8680] leading-[2.2] max-w-lg">
+              每一個細節，都是對居住品質的極致承諾。<br />
+              鋼骨雙制震，黃金級綠建築，天際視野留白從容。
+            </p>
           </motion.div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-[#C9A96E]/10">
+            {[
+              ["坪數規劃", "30 · 42 · 50 坪"],
+              ["房型配置", "精奢 2–3 房"],
+              ["抗震結構", "SC 鋼骨雙制震"],
+              ["樓層", "地上 22 層"],
+              ["綠建築", "黃金級目標"],
+              ["接待中心", "市民大道三段 198 號 7F"],
+            ].map(([label, value], i) => (
+              <motion.div
+                key={label}
+                {...reveal(i * 0.06)}
+                className="bg-[#141416] px-7 py-8 hover:bg-[#1A1A1D] transition-colors duration-300 group"
+              >
+                <span className="block [font-family:var(--font-serif-tc)] text-[9px] tracking-[0.35em] text-[#5A574F] uppercase mb-3">
+                  {label}
+                </span>
+                <span className="font-serif text-[18px] text-[#FAFAF8] leading-snug group-hover:text-[#C9A96E] transition-colors duration-300">
+                  {value}
+                </span>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <BookTourCTA property={property} referrer={referrer} />
+      <GoldDivider />
+
+      {/* ══════════════════════════════════════════
+          FEATURES
+      ══════════════════════════════════════════ */}
+      <section className="bg-[#0D0D0E] px-6 py-20 md:px-14 md:py-28" id="features">
+        <div className="max-w-5xl mx-auto">
+          <motion.div {...reveal(0)} className="mb-14">
+            <SectionLabel>特色亮點</SectionLabel>
+            <h2
+              className="[font-family:var(--font-serif-tc)] font-light text-[#FAFAF8] leading-[1.3]"
+              style={{ fontSize: "clamp(26px, 3.5vw, 44px)" }}
+            >
+              卓越的居住體驗
+            </h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#C9A96E]/8">
+            {features.map((f, i) => (
+              <motion.div
+                key={f.num}
+                {...reveal(i * 0.12)}
+                className="bg-[#0D0D0E] px-8 py-12 relative overflow-hidden group hover:bg-[#141416] transition-colors duration-300"
+              >
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-500" />
+                <span className="font-serif text-[80px] font-light text-[#C9A96E]/6 leading-none mb-6 block select-none">
+                  {f.num}
+                </span>
+                <span className="w-8 h-px bg-[#C9A96E]/60 mb-6 block" />
+                <h3 className="[font-family:var(--font-serif-tc)] text-[16px] font-normal text-[#FAFAF8] mb-4 tracking-[0.05em]">
+                  {f.title}
+                </h3>
+                <p className="text-[12px] leading-[2] text-[#8A8680] tracking-[0.05em]">
+                  {f.desc}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <GoldDivider />
+
+      {/* ══════════════════════════════════════════
+          工程進度 — CONSTRUCTION PROGRESS
+      ══════════════════════════════════════════ */}
+      <section className="bg-[#0F0F11] px-6 py-20 md:px-14 md:py-28" id="progress">
+        <div className="max-w-5xl mx-auto">
+          <motion.div {...reveal(0)} className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <SectionLabel>工程進度</SectionLabel>
+              <h2
+                className="[font-family:var(--font-serif-tc)] font-light text-[#FAFAF8] leading-[1.3]"
+                style={{ fontSize: "clamp(26px, 3.5vw, 44px)" }}
+              >
+                建設進程一覽
+              </h2>
+            </div>
+            <p className="font-serif text-[13px] text-[#5A574F] tracking-[0.05em]">
+              預計竣工{" "}
+              <span className="text-[#C9A96E] ml-1">2026 Q1</span>
+            </p>
+          </motion.div>
+
+          {/* ── Desktop horizontal timeline ── */}
+          <div className="hidden md:block relative mt-4">
+            {/* Track */}
+            <div className="absolute top-[10px] left-0 right-0 h-px bg-[#C9A96E]/10" />
+            {/* Filled progress */}
+            <motion.div
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute top-[10px] left-0 h-px bg-gradient-to-r from-[#C9A96E] via-[#C9A96E] to-[#C9A96E]/20 origin-left"
+              style={{ width: `${progressPct}%` }}
+            />
+
+            <div className="relative flex justify-between">
+              {progressMilestones.map((m, i) => (
+                <motion.div
+                  key={m.label}
+                  {...reveal(i * 0.1)}
+                  className="flex flex-col items-center"
+                  style={{ width: `${100 / progressMilestones.length}%` }}
+                >
+                  {/* Clickable node */}
+                  <button
+                    onClick={() => setSelectedMilestone(m)}
+                    className="relative mb-7 group/node focus:outline-none"
+                    aria-label={`查看 ${m.label} 工程照片`}
+                  >
+                    {m.completed ? (
+                      <div className="w-5 h-5 rounded-full bg-[#C9A96E] flex items-center justify-center transition-transform duration-200 group-hover/node:scale-125">
+                        <div className="w-[7px] h-[7px] rounded-full bg-[#0D0D0E]" />
+                      </div>
+                    ) : m.current ? (
+                      <div className="w-5 h-5 rounded-full border-2 border-[#C9A96E] flex items-center justify-center relative transition-transform duration-200 group-hover/node:scale-125">
+                        <motion.div
+                          animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          className="w-2 h-2 rounded-full bg-[#C9A96E]"
+                        />
+                        <motion.div
+                          animate={{ scale: [1, 2.2, 1], opacity: [0.3, 0, 0.3] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          className="absolute inset-0 rounded-full border border-[#C9A96E]/50"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border border-[#2E2C27] transition-all duration-200 group-hover/node:border-[#C9A96E]/40 group-hover/node:scale-110" />
+                    )}
+                    {/* Hover hint */}
+                    <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 font-serif text-[8px] tracking-[0.3em] text-[#C9A96E] uppercase whitespace-nowrap opacity-0 group-hover/node:opacity-100 transition-opacity duration-200 pointer-events-none">
+                      查看
+                    </span>
+                  </button>
+
+                  {/* Label */}
+                  <p
+                    className={[
+                      "[font-family:var(--font-serif-tc)] text-[12px] tracking-[0.04em] text-center mb-1 leading-snug mt-1",
+                      m.completed || m.current ? "text-[#F0EDE8]" : "text-[#3A3830]",
+                    ].join(" ")}
+                  >
+                    {m.label}
+                  </p>
+                  <p
+                    className={[
+                      "font-serif text-[10px] tracking-[0.1em] text-center",
+                      m.current ? "text-[#C9A96E]" : m.completed ? "text-[#5A574F]" : "text-[#2A2826]",
+                    ].join(" ")}
+                  >
+                    {m.date}
+                  </p>
+                  {m.current && (
+                    <span className="mt-2 font-serif text-[8.5px] tracking-[0.4em] text-[#C9A96E] uppercase">
+                      施工中
+                    </span>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Mobile vertical timeline ── */}
+          <div className="md:hidden relative pl-9">
+            {/* Track */}
+            <div className="absolute top-0 bottom-0 left-[10px] w-px bg-[#C9A96E]/10" />
+            {/* Filled progress */}
+            <motion.div
+              initial={{ scaleY: 0 }}
+              whileInView={{ scaleY: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute top-0 left-[10px] w-px bg-gradient-to-b from-[#C9A96E] via-[#C9A96E] to-[#C9A96E]/20 origin-top"
+              style={{ height: `${progressPct}%` }}
+            />
+
+            <div className="space-y-10">
+              {progressMilestones.map((m, i) => (
+                <motion.div
+                  key={m.label}
+                  {...reveal(i * 0.08)}
+                  className="relative flex items-start gap-5"
+                >
+                  {/* Clickable node */}
+                  <button
+                    onClick={() => setSelectedMilestone(m)}
+                    className="absolute left-[-29px] top-[1px] focus:outline-none group/node"
+                    aria-label={`查看 ${m.label} 工程照片`}
+                  >
+                    {m.completed ? (
+                      <div className="w-5 h-5 rounded-full bg-[#C9A96E] flex items-center justify-center transition-transform duration-200 group-hover/node:scale-125">
+                        <div className="w-[7px] h-[7px] rounded-full bg-[#0D0D0E]" />
+                      </div>
+                    ) : m.current ? (
+                      <div className="w-5 h-5 rounded-full border-2 border-[#C9A96E] flex items-center justify-center transition-transform duration-200 group-hover/node:scale-125">
+                        <motion.div
+                          animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          className="w-2 h-2 rounded-full bg-[#C9A96E]"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border border-[#2E2C27] transition-all duration-200 group-hover/node:border-[#C9A96E]/40 group-hover/node:scale-110" />
+                    )}
+                  </button>
+
+                  <div>
+                    <p
+                      className={[
+                        "[font-family:var(--font-serif-tc)] text-[14px] tracking-[0.04em] mb-1",
+                        m.completed || m.current ? "text-[#F0EDE8]" : "text-[#3A3830]",
+                      ].join(" ")}
+                    >
+                      {m.label}
+                      {m.current && (
+                        <span className="ml-3 font-serif text-[8.5px] tracking-[0.35em] text-[#C9A96E] uppercase align-middle">
+                          施工中
+                        </span>
+                      )}
+                    </p>
+                    <p
+                      className={[
+                        "font-serif text-[12px] tracking-[0.08em]",
+                        m.current ? "text-[#C9A96E]" : m.completed ? "text-[#5A574F]" : "text-[#2A2826]",
+                      ].join(" ")}
+                    >
+                      {m.date}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <GoldDivider />
+
+      {/* ══════════════════════════════════════════
+          LOCATION
+      ══════════════════════════════════════════ */}
+      <section className="grid grid-cols-1 md:grid-cols-[55%_45%] min-h-[70vh]" id="location">
+        <motion.div
+          {...reveal(0)}
+          className="px-8 py-20 md:px-14 md:py-24 flex flex-col justify-center bg-[#0D0D0E]"
+        >
+          <SectionLabel>地理位置</SectionLabel>
+          <h2
+            className="[font-family:var(--font-serif-tc)] font-light text-[#FAFAF8] leading-[1.3] mb-10"
+            style={{ fontSize: "clamp(24px, 3.5vw, 44px)" }}
+          >
+            台北核心黃金地段
+          </h2>
+
+          <div className="flex flex-col">
+            {transitItems.map((item, i) => (
+              <div
+                key={item.name}
+                className={`flex items-center justify-between py-[14px] ${
+                  i < transitItems.length - 1 ? "border-b border-white/[0.05]" : ""
+                }`}
+              >
+                <span className="[font-family:var(--font-serif-tc)] text-[13px] text-[#F0EDE8] tracking-[0.05em] flex items-center gap-3">
+                  <span
+                    className="w-[7px] h-[7px] rounded-full shrink-0"
+                    style={{ backgroundColor: item.dot }}
+                  />
+                  {item.name}
+                </span>
+                <span className="font-serif text-[18px] font-light text-[#C9A96E] shrink-0 ml-4 tabular-nums">
+                  {item.time}
+                  <span className="text-[10px] text-[#5A574F] ml-1">{item.unit}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Map — CartoDB Dark Matter, no API key required */}
+        <div className="relative min-h-[400px] md:min-h-0 md:h-full isolate">
+          <PropertyMap lat={25.0432} lng={121.5294} zoom={15} />
+          {/* Thin gold border on the left edge to blend with the content panel */}
+          <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-[#C9A96E]/20 to-transparent pointer-events-none" />
+        </div>
+      </section>
+
+      <GoldDivider />
+
+      {/* ══════════════════════════════════════════
+          CONTACT
+      ══════════════════════════════════════════ */}
+      <section
+        className="px-6 py-20 md:px-14 md:py-28 bg-[#1C1C1F] relative overflow-hidden"
+        id="contact"
+      >
+        {/* Watermark */}
+        <div
+          className="absolute right-[-2%] top-1/2 -translate-y-1/2 font-serif font-light text-[#C9A96E]/[0.025] leading-[0.85] tracking-[-0.05em] pointer-events-none select-none hidden lg:block whitespace-pre"
+          style={{ fontSize: 190 }}
+        >
+          {"PHOENIX\nONE"}
+        </div>
+
+        <motion.div {...reveal(0)} className="max-w-[600px] relative z-10">
+          <SectionLabel>預約賞屋</SectionLabel>
+          <h2
+            className="[font-family:var(--font-serif-tc)] font-light text-[#FAFAF8] leading-[1.3] mb-4"
+            style={{ fontSize: "clamp(26px, 3.5vw, 44px)" }}
+          >
+            開啟您的頂級居住旅程
+          </h2>
+          <p className="text-[13px] text-[#8A8680] leading-[2.2] tracking-[0.05em] mb-10">
+            專屬顧問將於 24 小時內與您聯繫，安排私人賞屋行程。
+          </p>
+
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField label="姓名">
+                <input type="text" placeholder="您的姓名" className={inputCls} />
+              </FormField>
+              <FormField label="聯絡電話">
+                <input type="tel" placeholder="0912 345 678" className={inputCls} />
+              </FormField>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField label="電子信箱">
+                <input type="email" placeholder="email@example.com" className={inputCls} />
+              </FormField>
+              <FormField label="有興趣的房型">
+                <select className={`${inputCls} bg-[#1C1C1F] cursor-pointer`}>
+                  <option value="">請選擇</option>
+                  <option>35坪 精奢2房</option>
+                  <option>45坪 精奢2-3房</option>
+                  <option>58坪 精奢3房</option>
+                </select>
+              </FormField>
+            </div>
+            <FormField label="備註">
+              <textarea
+                placeholder="如有其他問題或特殊需求，請在此說明…"
+                className={`${inputCls} min-h-[90px] resize-y`}
+              />
+            </FormField>
+            <div className="flex items-center justify-between mt-2 gap-4">
+              <p className="[font-family:var(--font-serif-tc)] text-[10px] text-[#5A574F] max-w-[180px] leading-[1.8]">
+                您的資料將受到嚴格保護，僅供本案聯繫使用。
+              </p>
+              <button
+                type="button"
+                onClick={() => setSubmitted(true)}
+                className={[
+                  "px-8 py-3 [font-family:var(--font-serif-tc)] text-[12px] tracking-[0.18em] transition-all duration-300 shrink-0",
+                  submitted
+                    ? "bg-[#4A7C8E] text-[#FAFAF8] cursor-default"
+                    : "bg-[#C9A96E] text-[#0D0D0E] hover:bg-[#E8D5AA] cursor-pointer",
+                ].join(" ")}
+              >
+                {submitted ? "已送出，感謝您 ✓" : "送出預約"}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer className="px-6 py-8 md:px-14 bg-[#0D0D0E] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-t border-white/5">
+        <div className="font-serif text-[11px] tracking-[0.35em] text-[#C9A96E] uppercase">
+          統創翼 · Phoenix One
+        </div>
+        <p className="[font-family:var(--font-serif-tc)] text-[10px] text-[#5A574F] max-w-[480px] text-center leading-[1.9]">
+          本廣告圖為建築3D環境合成示意圖，實際外觀依主管機關核准圖說為準。廣告內容依相關法規規範，建案詳情請洽銷售人員確認。
+        </p>
+        <div className="text-[11px] text-[#8A8680] md:text-right tracking-[0.1em]">
+          <div className="text-[#5A574F] mb-0.5">銷售專線</div>
+          <a href="tel:+886227528628" className="text-[#C9A96E] no-underline hover:text-[#E8D5AA] transition-colors duration-300">
+            02-2752-8628
+          </a>
+        </div>
+      </footer>
+
+      {/* ══════════════════════════════════════════
+          MILESTONE LIGHTBOX
+      ══════════════════════════════════════════ */}
+      <AnimatePresence>
+        {selectedMilestone && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm"
+              onClick={() => setSelectedMilestone(null)}
+            />
+
+            {/* Panel */}
+            <motion.div
+              key="panel"
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 16 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed inset-0 z-[101] flex items-center justify-center p-6 pointer-events-none"
+            >
+              <div className="relative w-full max-w-lg bg-[#141416] border border-[#C9A96E]/15 pointer-events-auto overflow-hidden">
+
+                {/* Image */}
+                <div className="relative aspect-video">
+                  <Image
+                    src={selectedMilestone.image}
+                    alt={selectedMilestone.label}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 512px"
+                  />
+                  {/* Bottom gradient fade into panel */}
+                  <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_50%,rgba(20,20,22,0.9)_100%)]" />
+
+                  {/* Status badge over image */}
+                  {selectedMilestone.current && (
+                    <div className="absolute top-4 left-4 flex items-center gap-2 bg-[#0D0D0E]/70 backdrop-blur-sm px-3 py-1.5 border border-[#C9A96E]/30">
+                      <motion.span
+                        animate={{ opacity: [1, 0.4, 1] }}
+                        transition={{ duration: 1.6, repeat: Infinity }}
+                        className="w-1.5 h-1.5 rounded-full bg-[#C9A96E] block"
+                      />
+                      <span className="font-serif text-[9px] tracking-[0.4em] text-[#C9A96E] uppercase">
+                        施工中
+                      </span>
+                    </div>
+                  )}
+                  {selectedMilestone.completed && (
+                    <div className="absolute top-4 left-4 bg-[#0D0D0E]/70 backdrop-blur-sm px-3 py-1.5 border border-[#C9A96E]/20">
+                      <span className="font-serif text-[9px] tracking-[0.4em] text-[#C9A96E] uppercase">
+                        已完成
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="px-7 py-6">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <h3 className="[font-family:var(--font-serif-tc)] text-[20px] font-light text-[#FAFAF8] leading-snug">
+                      {selectedMilestone.label}
+                    </h3>
+                    <span className="font-serif text-[13px] text-[#C9A96E] shrink-0 mt-1">
+                      {selectedMilestone.date}
+                    </span>
+                  </div>
+                  <p className="[font-family:var(--font-serif-tc)] text-[13px] text-[#8A8680] leading-[1.9]">
+                    {selectedMilestone.caption}
+                  </p>
+                </div>
+
+                {/* Close */}
+                <button
+                  onClick={() => setSelectedMilestone(null)}
+                  className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-[#8A8680] hover:text-[#F0EDE8] bg-[#0D0D0E]/60 backdrop-blur-sm transition-colors duration-200"
+                  aria-label="關閉"
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </button>
+
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Shared helpers ────────────────────────────────────────────────────────────
+
+function GoldDivider() {
+  return (
+    <div className="w-full h-px bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent opacity-[0.18]" />
+  );
+}
+
+const inputCls =
+  "bg-white/[0.03] border border-white/[0.08] text-[#F0EDE8] px-4 py-3 text-[13px] outline-none focus:border-[#C9A96E]/50 placeholder:text-[#5A574F] transition-colors duration-300 w-full";
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-4 mb-5">
+      <span className="font-serif text-[10px] tracking-[0.5em] text-[#C9A96E] uppercase">
+        {children}
+      </span>
+      <span className="w-12 h-px bg-[#C9A96E]/30 block" />
+    </div>
+  );
+}
+
+function FormField({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="[font-family:var(--font-serif-tc)] text-[9px] tracking-[0.35em] text-[#5A574F] uppercase">
+        {label}
+      </label>
+      {children}
     </div>
   );
 }

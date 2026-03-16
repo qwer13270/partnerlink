@@ -1,8 +1,8 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
 import { Home, Ruler, Layers, Calendar } from 'lucide-react'
 import { motion } from 'framer-motion'
+import strings from '@/lib/strings'
 import type { Property } from '@/lib/types'
 
 interface HighlightsBarProps {
@@ -10,30 +10,30 @@ interface HighlightsBarProps {
 }
 
 export default function HighlightsBar({ property }: HighlightsBarProps) {
-  const t = useTranslations('property.highlights')
+  const t = strings.property.highlights
 
   const highlights = [
     {
       icon: Home,
-      label: t('totalUnits'),
+      label: t.totalUnits,
       value: property.totalUnits,
       suffix: '戶',
     },
     {
       icon: Ruler,
-      label: t('sizeRange'),
+      label: t.sizeRange,
       value: `${property.sizeRange.min}–${property.sizeRange.max}`,
       suffix: '坪',
     },
     {
       icon: Layers,
-      label: t('floors'),
+      label: t.floors,
       value: property.floors,
       suffix: 'F',
     },
     {
       icon: Calendar,
-      label: t('completion'),
+      label: t.completion,
       value: property.completionDate,
       suffix: '',
     },

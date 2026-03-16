@@ -1,9 +1,9 @@
 'use client'
 
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import { useLocale } from '@/hooks/useLocale'
+import strings from '@/lib/strings'
 import type { Property } from '@/lib/types'
 
 interface FloorPlansProps {
@@ -19,8 +19,8 @@ const floorPlanImages = [
 ]
 
 export default function FloorPlans({ property }: FloorPlansProps) {
-  const t = useTranslations('property.floorPlans')
   const { getLocalizedValue } = useLocale()
+  const t = strings.property.floorPlans
 
   const formatPrice = (price: number) => {
     return `NT$ ${price.toLocaleString()}萬`
@@ -40,7 +40,7 @@ export default function FloorPlans({ property }: FloorPlansProps) {
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">
             Floor Plans
           </p>
-          <h2 className="text-4xl md:text-5xl font-serif">{t('title')}</h2>
+          <h2 className="text-4xl md:text-5xl font-serif">{t.title}</h2>
         </motion.div>
 
         {/* Units Grid */}
@@ -75,7 +75,7 @@ export default function FloorPlans({ property }: FloorPlansProps) {
                 {unit.isPopular && (
                   <div className="absolute top-4 right-4">
                     <span className="badge-editorial bg-background text-foreground">
-                      {t('popular')}
+                      {t.popular}
                     </span>
                   </div>
                 )}
@@ -99,11 +99,11 @@ export default function FloorPlans({ property }: FloorPlansProps) {
 
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between py-2 border-b border-border/50">
-                    <span className="text-muted-foreground">{t('size')}</span>
+                    <span className="text-muted-foreground">{t.size}</span>
                     <span className="font-medium">{unit.size} 坪</span>
                   </div>
                   <div className="flex justify-between py-2">
-                    <span className="text-muted-foreground">{t('price')}</span>
+                    <span className="text-muted-foreground">{t.price}</span>
                     <span className="font-serif text-lg">{formatPrice(unit.price)}</span>
                   </div>
                 </div>

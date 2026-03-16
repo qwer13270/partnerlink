@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -14,7 +15,7 @@ const fadeUp = {
   }),
 }
 
-export default function AuthConfirmedPage() {
+function AuthConfirmedContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get('email')
   const safeEmail = email?.trim() || '你的信箱'
@@ -127,5 +128,13 @@ export default function AuthConfirmedPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AuthConfirmedPage() {
+  return (
+    <Suspense>
+      <AuthConfirmedContent />
+    </Suspense>
   )
 }

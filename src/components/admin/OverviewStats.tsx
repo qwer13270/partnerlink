@@ -1,15 +1,13 @@
 'use client'
 
 import { TrendingUp } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAdminStats } from '@/hooks/useMockData'
 import { useLocale } from '@/hooks/useLocale'
 import { cn } from '@/lib/utils'
+import strings from '@/lib/strings'
 
 export default function OverviewStats() {
-  const t = useTranslations('admin.stats')
-  const tCommon = useTranslations('common')
   const { locale } = useLocale()
   const { data, isLoading } = useAdminStats()
 
@@ -25,37 +23,14 @@ export default function OverviewStats() {
     )
   }
 
+  const s = strings.admin.stats
   const stats = [
-    {
-      label: t('totalProjects'),
-      value: formatNumber(data.totalProjects),
-      trend: data.referralsTrend,
-    },
-    {
-      label: t('activeKols'),
-      value: formatNumber(data.activeKols),
-      trend: data.bookingsTrend,
-    },
-    {
-      label: t('referralsThisMonth'),
-      value: formatNumber(data.referralsThisMonth),
-      trend: data.referralsTrend,
-    },
-    {
-      label: t('bookingsThisMonth'),
-      value: formatNumber(data.bookingsThisMonth),
-      trend: data.bookingsTrend,
-    },
-    {
-      label: t('confirmedSales'),
-      value: formatNumber(data.confirmedSales),
-      trend: 6.4,
-    },
-    {
-      label: t('commissionPayable'),
-      value: tCommon('tbd'),
-      trend: null,
-    },
+    { label: s.totalProjects,        value: formatNumber(data.totalProjects),      trend: data.referralsTrend },
+    { label: s.activeKols,           value: formatNumber(data.activeKols),          trend: data.bookingsTrend  },
+    { label: s.referralsThisMonth,   value: formatNumber(data.referralsThisMonth),  trend: data.referralsTrend },
+    { label: s.bookingsThisMonth,    value: formatNumber(data.bookingsThisMonth),   trend: data.bookingsTrend  },
+    { label: s.confirmedSales,       value: formatNumber(data.confirmedSales),      trend: 6.4                 },
+    { label: s.commissionPayable,    value: strings.common.tbd,                    trend: null                },
   ] as const
 
   return (

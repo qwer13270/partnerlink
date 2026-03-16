@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
+import strings from '@/lib/strings'
 import { ArrowRight, Eye, EyeOff, X } from 'lucide-react'
 import { getRoleFromUser, resolveRoleHomePath } from '@/lib/auth'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
@@ -20,7 +20,7 @@ const fadeUp = {
 
 
 export default function LoginContent() {
-  const t = useTranslations('login')
+  const t = strings.login
   const router = useRouter()
   const searchParams = useSearchParams()
   const notice = searchParams.get('notice')
@@ -207,8 +207,8 @@ export default function LoginContent() {
 
             {/* heading */}
             <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="mb-12">
-              <h2 className="text-3xl font-serif text-[#1A1A1A]">{t('title')}</h2>
-              <p className="text-sm text-[#6B6560] mt-2">{t('subtitle')}</p>
+              <h2 className="text-3xl font-serif text-[#1A1A1A]">{t.title}</h2>
+              <p className="text-sm text-[#6B6560] mt-2">{t.subtitle}</p>
             </motion.div>
 
             {notice === 'confirm-email' && (
@@ -239,7 +239,7 @@ export default function LoginContent() {
 
               {/* email */}
               <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp}>
-                <label className="label-editorial" htmlFor="email">{t('email')}</label>
+                <label className="label-editorial" htmlFor="email">{t.email}</label>
                 <input
                   id="email"
                   type="email"
@@ -253,7 +253,7 @@ export default function LoginContent() {
 
               {/* password */}
               <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp}>
-                <label className="label-editorial" htmlFor="password">{t('password')}</label>
+                <label className="label-editorial" htmlFor="password">{t.password}</label>
                 <div className="relative">
                   <input
                     id="password"
@@ -302,7 +302,7 @@ export default function LoginContent() {
                       className="pointer-events-none absolute inset-y-0 w-1/3 bg-white/15 blur-sm"
                     />
                   )}
-                  <span>{isSubmitting ? '登入中...' : t('signIn')}</span>
+                  <span>{isSubmitting ? '登入中...' : t.signIn}</span>
                   <motion.span
                     animate={isSubmitting ? { x: [0, 4, 0] } : { x: 0 }}
                     transition={isSubmitting ? { repeat: Infinity, duration: 0.7, ease: 'easeInOut' } : undefined}
@@ -321,12 +321,12 @@ export default function LoginContent() {
               variants={fadeUp}
               className="mt-10 text-xs text-[#6B6560] text-center"
             >
-              {t('noAccount')}{' '}
+              {t.noAccount}{' '}
               <Link
                 href="/signup"
                 className="text-[#1A1A1A] underline underline-offset-4 hover:text-[#B5886C] transition-colors duration-200"
               >
-                {t('getStarted')}
+                {t.getStarted}
               </Link>
             </motion.p>
 

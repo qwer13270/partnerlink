@@ -1,24 +1,15 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import strings from '@/lib/strings'
 
 export default function SettingsPanels() {
-  const t = useTranslations('admin.settings')
+  const t = strings.admin.settings
 
   const panels = [
-    {
-      title: t('commissionStructure'),
-      body: t('commissionStructureBody'),
-    },
-    {
-      title: t('platformBranding'),
-      body: t('platformBrandingBody'),
-    },
-    {
-      title: t('notifications'),
-      body: t('notificationsBody'),
-    },
+    { title: t.commissionStructure, body: t.commissionStructureBody },
+    { title: t.platformBranding,    body: t.platformBrandingBody    },
+    { title: t.notifications,       body: t.notificationsBody       },
   ]
 
   return (

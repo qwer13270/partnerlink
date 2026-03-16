@@ -1,18 +1,12 @@
-import { useTranslations } from 'next-intl'
+import strings from '@/lib/strings'
 import { ReferralsTable } from '@/components/admin'
 
 export default function AdminReferralsPage() {
-  return <ReferralsPageContent />
-}
-
-function ReferralsPageContent() {
-  const t = useTranslations('admin.referrals')
-
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-serif">{t('title')}</h1>
-        <p className="text-sm text-muted-foreground mt-2">{t('subtitle')}</p>
+        <h1 className="text-3xl font-serif">{strings.admin.referrals.title}</h1>
+        <p className="text-sm text-muted-foreground mt-2">{strings.admin.referrals.subtitle}</p>
       </div>
       <ReferralsTable />
     </div>

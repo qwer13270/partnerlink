@@ -1,9 +1,9 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
 import { Check } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useLocale } from '@/hooks/useLocale'
+import strings from '@/lib/strings'
 import { cn } from '@/lib/utils'
 import type { Property } from '@/lib/types'
 
@@ -12,8 +12,8 @@ interface ConstructionTimelineProps {
 }
 
 export default function ConstructionTimeline({ property }: ConstructionTimelineProps) {
-  const t = useTranslations('property.timeline')
   const { getLocalizedValue } = useLocale()
+  const t = strings.property.timeline
 
   // Find the current milestone (first incomplete one)
   const currentIndex = property.timeline.findIndex((m) => !m.completed)
@@ -35,10 +35,10 @@ export default function ConstructionTimeline({ property }: ConstructionTimelineP
               <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">
                 Progress
               </p>
-              <h2 className="text-4xl md:text-5xl font-serif">{t('title')}</h2>
+              <h2 className="text-4xl md:text-5xl font-serif">{t.title}</h2>
             </div>
             <p className="text-muted-foreground">
-              {t('expectedCompletion')}:{' '}
+              {t.expectedCompletion}:{' '}
               <span className="font-serif text-foreground">{property.completionDate}</span>
             </p>
           </div>

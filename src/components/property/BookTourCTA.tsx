@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
 import { MessageCircle, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
+import { interpolate } from '@/lib/strings'
+import strings from '@/lib/strings'
 import type { Property } from '@/lib/types'
 
 interface BookTourCTAProps {
@@ -12,8 +13,8 @@ interface BookTourCTAProps {
   referrer?: string | null
 }
 
-export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
-  const t = useTranslations('property.bookTour')
+export default function BookTourCTA({ property: _property, referrer }: BookTourCTAProps) {
+  const t = strings.property.bookTour
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [formData, setFormData] = useState({
@@ -38,7 +39,7 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    toast.success(t('thankYou'), {
+    toast.success(t.thankYou, {
       duration: 5000,
     })
 
@@ -73,11 +74,11 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
             預約參觀
           </p>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif mb-6">
-            {t('title')}
+            {t.title}
           </h2>
           {referrerDisplay && (
             <p className="text-background/70">
-              {t('referredBy', { name: referrerDisplay })}
+              {interpolate(t.referredBy, { name: referrerDisplay })}
             </p>
           )}
         </motion.div>
@@ -109,7 +110,7 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
               <span className="flex items-center justify-center h-14 w-14 rounded-full bg-[#06C755]">
                 <MessageCircle className="h-6 w-6 text-white" />
               </span>
-              <span>{t('lineButton')}</span>
+              <span>{t.lineButton}</span>
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-2" strokeWidth={1.5} />
             </button>
           </motion.div>
@@ -127,14 +128,14 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
               </span>
             </div>
             <h3 className="text-2xl md:text-3xl font-serif mb-8">
-              {t('orFillForm')}
+              {t.orFillForm}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name */}
               <div>
                 <label className="block text-xs uppercase tracking-widest text-background/60 mb-3">
-                  {t('name')}
+                  {t.name}
                 </label>
                 <input
                   name="name"
@@ -149,7 +150,7 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
               {/* Phone */}
               <div>
                 <label className="block text-xs uppercase tracking-widest text-background/60 mb-3">
-                  {t('phone')}
+                  {t.phone}
                 </label>
                 <input
                   name="phone"
@@ -164,7 +165,7 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
               {/* Email */}
               <div>
                 <label className="block text-xs uppercase tracking-widest text-background/60 mb-3">
-                  {t('email')}
+                  {t.email}
                 </label>
                 <input
                   name="email"
@@ -179,7 +180,7 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
               {/* Preferred Date */}
               <div>
                 <label className="block text-xs uppercase tracking-widest text-background/60 mb-3">
-                  {t('preferredDate')}
+                  {t.preferredDate}
                 </label>
                 <input
                   name="preferredDate"
@@ -194,7 +195,7 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
               {/* Message */}
               <div>
                 <label className="block text-xs uppercase tracking-widest text-background/60 mb-3">
-                  {t('message')}
+                  {t.message}
                 </label>
                 <textarea
                   name="message"
@@ -224,7 +225,7 @@ export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
                     </>
                   ) : (
                     <>
-                      <span>{t('submit')}</span>
+                      <span>{t.submit}</span>
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-2" strokeWidth={1.5} />
                     </>
                   )}
