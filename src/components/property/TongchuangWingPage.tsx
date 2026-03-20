@@ -11,7 +11,9 @@ const PropertyMap = dynamic(() => import("./PropertyMap"), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full bg-[#141416] flex items-center justify-center">
-      <span className="font-serif text-[11px] tracking-[0.3em] text-[#5A574F] uppercase">載入地圖中…</span>
+      <span className="font-serif text-[11px] tracking-[0.3em] text-[#5A574F] uppercase">
+        載入地圖中…
+      </span>
     </div>
   ),
 });
@@ -71,32 +73,50 @@ const navLinks = [
 
 const progressMilestones = [
   {
-    label: "建照取得", date: "2022 Q4", completed: true, current: false,
+    label: "建照取得",
+    date: "2022 Q4",
+    completed: true,
+    current: false,
     image: "/images/placeholders/exterior/exterior-1.webp",
     caption: "建造執照核發，正式取得合法建築許可。",
   },
   {
-    label: "動工開工", date: "2023 Q2", completed: true, current: false,
+    label: "動工開工",
+    date: "2023 Q2",
+    completed: true,
+    current: false,
     image: "/images/placeholders/projects/project-1.webp",
     caption: "開工典禮暨地基開挖作業啟動。",
   },
   {
-    label: "基礎工程", date: "2023 Q4", completed: true, current: false,
+    label: "基礎工程",
+    date: "2023 Q4",
+    completed: true,
+    current: false,
     image: "/images/placeholders/projects/project-2.webp",
     caption: "樁基礎與地下室結構完工，驗收通過。",
   },
   {
-    label: "結構體工程", date: "2024 Q3", completed: false, current: true,
+    label: "結構體工程",
+    date: "2024 Q3",
+    completed: false,
+    current: true,
     image: "/images/placeholders/projects/project-3.webp",
     caption: "SC 鋼骨主結構持續施工中，目前進度約 60%。",
   },
   {
-    label: "室內裝修", date: "2025 Q3", completed: false, current: false,
+    label: "室內裝修",
+    date: "2025 Q3",
+    completed: false,
+    current: false,
     image: "/images/placeholders/interior/interior-1.webp",
     caption: "精裝修工程預計 2025 Q3 啟動。",
   },
   {
-    label: "驗收交屋", date: "2026 Q1", completed: false, current: false,
+    label: "驗收交屋",
+    date: "2026 Q1",
+    completed: false,
+    current: false,
     image: "/images/placeholders/interior/interior-3.webp",
     caption: "全棟驗收完成，預計 2026 Q1 正式交屋。",
   },
@@ -111,11 +131,12 @@ export default function TongchuangWingPage({
   referrer: _referrer,
 }: TongchuangWingPageProps) {
   const [submitted, setSubmitted] = useState(false);
-  const [selectedMilestone, setSelectedMilestone] = useState<typeof progressMilestones[number] | null>(null);
+  const [selectedMilestone, setSelectedMilestone] = useState<
+    (typeof progressMilestones)[number] | null
+  >(null);
 
   return (
     <div className="bg-[#0D0D0E] text-[#F0EDE8] overflow-x-hidden">
-
       {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5 md:px-14 bg-gradient-to-b from-[#0D0D0E]/70 to-transparent pointer-events-none">
         <div className="font-serif text-[12px] tracking-[0.35em] text-[#C9A96E] uppercase pointer-events-auto">
@@ -257,7 +278,9 @@ export default function TongchuangWingPage({
               <div className="[font-family:var(--font-serif-tc)] text-[9px] tracking-[0.35em] text-[#5A574F] uppercase mb-2">
                 {label}
               </div>
-              <div className="font-serif text-[15px] text-[#C9A96E]">{value}</div>
+              <div className="font-serif text-[15px] text-[#C9A96E]">
+                {value}
+              </div>
             </div>
           ))}
         </div>
@@ -277,7 +300,8 @@ export default function TongchuangWingPage({
               城市天際的精品美學
             </h2>
             <p className="font-serif text-[14px] text-[#8A8680] leading-[2.2] max-w-lg">
-              每一個細節，都是對居住品質的極致承諾。<br />
+              每一個細節，都是對居住品質的極致承諾。
+              <br />
               鋼骨雙制震，黃金級綠建築，天際視野留白從容。
             </p>
           </motion.div>
@@ -313,7 +337,10 @@ export default function TongchuangWingPage({
       {/* ══════════════════════════════════════════
           FEATURES
       ══════════════════════════════════════════ */}
-      <section className="bg-[#0D0D0E] px-6 py-20 md:px-14 md:py-28" id="features">
+      <section
+        className="bg-[#0D0D0E] px-6 py-20 md:px-14 md:py-28"
+        id="features"
+      >
         <div className="max-w-5xl mx-auto">
           <motion.div {...reveal(0)} className="mb-14">
             <SectionLabel>特色亮點</SectionLabel>
@@ -354,9 +381,15 @@ export default function TongchuangWingPage({
       {/* ══════════════════════════════════════════
           工程進度 — CONSTRUCTION PROGRESS
       ══════════════════════════════════════════ */}
-      <section className="bg-[#0F0F11] px-6 py-20 md:px-14 md:py-28" id="progress">
+      <section
+        className="bg-[#0F0F11] px-6 py-20 md:px-14 md:py-28"
+        id="progress"
+      >
         <div className="max-w-5xl mx-auto">
-          <motion.div {...reveal(0)} className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <motion.div
+            {...reveal(0)}
+            className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-4"
+          >
             <div>
               <SectionLabel>工程進度</SectionLabel>
               <h2
@@ -367,8 +400,7 @@ export default function TongchuangWingPage({
               </h2>
             </div>
             <p className="font-serif text-[13px] text-[#5A574F] tracking-[0.05em]">
-              預計竣工{" "}
-              <span className="text-[#C9A96E] ml-1">2026 Q1</span>
+              預計竣工 <span className="text-[#C9A96E] ml-1">2026 Q1</span>
             </p>
           </motion.div>
 
@@ -381,7 +413,11 @@ export default function TongchuangWingPage({
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 1.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                duration: 1.6,
+                delay: 0.4,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="absolute top-[10px] left-0 h-px bg-gradient-to-r from-[#C9A96E] via-[#C9A96E] to-[#C9A96E]/20 origin-left"
               style={{ width: `${progressPct}%` }}
             />
@@ -408,12 +444,23 @@ export default function TongchuangWingPage({
                       <div className="w-5 h-5 rounded-full border-2 border-[#C9A96E] flex items-center justify-center relative transition-transform duration-200 group-hover/node:scale-125">
                         <motion.div
                           animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
                           className="w-2 h-2 rounded-full bg-[#C9A96E]"
                         />
                         <motion.div
-                          animate={{ scale: [1, 2.2, 1], opacity: [0.3, 0, 0.3] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          animate={{
+                            scale: [1, 2.2, 1],
+                            opacity: [0.3, 0, 0.3],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
                           className="absolute inset-0 rounded-full border border-[#C9A96E]/50"
                         />
                       </div>
@@ -430,7 +477,9 @@ export default function TongchuangWingPage({
                   <p
                     className={[
                       "[font-family:var(--font-serif-tc)] text-[12px] tracking-[0.04em] text-center mb-1 leading-snug mt-1",
-                      m.completed || m.current ? "text-[#F0EDE8]" : "text-[#3A3830]",
+                      m.completed || m.current
+                        ? "text-[#F0EDE8]"
+                        : "text-[#3A3830]",
                     ].join(" ")}
                   >
                     {m.label}
@@ -438,7 +487,11 @@ export default function TongchuangWingPage({
                   <p
                     className={[
                       "font-serif text-[10px] tracking-[0.1em] text-center",
-                      m.current ? "text-[#C9A96E]" : m.completed ? "text-[#5A574F]" : "text-[#2A2826]",
+                      m.current
+                        ? "text-[#C9A96E]"
+                        : m.completed
+                          ? "text-[#5A574F]"
+                          : "text-[#2A2826]",
                     ].join(" ")}
                   >
                     {m.date}
@@ -462,7 +515,11 @@ export default function TongchuangWingPage({
               initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 1.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                duration: 1.6,
+                delay: 0.4,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="absolute top-0 left-[10px] w-px bg-gradient-to-b from-[#C9A96E] via-[#C9A96E] to-[#C9A96E]/20 origin-top"
               style={{ height: `${progressPct}%` }}
             />
@@ -488,7 +545,11 @@ export default function TongchuangWingPage({
                       <div className="w-5 h-5 rounded-full border-2 border-[#C9A96E] flex items-center justify-center transition-transform duration-200 group-hover/node:scale-125">
                         <motion.div
                           animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
                           className="w-2 h-2 rounded-full bg-[#C9A96E]"
                         />
                       </div>
@@ -501,7 +562,9 @@ export default function TongchuangWingPage({
                     <p
                       className={[
                         "[font-family:var(--font-serif-tc)] text-[14px] tracking-[0.04em] mb-1",
-                        m.completed || m.current ? "text-[#F0EDE8]" : "text-[#3A3830]",
+                        m.completed || m.current
+                          ? "text-[#F0EDE8]"
+                          : "text-[#3A3830]",
                       ].join(" ")}
                     >
                       {m.label}
@@ -514,7 +577,11 @@ export default function TongchuangWingPage({
                     <p
                       className={[
                         "font-serif text-[12px] tracking-[0.08em]",
-                        m.current ? "text-[#C9A96E]" : m.completed ? "text-[#5A574F]" : "text-[#2A2826]",
+                        m.current
+                          ? "text-[#C9A96E]"
+                          : m.completed
+                            ? "text-[#5A574F]"
+                            : "text-[#2A2826]",
                       ].join(" ")}
                     >
                       {m.date}
@@ -532,7 +599,10 @@ export default function TongchuangWingPage({
       {/* ══════════════════════════════════════════
           LOCATION
       ══════════════════════════════════════════ */}
-      <section className="grid grid-cols-1 md:grid-cols-[55%_45%] min-h-[70vh]" id="location">
+      <section
+        className="grid grid-cols-1 md:grid-cols-[55%_45%] min-h-[70vh]"
+        id="location"
+      >
         <motion.div
           {...reveal(0)}
           className="px-8 py-20 md:px-14 md:py-24 flex flex-col justify-center bg-[#0D0D0E]"
@@ -550,7 +620,9 @@ export default function TongchuangWingPage({
               <div
                 key={item.name}
                 className={`flex items-center justify-between py-[14px] ${
-                  i < transitItems.length - 1 ? "border-b border-white/[0.05]" : ""
+                  i < transitItems.length - 1
+                    ? "border-b border-white/[0.05]"
+                    : ""
                 }`}
               >
                 <span className="[font-family:var(--font-serif-tc)] text-[13px] text-[#F0EDE8] tracking-[0.05em] flex items-center gap-3">
@@ -562,7 +634,9 @@ export default function TongchuangWingPage({
                 </span>
                 <span className="font-serif text-[18px] font-light text-[#C9A96E] shrink-0 ml-4 tabular-nums">
                   {item.time}
-                  <span className="text-[10px] text-[#5A574F] ml-1">{item.unit}</span>
+                  <span className="text-[10px] text-[#5A574F] ml-1">
+                    {item.unit}
+                  </span>
                 </span>
               </div>
             ))}
@@ -570,8 +644,8 @@ export default function TongchuangWingPage({
         </motion.div>
 
         {/* Map — CartoDB Dark Matter, no API key required */}
-        <div className="relative min-h-[400px] md:min-h-0 md:h-full isolate">
-          <PropertyMap lat={25.0432} lng={121.5294} zoom={15} />
+        <div className="relative min-h-[400px] md:h-[70vh] isolate">
+          <PropertyMap lat={25.040314} lng={121.537053} zoom={15} />
           {/* Thin gold border on the left edge to blend with the content panel */}
           <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-[#C9A96E]/20 to-transparent pointer-events-none" />
         </div>
@@ -609,15 +683,27 @@ export default function TongchuangWingPage({
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField label="姓名">
-                <input type="text" placeholder="您的姓名" className={inputCls} />
+                <input
+                  type="text"
+                  placeholder="您的姓名"
+                  className={inputCls}
+                />
               </FormField>
               <FormField label="聯絡電話">
-                <input type="tel" placeholder="0912 345 678" className={inputCls} />
+                <input
+                  type="tel"
+                  placeholder="0912 345 678"
+                  className={inputCls}
+                />
               </FormField>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField label="電子信箱">
-                <input type="email" placeholder="email@example.com" className={inputCls} />
+                <input
+                  type="email"
+                  placeholder="email@example.com"
+                  className={inputCls}
+                />
               </FormField>
               <FormField label="有興趣的房型">
                 <select className={`${inputCls} bg-[#1C1C1F] cursor-pointer`}>
@@ -665,7 +751,10 @@ export default function TongchuangWingPage({
         </p>
         <div className="text-[11px] text-[#8A8680] md:text-right tracking-[0.1em]">
           <div className="text-[#5A574F] mb-0.5">銷售專線</div>
-          <a href="tel:+886227528628" className="text-[#C9A96E] no-underline hover:text-[#E8D5AA] transition-colors duration-300">
+          <a
+            href="tel:+886227528628"
+            className="text-[#C9A96E] no-underline hover:text-[#E8D5AA] transition-colors duration-300"
+          >
             02-2752-8628
           </a>
         </div>
@@ -698,7 +787,6 @@ export default function TongchuangWingPage({
               className="fixed inset-0 z-[101] flex items-center justify-center p-6 pointer-events-none"
             >
               <div className="relative w-full max-w-lg bg-[#141416] border border-[#C9A96E]/15 pointer-events-auto overflow-hidden">
-
                 {/* Image */}
                 <div className="relative aspect-video">
                   <Image
@@ -755,10 +843,14 @@ export default function TongchuangWingPage({
                   aria-label="關閉"
                 >
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path
+                      d="M1 1L9 9M9 1L1 9"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 </button>
-
               </div>
             </motion.div>
           </>

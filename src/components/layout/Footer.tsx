@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { ArrowUpRight } from 'lucide-react'
-import { motion } from 'framer-motion'
-import { strings, interpolate } from '@/lib/strings'
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { strings, interpolate } from "@/lib/strings";
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   const footerLinks = [
-    { label: '所有商案', href: '/properties' },
-    { label: 'KOL 合作', href: '#' },
-    { label: '商家合作', href: '#' },
-    { label: '關於我們', href: '#' },
-  ]
+    { label: "所有商案", href: "/properties" },
+    { label: "KOL 合作", href: "#" },
+    { label: "商家合作", href: "#" },
+    { label: "關於我們", href: "#" },
+  ];
 
   return (
     <footer className="border-t border-border">
@@ -77,15 +77,15 @@ export default function Footer() {
             <ul className="space-y-4 text-foreground">
               <li>
                 <a
-                  href="mailto:contact@homekey.tw"
+                  href="mailto:Showshowkao@partnerlink.com.tw"
                   className="hover:text-muted-foreground transition-colors duration-200"
                 >
-                  contact@homekey.tw
+                  Showshowkao@partnerlink.com.tw
                 </a>
               </li>
-              <li>+886 2 1234 5678</li>
+              <li>02-2711-0339</li>
               <li className="text-muted-foreground">
-                台北市信義區信義路五段7號
+                台北市大安區市民大道三段198號6樓
               </li>
             </ul>
           </motion.div>
@@ -96,7 +96,9 @@ export default function Footer() {
       <div className="border-t border-border">
         <div className="editorial-container py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>{interpolate(strings.footer.copyright, { year: currentYear })}</p>
+            <p>
+              {interpolate(strings.footer.copyright, { year: currentYear })}
+            </p>
             <p className="text-center md:text-right max-w-md">
               {strings.footer.disclaimer}
             </p>
@@ -104,5 +106,5 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
