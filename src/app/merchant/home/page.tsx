@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
@@ -14,12 +15,8 @@ const fadeUp = {
 }
 
 // ── Mock data ────────────────────────────────────────────────────────────────
-const MERCHANT = {
-  name: '璞真建設',
-  activeProjects: 2,
-  activeKols: 3,
-  monthlyBookings: 18,
-  monthlySales: 3,
+type MerchantProfile = {
+  company_name: string
 }
 
 type LeadStatus = 'pending-tour' | 'toured' | 'negotiating' | 'sale-confirmed' | 'cancelled'
@@ -47,13 +44,34 @@ const LEAD_STATUS_CFG: Record<LeadStatus, { label: string; color: string }> = {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function MerchantHomePage() {
+  const [merchantName, setMerchantName] = useState('商家夥伴')
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadProfile() {
+      try {
+        const response = await fetch('/api/merchant/profile', { signal: controller.signal })
+        const payload = (await response.json().catch(() => null)) as { profile?: MerchantProfile } | null
+        if (response.ok && payload?.profile?.company_name) {
+          setMerchantName(payload.profile.company_name)
+        }
+      } catch {
+        // Keep the fallback mock heading if the profile is temporarily unavailable.
+      }
+    }
+
+    void loadProfile()
+    return () => controller.abort()
+  }, [])
+
   return (
     <div className="space-y-12">
 
       {/* ── Header ── */}
       <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">商家後台</p>
-        <h1 className="text-3xl font-serif">歡迎回來，{MERCHANT.name}</h1>
+        <h1 className="text-3xl font-serif">歡迎回來，{merchantName}</h1>
         <p className="text-sm text-muted-foreground mt-2">以下是您目前的商案總覽。</p>
       </motion.div>
 
@@ -63,10 +81,10 @@ export default function MerchantHomePage() {
         className="grid grid-cols-2 md:grid-cols-4 gap-px bg-foreground/10 border border-foreground/15"
       >
         {[
-          { label: '進行中商案', value: MERCHANT.activeProjects  },
-          { label: '合作 KOL',   value: MERCHANT.activeKols      },
-          { label: '本月預約',   value: MERCHANT.monthlyBookings  },
-          { label: '本月成交',   value: MERCHANT.monthlySales     },
+          { label: '進行中商案', value: 2 },
+          { label: '合作 KOL',   value: 3 },
+          { label: '本月預約',   value: 18 },
+          { label: '本月成交',   value: 3 },
         ].map((stat) => (
           <div key={stat.label} className="bg-background px-5 py-6 text-center">
             <p className="text-[0.62rem] uppercase tracking-[0.3em] text-muted-foreground mb-3">{stat.label}</p>

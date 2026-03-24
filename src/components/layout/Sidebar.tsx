@@ -37,8 +37,8 @@ export default function Sidebar({ items, translationNamespace }: SidebarProps) {
   }
 
   return (
-    <aside className="hidden lg:block w-72 min-h-[calc(100vh-5rem)] border-r border-border bg-background">
-      <nav className="sticky top-24 py-8 px-6">
+    <aside className="hidden lg:block w-72 min-h-screen border-r border-border bg-background">
+      <nav className="sticky top-16 py-8 px-6">
         <div className="space-y-1">
           {items.map((item) => {
             const Icon = item.icon

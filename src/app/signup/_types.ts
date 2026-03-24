@@ -10,3 +10,13 @@ export type KolSignupDraft = {
   contentType: string
   bio: string
 }
+
+export type MerchantSignupDraft = {
+  companyName: string
+  contactName: string
+  email: string
+  phone: string
+  password: string
+  city: string
+  projectCount: string
+}

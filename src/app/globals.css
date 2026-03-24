@@ -579,6 +579,11 @@
   }
 }
 
+@keyframes nudge {
+  0%, 100% { transform: translateX(0); opacity: 1; }
+  50%       { transform: translateX(4px); opacity: 0.6; }
+}
+
 .animate-fade-up {
   animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

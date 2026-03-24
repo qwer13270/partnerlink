@@ -10,6 +10,8 @@ import {
   BookTourCTA,
   TongchuangWingPage,
 } from '@/components/property'
+import { buildDefaultProjectContentPreview } from '@/lib/property-template'
+import { getPublishedPropertyBySlug } from '@/lib/server/properties'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -24,17 +26,31 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params
-  const property = getPropertyBySlug(slug)
+  const dbProperty = await getPublishedPropertyBySlug(slug)
+  const mockProperty = getPropertyBySlug(slug)
 
-  if (!property) {
+  if (!dbProperty && !mockProperty) {
+    return {
+      title: 'Property Not Found',
+    }
+  }
+
+  if (dbProperty) {
+    return {
+      title: `${dbProperty.name} | PartnerLink 夥伴`,
+      description: `${dbProperty.name} - ${dbProperty.template.districtLabel}. ${dbProperty.template.overviewTitle}`,
+    }
+  }
+
+  if (!mockProperty) {
     return {
       title: 'Property Not Found',
     }
   }
 
   return {
-    title: `${property.name} | PartnerLink 夥伴`,
-    description: `${property.name} - ${property.location}. NT$ ${property.priceRange.min.toLocaleString()}萬 ~ NT$ ${property.priceRange.max.toLocaleString()}萬`,
+    title: `${mockProperty.name} | PartnerLink 夥伴`,
+    description: `${mockProperty.name} - ${mockProperty.location}. NT$ ${mockProperty.priceRange.min.toLocaleString()}萬 ~ NT$ ${mockProperty.priceRange.max.toLocaleString()}萬`,
   }
 }
 
@@ -42,14 +58,19 @@ export default async function PropertyPage({ params, searchParams }: Props) {
   const { slug } = await params
   const { ref } = await searchParams
 
+  const dbProperty = await getPublishedPropertyBySlug(slug)
   const property = getPropertyBySlug(slug)
+
+  if (dbProperty?.templateKey === 'tongchuang-wing') {
+    return <TongchuangWingPage content={dbProperty.template} referrer={ref} />
+  }
 
   if (!property) {
     notFound()
   }
 
   if (property.slug === 'tongchuang-wing') {
-    return <TongchuangWingPage property={property} referrer={ref} />
+    return <TongchuangWingPage content={buildDefaultProjectContentPreview()} referrer={ref} />
   }
 
   return (

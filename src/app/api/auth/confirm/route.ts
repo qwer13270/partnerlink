@@ -44,8 +44,14 @@ export async function GET(request: NextRequest) {
   }
 
   const email = data.session.user.email ?? ''
-  const emailParam = email ? `?email=${encodeURIComponent(email)}` : ''
-  const response = NextResponse.redirect(`${origin}/auth/confirmed${emailParam}`)
+  const signupRole = typeof data.session.user.user_metadata?.signup_role === 'string'
+    ? data.session.user.user_metadata.signup_role
+    : ''
+  const params = new URLSearchParams()
+  if (email) params.set('email', email)
+  if (signupRole) params.set('role', signupRole)
+  const query = params.toString()
+  const response = NextResponse.redirect(`${origin}/auth/confirmed${query ? `?${query}` : ''}`)
 
   // Apply session cookies to the redirect response
   for (const { name, value, options } of pendingCookies) {

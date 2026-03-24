@@ -1,215 +1,191 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, FileEdit, BarChart2, Users, ChevronRight, TrendingUp, Building2, Star } from 'lucide-react'
+import { ArrowLeft, ArrowUpRight, Users, BarChart3 } from 'lucide-react'
+import { toast } from 'sonner'
 
-// ── Animation ──────────────────────────────────────────────────────────────
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] as const },
-})
-
-// ── Mock project data ────────────────────────────────────────────────────────
-const PROJECTS: Record<string, {
-  name: string; location: string; status: string; statusLabel: string
-  rate: string; kolCount: number; bookings: number; sales: number
-  priceRange: string; floors: number; units: number
-}> = {
-  'prop-001': {
-    name: '璞真建設 — 光河',
-    location: '新北市板橋區',
-    status: 'presale',
-    statusLabel: '預售中',
-    rate: '3.5%',
-    kolCount: 3,
-    bookings: 45,
-    sales: 6,
-    priceRange: 'NT$1,680萬 — NT$3,200萬',
-    floors: 28,
-    units: 168,
-  },
-  'prop-005': {
-    name: '潤泰敦峰',
-    location: '台北市大安區',
-    status: 'active',
-    statusLabel: '銷售中',
-    rate: '4.2%',
-    kolCount: 2,
-    bookings: 22,
-    sales: 2,
-    priceRange: 'NT$3,800萬 — NT$7,200萬',
-    floors: 32,
-    units: 96,
-  },
+type ProjectDetail = {
+  id: string
+  name: string
+  publishStatus: 'draft' | 'published'
+  districtLabel: string
 }
 
-// ── Action cards ─────────────────────────────────────────────────────────────
-const ACTIONS = [
+const CARDS = [
   {
-    key: 'edit',
-    href: 'edit',
-    icon: FileEdit,
-    title: '編輯商案網站',
-    titleEn: 'Edit Listing',
-    desc: '更新商案資訊、圖片、戶型與銷售條件',
-    accent: 'rgba(196,145,58,0.08)',
-    accentBorder: 'rgba(196,145,58,0.25)',
-    iconColor: '#c4913a',
+    key: 'customers',
+    index: '01',
+    label: '客戶分析',
+    title: '受眾輪廓分析',
+    desc: 'AI 歸納客戶特徵、來源渠道與購買意向分佈。',
+    href: (id: string) => `/merchant/projects/${id}/customers`,
+    Icon: Users,
+    bg: '#F4F6FB',
+    border: 'rgba(67,97,238,0.18)',
+    accent: '#4361EE',
+    accentDim: 'rgba(67,97,238,0.12)',
+    accentText: 'rgba(67,97,238,0.7)',
+    iconBg: 'rgba(67,97,238,0.08)',
+    iconBorder: 'rgba(67,97,238,0.2)',
   },
   {
     key: 'analytics',
-    href: 'analytics',
-    icon: BarChart2,
-    title: '分析商案',
-    titleEn: 'Market Analytics',
-    desc: '查看地區周邊房價走勢、市場行情與競品分析',
-    accent: 'rgba(26,26,26,0.04)',
-    accentBorder: 'rgba(26,26,26,0.15)',
-    iconColor: '#1a1a1a',
-  },
-  {
-    key: 'customers',
-    href: 'customers',
-    icon: Users,
-    title: '分析客戶',
-    titleEn: 'Audience Insights',
-    desc: '上傳客戶資料，AI 分析目標受眾輪廓與購買意向',
-    accent: 'rgba(74,158,110,0.07)',
-    accentBorder: 'rgba(74,158,110,0.25)',
-    iconColor: '#4a9e6e',
+    index: '02',
+    label: '商案分析',
+    title: '地區房市行情',
+    desc: '區域價格走勢、季度成交量與周邊競品概況。',
+    href: (id: string) => `/merchant/projects/${id}/analytics`,
+    Icon: BarChart3,
+    bg: '#FBF8F2',
+    border: 'rgba(180,130,40,0.2)',
+    accent: '#B8862A',
+    accentDim: 'rgba(180,130,40,0.1)',
+    accentText: 'rgba(180,130,40,0.75)',
+    iconBg: 'rgba(180,130,40,0.08)',
+    iconBorder: 'rgba(180,130,40,0.22)',
   },
 ]
 
-// ── Page ─────────────────────────────────────────────────────────────────────
-export default function ProjectHubPage() {
+export default function ProjectAnalysisPage() {
   const { id } = useParams<{ id: string }>()
-  const project = PROJECTS[id] ?? PROJECTS['prop-001']
+  const [project, setProject] = useState<ProjectDetail | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const statusColors: Record<string, string> = {
-    active:  'text-emerald-700 border-emerald-200 bg-emerald-50',
-    presale: 'text-blue-700 border-blue-200 bg-blue-50',
-    soldout: 'text-muted-foreground border-border',
+  useEffect(() => {
+    let active = true
+    async function load() {
+      setLoading(true)
+      const res = await fetch(`/api/merchant/projects/${id}`, { cache: 'no-store' })
+      const payload = await res.json().catch(() => ({}))
+      if (!active) return
+      if (!res.ok) { toast.error(payload.error ?? '載入商案失敗'); setLoading(false); return }
+      setProject(payload.project ?? null)
+      setLoading(false)
+    }
+    void load()
+    return () => { active = false }
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div className="w-4 h-4 border border-foreground/20 border-t-foreground/60 rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (!project) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <p className="text-sm text-muted-foreground">找不到這個商案。</p>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-10 max-w-3xl">
+    <div className="max-w-2xl space-y-10">
 
       {/* ── Back ── */}
-      <motion.div {...fadeUp(0)}>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
         <Link
           href="/merchant/projects"
-          className="inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors duration-150"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-150"
+          style={{ fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase' }}
         >
-          <ArrowLeft className="w-3 h-3" />
-          商案管理
+          <ArrowLeft className="h-3 w-3" />
+          商案列表
         </Link>
       </motion.div>
 
-      {/* ── Project header ── */}
-      <motion.div {...fadeUp(0.06)}>
-        <div className="flex items-start justify-between gap-4 mb-6">
+      {/* ── Header ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-[0.62rem] uppercase tracking-[0.3em] text-muted-foreground mb-1">{project.location}</p>
-            <h1 className="text-3xl font-serif font-light leading-tight">{project.name}</h1>
+            <p style={{ fontSize: 10, letterSpacing: '0.38em', textTransform: 'uppercase', color: 'hsl(var(--muted-foreground))', marginBottom: 8 }}>
+              分析中心
+            </p>
+            <h1 className="font-serif font-light leading-tight" style={{ fontSize: 'clamp(26px, 4vw, 38px)' }}>
+              {project.name}
+            </h1>
+            {project.districtLabel && (
+              <p className="text-muted-foreground mt-2" style={{ fontSize: 13 }}>{project.districtLabel}</p>
+            )}
           </div>
-          <span className={`shrink-0 text-[0.6rem] uppercase tracking-widest px-1.5 py-0.5 border ${statusColors[project.status] ?? ''}`}>
-            {project.statusLabel}
+          <span
+            className="shrink-0 mt-1"
+            style={{
+              fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '3px 10px',
+              border: project.publishStatus === 'published' ? '1px solid rgba(52,168,83,0.35)' : '1px solid rgba(180,140,60,0.35)',
+              color: project.publishStatus === 'published' ? '#2d8a4e' : '#9a7428',
+              background: project.publishStatus === 'published' ? 'rgba(52,168,83,0.06)' : 'rgba(180,140,60,0.06)',
+            }}
+          >
+            {project.publishStatus === 'published' ? '已發布' : '草稿'}
           </span>
         </div>
-
-        {/* Key stats row */}
-        <div
-          className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0"
-          style={{ border: '1px solid rgba(26,26,26,0.1)' }}
-        >
-          {[
-            { icon: Star,     label: '佣金比率', value: project.rate         },
-            { icon: Users,    label: '合作 KOL', value: project.kolCount     },
-            { icon: TrendingUp, label: '累計預約', value: project.bookings   },
-            { icon: Building2,  label: '累計成交', value: project.sales      },
-          ].map(({ icon: Icon, label, value }) => (
-            <div key={label} className="px-5 py-4 text-center">
-              <p className="text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground mb-1">{label}</p>
-              <p className="text-2xl font-serif font-light">{value}</p>
-            </div>
-          ))}
-        </div>
       </motion.div>
 
-      {/* ── Divider ── */}
-      <motion.div {...fadeUp(0.1)}>
-        <div style={{ borderTop: '1px solid rgba(26,26,26,0.08)' }} />
-      </motion.div>
-
-      {/* ── Action cards ── */}
-      <div>
-        <motion.p {...fadeUp(0.12)} className="text-[0.62rem] uppercase tracking-[0.3em] text-muted-foreground mb-5">
-          管理工具
-        </motion.p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {ACTIONS.map(({ key, href, icon: Icon, title, titleEn, desc, accent, accentBorder, iconColor }, i) => (
-            <motion.div key={key} {...fadeUp(0.15 + i * 0.07)}>
-              <Link
-                href={`/merchant/projects/${id}/${href}`}
-                className="group block h-full"
-              >
+      {/* ── Cards ── */}
+      <div className="grid sm:grid-cols-2 gap-3">
+        {CARDS.map((card, i) => (
+          <motion.div
+            key={card.key}
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.14 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Link
+              href={card.href(id)}
+              className="group flex flex-col gap-5 p-6 h-full transition-all duration-200 hover:shadow-sm"
+              style={{ background: card.bg, border: `1px solid ${card.border}` }}
+            >
+              {/* Icon + arrow */}
+              <div className="flex items-center justify-between">
                 <div
-                  className="h-full p-6 transition-all duration-200 group-hover:shadow-md"
-                  style={{
-                    border: `1px solid ${accentBorder}`,
-                    background: accent,
-                  }}
+                  className="w-8 h-8 flex items-center justify-center"
+                  style={{ background: card.iconBg, border: `1px solid ${card.iconBorder}` }}
                 >
-                  {/* Icon */}
-                  <div
-                    className="w-10 h-10 flex items-center justify-center mb-5"
-                    style={{ background: `${iconColor}15` }}
-                  >
-                    <Icon className="w-5 h-5" style={{ color: iconColor }} />
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="font-medium text-sm mb-1">{title}</h3>
-                  <p className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground mb-3">{titleEn}</p>
-
-                  {/* Description */}
-                  <p className="text-xs text-muted-foreground leading-relaxed mb-5">{desc}</p>
-
-                  {/* CTA */}
-                  <div className="flex items-center gap-1 text-[0.6rem] uppercase tracking-[0.2em]" style={{ color: iconColor }}>
-                    <span>前往</span>
-                    <ChevronRight className="w-3 h-3 transition-transform duration-150 group-hover:translate-x-0.5" />
-                  </div>
+                  <card.Icon className="h-3.5 w-3.5" style={{ color: card.accent }} strokeWidth={1.5} />
                 </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      </div>
+                <ArrowUpRight
+                  className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-200"
+                  style={{ color: card.accent }}
+                />
+              </div>
 
-      {/* ── Property info strip ── */}
-      <motion.div {...fadeUp(0.35)}>
-        <div
-          className="flex flex-wrap gap-8 px-6 py-5"
-          style={{ border: '1px solid rgba(26,26,26,0.08)', background: 'hsl(var(--background))' }}
-        >
-          {[
-            { label: '地址', value: project.location },
-            { label: '樓層', value: `${project.floors} 層` },
-            { label: '戶數', value: `${project.units} 戶` },
-            { label: '售價範圍', value: project.priceRange },
-          ].map(({ label, value }) => (
-            <div key={label}>
-              <p className="text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground mb-0.5">{label}</p>
-              <p className="text-sm">{value}</p>
-            </div>
-          ))}
-        </div>
-      </motion.div>
+              {/* Text */}
+              <div className="flex-1">
+                <p style={{ fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', color: card.accentText, marginBottom: 6 }}>
+                  {card.index} · {card.label}
+                </p>
+                <h2
+                  className="font-serif font-light leading-snug"
+                  style={{ fontSize: 19, color: 'hsl(var(--foreground))', marginBottom: 8 }}
+                >
+                  {card.title}
+                </h2>
+                <p style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))', lineHeight: 1.6 }}>
+                  {card.desc}
+                </p>
+              </div>
+
+              {/* CTA */}
+              <div
+                className="flex items-center gap-1.5 group-hover:gap-2.5 transition-all duration-200"
+                style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: card.accent }}
+              >
+                <span>進入</span>
+                <ArrowUpRight className="h-3 w-3" />
+              </div>
+            </Link>
+          </motion.div>
+        ))}
+      </div>
 
     </div>
   )

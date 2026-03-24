@@ -12,9 +12,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid role.' }, { status: 400 })
   }
 
-  if (body.role === 'kol') {
+  if (body.role === 'kol' || body.role === 'merchant') {
     return NextResponse.json(
-      { error: 'KOL role is assigned only after admin approval.' },
+      { error: `${String(body.role).toUpperCase()} role is assigned only after admin approval.` },
       { status: 403 },
     )
   }

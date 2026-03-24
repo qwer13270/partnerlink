@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { slideIn, fadeUp, CITIES, PROJECT_COUNTS } from '../_constants'
+import type { MerchantSignupDraft } from '../_types'
 
 export function MerchantForm({
   onBack,
@@ -12,7 +13,7 @@ export function MerchantForm({
   submitting,
 }: {
   onBack: () => void
-  onSubmit: (input: { email: string; password: string }) => void
+  onSubmit: (input: MerchantSignupDraft) => void
   error: string
   submitting: boolean
 }) {
@@ -27,8 +28,13 @@ export function MerchantForm({
     const form = e.currentTarget as HTMLFormElement
     const formData = new FormData(form)
     onSubmit({
+      companyName: String(formData.get('companyName') ?? ''),
+      contactName: String(formData.get('contactName') ?? ''),
       email: String(formData.get('email') ?? ''),
+      phone: String(formData.get('phone') ?? ''),
       password: String(formData.get('password') ?? ''),
+      city,
+      projectCount,
     })
   }
 
@@ -47,11 +53,11 @@ export function MerchantForm({
         <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="grid grid-cols-2 gap-4">
           <div>
             <label className="label-editorial">公司名稱</label>
-            <input type="text" required placeholder="遠雄建設" className="input-editorial text-sm" />
+            <input name="companyName" type="text" required placeholder="遠雄建設" className="input-editorial text-sm" />
           </div>
           <div>
             <label className="label-editorial">聯絡人姓名</label>
-            <input type="text" required placeholder="張建廷" className="input-editorial text-sm" />
+            <input name="contactName" type="text" required placeholder="張建廷" className="input-editorial text-sm" />
           </div>
         </motion.div>
 
@@ -63,7 +69,7 @@ export function MerchantForm({
           </div>
           <div>
             <label className="label-editorial">聯絡電話</label>
-            <input type="tel" required placeholder="02-1234-5678" className="input-editorial text-sm" />
+            <input name="phone" type="tel" required placeholder="02-1234-5678" className="input-editorial text-sm" />
           </div>
         </motion.div>
 
