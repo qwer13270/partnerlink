@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Check, ChevronDown } from 'lucide-react'
+import { mockInviteProjects } from '@/data'
 
 // ── Animation ──────────────────────────────────────────────────────────────
 const fadeUp = {
@@ -15,7 +16,6 @@ const fadeUp = {
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Tier = 'platinum' | 'gold' | 'silver' | 'bronze'
-type Category = '生活風格' | '財經' | '房產' | '科技' | '旅遊' | '親子'
 
 const TIER_CFG: Record<Tier, { label: string; color: string }> = {
   platinum: { label: 'Platinum', color: 'text-purple-700 border-purple-200 bg-purple-50'  },
@@ -29,120 +29,75 @@ type Kol = {
   name: string
   platform: string
   followers: string
-  category: Category
+  category: string
   tier: Tier
-  avgConversion: string
-  totalSales: number
-  recentClicks: number
+  avgViews: string
+  engagementRate: string
+  city: string
   bio: string
+  profilePhotoUrl: string
 }
 
-// ── Mock data ──────────────────────────────────────────────────────────────
-const ALL_KOLS: Kol[] = [
-  {
-    id: 'kol-001',
-    name: '陳莎拉',
-    platform: 'YouTube',
-    followers: '42.1萬',
-    category: '生活風格',
-    tier: 'platinum',
-    avgConversion: '21.3%',
-    totalSales: 18,
-    recentClicks: 3240,
-    bio: '深耕台北生活品質與居家美學，受眾以 30-45 歲有購屋需求的雙薪族為主。',
-  },
-  {
-    id: 'kol-002',
-    name: '林佳慧',
-    platform: 'Instagram',
-    followers: '28.7萬',
-    category: '財經',
-    tier: 'platinum',
-    avgConversion: '19.8%',
-    totalSales: 14,
-    recentClicks: 2870,
-    bio: '理財規劃、房市分析為主要內容，吸引高資產族群，實際購屋意圖強烈。',
-  },
-  {
-    id: 'kol-003',
-    name: '何俊傑',
-    platform: 'YouTube',
-    followers: '18.3萬',
-    category: '房產',
-    tier: 'gold',
-    avgConversion: '17.2%',
-    totalSales: 9,
-    recentClicks: 1960,
-    bio: '專注台灣各區房產開箱與實地走訪，內容客觀受眾信任度高。',
-  },
-  {
-    id: 'kol-004',
-    name: '蔡佳蓉',
-    platform: 'Instagram',
-    followers: '12.4萬',
-    category: '生活風格',
-    tier: 'gold',
-    avgConversion: '15.6%',
-    totalSales: 7,
-    recentClicks: 1580,
-    bio: '台北、新北日常生活記錄，分享購屋心路歷程，觀眾互動率極高。',
-  },
-  {
-    id: 'kol-005',
-    name: '吳美玲',
-    platform: 'TikTok',
-    followers: '9.8萬',
-    category: '親子',
-    tier: 'gold',
-    avgConversion: '14.1%',
-    totalSales: 5,
-    recentClicks: 1120,
-    bio: '親子家庭換屋紀錄，受眾以有孩子的三口之家為主，購屋意願明確。',
-  },
-  {
-    id: 'kol-006',
-    name: '張威廉',
-    platform: 'YouTube',
-    followers: '7.2萬',
-    category: '科技',
-    tier: 'silver',
-    avgConversion: '11.4%',
-    totalSales: 3,
-    recentClicks: 890,
-    bio: '科技業工程師，分享高薪族購屋思維與貸款策略，受眾購買力強。',
-  },
-  {
-    id: 'kol-007',
-    name: '劉嘉欣',
-    platform: 'Instagram',
-    followers: '5.5萬',
-    category: '旅遊',
-    tier: 'silver',
-    avgConversion: '9.8%',
-    totalSales: 2,
-    recentClicks: 640,
-    bio: '環遊台灣各縣市，分享各地居住環境與生活品質，受眾地域分佈廣泛。',
-  },
-  {
-    id: 'kol-008',
-    name: '陳宗翰',
-    platform: 'YouTube',
-    followers: '3.1萬',
-    category: '財經',
-    tier: 'bronze',
-    avgConversion: '8.2%',
-    totalSales: 1,
-    recentClicks: 380,
-    bio: '新手投資人財經頻道，成長快速，受眾以 25-35 歲首購族為主。',
-  },
-]
+type ApiKol = {
+  id: string
+  full_name: string
+  platforms: unknown
+  follower_range: string | null
+  content_type: string | null
+  bio: string | null
+  city: string | null
+  avg_views: string | null
+  engagement_rate: string | null
+  profile_photo_url?: string
+}
 
-const PROJECTS = [
-  { id: 'prop-001', name: '璞真建設 — 光河' },
-  { id: 'prop-005', name: '潤泰敦峰'       },
-]
+type ApiPayload = {
+  kols?: ApiKol[]
+  error?: string
+}
 
-const CATEGORIES: Category[] = ['生活風格', '財經', '房產', '科技', '旅遊', '親子']
+function asStringArray(value: unknown) {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+}
+
+function parseFollowerCount(followerRange: string | null): number {
+  if (!followerRange) return 0
+  const normalized = followerRange.toLowerCase().replace(/,/g, '')
+  const manMatch = normalized.match(/([\d.]+)\s*萬/)
+  if (manMatch) return parseFloat(manMatch[1]) * 10000
+  const kMatch = normalized.match(/([\d.]+)\s*k/)
+  if (kMatch) return parseFloat(kMatch[1]) * 1000
+  const numMatch = normalized.match(/([\d.]+)/)
+  if (numMatch) return parseFloat(numMatch[1])
+  return 0
+}
+
+function inferTier(followerRange: string | null): Tier {
+  const count = parseFollowerCount(followerRange)
+  if (count >= 100000) return 'platinum'
+  if (count >= 50000)  return 'gold'
+  if (count >= 10000)  return 'silver'
+  return 'bronze'
+}
+
+function toViewModel(item: ApiKol): Kol {
+  const platforms = asStringArray(item.platforms)
+
+  return {
+    id: item.id,
+    name: item.full_name || '未命名 KOL',
+    platform: platforms.length > 0 ? platforms.join(' / ') : '未填寫平台',
+    followers: item.follower_range || '未填寫',
+    category: item.content_type || '未分類',
+    tier: inferTier(item.follower_range),
+    avgViews: item.avg_views || '未填寫',
+    engagementRate: item.engagement_rate || '未填寫',
+    city: item.city || '未填寫',
+    bio: item.bio || '尚未提供自我介紹。',
+    profilePhotoUrl: typeof item.profile_photo_url === 'string' ? item.profile_photo_url : '',
+  }
+}
 
 // ── Invite modal ───────────────────────────────────────────────────────────
 function InviteModal({
@@ -187,7 +142,7 @@ function InviteModal({
         <div className="px-6 py-5">
           <p className="text-xs text-muted-foreground mb-3">選擇要邀請此 KOL 合作的商案：</p>
           <div className="space-y-2">
-            {PROJECTS.map((p) => (
+            {mockInviteProjects.map((p) => (
               <button
                 key={p.id}
                 onClick={() => setSelectedProject(p.id)}
@@ -248,8 +203,13 @@ function KolRow({
       {/* Main row */}
       <div className="px-5 py-5 flex items-center gap-4">
         {/* Avatar */}
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#e8d5c4] to-[#b8936a] flex items-center justify-center shrink-0 text-white text-xs font-medium">
-          {kol.name[0]}
+        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#e8d5c4] to-[#b8936a] flex items-center justify-center shrink-0 text-white text-xs font-medium overflow-hidden">
+          {kol.profilePhotoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={kol.profilePhotoUrl} alt={kol.name} className="h-full w-full object-cover" />
+          ) : (
+            kol.name[0]
+          )}
         </div>
 
         {/* Name + meta */}
@@ -272,12 +232,12 @@ function KolRow({
         {/* Stats */}
         <div className="hidden md:flex items-center gap-5 shrink-0 mr-2">
           <div className="text-center">
-            <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">轉換率</p>
-            <p className="text-sm font-serif mt-0.5">{kol.avgConversion}</p>
+            <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">互動率</p>
+            <p className="text-sm font-serif mt-0.5">{kol.engagementRate}</p>
           </div>
           <div className="text-center">
-            <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">累計成交</p>
-            <p className="text-sm font-serif mt-0.5">{kol.totalSales}</p>
+            <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">平均觀看</p>
+            <p className="text-sm font-serif mt-0.5">{kol.avgViews}</p>
           </div>
         </div>
 
@@ -318,9 +278,9 @@ function KolRow({
               <p className="text-xs text-muted-foreground leading-relaxed mb-4">{kol.bio}</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {[
-                  { label: '近期點擊', value: kol.recentClicks.toLocaleString('zh-TW') },
-                  { label: '平均轉換率', value: kol.avgConversion },
-                  { label: '累計成交', value: kol.totalSales },
+                  { label: '平均觀看', value: kol.avgViews },
+                  { label: '互動率', value: kol.engagementRate },
+                  { label: '所在城市', value: kol.city },
                 ].map((s) => (
                   <div key={s.label} className="border border-foreground/15 px-3 py-2.5 text-center bg-background">
                     <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">{s.label}</p>
@@ -338,19 +298,59 @@ function KolRow({
 
 // ── Page ───────────────────────────────────────────────────────────────────
 export default function MerchantKolBrowsePage() {
-  const [activeCategory, setActiveCategory] = useState<Category | null>(null)
-  const [invitingKol, setInvitingKol]       = useState<Kol | null>(null)
-  const [invitedIds, setInvitedIds]         = useState<Set<string>>(new Set())
+  const [kols, setKols] = useState<Kol[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [invitingKol, setInvitingKol] = useState<Kol | null>(null)
+  const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set())
 
-  const filtered = activeCategory
-    ? ALL_KOLS.filter((k) => k.category === activeCategory)
-    : ALL_KOLS
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadKols() {
+      setLoading(true)
+      setLoadError('')
+
+      try {
+        const res = await fetch('/api/merchant/kols', { signal: controller.signal })
+        const payload = (await res.json().catch(() => null)) as ApiPayload | null
+
+        if (!res.ok) {
+          setLoadError(payload?.error ?? '讀取 KOL 資料失敗。')
+          return
+        }
+
+        setKols((payload?.kols ?? []).map(toViewModel))
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setLoadError(error instanceof Error ? error.message : '讀取 KOL 資料失敗。')
+        }
+      } finally {
+        if (!controller.signal.aborted) setLoading(false)
+      }
+    }
+
+    void loadKols()
+    return () => controller.abort()
+  }, [])
+
+  const categories = useMemo(
+    () => Array.from(new Set(kols.map((kol) => kol.category))).sort((a, b) => a.localeCompare(b, 'zh-Hant')),
+    [kols],
+  )
+
+  const filtered = useMemo(
+    () => (activeCategory ? kols.filter((kol) => kol.category === activeCategory) : kols),
+    [activeCategory, kols],
+  )
 
   const handleConfirm = (projectId: string) => {
     if (!invitingKol) return
+    // TODO: POST /api/merchant/invitations when backend is ready
+    console.log('[invite] kolId:', invitingKol.id, 'projectId:', projectId)
     setInvitedIds((prev) => new Set(prev).add(invitingKol.id))
     setInvitingKol(null)
-    void projectId // used by the modal
   }
 
   return (
@@ -361,7 +361,7 @@ export default function MerchantKolBrowsePage() {
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">商家後台</p>
         <h1 className="text-3xl font-serif">探索 KOL</h1>
         <p className="text-sm text-muted-foreground mt-2">
-          瀏覽平台上所有 KOL，主動邀請合適的創作者加入您的商案推廣。
+          瀏覽平台上所有已核准的 KOL，主動邀請合適的創作者加入您的商案推廣。
         </p>
       </motion.div>
 
@@ -377,7 +377,7 @@ export default function MerchantKolBrowsePage() {
         >
           全部
         </button>
-        {CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
@@ -392,9 +392,17 @@ export default function MerchantKolBrowsePage() {
         ))}
       </motion.div>
 
+      {loadError && (
+        <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{loadError}</div>
+      )}
+
       {/* ── KOL list ── */}
       <div className="border border-foreground/15">
-        {filtered.length > 0 ? (
+        {loading ? (
+          <div className="px-5 py-10 text-center">
+            <p className="text-sm text-muted-foreground">讀取 KOL 資料中…</p>
+          </div>
+        ) : filtered.length > 0 ? (
           filtered.map((kol, i) => (
             <KolRow
               key={kol.id}
@@ -406,7 +414,9 @@ export default function MerchantKolBrowsePage() {
           ))
         ) : (
           <div className="px-5 py-10 text-center">
-            <p className="text-sm text-muted-foreground">此分類目前沒有 KOL。</p>
+            <p className="text-sm text-muted-foreground">
+              {activeCategory ? '此分類目前沒有 KOL。' : '目前沒有已核准的 KOL。'}
+            </p>
           </div>
         )}
       </div>

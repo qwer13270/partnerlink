@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRoleFromUser, isSelfSignupRole } from '@/lib/auth'
-import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { requireApiUser } from '@/lib/server/api-auth'
 
 export async function POST(request: NextRequest) {
@@ -27,20 +26,14 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const admin = getSupabaseAdminClient()
-  const { error } = await admin.auth.admin.updateUserById(auth.user.id, {
-    app_metadata: {
-      ...auth.user.app_metadata,
-      role: signupRole,
-    },
-  })
-
-  if (error) {
+  if (signupRole === 'merchant') {
     return NextResponse.json(
-      { error: `Role sync failed: ${error.message}` },
-      { status: 500 },
+      { code: 'MERCHANT_ROLE_PENDING_APPROVAL' },
+      { status: 403 },
     )
   }
-
-  return NextResponse.json({ ok: true, role: signupRole })
+  return NextResponse.json(
+    { error: 'Role sync is not available for this signup role.' },
+    { status: 400 },
+  )
 }

@@ -5,8 +5,9 @@ import Header from './Header'
 import Footer from './Footer'
 
 function isDashboard(pathname: string) {
-  // Hide header on property detail pages (/properties/[slug]) but not the listing page
   if (pathname.startsWith('/properties/')) return true
+  if (pathname.startsWith('/admin')) return true
+  if (pathname.startsWith('/kol')) return true
   return false
 }
 

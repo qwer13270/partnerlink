@@ -78,6 +78,31 @@ export default function LoginContent() {
         router.push('/pending-approval')
         return
       }
+    } else if (!role && signupRole === 'merchant' && data.session?.access_token) {
+      const completeResponse = await fetch('/api/auth/complete-merchant-signup', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${data.session.access_token}`,
+        },
+      })
+
+      const completePayload = await completeResponse.json().catch(() => null) as {
+        status?: string
+        code?: string
+      } | null
+
+      if (completeResponse.ok && completePayload?.status === 'approved') {
+        role = 'merchant'
+      } else if (completePayload?.status === 'pending_admin_review') {
+        router.push('/merchant-pending-approval')
+        return
+      } else if (completePayload?.status === 'denied') {
+        router.push('/merchant-pending-approval')
+        return
+      } else if (completePayload?.code === 'MISSING_APPLICATION') {
+        router.push('/merchant-pending-approval')
+        return
+      }
     } else if (!role && data.session?.access_token) {
       const syncResponse = await fetch('/api/auth/sync-role', {
         method: 'POST',
@@ -97,6 +122,10 @@ export default function LoginContent() {
     if (!role) {
       if (signupRole === 'kol') {
         router.push('/pending-approval')
+        return
+      }
+      if (signupRole === 'merchant') {
+        router.push('/merchant-pending-approval')
         return
       }
 

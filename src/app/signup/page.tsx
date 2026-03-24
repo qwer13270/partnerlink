@@ -9,7 +9,7 @@ import { X } from 'lucide-react'
 import { resolveRoleHomePath } from '@/lib/auth'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 import { LEFT_CONTENT } from './_constants'
-import type { Role, Step, KolSignupDraft } from './_types'
+import type { Role, Step, KolSignupDraft, MerchantSignupDraft } from './_types'
 import { StepDots }     from './_components/StepDots'
 import { RoleStep }     from './_components/RoleStep'
 import { KolForm }      from './_components/KolForm'
@@ -54,11 +54,13 @@ export default function OnboardingPage() {
     password,
     platforms,
     platformAccounts,
+    merchantData,
   }: {
     email: string
     password: string
     platforms?: string[]
     platformAccounts?: Record<string, string>
+    merchantData?: MerchantSignupDraft
   }) => {
     if (!role) return
 
@@ -84,22 +86,53 @@ export default function OnboardingPage() {
       }
 
       if (role === 'merchant') {
+        if (!merchantData) {
+          setSubmitError('缺少商家申請資料，請返回上一步重試。')
+          return
+        }
+
         const token = data.session?.access_token
-        if (!token) {
-          router.push(`/verify-email?email=${encodeURIComponent(email.trim())}`)
-          return
-        }
-        const res = await fetch('/api/auth/assign-role', {
+        const preconfirmRes = await fetch('/api/merchant/application/preconfirm', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ role }),
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            userId: data.user.id,
+            email: email.trim(),
+            companyName: merchantData.companyName,
+            contactName: merchantData.contactName,
+            phone: merchantData.phone,
+            city: merchantData.city,
+            projectCount: merchantData.projectCount,
+          }),
         })
-        if (!res.ok) {
-          const payload = await res.json().catch(() => null) as { error?: string } | null
-          setSubmitError(payload?.error ?? t.errors.roleAssignFailed)
+        if (!preconfirmRes.ok) {
+          const payload = await preconfirmRes.json().catch(() => null) as { error?: string } | null
+          setSubmitError(payload?.error ?? '送出商家申請失敗，請稍後再試。')
           return
         }
-        router.push(resolveRoleHomePath(role))
+
+        if (token) {
+          const completeRes = await fetch('/api/auth/complete-merchant-signup', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          const payload = await completeRes.json().catch(() => null) as { error?: string; status?: string } | null
+          if (!completeRes.ok && payload?.status !== 'denied') {
+            setSubmitError(payload?.error ?? t.errors.signupFailed)
+            return
+          }
+          if (payload?.status === 'approved') {
+            router.push(resolveRoleHomePath(role))
+            return
+          }
+          router.push('/merchant-pending-approval')
+          return
+        }
+
+        router.push(`/verify-email?email=${encodeURIComponent(email.trim())}&notice=complete-merchant-application`)
         return
       }
 
@@ -156,6 +189,14 @@ export default function OnboardingPage() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleMerchantSubmit = (data: MerchantSignupDraft) => {
+    createAccount({
+      email: data.email,
+      password: data.password,
+      merchantData: data,
+    })
   }
 
   const handleKolPlatformAccountsSubmit = ({ platforms, platformAccounts }: { platforms: string[]; platformAccounts: Record<string, string> }) => {
@@ -257,7 +298,7 @@ export default function OnboardingPage() {
                 />
               )}
               {step === 2 && role === 'merchant' && (
-                <MerchantForm onBack={goBack} onSubmit={createAccount} error={submitError} submitting={submitting} />
+                <MerchantForm onBack={goBack} onSubmit={handleMerchantSubmit} error={submitError} submitting={submitting} />
               )}
             </AnimatePresence>
           </div>

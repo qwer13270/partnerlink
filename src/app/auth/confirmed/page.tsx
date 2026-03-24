@@ -18,7 +18,9 @@ const fadeUp = {
 function AuthConfirmedContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get('email')
+  const role = searchParams.get('role')
   const safeEmail = email?.trim() || '你的信箱'
+  const isMerchant = role === 'merchant'
 
   return (
     <div className="fixed inset-0 z-[100] flex overflow-hidden bg-[#FAF9F6]">
@@ -45,7 +47,9 @@ function AuthConfirmedContent() {
             還差登入這一步
           </h1>
           <p className="text-sm text-[#6B6560] leading-relaxed max-w-xs">
-            KOL 申請不會在驗證信箱後自動送出。請使用剛剛完成驗證的帳號登入一次，系統才會正式建立申請並送進審核流程。
+            {isMerchant
+              ? '商家申請不會在驗證信箱後自動送出。請使用剛剛完成驗證的帳號登入一次，系統才會正式建立申請並送進審核流程。'
+              : 'KOL 申請不會在驗證信箱後自動送出。請使用剛剛完成驗證的帳號登入一次，系統才會正式建立申請並送進審核流程。'}
           </p>
         </div>
 
@@ -63,7 +67,8 @@ function AuthConfirmedContent() {
             </div>
             <h2 className="text-3xl font-serif text-[#1A1A1A]">Email 驗證完成</h2>
             <p className="text-sm text-[#6B6560] mt-3 leading-relaxed">
-              <span className="text-[#1A1A1A]">{safeEmail}</span> 已成功完成驗證，但 KOL 申請還沒有真正送出。
+              <span className="text-[#1A1A1A]">{safeEmail}</span> 已成功完成驗證，但
+              {isMerchant ? '商家申請' : 'KOL 申請'}還沒有真正送出。
               請先登入一次，系統才會把你的申請資料送進審核。
             </p>
           </motion.div>
@@ -91,7 +96,7 @@ function AuthConfirmedContent() {
               {
                 icon: ShieldCheck,
                 title: '2. 系統送出申請',
-                body: '登入成功後，系統才會把你的 KOL 申請資料送進審核流程。',
+                body: `登入成功後，系統才會把你的${isMerchant ? '商家' : 'KOL'}申請資料送進審核流程。`,
               },
             ].map(({ icon: Icon, title, body }) => (
               <div key={title} className="flex gap-3 border-t border-[#ECE7E1] pt-3 first:border-t-0 first:pt-0">
@@ -108,7 +113,7 @@ function AuthConfirmedContent() {
 
           <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp} className="mt-8">
             <Link
-              href={`/login?email=${encodeURIComponent(safeEmail)}&notice=complete-kol-application`}
+              href={`/login?email=${encodeURIComponent(safeEmail)}&notice=${isMerchant ? 'complete-merchant-application' : 'complete-kol-application'}`}
               className="group w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] transition-colors duration-300"
             >
               <span>立即登入送出申請</span>

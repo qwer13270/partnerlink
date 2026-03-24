@@ -19,6 +19,7 @@ const fadeUp = {
 function VerifyEmailContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get('email')
+  const notice = searchParams.get('notice')
   const safeEmail = email?.trim() || ''
 
   const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
@@ -90,7 +91,10 @@ function VerifyEmailContent() {
 
           <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="space-y-3">
             <Link
-              href={`/login${safeEmail ? `?email=${encodeURIComponent(safeEmail)}` : ''}`}
+              href={`/login${safeEmail || notice ? `?${new URLSearchParams({
+                ...(safeEmail ? { email: safeEmail } : {}),
+                ...(notice ? { notice } : {}),
+              }).toString()}` : ''}`}
               className="group w-full flex items-center justify-between px-6 py-4 bg-[#1A1A1A] text-[#FAF9F6] text-sm uppercase tracking-widest hover:bg-[#2A2A2A] transition-colors duration-300"
             >
               <span>回到登入</span>
