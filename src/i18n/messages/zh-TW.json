@@ -36,10 +36,9 @@
   "kol": {
     "sidebar": {
       "home": "首頁",
-      "marketplace": "商案廣場",
       "myPromo": "我的推廣",
-      "profile": "個人檔案",
-      "portfolio": "作品集",
+      "applications": "商案申請",
+      "resume": "我的履歷",
       "commissions": "佣金紀錄"
     },
     "welcome": "歡迎回來",

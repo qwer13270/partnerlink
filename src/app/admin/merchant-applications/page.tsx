@@ -177,7 +177,7 @@ export default function AdminMerchantApplicationsPage() {
                 key={option.value}
                 type="button"
                 onClick={() => setStatusFilter(option.value)}
-                className={`px-4 py-2 text-[0.68rem] uppercase tracking-[0.24em] transition-colors ${
+                className={`px-4 py-2 text-xs uppercase tracking-[0.3em] transition-colors ${
                   statusFilter === option.value
                     ? 'bg-[#1d1a16] text-white'
                     : 'text-[#6f665d] hover:bg-white'
@@ -201,8 +201,8 @@ export default function AdminMerchantApplicationsPage() {
           />
         </label>
         <div className="flex items-center gap-3 border border-[#d9cdc0] bg-[#faf6f1] px-4 py-3">
-          <span className="text-[0.62rem] uppercase tracking-[0.26em] text-[#8e8073]">{statusLabel}</span>
-          <span className={`text-[0.62rem] uppercase tracking-[0.2em] px-2 py-1 ${
+          <span className="text-xs uppercase tracking-[0.3em] text-[#8e8073]">{statusLabel}</span>
+          <span className={`text-xs uppercase tracking-[0.3em] px-2 py-1 ${
             statusFilter === 'pending_admin_review'
               ? 'border border-amber-200 bg-amber-50 text-amber-700'
               : 'border border-red-200 bg-red-50 text-red-700'
@@ -236,8 +236,8 @@ export default function AdminMerchantApplicationsPage() {
             >
               <div className="border border-foreground/15 bg-white">
                 <div className="flex items-center justify-between border-b border-foreground/[0.08] px-4 py-3">
-                  <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">申請清單</p>
-                  <span className="text-[0.6rem] text-muted-foreground">{items.length} 件</span>
+                  <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">申請清單</p>
+                  <span className="text-xs text-muted-foreground">{items.length} 件</span>
                 </div>
                 <div className="max-h-[70vh] divide-y divide-foreground/[0.08] overflow-auto">
                   {items.map((app, index) => {
@@ -261,13 +261,13 @@ export default function AdminMerchantApplicationsPage() {
                             {app.company.slice(0, 1)}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <p className={`truncate text-sm font-medium ${isActive ? 'text-background' : 'text-foreground'}`}>
+                            <p className={`truncate text-sm ${isActive ? 'text-background' : 'text-foreground'}`}>
                               {app.company}
                             </p>
-                            <p className={`mt-0.5 truncate text-[0.65rem] ${isActive ? 'text-background/60' : 'text-muted-foreground'}`}>
+                            <p className={`mt-0.5 truncate text-xs ${isActive ? 'text-background/60' : 'text-muted-foreground'}`}>
                               {app.contact} · {app.city}
                             </p>
-                            <div className={`mt-1 flex items-center gap-1 text-[0.62rem] ${isActive ? 'text-background/50' : 'text-muted-foreground'}`}>
+                            <div className={`mt-1 flex items-center gap-1 text-xs ${isActive ? 'text-background/50' : 'text-muted-foreground'}`}>
                               <Calendar className="h-2.5 w-2.5" />
                               {statusFilter === 'denied' ? (app.reviewedAt || '—') : (app.appliedDate || '—')}
                             </div>
@@ -298,9 +298,9 @@ export default function AdminMerchantApplicationsPage() {
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div>
                               <h2 className="text-xl font-serif text-foreground">{active.company}</h2>
-                              <p className="mt-0.5 text-[0.65rem] text-muted-foreground">{active.contact}</p>
+                              <p className="mt-0.5 text-xs text-muted-foreground">{active.contact}</p>
                             </div>
-                            <span className="border border-border px-1.5 py-0.5 text-[0.6rem] font-mono text-muted-foreground">
+                            <span className="border border-border px-1.5 py-0.5 text-xs font-mono text-muted-foreground">
                               {active.projectCount}
                             </span>
                           </div>
@@ -314,7 +314,7 @@ export default function AdminMerchantApplicationsPage() {
                               <div key={item.label} className="border border-foreground/10 bg-[#faf7f3] px-4 py-3">
                                 <div className="mb-1 flex items-center gap-1.5">
                                   <item.icon className="h-3 w-3 text-muted-foreground/60" />
-                                  <span className="text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground">{item.label}</span>
+                                  <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{item.label}</span>
                                 </div>
                                 <p className="text-xs break-all text-foreground">{item.value}</p>
                               </div>
@@ -327,7 +327,7 @@ export default function AdminMerchantApplicationsPage() {
                         <div className="border border-red-200 bg-red-50 px-4 py-4">
                           <div className="mb-2 flex items-center gap-2 text-red-700">
                             <ShieldAlert className="h-4 w-4" />
-                            <p className="text-[0.62rem] uppercase tracking-[0.22em]">拒絕原因</p>
+                            <p className="text-xs uppercase tracking-[0.3em]">拒絕原因</p>
                           </div>
                           <p className="text-sm leading-relaxed text-[#6d3f3f]">{active.rejectionReason}</p>
                         </div>
@@ -344,7 +344,7 @@ export default function AdminMerchantApplicationsPage() {
                         <div key={item.label} className="bg-white px-4 py-4">
                           <div className="mb-1 flex items-center gap-1.5">
                             <item.icon className="h-3 w-3 text-muted-foreground/60" />
-                            <span className="text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground">{item.label}</span>
+                            <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{item.label}</span>
                           </div>
                           <p className="text-xs text-foreground">{item.value}</p>
                         </div>
@@ -362,7 +362,7 @@ export default function AdminMerchantApplicationsPage() {
                           type="button"
                           onClick={() => void decide(active.id, 'approve')}
                           disabled={actionLoadingId === active.id}
-                          className="inline-flex items-center gap-1.5 bg-foreground px-4 py-2 text-[0.65rem] uppercase tracking-widest text-background transition-colors duration-150 hover:bg-foreground/85 disabled:opacity-60"
+                          className="inline-flex items-center gap-1.5 bg-foreground px-4 py-2 text-xs uppercase tracking-[0.3em] text-background transition-colors duration-150 hover:bg-foreground/85 disabled:opacity-60"
                         >
                           <Check className="h-3 w-3" />
                           {statusFilter === 'denied' ? '重新通過' : '通過'}
@@ -372,7 +372,7 @@ export default function AdminMerchantApplicationsPage() {
                             type="button"
                             onClick={openRejectModal}
                             disabled={actionLoadingId === active.id}
-                            className="inline-flex items-center gap-1.5 border border-border px-4 py-2 text-[0.65rem] uppercase tracking-widest text-muted-foreground transition-colors duration-150 hover:border-foreground hover:text-foreground disabled:opacity-60"
+                            className="inline-flex items-center gap-1.5 border border-border px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted-foreground transition-colors duration-150 hover:border-foreground hover:text-foreground disabled:opacity-60"
                           >
                             <X className="h-3 w-3" />
                             拒絕
@@ -415,7 +415,7 @@ export default function AdminMerchantApplicationsPage() {
               className="w-full max-w-md border border-foreground/15 bg-white p-6 shadow-[0_18px_60px_rgba(0,0,0,0.18)]"
             >
               <div className="mb-4 space-y-1">
-                <p className="text-[0.62rem] uppercase tracking-[0.28em] text-muted-foreground">拒絕申請</p>
+                <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">拒絕申請</p>
                 <h2 className="text-xl font-serif text-foreground">{active.company}</h2>
                 <p className="text-sm text-muted-foreground">你可以留下原因，方便之後重新審核時查看。</p>
               </div>
@@ -430,7 +430,7 @@ export default function AdminMerchantApplicationsPage() {
                   type="button"
                   onClick={closeRejectModal}
                   disabled={Boolean(actionLoadingId)}
-                  className="border border-border px-4 py-2 text-[0.65rem] uppercase tracking-widest text-muted-foreground transition-colors duration-150 hover:border-foreground hover:text-foreground disabled:opacity-60"
+                  className="border border-border px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted-foreground transition-colors duration-150 hover:border-foreground hover:text-foreground disabled:opacity-60"
                 >
                   取消
                 </button>
@@ -438,7 +438,7 @@ export default function AdminMerchantApplicationsPage() {
                   type="button"
                   onClick={() => void decide(active.id, 'deny')}
                   disabled={actionLoadingId === active.id}
-                  className="inline-flex items-center gap-1.5 bg-foreground px-4 py-2 text-[0.65rem] uppercase tracking-widest text-background transition-colors duration-150 hover:bg-foreground/85 disabled:opacity-60"
+                  className="inline-flex items-center gap-1.5 bg-foreground px-4 py-2 text-xs uppercase tracking-[0.3em] text-background transition-colors duration-150 hover:bg-foreground/85 disabled:opacity-60"
                 >
                   <X className="h-3 w-3" />
                   確認拒絕

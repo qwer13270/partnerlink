@@ -175,7 +175,7 @@ function CreateProjectModal({
           {/* Header */}
           <div className="flex items-start justify-between px-8 pt-7 pb-5 border-b border-foreground/10">
             <div>
-              <p className="text-[0.58rem] uppercase tracking-[0.3em] text-muted-foreground mb-0.5">新增</p>
+              <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground mb-0.5">新增</p>
               <h2 className="text-lg font-serif">建立商案</h2>
             </div>
             <button
@@ -191,7 +191,7 @@ function CreateProjectModal({
           <div className="px-8 py-6 space-y-7">
             {/* ── Template picker ── */}
             <div>
-              <p className="text-[0.58rem] uppercase tracking-[0.25em] text-muted-foreground mb-3">
+              <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground mb-3">
                 選擇模板
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -209,7 +209,7 @@ function CreateProjectModal({
                       }`}
                     >
                       {/* Number — top right */}
-                      <span className={`font-serif text-[0.6rem] tracking-[0.3em] self-end ${
+                      <span className={`font-serif text-xs tracking-[0.3em] self-end ${
                         selected ? 'text-background/35' : 'text-muted-foreground/50'
                       }`}>
                         {opt.num}
@@ -227,7 +227,7 @@ function CreateProjectModal({
                         <p className="[font-family:var(--font-serif-tc)] text-[0.95rem] leading-snug">
                           {opt.label}
                         </p>
-                        <p className={`text-[0.58rem] uppercase tracking-[0.2em] mt-1 ${
+                        <p className={`text-xs uppercase tracking-[0.2em] mt-1 ${
                           selected ? 'text-background/50' : 'text-muted-foreground'
                         }`}>
                           {opt.sublabel}
@@ -241,7 +241,7 @@ function CreateProjectModal({
 
             {/* ── Project name ── */}
             <div>
-              <label className="block text-[0.58rem] uppercase tracking-[0.25em] text-muted-foreground mb-2">
+              <label className="block text-xs uppercase tracking-[0.4em] text-muted-foreground mb-2">
                 商案名稱
               </label>
               <input
@@ -255,7 +255,7 @@ function CreateProjectModal({
 
             {/* ── Slug ── */}
             <div>
-              <label className="block text-[0.58rem] uppercase tracking-[0.25em] text-muted-foreground mb-2">
+              <label className="block text-xs uppercase tracking-[0.4em] text-muted-foreground mb-2">
                 網址 Slug
               </label>
               <div className={`flex border transition-colors ${
@@ -265,7 +265,7 @@ function CreateProjectModal({
                     ? 'border-red-400/50'
                     : 'border-foreground/20 focus-within:border-foreground/50'
               }`}>
-                <span className="flex items-center bg-foreground/[0.03] border-r border-foreground/10 px-3 text-[0.62rem] font-mono text-muted-foreground whitespace-nowrap select-none">
+                <span className="flex items-center bg-foreground/[0.03] border-r border-foreground/10 px-3 text-xs font-mono text-muted-foreground whitespace-nowrap select-none">
                   /properties/
                 </span>
                 <input
@@ -300,13 +300,13 @@ function CreateProjectModal({
               {/* Inline status message — reserve height to avoid layout jump */}
               <div className="mt-1.5 h-4">
                 {slugStatus === 'available' && (
-                  <p className="text-[0.62rem] text-emerald-600">可使用</p>
+                  <p className="text-xs text-emerald-600">可使用</p>
                 )}
                 {slugStatus === 'taken' && (
-                  <p className="text-[0.62rem] text-red-500">此 slug 已被使用，請更換</p>
+                  <p className="text-xs text-red-500">此 slug 已被使用，請更換</p>
                 )}
                 {slugStatus === 'invalid' && (
-                  <p className="text-[0.62rem] text-red-500">請使用英數字及連字號（-）</p>
+                  <p className="text-xs text-red-500">請使用英數字及連字號（-）</p>
                 )}
               </div>
             </div>
@@ -317,7 +317,7 @@ function CreateProjectModal({
             <button
               type="button"
               onClick={onClose}
-              className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors"
             >
               取消
             </button>
@@ -325,7 +325,7 @@ function CreateProjectModal({
               type="button"
               onClick={handleSubmit}
               disabled={!canSubmit}
-              className="inline-flex items-center gap-2 text-[0.62rem] uppercase tracking-[0.2em] border border-foreground px-6 py-3 bg-foreground text-background hover:opacity-90 transition-opacity disabled:opacity-25 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] border border-foreground px-6 py-3 bg-foreground text-background hover:opacity-90 transition-opacity disabled:opacity-25 disabled:cursor-not-allowed"
             >
               {creating ? '建立中…' : '建立商案'}
             </button>
@@ -392,14 +392,14 @@ export default function MerchantProjectsPage() {
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 self-start text-[0.65rem] uppercase tracking-[0.2em] border border-foreground px-4 py-3 text-foreground hover:bg-foreground hover:text-background transition-colors duration-150"
+            className="inline-flex items-center gap-2 self-start text-xs uppercase tracking-[0.2em] border border-foreground px-4 py-3 text-foreground hover:bg-foreground hover:text-background transition-colors duration-150"
           >
             <Plus className="h-3.5 w-3.5" />
             新增商案
           </button>
         </motion.div>
 
-        <div className="border border-foreground/15 divide-y divide-foreground/[0.08]">
+        <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden divide-y divide-foreground/[0.06]">
           {loading ? (
             <div className="px-5 py-14 text-sm text-muted-foreground">載入商案中…</div>
           ) : projects.length === 0 ? (
@@ -424,14 +424,14 @@ export default function MerchantProjectsPage() {
                   <div className="flex items-start justify-between gap-4 mb-5">
                     <div>
                       <h2 className="text-base font-medium">{project.name}</h2>
-                      <p className="text-[0.65rem] text-muted-foreground mt-0.5">
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {templateLabel}
                         <span className="mx-1.5 opacity-30">·</span>
                         最後更新 {new Date(project.updatedAt).toLocaleDateString('zh-TW')}
                       </p>
-                      <p className="text-[0.65rem] text-muted-foreground mt-1 font-mono">{project.slug}</p>
+                      <p className="text-xs text-muted-foreground mt-1 font-mono">{project.slug}</p>
                     </div>
-                    <span className={`text-[0.6rem] uppercase tracking-widest px-1.5 py-0.5 border shrink-0 ${cfg.color}`}>
+                    <span className={`text-xs uppercase tracking-widest px-1.5 py-0.5 border shrink-0 ${cfg.color}`}>
                       {cfg.label}
                     </span>
                   </div>
@@ -442,8 +442,8 @@ export default function MerchantProjectsPage() {
                       { label: '狀態', value: cfg.label },
                       { label: '更新日', value: new Date(project.updatedAt).toLocaleDateString('zh-TW') },
                     ].map(stat => (
-                      <div key={stat.label} className="border border-foreground/15 px-3 py-3 text-center">
-                        <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground">{stat.label}</p>
+                      <div key={stat.label} className="rounded-xl border border-foreground/[0.08] bg-background px-3 py-2.5 text-center">
+                        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{stat.label}</p>
                         <p className="text-sm font-serif mt-1">{stat.value}</p>
                       </div>
                     ))}
@@ -455,25 +455,25 @@ export default function MerchantProjectsPage() {
                         href={`/properties/${project.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-[0.65rem] uppercase tracking-widest border border-foreground px-3 py-2 text-foreground hover:bg-foreground hover:text-background transition-colors duration-150 group"
+                        className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.3em] border border-foreground px-3 py-2 text-foreground hover:bg-foreground hover:text-background transition-colors duration-150 group"
                       >
                         查看商案
                         <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-100" />
                       </Link>
                     ) : (
-                      <span className="text-[0.65rem] uppercase tracking-widest border border-dashed border-foreground/20 px-3 py-2 text-muted-foreground">
+                      <span className="text-xs uppercase tracking-[0.3em] border border-dashed border-foreground/20 px-3 py-2 text-muted-foreground">
                         草稿尚未公開
                       </span>
                     )}
                     <Link
                       href={`/merchant/projects/${project.id}`}
-                      className="text-[0.65rem] uppercase tracking-widest text-muted-foreground border border-border px-3 py-2 hover:border-foreground hover:text-foreground transition-colors duration-150"
+                      className="text-xs uppercase tracking-[0.3em] text-muted-foreground border border-border px-3 py-2 hover:border-foreground hover:text-foreground transition-colors duration-150"
                     >
                       分析
                     </Link>
                     <Link
                       href={`/merchant/projects/${project.id}/edit`}
-                      className="text-[0.65rem] uppercase tracking-widest text-muted-foreground border border-border px-3 py-2 hover:border-foreground hover:text-foreground transition-colors duration-150"
+                      className="text-xs uppercase tracking-[0.3em] text-muted-foreground border border-border px-3 py-2 hover:border-foreground hover:text-foreground transition-colors duration-150"
                     >
                       編輯內容
                     </Link>

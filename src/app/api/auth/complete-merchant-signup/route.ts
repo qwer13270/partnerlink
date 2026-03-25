@@ -90,6 +90,19 @@ export async function POST(request: NextRequest) {
   }
 
   if (application.status === 'approved') {
+    // Ensure app_metadata.role is set — it may be missing if the application was approved
+    // outside the normal admin approval flow (e.g. manual DB update or data migration).
+    if (!getRoleFromUser(auth.user)) {
+      const { error: updateRoleError } = await admin.auth.admin.updateUserById(auth.user.id, {
+        app_metadata: { ...auth.user.app_metadata, role: 'merchant' },
+      })
+      if (updateRoleError) {
+        return NextResponse.json(
+          { error: `Failed to grant merchant role: ${updateRoleError.message}` },
+          { status: 500 },
+        )
+      }
+    }
     return NextResponse.json({ ok: true, status: 'approved' as const })
   }
 

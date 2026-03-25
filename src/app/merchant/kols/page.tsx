@@ -96,7 +96,7 @@ function CampaignKolGroup({ group, index }: { group: KolGroup; index: number }) 
       >
         <div>
           <p className="text-sm font-medium">{group.property}</p>
-          <p className="text-[0.65rem] text-muted-foreground mt-0.5">{group.kols.length} 位合作 KOL</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{group.kols.length} 位合作 KOL</p>
         </div>
         <ChevronDown
           className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
@@ -120,7 +120,7 @@ function CampaignKolGroup({ group, index }: { group: KolGroup; index: number }) 
                   <div key={kol.id} className="px-5 py-4 pl-8">
                     <div className="flex items-center gap-2 mb-3">
                       <p className="text-sm font-medium">{kol.name}</p>
-                      <span className={`text-[0.58rem] uppercase tracking-widest px-1.5 py-px border ${tier.color}`}>
+                      <span className={`text-xs uppercase tracking-widest px-1.5 py-px border ${tier.color}`}>
                         {tier.label}
                       </span>
                     </div>
@@ -129,8 +129,8 @@ function CampaignKolGroup({ group, index }: { group: KolGroup; index: number }) 
                         { label: '點擊數', value: kol.clicks.toLocaleString('zh-TW') },
                         { label: '預約數', value: kol.bookings                        },
                       ].map((s) => (
-                        <div key={s.label} className="border border-foreground/15 px-3 py-2.5 text-center bg-background">
-                          <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+                        <div key={s.label} className="rounded-xl border border-foreground/[0.08] bg-background px-3 py-2.5 text-center">
+                          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{s.label}</p>
                           <p className="text-base font-serif mt-1">{s.value}</p>
                         </div>
                       ))}
@@ -178,11 +178,11 @@ export default function MerchantKolsPage() {
         >
           <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">待審核申請</p>
           {totalPending > 0 ? (
-            <span className="text-[0.6rem] uppercase tracking-widest text-amber-700 border border-amber-200 bg-amber-50 px-1.5 py-px">
+            <span className="text-xs uppercase tracking-widest text-amber-700 border border-amber-200 bg-amber-50 px-1.5 py-px">
               {totalPending} 待處理
             </span>
           ) : (
-            <span className="text-[0.65rem] text-muted-foreground">無待處理申請</span>
+            <span className="text-xs text-muted-foreground">無待處理申請</span>
           )}
         </motion.div>
 
@@ -191,15 +191,15 @@ export default function MerchantKolsPage() {
             <motion.div
               key="app-list"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="border border-foreground/15 divide-y divide-foreground/[0.08]"
+              className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden divide-y divide-foreground/[0.06]"
             >
               {appGroups.map((group, gi) => (
                 <motion.div key={group.propertyId} custom={2 + gi} initial="hidden" animate="visible" variants={fadeUp}>
 
                   {/* Campaign label row */}
-                  <div className="px-5 py-2.5 bg-muted/30 flex items-center gap-2">
-                    <p className="text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground">{group.property}</p>
-                    <span className="text-[0.58rem] text-muted-foreground/50">{group.applications.length} 筆</span>
+                  <div className="px-5 py-2.5 bg-muted/30 flex items-center gap-2 border-b border-foreground/[0.06]">
+                    <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">{group.property}</p>
+                    <span className="text-xs text-muted-foreground/50">{group.applications.length} 筆</span>
                   </div>
 
                   {/* Application rows */}
@@ -214,25 +214,25 @@ export default function MerchantKolsPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <p className="text-sm font-medium">{app.name}</p>
-                            <span className="text-[0.6rem] text-muted-foreground font-mono">{app.platform}</span>
+                            <span className="text-xs text-muted-foreground font-mono">{app.platform}</span>
                           </div>
-                          <p className="text-[0.65rem] text-muted-foreground">
+                          <p className="text-xs text-muted-foreground">
                             {app.followers} 粉絲
                             <span className="mx-1.5 opacity-30">·</span>
                             {app.category}
                           </p>
-                          <p className="text-[0.6rem] text-muted-foreground font-mono mt-0.5">{app.appliedDate}</p>
+                          <p className="text-xs text-muted-foreground font-mono mt-0.5">{app.appliedDate}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <button
                             onClick={() => removeApplication(app.id)}
-                            className="flex items-center gap-1 text-[0.65rem] uppercase tracking-widest px-3 py-1.5 bg-foreground text-background border border-foreground hover:bg-foreground/85 transition-colors duration-150"
+                            className="flex items-center gap-1 text-xs uppercase tracking-[0.3em] px-3 py-1.5 bg-foreground text-background border border-foreground hover:bg-foreground/85 transition-colors duration-150"
                           >
                             <Check className="h-3 w-3" /> 通過
                           </button>
                           <button
                             onClick={() => removeApplication(app.id)}
-                            className="flex items-center gap-1 text-[0.65rem] uppercase tracking-widest px-3 py-1.5 border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-150"
+                            className="flex items-center gap-1 text-xs uppercase tracking-[0.3em] px-3 py-1.5 border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-150"
                           >
                             <X className="h-3 w-3" /> 拒絕
                           </button>
@@ -248,7 +248,7 @@ export default function MerchantKolsPage() {
             <motion.div
               key="app-empty"
               custom={2} initial="hidden" animate="visible" variants={fadeUp}
-              className="border border-foreground/15 px-5 py-8 text-center"
+              className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm px-5 py-8 text-center"
             >
               <p className="text-sm text-muted-foreground">目前沒有待審核的 KOL 申請。</p>
             </motion.div>
@@ -263,14 +263,14 @@ export default function MerchantKolsPage() {
           className="flex items-center justify-between mb-4"
         >
           <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">合作中的 KOL</p>
-          <span className="text-[0.65rem] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {CAMPAIGN_KOLS.length} 個商案
             <span className="mx-1.5 opacity-30">·</span>
             {uniqueKolCount} 位 KOL
           </span>
         </motion.div>
 
-        <div className="border border-foreground/15">
+        <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden">
           {CAMPAIGN_KOLS.map((group, i) => (
             <CampaignKolGroup key={group.propertyId} group={group} index={i} />
           ))}

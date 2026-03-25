@@ -87,12 +87,12 @@ function PropertyRow({ group, index }: { group: PropertyGroup; index: number }) 
           <div className="flex items-center gap-2 mb-1.5">
             <p className="text-sm font-medium">{group.property}</p>
             {pendingCount > 0 && (
-              <span className="text-[0.58rem] uppercase tracking-widest text-amber-700 border border-amber-200 bg-amber-50 px-1.5 py-px">
+              <span className="text-xs uppercase tracking-widest text-amber-700 border border-amber-200 bg-amber-50 px-1.5 py-px">
                 {pendingCount} 待入帳
               </span>
             )}
           </div>
-          <p className="text-[0.65rem] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             佣金比率 {group.rate}
             <span className="mx-1.5 opacity-30">·</span>
             {group.entries.length} 筆成交
@@ -115,7 +115,7 @@ function PropertyRow({ group, index }: { group: PropertyGroup; index: number }) 
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <div className="border-t border-foreground/[0.08] bg-muted/20 divide-y divide-foreground/[0.06]">
+            <div className="border-t border-foreground/[0.08] bg-foreground/[0.015] divide-y divide-foreground/[0.06]">
               {group.entries.map((entry) => {
                 const cfg = STATUS_CFG[entry.status]
                 return (
@@ -123,10 +123,10 @@ function PropertyRow({ group, index }: { group: PropertyGroup; index: number }) 
                     {/* Date + ID + status */}
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <p className="text-[0.65rem] text-muted-foreground font-mono">{entry.date}</p>
-                        <span className="text-[0.58rem] text-muted-foreground/50 font-mono"># {entry.id}</span>
+                        <p className="text-xs text-muted-foreground font-mono">{entry.date}</p>
+                        <span className="text-xs text-muted-foreground/50 font-mono"># {entry.id}</span>
                       </div>
-                      <span className={`text-[0.58rem] uppercase tracking-widest px-1.5 py-px border ${cfg.color}`}>
+                      <span className={`text-xs uppercase tracking-widest px-1.5 py-px border ${cfg.color}`}>
                         {cfg.label}
                       </span>
                     </div>
@@ -138,7 +138,7 @@ function PropertyRow({ group, index }: { group: PropertyGroup; index: number }) 
                         { label: '佣金金額', value: `${entry.amountWan.toFixed(1)} 萬`                  },
                       ].map((s) => (
                         <div key={s.label} className="border border-foreground/15 px-3 py-2.5 text-center bg-background">
-                          <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+                          <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
                           <p className="text-base font-serif mt-1">{s.value}</p>
                         </div>
                       ))}
@@ -171,17 +171,17 @@ export default function KolCommissionsPage() {
       {/* ── Summary stats ── */}
       <motion.div
         custom={1} initial="hidden" animate="visible" variants={fadeUp}
-        className="grid grid-cols-3 gap-px bg-foreground/10 border border-foreground/15"
+        className="grid grid-cols-3 gap-3"
       >
         {[
           { label: '累計佣金', value: totalAmount   },
           { label: '待入帳',   value: pendingAmount  },
           { label: '已入帳',   value: paidAmount     },
         ].map((stat) => (
-          <div key={stat.label} className="bg-background px-5 py-6 text-center">
-            <p className="text-[0.62rem] uppercase tracking-[0.3em] text-muted-foreground mb-3">{stat.label}</p>
+          <div key={stat.label} className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm px-5 py-6 text-center transition-shadow duration-300 hover:shadow-md">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">{stat.label}</p>
             <p className="text-4xl font-serif">{stat.value.toFixed(1)}</p>
-            <p className="text-[0.65rem] text-muted-foreground mt-1">萬元</p>
+            <p className="text-xs text-muted-foreground mt-1">萬元</p>
           </div>
         ))}
       </motion.div>
@@ -193,12 +193,12 @@ export default function KolCommissionsPage() {
           className="flex items-center justify-between mb-4"
         >
           <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">佣金明細</p>
-          <span className="text-[0.65rem] uppercase tracking-widest text-muted-foreground">
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">
             {PROPERTY_GROUPS.length} 個商案 · {allEntries.length} 筆成交
           </span>
         </motion.div>
 
-        <div className="border border-foreground/15">
+        <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden">
           {PROPERTY_GROUPS.map((group, i) => (
             <PropertyRow key={group.propertyId} group={group} index={i} />
           ))}

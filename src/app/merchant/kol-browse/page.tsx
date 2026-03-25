@@ -129,7 +129,7 @@ function InviteModal({
         {/* Header */}
         <div className="flex items-start justify-between px-6 pt-6 pb-5 border-b border-foreground/[0.08]">
           <div>
-            <p className="text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground mb-1">邀請合作</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">邀請合作</p>
             <p className="text-base font-medium">{kol.name}</p>
             <p className="text-xs text-muted-foreground mt-0.5">{kol.platform} · {kol.followers} 粉絲</p>
           </div>
@@ -164,13 +164,13 @@ function InviteModal({
           <button
             onClick={() => selectedProject && onConfirm(selectedProject)}
             disabled={!selectedProject}
-            className="flex-1 py-2.5 text-[0.68rem] uppercase tracking-widest bg-foreground text-background hover:bg-foreground/85 transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="flex-1 py-2.5 text-xs uppercase tracking-widest bg-foreground text-background hover:bg-foreground/85 transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
           >
             送出邀請
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2.5 text-[0.68rem] uppercase tracking-widest border border-foreground/20 text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-150"
+            className="px-4 py-2.5 text-xs uppercase tracking-widest border border-foreground/20 text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-150"
           >
             取消
           </button>
@@ -216,11 +216,11 @@ function KolRow({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-medium">{kol.name}</span>
-            <span className={`text-[0.58rem] uppercase tracking-widest px-1.5 py-px border ${tier.color}`}>
+            <span className={`text-xs uppercase tracking-widest px-1.5 py-px border ${tier.color}`}>
               {tier.label}
             </span>
           </div>
-          <p className="text-[0.65rem] text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {kol.platform}
             <span className="mx-1.5 opacity-30">·</span>
             {kol.followers} 粉絲
@@ -232,11 +232,11 @@ function KolRow({
         {/* Stats */}
         <div className="hidden md:flex items-center gap-5 shrink-0 mr-2">
           <div className="text-center">
-            <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">互動率</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">互動率</p>
             <p className="text-sm font-serif mt-0.5">{kol.engagementRate}</p>
           </div>
           <div className="text-center">
-            <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">平均觀看</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">平均觀看</p>
             <p className="text-sm font-serif mt-0.5">{kol.avgViews}</p>
           </div>
         </div>
@@ -244,13 +244,13 @@ function KolRow({
         {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">
           {invited ? (
-            <span className="text-[0.62rem] uppercase tracking-widest text-emerald-700 border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 flex items-center gap-1">
+            <span className="text-xs uppercase tracking-widest text-emerald-700 border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 flex items-center gap-1">
               <Check className="h-3 w-3" /> 已邀請
             </span>
           ) : (
             <button
               onClick={() => onInvite(kol)}
-              className="text-[0.62rem] uppercase tracking-widest border border-foreground px-3 py-1.5 text-foreground hover:bg-foreground hover:text-background transition-colors duration-150"
+              className="text-xs uppercase tracking-widest border border-foreground px-3 py-1.5 text-foreground hover:bg-foreground hover:text-background transition-colors duration-150"
             >
               邀請合作
             </button>
@@ -282,8 +282,8 @@ function KolRow({
                   { label: '互動率', value: kol.engagementRate },
                   { label: '所在城市', value: kol.city },
                 ].map((s) => (
-                  <div key={s.label} className="border border-foreground/15 px-3 py-2.5 text-center bg-background">
-                    <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+                  <div key={s.label} className="rounded-xl border border-foreground/[0.08] bg-background px-3 py-2.5 text-center">
+                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{s.label}</p>
                     <p className="text-base font-serif mt-1">{s.value}</p>
                   </div>
                 ))}
@@ -369,7 +369,7 @@ export default function MerchantKolBrowsePage() {
       <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="flex flex-wrap gap-2">
         <button
           onClick={() => setActiveCategory(null)}
-          className={`text-[0.6rem] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-150 ${
+          className={`text-xs uppercase tracking-[0.3em] px-3 py-1.5 border transition-colors duration-150 ${
             activeCategory === null
               ? 'border-foreground bg-foreground text-background'
               : 'border-foreground/20 text-muted-foreground hover:border-foreground/50 hover:text-foreground'
@@ -381,7 +381,7 @@ export default function MerchantKolBrowsePage() {
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`text-[0.6rem] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-150 ${
+            className={`text-xs uppercase tracking-[0.3em] px-3 py-1.5 border transition-colors duration-150 ${
               activeCategory === cat
                 ? 'border-foreground bg-foreground text-background'
                 : 'border-foreground/20 text-muted-foreground hover:border-foreground/50 hover:text-foreground'
@@ -397,7 +397,7 @@ export default function MerchantKolBrowsePage() {
       )}
 
       {/* ── KOL list ── */}
-      <div className="border border-foreground/15">
+      <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden">
         {loading ? (
           <div className="px-5 py-10 text-center">
             <p className="text-sm text-muted-foreground">讀取 KOL 資料中…</p>

@@ -5,6 +5,7 @@ import KolHomePageClient from '@/components/kol/KolHomePageClient'
 import { getRoleFromUser, resolveRoleHomePath } from '@/lib/auth'
 import { getSupabaseUrl, getSupabasePublishableKey } from '@/lib/supabase/env'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
+import { getUsernameFromUser } from '@/data/mock-resume'
 
 type ApplicationRecord = {
   id: string
@@ -84,9 +85,12 @@ export default async function KolHomePage() {
     (typeof user.user_metadata?.full_name === 'string' && user.user_metadata.full_name.trim()) ||
     (typeof user.email === 'string' && user.email.includes('@') ? user.email.split('@')[0] : '')
 
+  const username = getUsernameFromUser(user)
+
   return (
     <KolHomePageClient
       displayName={displayName}
+      username={username}
       hasProfilePhoto={Boolean(profilePhotoPath)}
       portfolioCounts={portfolioCounts}
     />

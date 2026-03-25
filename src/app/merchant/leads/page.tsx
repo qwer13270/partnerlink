@@ -54,7 +54,7 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
   return (
     <button
       onClick={onClick}
-      className={`text-[0.65rem] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-150 ${
+      className={`text-xs uppercase tracking-[0.3em] px-3 py-1.5 border transition-colors duration-150 ${
         active
           ? 'bg-foreground text-background border-foreground'
           : 'border-foreground/15 text-muted-foreground hover:border-foreground hover:text-foreground'
@@ -105,7 +105,7 @@ export default function MerchantLeadsPage() {
 
         {/* Status chips */}
         <div>
-          <p className="text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">狀態</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-2">狀態</p>
           <div className="flex flex-wrap gap-2">
             {STATUS_FILTERS.map((opt) => (
               <Chip
@@ -120,7 +120,7 @@ export default function MerchantLeadsPage() {
 
         {/* KOL chips */}
         <div>
-          <p className="text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">KOL</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-2">KOL</p>
           <div className="flex flex-wrap gap-2">
             {KOL_FILTERS.map((opt) => (
               <Chip
@@ -142,19 +142,19 @@ export default function MerchantLeadsPage() {
           className="flex items-center justify-between mb-4"
         >
           <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">推薦紀錄</p>
-          <span className="text-[0.65rem] text-muted-foreground">共 {rows.length} 筆</span>
+          <span className="text-xs text-muted-foreground">共 {rows.length} 筆</span>
         </motion.div>
 
         {isLoading ? (
-          <div className="border border-foreground/15 px-5 py-8 text-center">
+          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm px-5 py-8 text-center">
             <p className="text-sm text-muted-foreground">載入中⋯</p>
           </div>
         ) : rows.length === 0 ? (
-          <div className="border border-foreground/15 px-5 py-8 text-center">
+          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm px-5 py-8 text-center">
             <p className="text-sm text-muted-foreground">沒有符合條件的紀錄。</p>
           </div>
         ) : (
-          <div className="border border-foreground/15 divide-y divide-foreground/[0.08]">
+          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden divide-y divide-foreground/[0.06]">
             {rows.map((lead, i) => {
               const cfg = STATUS_CFG[lead.status]
               return (
@@ -167,16 +167,16 @@ export default function MerchantLeadsPage() {
                     {/* Lead name + status */}
                     <div className="flex items-center gap-2 mb-1.5">
                       <p className="text-sm font-medium">{lead.leadName}</p>
-                      <span className={`text-[0.58rem] uppercase tracking-widest px-1.5 py-px border shrink-0 ${cfg.color}`}>
+                      <span className={`text-xs uppercase tracking-widest px-1.5 py-px border shrink-0 ${cfg.color}`}>
                         {cfg.label}
                       </span>
                     </div>
 
                     {/* Property */}
-                    <p className="text-[0.65rem] text-muted-foreground">{lead.propertyName}</p>
+                    <p className="text-xs text-muted-foreground">{lead.propertyName}</p>
 
                     {/* KOL + dates */}
-                    <p className="text-[0.65rem] text-muted-foreground mt-0.5 font-mono">
+                    <p className="text-xs text-muted-foreground mt-0.5 font-mono">
                       KOL {lead.kolName}
                       <span className="mx-1.5 opacity-30 font-sans">·</span>
                       推薦 {lead.referralDate}
@@ -193,7 +193,7 @@ export default function MerchantLeadsPage() {
                   {lead.status === 'negotiating' && (
                     <button
                       onClick={() => setSelectedId(lead.id)}
-                      className="shrink-0 text-[0.65rem] uppercase tracking-widest px-3 py-1.5 bg-foreground text-background border border-foreground hover:bg-foreground/85 transition-colors duration-150"
+                      className="shrink-0 text-xs uppercase tracking-[0.3em] px-3 py-1.5 bg-foreground text-background border border-foreground hover:bg-foreground/85 transition-colors duration-150"
                     >
                       確認成交
                     </button>
@@ -217,13 +217,13 @@ export default function MerchantLeadsPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSelectedId(null)}
-              className="text-[0.65rem] uppercase tracking-widest px-4 py-2 border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-150"
+              className="text-xs uppercase tracking-[0.3em] px-4 py-2 border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-150"
             >
               取消
             </button>
             <button
               onClick={handleConfirmSale}
-              className="text-[0.65rem] uppercase tracking-widest px-4 py-2 bg-foreground text-background border border-foreground hover:bg-foreground/85 transition-colors duration-150"
+              className="text-xs uppercase tracking-[0.3em] px-4 py-2 bg-foreground text-background border border-foreground hover:bg-foreground/85 transition-colors duration-150"
             >
               確認成交
             </button>

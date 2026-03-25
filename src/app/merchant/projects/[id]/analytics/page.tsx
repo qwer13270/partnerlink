@@ -75,7 +75,7 @@ function CustomTooltip({ active, payload, label }: {
         minWidth: 140,
       }}
     >
-      <p className="text-[0.58rem] uppercase tracking-[0.2em] text-white/50 mb-2">{label}</p>
+      <p className="text-xs uppercase tracking-[0.2em] text-white/50 mb-2">{label}</p>
       {payload.map((p) => (
         <div key={p.name} className="flex items-center justify-between gap-4 mb-1">
           <div className="flex items-center gap-1.5">
@@ -95,7 +95,7 @@ function ChangeBadge({ value, label }: { value: number; label: string }) {
   const Icon = up ? TrendingUp : TrendingDown
   return (
     <div
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem]"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs"
       style={{
         background: up ? 'rgba(74,158,110,0.08)' : 'rgba(200,80,80,0.08)',
         border: `1px solid ${up ? 'rgba(74,158,110,0.25)' : 'rgba(200,80,80,0.25)'}`,
@@ -133,7 +133,7 @@ export default function AnalyticsPage() {
       <motion.div {...fadeUp(0)}>
         <Link
           href={`/merchant/projects/${id}`}
-          className="inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors duration-150"
+          className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors duration-150"
         >
           <ArrowLeft className="w-3 h-3" />
           返回商案
@@ -142,7 +142,7 @@ export default function AnalyticsPage() {
 
       {/* ── Title ── */}
       <motion.div {...fadeUp(0.05)}>
-        <p className="text-[0.62rem] uppercase tracking-[0.3em] text-muted-foreground mb-1">地區房價分析</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">地區房價分析</p>
         <h1 className="text-3xl font-serif font-light leading-tight">{meta.district} 房市行情</h1>
         <p className="text-sm text-muted-foreground mt-2">
           {meta.name} · {meta.districtEn}
@@ -151,10 +151,7 @@ export default function AnalyticsPage() {
 
       {/* ── KPI cards ── */}
       <motion.div {...fadeUp(0.1)}>
-        <div
-          className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0"
-          style={{ border: '1px solid rgba(26,26,26,0.1)' }}
-        >
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             {
               label: '當季均價',
@@ -166,7 +163,7 @@ export default function AnalyticsPage() {
               label: '季增率',
               labelSub: '較上季',
               value: `+${qoq}%`,
-              extra: <span className="text-[0.6rem] text-muted-foreground uppercase tracking-widest">2025 Q3 → Q4</span>,
+              extra: <span className="text-xs text-muted-foreground uppercase tracking-widest">2025 Q3 → Q4</span>,
             },
             {
               label: '年增率',
@@ -178,12 +175,12 @@ export default function AnalyticsPage() {
               label: '季度交易量',
               labelSub: '各類型合計',
               value: totalTxn.toString(),
-              extra: <span className="text-[0.6rem] text-muted-foreground uppercase tracking-widest">2025 Q4 · 件</span>,
+              extra: <span className="text-xs text-muted-foreground uppercase tracking-widest">2025 Q4 · 件</span>,
             },
           ].map(({ label, labelSub, value, extra }) => (
-            <div key={label} className="px-5 py-5">
-              <p className="text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground">{label}</p>
-              <p className="text-[0.52rem] text-muted-foreground/60 mb-2">{labelSub}</p>
+            <div key={label} className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm px-5 py-5">
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{label}</p>
+              <p className="text-xs text-muted-foreground/60 mb-2">{labelSub}</p>
               <p className="text-2xl font-serif font-light mb-2">{value}</p>
               {extra}
             </div>
@@ -193,15 +190,12 @@ export default function AnalyticsPage() {
 
       {/* ── Line chart ── */}
       <motion.div {...fadeUp(0.15)}>
-        <div style={{ border: '1px solid rgba(26,26,26,0.1)', background: 'hsl(var(--background))' }}>
+        <div className="rounded-2xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
           {/* Chart header */}
-          <div
-            className="flex items-center justify-between px-6 py-4"
-            style={{ borderBottom: '1px solid rgba(26,26,26,0.08)' }}
-          >
+          <div className="flex items-center justify-between px-6 py-4 border-b border-foreground/[0.07]">
             <div>
-              <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">房價走勢</p>
-              <p className="text-[0.55rem] text-muted-foreground/60 mt-0.5">2024 Q1 — 2025 Q4 · NT$/坪（萬）</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">房價走勢</p>
+              <p className="text-xs text-muted-foreground/60 mt-0.5">2024 Q1 — 2025 Q4 · NT$/坪（萬）</p>
             </div>
 
             {/* Type filter pills */}
@@ -215,7 +209,7 @@ export default function AnalyticsPage() {
                 <button
                   key={key}
                   onClick={() => setActiveType(key as typeof activeType)}
-                  className="text-[0.58rem] uppercase tracking-widest px-2.5 py-1 transition-all duration-150"
+                  className="text-xs uppercase tracking-widest px-2.5 py-1 transition-all duration-150"
                   style={{
                     background: activeType === key ? '#1a1a1a' : 'transparent',
                     color: activeType === key ? '#faf9f6' : 'rgba(26,26,26,0.5)',
@@ -296,28 +290,25 @@ export default function AnalyticsPage() {
 
       {/* ── Quarterly table ── */}
       <motion.div {...fadeUp(0.2)}>
-        <div style={{ border: '1px solid rgba(26,26,26,0.1)' }}>
+        <div className="rounded-2xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
           {/* Table header */}
-          <div
-            className="px-6 py-4"
-            style={{ borderBottom: '1px solid rgba(26,26,26,0.08)', background: 'hsl(var(--background))' }}
-          >
-            <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">各季成交資料</p>
-            <p className="text-[0.55rem] text-muted-foreground/60 mt-0.5">單位：均價 NT$/坪（萬）· 交易量（件）</p>
+          <div className="px-6 py-4 border-b border-foreground/[0.07]">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">各季成交資料</p>
+            <p className="text-xs text-muted-foreground/60 mt-0.5">單位：均價 NT$/坪（萬）· 交易量（件）</p>
           </div>
 
           {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(26,26,26,0.08)' }}>
-                  <th className="px-6 py-3 text-left text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground font-normal">季度</th>
-                  <th className="px-4 py-3 text-right text-[0.58rem] uppercase tracking-[0.2em] font-normal" style={{ color: '#c4913a' }}>預售屋均價</th>
-                  <th className="px-4 py-3 text-right text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground font-normal">量</th>
-                  <th className="px-4 py-3 text-right text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground font-normal">新成屋均價</th>
-                  <th className="px-4 py-3 text-right text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground font-normal">量</th>
-                  <th className="px-4 py-3 text-right text-[0.58rem] uppercase tracking-[0.2em] font-normal" style={{ color: '#4a9e6e' }}>中古屋均價</th>
-                  <th className="px-4 py-3 text-right text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground font-normal pr-6">量</th>
+                <tr className="border-b border-foreground/[0.07]">
+                  <th className="px-6 py-3 text-left text-xs uppercase tracking-[0.2em] text-muted-foreground font-normal">季度</th>
+                  <th className="px-4 py-3 text-right text-xs uppercase tracking-[0.2em] font-normal" style={{ color: '#c4913a' }}>預售屋均價</th>
+                  <th className="px-4 py-3 text-right text-xs uppercase tracking-[0.2em] text-muted-foreground font-normal">量</th>
+                  <th className="px-4 py-3 text-right text-xs uppercase tracking-[0.2em] text-muted-foreground font-normal">新成屋均價</th>
+                  <th className="px-4 py-3 text-right text-xs uppercase tracking-[0.2em] text-muted-foreground font-normal">量</th>
+                  <th className="px-4 py-3 text-right text-xs uppercase tracking-[0.2em] font-normal" style={{ color: '#4a9e6e' }}>中古屋均價</th>
+                  <th className="px-4 py-3 text-right text-xs uppercase tracking-[0.2em] text-muted-foreground font-normal pr-6">量</th>
                 </tr>
               </thead>
               <tbody>
@@ -336,7 +327,7 @@ export default function AnalyticsPage() {
                           <span className="text-sm">{row.quarter}</span>
                           {isLatest && (
                             <span
-                              className="text-[0.55rem] uppercase tracking-widest px-1.5 py-0.5"
+                              className="text-xs uppercase tracking-widest px-1.5 py-0.5"
                               style={{ background: 'rgba(196,145,58,0.12)', color: '#c4913a', border: '1px solid rgba(196,145,58,0.25)' }}
                             >
                               最新
@@ -365,13 +356,10 @@ export default function AnalyticsPage() {
 
       {/* ── Comparable properties ── */}
       <motion.div {...fadeUp(0.25)}>
-        <div style={{ border: '1px solid rgba(26,26,26,0.1)' }}>
-          <div
-            className="px-6 py-4"
-            style={{ borderBottom: '1px solid rgba(26,26,26,0.08)', background: 'hsl(var(--background))' }}
-          >
-            <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">周邊競品比較</p>
-            <p className="text-[0.55rem] text-muted-foreground/60 mt-0.5">距離 {meta.name} 3km 以內</p>
+        <div className="rounded-2xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-foreground/[0.07]">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">周邊競品比較</p>
+            <p className="text-xs text-muted-foreground/60 mt-0.5">距離 {meta.name} 3km 以內</p>
           </div>
 
           <div className="divide-y divide-black/5">
@@ -393,19 +381,19 @@ export default function AnalyticsPage() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm truncate">{c.name}</p>
-                    <p className="text-[0.58rem] text-muted-foreground mt-0.5">{c.type} · {c.floors}F · {c.units}戶</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{c.type} · {c.floors}F · {c.units}戶</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-6 shrink-0">
                   <div className="text-right">
-                    <p className="text-[0.55rem] uppercase tracking-widest text-muted-foreground mb-0.5">距離</p>
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground mb-0.5">距離</p>
                     <p className="text-xs">{c.distance}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[0.55rem] uppercase tracking-widest text-muted-foreground mb-0.5">均價</p>
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground mb-0.5">均價</p>
                     <p className="font-serif text-base font-light" style={{ color: c.type === '預售屋' ? '#c4913a' : 'inherit' }}>
-                      {c.price} 萬<span className="text-[0.6rem] text-muted-foreground ml-0.5">/坪</span>
+                      {c.price} 萬<span className="text-xs text-muted-foreground ml-0.5">/坪</span>
                     </p>
                   </div>
                 </div>
@@ -427,18 +415,18 @@ export default function AnalyticsPage() {
               </div>
               <div>
                 <p className="text-sm font-medium">{meta.name}</p>
-                <p className="text-[0.58rem] text-muted-foreground mt-0.5">您的商案 · 預售屋</p>
+                <p className="text-xs text-muted-foreground mt-0.5">您的商案 · 預售屋</p>
               </div>
             </div>
             <div className="flex items-center gap-6 shrink-0">
               <div className="text-right">
-                <p className="text-[0.55rem] uppercase tracking-widest text-muted-foreground mb-0.5">距離</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-0.5">距離</p>
                 <p className="text-xs">—</p>
               </div>
               <div className="text-right">
-                <p className="text-[0.55rem] uppercase tracking-widest text-muted-foreground mb-0.5">均價</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-0.5">均價</p>
                 <p className="font-serif text-base font-light" style={{ color: '#c4913a' }}>
-                  {meta.currentPrice} 萬<span className="text-[0.6rem] text-muted-foreground ml-0.5">/坪</span>
+                  {meta.currentPrice} 萬<span className="text-xs text-muted-foreground ml-0.5">/坪</span>
                 </p>
               </div>
             </div>
@@ -448,7 +436,7 @@ export default function AnalyticsPage() {
 
       {/* ── Data note ── */}
       <motion.div {...fadeUp(0.3)}>
-        <p className="text-[0.58rem] text-muted-foreground/50 uppercase tracking-[0.2em]">
+        <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em]">
           數據來源：內政部實價登錄 · 更新至 2025 Q4 · 僅供參考
         </p>
       </motion.div>

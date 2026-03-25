@@ -58,14 +58,14 @@ export default function AdminMerchantsPage() {
 
       {/* Summary badges */}
       <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="flex items-center gap-3 flex-wrap">
-        <span className="text-[0.6rem] uppercase tracking-widest border border-foreground/15 px-2 py-1 text-muted-foreground">
+        <span className="text-xs uppercase tracking-[0.4em] border border-foreground/15 px-2 py-1 text-muted-foreground">
           共 {merchants.length} 家商家
         </span>
-        <span className="text-[0.6rem] uppercase tracking-widest border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-700">
+        <span className="text-xs uppercase tracking-[0.4em] border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-700">
           {activeCount} 家合作中
         </span>
         {suspendedCount > 0 && (
-          <span className="text-[0.6rem] uppercase tracking-widest border border-red-200 bg-red-50 px-2 py-1 text-red-600">
+          <span className="text-xs uppercase tracking-[0.4em] border border-red-200 bg-red-50 px-2 py-1 text-red-600">
             {suspendedCount} 家停用
           </span>
         )}
@@ -73,15 +73,15 @@ export default function AdminMerchantsPage() {
 
       {/* Table */}
       <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp}
-        className="border border-foreground/15 divide-y divide-foreground/[0.08]"
+        className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden divide-y divide-foreground/[0.06]"
       >
         {/* Column headers */}
         <div className="px-5 py-2 grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 items-center">
-          <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground">商家</p>
-          <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground w-20 text-right">活躍商案</p>
-          <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground w-20 text-right">合作 KOL</p>
-          <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground w-20 text-right">帶看累計</p>
-          <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground w-16 text-right">操作</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">商家</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground w-20 text-right">活躍商案</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground w-20 text-right">合作 KOL</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground w-20 text-right">帶看累計</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground w-16 text-right">操作</p>
         </div>
 
         <AnimatePresence>
@@ -95,15 +95,15 @@ export default function AdminMerchantsPage() {
                 {/* Merchant info */}
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium">{merchant.company}</p>
-                    <span className="text-[0.55rem] font-mono text-muted-foreground border border-foreground/10 px-1.5 py-px">
+                    <p className="text-sm">{merchant.company}</p>
+                    <span className="text-xs font-mono text-muted-foreground border border-foreground/10 px-1.5 py-px">
                       {merchant.projectType}
                     </span>
                     {merchant.status === 'suspended' && (
-                      <span className="text-[0.55rem] uppercase tracking-widest text-red-600 border border-red-200 bg-red-50 px-1.5 py-px">停用</span>
+                      <span className="text-xs uppercase tracking-[0.3em] text-red-600 border border-red-200 bg-red-50 px-1.5 py-px">停用</span>
                     )}
                   </div>
-                  <p className="text-[0.65rem] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {merchant.contact}
                     <span className="mx-1.5 opacity-30">·</span>
                     {merchant.phone}
@@ -138,7 +138,7 @@ export default function AdminMerchantsPage() {
                   >
                     <div className="px-5 py-4 bg-muted/10 flex items-center justify-between gap-6 flex-wrap">
                       {/* Meta */}
-                      <div className="text-[0.65rem] text-muted-foreground space-y-1">
+                      <div className="text-xs text-muted-foreground space-y-1">
                         <p>加入日期：{merchant.joinDate}</p>
                         <p>商家 ID：{merchant.id}</p>
                       </div>
@@ -147,7 +147,7 @@ export default function AdminMerchantsPage() {
                       <div className="flex items-center gap-3">
                         <button
                           onClick={(e) => { e.stopPropagation(); toggleStatus(merchant.id) }}
-                          className={`text-[0.65rem] uppercase tracking-widest px-3 py-2 border transition-colors duration-150 ${
+                          className={`text-xs uppercase tracking-[0.3em] px-3 py-2 border transition-colors duration-150 ${
                             merchant.status === 'active'
                               ? 'border-red-200 text-red-600 hover:bg-red-50'
                               : 'border-foreground/15 text-muted-foreground hover:border-foreground hover:text-foreground'

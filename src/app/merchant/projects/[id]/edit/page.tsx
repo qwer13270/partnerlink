@@ -32,7 +32,7 @@ function ThemePicker({
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="px-4 py-4">
-        <p className="mb-4 text-[0.55rem] uppercase tracking-[0.3em] text-muted-foreground/50">
+        <p className="mb-4 text-xs uppercase tracking-[0.4em] text-muted-foreground/50">
           選擇色彩主題
         </p>
         <div className="space-y-1.5">
@@ -69,7 +69,7 @@ function ThemePicker({
                   {/* Name */}
                   <div className="min-w-0 flex-1">
                     <p className="text-[0.8rem] font-medium leading-none">{zh}</p>
-                    <p className="mt-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground/50">{en}</p>
+                    <p className="mt-1.5 text-xs uppercase tracking-[0.3em] text-muted-foreground/50">{en}</p>
                   </div>
 
                   {/* Checkmark */}
@@ -123,11 +123,11 @@ function ModulePicker({
         }`}>
           <Plus className={`h-3 w-3 transition-transform duration-200 ${open ? 'rotate-45' : ''}`} />
         </div>
-        <p className="text-[0.7rem] font-medium uppercase tracking-[0.15em] text-foreground/60 group-hover:text-foreground/80">
+        <p className="text-xs uppercase tracking-[0.3em] text-foreground/60 group-hover:text-foreground/80">
           新增模塊
         </p>
         {addable.length === 1 && (
-          <span className="ml-auto text-[0.55rem] text-muted-foreground/40">僅剩圖片區塊</span>
+          <span className="ml-auto text-xs text-muted-foreground/40">僅剩圖片區塊</span>
         )}
       </button>
 
@@ -154,11 +154,11 @@ function ModulePicker({
                     <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-foreground/[0.06] text-foreground/50 transition-colors duration-150 group-hover:bg-foreground/[0.12] group-hover:text-foreground">
                       <meta.Icon className="h-3 w-3" />
                     </div>
-                    <span className="truncate text-[0.65rem] font-medium text-foreground/65 transition-colors duration-150 group-hover:text-foreground">
+                    <span className="truncate text-xs text-foreground/65 transition-colors duration-150 group-hover:text-foreground">
                       {meta.label}
                     </span>
                     {isMulti && (
-                      <span className="ml-auto shrink-0 rounded-sm bg-[#C9A96E]/12 px-1 py-px text-[0.48rem] font-semibold uppercase tracking-wider text-[#C9A96E]/70">
+                      <span className="ml-auto shrink-0 rounded-sm bg-[#C9A96E]/12 px-1 py-px text-xs uppercase tracking-wider text-[#C9A96E]/70">
                         可多個
                       </span>
                     )}
@@ -302,13 +302,13 @@ export default function EditProjectPage() {
           <div className="h-6 w-px shrink-0 bg-foreground/10" />
 
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold leading-snug text-foreground">{draftProject.name}</p>
-            <p className="text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground/70">商案編輯器</p>
+            <p className="truncate text-sm leading-snug text-foreground">{draftProject.name}</p>
+            <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">商案編輯器</p>
           </div>
 
           {/* Status badges */}
           <div className="flex shrink-0 items-center gap-2">
-            <span className={`hidden rounded px-2.5 py-1 text-[0.6rem] font-medium uppercase tracking-widest sm:inline-block ${
+            <span className={`hidden rounded px-2.5 py-1 text-xs uppercase tracking-widest sm:inline-block ${
               isPublished
                 ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
                 : 'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
@@ -316,7 +316,7 @@ export default function EditProjectPage() {
               {isPublished ? '已發布' : '草稿'}
             </span>
             {isDirty && (
-              <span className="hidden rounded bg-[#C9A96E]/10 px-2.5 py-1 text-[0.6rem] font-medium uppercase tracking-widest text-[#8b6d3d] ring-1 ring-[#C9A96E]/30 sm:inline-block">
+              <span className="hidden rounded bg-[#C9A96E]/10 px-2.5 py-1 text-xs uppercase tracking-widest text-[#8b6d3d] ring-1 ring-[#C9A96E]/30 sm:inline-block">
                 未儲存
               </span>
             )}
@@ -355,7 +355,7 @@ export default function EditProjectPage() {
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
-              className="hidden h-9 items-center gap-2 rounded-lg border border-red-200/70 px-3.5 text-[0.65rem] uppercase tracking-widest text-red-500/70 transition-colors duration-150 hover:border-red-400 hover:text-red-500 sm:inline-flex"
+              className="hidden h-9 items-center gap-2 rounded-lg border border-red-200/70 px-3.5 text-xs uppercase tracking-[0.3em] text-red-500/70 transition-colors duration-150 hover:border-red-400 hover:text-red-500 sm:inline-flex"
             >
               <Trash2 className="h-3.5 w-3.5" />
               刪除
@@ -364,7 +364,7 @@ export default function EditProjectPage() {
               href={`/merchant/projects/${id}/preview`}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden h-9 items-center gap-2 rounded-lg border border-foreground/15 px-3.5 text-[0.65rem] uppercase tracking-widest text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground sm:inline-flex"
+              className="hidden h-9 items-center gap-2 rounded-lg border border-foreground/15 px-3.5 text-xs uppercase tracking-[0.3em] text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground sm:inline-flex"
             >
               <Eye className="h-3.5 w-3.5" />
               預覽
@@ -373,7 +373,7 @@ export default function EditProjectPage() {
               type="button"
               onClick={() => void handleSave()}
               disabled={saving || publishing || !isDirty}
-              className="inline-flex h-9 items-center gap-2 rounded-lg bg-foreground px-5 text-[0.65rem] uppercase tracking-widest text-background transition-opacity duration-150 hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-30"
+              className="inline-flex h-9 items-center gap-2 rounded-lg bg-foreground px-5 text-xs uppercase tracking-[0.3em] text-background transition-opacity duration-150 hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-30"
             >
               <Save className="h-3.5 w-3.5" />
               {saving ? '儲存中…' : '儲存'}
@@ -383,7 +383,7 @@ export default function EditProjectPage() {
                 type="button"
                 onClick={() => void handleSave('published')}
                 disabled={saving || publishing}
-                className="hidden h-9 items-center gap-2 rounded-lg border border-foreground px-5 text-[0.65rem] uppercase tracking-widest text-foreground transition-colors duration-150 hover:bg-foreground hover:text-background disabled:opacity-30 lg:inline-flex"
+                className="hidden h-9 items-center gap-2 rounded-lg border border-foreground px-5 text-xs uppercase tracking-[0.3em] text-foreground transition-colors duration-150 hover:bg-foreground hover:text-background disabled:opacity-30 lg:inline-flex"
               >
                 {publishing ? '發布中…' : '立即發布'}
               </button>
@@ -419,7 +419,7 @@ export default function EditProjectPage() {
                           key={view}
                           type="button"
                           onClick={() => setSidebarView(view)}
-                          className={`relative mr-5 pb-3.5 text-[0.65rem] font-medium uppercase tracking-[0.2em] transition-colors duration-150 ${
+                          className={`relative mr-5 pb-3.5 text-xs uppercase tracking-[0.3em] transition-colors duration-150 ${
                             active ? 'text-foreground' : 'text-muted-foreground/40 hover:text-muted-foreground/70'
                           }`}
                         >
@@ -480,7 +480,7 @@ export default function EditProjectPage() {
                           <div className="mt-4">
                             <div className="mb-2 flex items-center gap-2 px-2">
                               <div className="h-px flex-1 bg-foreground/[0.07]" />
-                              <span className="shrink-0 text-[0.53rem] uppercase tracking-[0.3em] text-muted-foreground/40">固定</span>
+                              <span className="shrink-0 text-xs uppercase tracking-[0.3em] text-muted-foreground/40">固定</span>
                               <div className="h-px flex-1 bg-foreground/[0.07]" />
                             </div>
                             <div className="space-y-1">
@@ -536,7 +536,7 @@ export default function EditProjectPage() {
                   <button
                     type="button"
                     onClick={() => setSidebarView('list')}
-                    className="mb-3 flex items-center gap-2 rounded-md border border-foreground/10 bg-foreground/[0.03] px-3 py-2 text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground transition-colors duration-150 hover:border-foreground/20 hover:bg-foreground/[0.06] hover:text-foreground"
+                    className="mb-3 flex items-center gap-2 rounded-md border border-foreground/10 bg-foreground/[0.03] px-3 py-2 text-xs uppercase tracking-[0.3em] text-muted-foreground transition-colors duration-150 hover:border-foreground/20 hover:bg-foreground/[0.06] hover:text-foreground"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" />
                     所有模塊
@@ -552,7 +552,7 @@ export default function EditProjectPage() {
                             </div>
                             <div className="min-w-0">
                               <p className="text-sm font-medium leading-tight">{label}</p>
-                              <p className="truncate text-[0.58rem] text-muted-foreground">{desc}</p>
+                              <p className="truncate text-xs text-muted-foreground">{desc}</p>
                             </div>
                           </>
                         )
@@ -562,7 +562,7 @@ export default function EditProjectPage() {
                       <button
                         type="button"
                         onClick={() => toggleModuleVisibility(selectedModule.id)}
-                        className={`rounded-sm px-2 py-1 text-[0.55rem] uppercase tracking-widest transition-colors duration-150 ${
+                        className={`rounded-sm px-2 py-1 text-xs uppercase tracking-[0.3em] transition-colors duration-150 ${
                           selectedModule.isVisible
                             ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-100'
                             : 'bg-muted/60 text-muted-foreground ring-1 ring-foreground/12 hover:bg-muted'
@@ -667,7 +667,7 @@ export default function EditProjectPage() {
                   type="button"
                   onClick={() => setShowDeleteModal(false)}
                   disabled={deleting}
-                  className="rounded-md border border-foreground/20 px-4 py-2 text-[0.65rem] uppercase tracking-widest text-muted-foreground transition-colors duration-150 hover:border-foreground hover:text-foreground disabled:opacity-30"
+                  className="rounded-md border border-foreground/20 px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted-foreground transition-colors duration-150 hover:border-foreground hover:text-foreground disabled:opacity-30"
                 >
                   取消
                 </button>
@@ -675,7 +675,7 @@ export default function EditProjectPage() {
                   type="button"
                   onClick={() => void handleDelete()}
                   disabled={deleting}
-                  className="rounded-md bg-red-500 px-4 py-2 text-[0.65rem] uppercase tracking-widest text-white transition-colors duration-150 hover:bg-red-600 disabled:opacity-50"
+                  className="rounded-md bg-red-500 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white transition-colors duration-150 hover:bg-red-600 disabled:opacity-50"
                 >
                   {deleting ? '刪除中…' : '確認刪除'}
                 </button>

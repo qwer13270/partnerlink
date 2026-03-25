@@ -23,11 +23,11 @@ export function Field({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
+      <label className="mb-1.5 block text-xs uppercase tracking-[0.4em] text-muted-foreground">
         {label}
       </label>
       {children}
-      {hint && <p className="mt-1 text-[0.6rem] text-muted-foreground/60">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-muted-foreground/60">{hint}</p>}
     </div>
   )
 }
@@ -52,7 +52,7 @@ export function Divider({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-3 py-0.5">
       <div className="h-px flex-1 bg-foreground/[0.07]" />
-      <span className="shrink-0 text-[0.56rem] uppercase tracking-[0.25em] text-muted-foreground/50">
+      <span className="shrink-0 text-xs uppercase tracking-[0.3em] text-muted-foreground/50">
         {label}
       </span>
       <div className="h-px flex-1 bg-foreground/[0.07]" />
@@ -82,7 +82,7 @@ export function StateToggle({
           key={option}
           type="button"
           onClick={() => onChange(option)}
-          className={`flex flex-1 items-center justify-center gap-1 rounded-md border py-2 text-[0.6rem] uppercase tracking-widest transition-colors duration-150 ${
+          className={`flex flex-1 items-center justify-center gap-1 rounded-md border py-2 text-xs uppercase tracking-[0.3em] transition-colors duration-150 ${
             value === option ? active : 'border-foreground/12 text-muted-foreground/60 hover:border-foreground/25'
           }`}
         >
@@ -138,7 +138,7 @@ export function RepeatableFields({
               onClick={() => toggle(rowIndex)}
               className="flex w-full items-center gap-3 px-3.5 py-3 text-left transition-colors duration-150 hover:bg-foreground/[0.03]"
             >
-              <span className="w-4 shrink-0 font-mono text-[0.58rem] text-muted-foreground/50">
+              <span className="w-4 shrink-0 font-mono text-xs text-muted-foreground/50">
                 {String(rowIndex + 1).padStart(2, '0')}
               </span>
               <span className="flex-1 truncate text-xs text-foreground">{previewText}</span>

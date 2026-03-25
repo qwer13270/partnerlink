@@ -92,8 +92,7 @@ export default function ProjectAnalysisPage() {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
         <Link
           href="/merchant/projects"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-150"
-          style={{ fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase' }}
+          className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors duration-150"
         >
           <ArrowLeft className="h-3 w-3" />
           商案列表
@@ -107,7 +106,7 @@ export default function ProjectAnalysisPage() {
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p style={{ fontSize: 10, letterSpacing: '0.38em', textTransform: 'uppercase', color: 'hsl(var(--muted-foreground))', marginBottom: 8 }}>
+            <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground mb-2">
               分析中心
             </p>
             <h1 className="font-serif font-light leading-tight" style={{ fontSize: 'clamp(26px, 4vw, 38px)' }}>
@@ -118,13 +117,11 @@ export default function ProjectAnalysisPage() {
             )}
           </div>
           <span
-            className="shrink-0 mt-1"
-            style={{
-              fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '3px 10px',
-              border: project.publishStatus === 'published' ? '1px solid rgba(52,168,83,0.35)' : '1px solid rgba(180,140,60,0.35)',
-              color: project.publishStatus === 'published' ? '#2d8a4e' : '#9a7428',
-              background: project.publishStatus === 'published' ? 'rgba(52,168,83,0.06)' : 'rgba(180,140,60,0.06)',
-            }}
+            className={`shrink-0 mt-1 text-xs uppercase tracking-widest px-2.5 py-0.5 border ${
+              project.publishStatus === 'published'
+                ? 'text-emerald-700 border-emerald-300/50 bg-emerald-50/60'
+                : 'text-amber-700 border-amber-300/50 bg-amber-50/60'
+            }`}
           >
             {project.publishStatus === 'published' ? '已發布' : '草稿'}
           </span>
@@ -160,7 +157,7 @@ export default function ProjectAnalysisPage() {
 
               {/* Text */}
               <div className="flex-1">
-                <p style={{ fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', color: card.accentText, marginBottom: 6 }}>
+                <p className="text-xs uppercase tracking-[0.3em] mb-1.5" style={{ color: card.accentText }}>
                   {card.index} · {card.label}
                 </p>
                 <h2
@@ -176,8 +173,8 @@ export default function ProjectAnalysisPage() {
 
               {/* CTA */}
               <div
-                className="flex items-center gap-1.5 group-hover:gap-2.5 transition-all duration-200"
-                style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: card.accent }}
+                className="flex items-center gap-1.5 group-hover:gap-2.5 transition-all duration-200 text-xs uppercase tracking-[0.2em]"
+                style={{ color: card.accent }}
               >
                 <span>進入</span>
                 <ArrowUpRight className="h-3 w-3" />

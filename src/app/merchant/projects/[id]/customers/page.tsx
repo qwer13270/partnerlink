@@ -133,7 +133,7 @@ export default function CustomersPage() {
       <motion.div {...fadeUp(0)}>
         <Link
           href={`/merchant/projects/${id}`}
-          className="inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors duration-150"
+          className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors duration-150"
         >
           <ArrowLeft className="w-3 h-3" />
           返回商案
@@ -142,7 +142,7 @@ export default function CustomersPage() {
 
       {/* ── Title ── */}
       <motion.div {...fadeUp(0.05)}>
-        <p className="text-[0.62rem] uppercase tracking-[0.3em] text-muted-foreground mb-1">分析客戶</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">分析客戶</p>
         <h1 className="text-3xl font-serif font-light">受眾輪廓分析</h1>
         <p className="text-sm text-muted-foreground mt-2">上傳您的客戶資料，AI 即時分析目標受眾特徵與購買意向。</p>
       </motion.div>
@@ -187,7 +187,7 @@ export default function CustomersPage() {
                     <p className="text-xs text-muted-foreground">支援 CSV · XLSX · XLS · 最大 50MB</p>
                   </div>
                   <div
-                    className="inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-widest px-4 py-2"
+                    className="inline-flex items-center gap-2 text-xs uppercase tracking-widest px-4 py-2"
                     style={{ border: '1px solid rgba(26,26,26,0.2)', color: 'rgba(26,26,26,0.6)' }}
                   >
                     <FileText className="w-3 h-3" />
@@ -200,7 +200,7 @@ export default function CustomersPage() {
               <div className="flex justify-center mt-4">
                 <button
                   onClick={() => simulate('customers_Q4_2025.csv')}
-                  className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150"
+                  className="text-xs uppercase tracking-[0.2em] text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150"
                 >
                   使用示範資料
                 </button>
@@ -231,7 +231,7 @@ export default function CustomersPage() {
                 <p className="text-sm text-muted-foreground">
                   {uploadState === 'uploading' ? `上傳中 ${fileName}` : 'AI 分析中，請稍候...'}
                 </p>
-                <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground/50 mt-1">
+                <p className="text-xs uppercase tracking-widest text-muted-foreground/50 mt-1">
                   {uploadState === 'uploading' ? '正在上傳' : '模型推論中'}
                 </p>
               </div>
@@ -250,12 +250,12 @@ export default function CustomersPage() {
                 <CheckCircle2 className="w-4 h-4" style={{ color: '#4a9e6e' }} />
                 <div>
                   <p className="text-sm font-medium">{fileName}</p>
-                  <p className="text-[0.6rem] text-muted-foreground mt-0.5">{totalCustomers} 筆客戶資料 · 分析完成</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{totalCustomers} 筆客戶資料 · 分析完成</p>
                 </div>
               </div>
               <button
                 onClick={() => { setUploadState('idle'); setFileName('') }}
-                className="text-[0.6rem] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors duration-150"
+                className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors duration-150"
               >
                 重新上傳
               </button>
@@ -281,7 +281,7 @@ export default function CustomersPage() {
                 style={{ borderBottom: '1px solid rgba(196,145,58,0.15)' }}
               >
                 <Sparkles className="w-3.5 h-3.5" style={{ color: '#c4913a' }} />
-                <p className="text-[0.62rem] uppercase tracking-[0.25em]" style={{ color: '#c4913a' }}>AI 洞察摘要</p>
+                <p className="text-xs uppercase tracking-[0.25em]" style={{ color: '#c4913a' }}>AI 洞察摘要</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-amber-900/10">
                 {INSIGHTS.map(({ icon: Icon, text }, i) => (
@@ -309,13 +309,10 @@ export default function CustomersPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
               {/* Age distribution */}
-              <div style={{ border: '1px solid rgba(26,26,26,0.1)', background: 'hsl(var(--background))' }}>
-                <div
-                  className="px-5 py-4"
-                  style={{ borderBottom: '1px solid rgba(26,26,26,0.07)' }}
-                >
-                  <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">年齡分布</p>
-                  <p className="text-[0.55rem] text-muted-foreground/55 mt-0.5">共 {totalCustomers} 筆 · 人數</p>
+              <div className="rounded-2xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
+                <div className="px-5 py-4 border-b border-foreground/[0.07]">
+                  <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">年齡分布</p>
+                  <p className="text-xs text-muted-foreground/55 mt-0.5">共 {totalCustomers} 筆 · 人數</p>
                 </div>
                 <div className="px-3 pb-5 pt-4">
                   <ResponsiveContainer width="100%" height={200}>
@@ -347,13 +344,10 @@ export default function CustomersPage() {
               </div>
 
               {/* Income distribution */}
-              <div style={{ border: '1px solid rgba(26,26,26,0.1)', background: 'hsl(var(--background))' }}>
-                <div
-                  className="px-5 py-4"
-                  style={{ borderBottom: '1px solid rgba(26,26,26,0.07)' }}
-                >
-                  <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">年收入分布</p>
-                  <p className="text-[0.55rem] text-muted-foreground/55 mt-0.5">估算年薪範圍 · %</p>
+              <div className="rounded-2xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
+                <div className="px-5 py-4 border-b border-foreground/[0.07]">
+                  <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">年收入分布</p>
+                  <p className="text-xs text-muted-foreground/55 mt-0.5">估算年薪範圍 · %</p>
                 </div>
                 <div className="px-3 pb-5 pt-4">
                   <ResponsiveContainer width="100%" height={200}>
@@ -401,13 +395,10 @@ export default function CustomersPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
               {/* Lead source pie */}
-              <div style={{ border: '1px solid rgba(26,26,26,0.1)', background: 'hsl(var(--background))' }}>
-                <div
-                  className="px-5 py-4"
-                  style={{ borderBottom: '1px solid rgba(26,26,26,0.07)' }}
-                >
-                  <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">客戶來源</p>
-                  <p className="text-[0.55rem] text-muted-foreground/55 mt-0.5">線索獲取渠道分析</p>
+              <div className="rounded-2xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
+                <div className="px-5 py-4 border-b border-foreground/[0.07]">
+                  <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">客戶來源</p>
+                  <p className="text-xs text-muted-foreground/55 mt-0.5">線索獲取渠道分析</p>
                 </div>
                 <div className="flex items-center gap-5 px-5 pb-6 pt-4">
                   <ResponsiveContainer width={120} height={120}>
@@ -441,13 +432,10 @@ export default function CustomersPage() {
               </div>
 
               {/* Purchase intent */}
-              <div style={{ border: '1px solid rgba(26,26,26,0.1)', background: 'hsl(var(--background))' }}>
-                <div
-                  className="px-5 py-4"
-                  style={{ borderBottom: '1px solid rgba(26,26,26,0.07)' }}
-                >
-                  <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">購買意願分級</p>
-                  <p className="text-[0.55rem] text-muted-foreground/55 mt-0.5">AI 評分 · 人數</p>
+              <div className="rounded-2xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
+                <div className="px-5 py-4 border-b border-foreground/[0.07]">
+                  <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">購買意願分級</p>
+                  <p className="text-xs text-muted-foreground/55 mt-0.5">AI 評分 · 人數</p>
                 </div>
                 <div className="px-5 py-5 space-y-4">
                   {INTENT_DATA.map(({ label, count, color, desc }) => {
@@ -470,7 +458,7 @@ export default function CustomersPage() {
                             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                           />
                         </div>
-                        <p className="text-[0.58rem] text-muted-foreground/60 mt-1">{desc}</p>
+                        <p className="text-xs text-muted-foreground/60 mt-1">{desc}</p>
                       </div>
                     )
                   })}
@@ -479,7 +467,7 @@ export default function CustomersPage() {
             </div>
 
             {/* ── Footer note ── */}
-            <p className="text-[0.58rem] text-muted-foreground/50 uppercase tracking-[0.2em]">
+            <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em]">
               分析結果由 AI 模型生成 · 僅供行銷決策參考 · 個資已匿名化處理
             </p>
 

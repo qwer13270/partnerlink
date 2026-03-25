@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import type { User } from "@supabase/supabase-js";
 import { getRoleFromUser, resolveRoleHomePath } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import ProfilePhotoModal from "./ProfilePhotoModal";
 
 const NAV_LINKS = [
   { label: "關於我們", href: "/about" },
@@ -38,8 +39,9 @@ function Avatar({ name, imageUrl }: { name: string; imageUrl?: string | null }) 
 
 export default function Header() {
   const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileMenuOpen,    setMobileMenuOpen]    = useState(false);
+  const [userMenuOpen,      setUserMenuOpen]      = useState(false);
+  const [profileModalOpen,  setProfileModalOpen]  = useState(false);
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -243,6 +245,18 @@ export default function Header() {
                                 </p>
                               )}
                             </div>
+                            {role === "kol" && (
+                              <button
+                                onClick={() => {
+                                  setUserMenuOpen(false);
+                                  setProfileModalOpen(true);
+                                }}
+                                className="flex items-center justify-between w-full px-4 py-3 text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150"
+                              >
+                                <span>編輯頭像</span>
+                                <ArrowUpRight className="w-3 h-3" />
+                              </button>
+                            )}
                             <button
                               onClick={handleLogout}
                               className="flex items-center justify-between w-full px-4 py-3 text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150"
@@ -402,6 +416,15 @@ export default function Header() {
 
       {/* Spacer for fixed header */}
       <div className="h-16" />
+
+      {/* Profile photo modal — KOL only */}
+      <ProfilePhotoModal
+        open={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        currentPhotoUrl={profilePhotoUrl}
+        displayName={displayName}
+        onPhotoUpdated={(url) => setProfilePhotoUrl(url)}
+      />
     </>
   );
 }

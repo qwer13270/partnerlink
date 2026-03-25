@@ -210,7 +210,7 @@ export default function AdminKolApplicationsPage() {
                 key={option.value}
                 type="button"
                 onClick={() => setStatusFilter(option.value)}
-                className={`px-4 py-2 text-[0.68rem] uppercase tracking-[0.24em] transition-colors ${
+                className={`px-4 py-2 text-xs uppercase tracking-[0.3em] transition-colors ${
                   statusFilter === option.value
                     ? 'bg-[#1d1a16] text-white'
                     : 'text-[#6f665d] hover:bg-white'
@@ -234,8 +234,8 @@ export default function AdminKolApplicationsPage() {
           />
         </label>
         <div className="flex items-center gap-3 border border-[#d9cdc0] bg-[#faf6f1] px-4 py-3">
-          <span className="text-[0.62rem] uppercase tracking-[0.26em] text-[#8e8073]">{statusLabel}</span>
-          <span className={`text-[0.62rem] uppercase tracking-[0.2em] px-2 py-1 ${
+          <span className="text-xs uppercase tracking-[0.3em] text-[#8e8073]">{statusLabel}</span>
+          <span className={`text-xs uppercase tracking-[0.3em] px-2 py-1 ${
             statusFilter === 'pending_admin_review'
               ? 'border border-amber-200 bg-amber-50 text-amber-700'
               : 'border border-red-200 bg-red-50 text-red-700'
@@ -269,8 +269,8 @@ export default function AdminKolApplicationsPage() {
             >
               <div className="border border-foreground/15 bg-white">
                 <div className="flex items-center justify-between border-b border-foreground/[0.08] px-4 py-3">
-                  <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">申請清單</p>
-                  <span className="text-[0.6rem] text-muted-foreground">{items.length} 件</span>
+                  <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">申請清單</p>
+                  <span className="text-xs text-muted-foreground">{items.length} 件</span>
                 </div>
                 <div className="max-h-[70vh] divide-y divide-foreground/[0.08] overflow-auto">
                   {items.map((app, index) => {
@@ -301,13 +301,13 @@ export default function AdminKolApplicationsPage() {
                             )}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <p className={`truncate text-sm font-medium ${isActive ? 'text-background' : 'text-foreground'}`}>
+                            <p className={`truncate text-sm ${isActive ? 'text-background' : 'text-foreground'}`}>
                               {app.name}
                             </p>
-                            <p className={`mt-0.5 truncate text-[0.65rem] ${isActive ? 'text-background/60' : 'text-muted-foreground'}`}>
+                            <p className={`mt-0.5 truncate text-xs ${isActive ? 'text-background/60' : 'text-muted-foreground'}`}>
                               {app.followers} · {app.platforms.length > 0 ? app.platforms.join(' / ') : '未填寫平台'}
                             </p>
-                            <div className={`mt-1 flex items-center gap-1 text-[0.62rem] ${isActive ? 'text-background/50' : 'text-muted-foreground'}`}>
+                            <div className={`mt-1 flex items-center gap-1 text-xs ${isActive ? 'text-background/50' : 'text-muted-foreground'}`}>
                               <Calendar className="h-2.5 w-2.5" />
                               {app.appliedDate || '—'}
                             </div>
@@ -344,7 +344,7 @@ export default function AdminKolApplicationsPage() {
                             <div>
                               <div className="flex flex-wrap items-center gap-2">
                                 <h2 className="text-xl font-serif">{active.name}</h2>
-                                <span className={`border px-2 py-1 text-[0.58rem] uppercase tracking-[0.22em] ${
+                                <span className={`border px-2 py-1 text-xs uppercase tracking-[0.3em] ${
                                   active.status === 'denied'
                                     ? 'border-red-200 bg-red-50 text-red-700'
                                     : 'border-amber-200 bg-amber-50 text-amber-700'
@@ -352,9 +352,9 @@ export default function AdminKolApplicationsPage() {
                                   {active.status === 'denied' ? '已拒絕' : '待審核'}
                                 </span>
                               </div>
-                              <p className="mt-0.5 text-[0.65rem] text-muted-foreground">{active.email}</p>
+                              <p className="mt-0.5 text-xs text-muted-foreground">{active.email}</p>
                             </div>
-                            <span className="shrink-0 border border-border px-1.5 py-0.5 text-[0.6rem] font-mono text-muted-foreground">
+                            <span className="shrink-0 border border-border px-1.5 py-0.5 text-xs font-mono text-muted-foreground">
                               {active.category}
                             </span>
                           </div>
@@ -364,11 +364,11 @@ export default function AdminKolApplicationsPage() {
 
                       {active.status === 'denied' && (
                         <div className="border border-red-200 bg-red-50 px-4 py-4">
-                          <p className="text-[0.6rem] uppercase tracking-[0.24em] text-red-700">上次拒絕原因</p>
+                          <p className="text-xs uppercase tracking-[0.3em] text-red-700">上次拒絕原因</p>
                           <p className="mt-2 text-sm leading-relaxed text-[#6d3f3f]">
                             {active.rejectionReason || '尚未填寫拒絕原因。'}
                           </p>
-                          <p className="mt-2 text-[0.7rem] text-[#8d6363]">
+                          <p className="mt-2 text-xs text-[#8d6363]">
                             審核日期：{formatDate(active.reviewedAt)}
                           </p>
                         </div>
@@ -385,7 +385,7 @@ export default function AdminKolApplicationsPage() {
                         <div key={stat.label} className="px-4 py-3">
                           <div className="mb-1 flex items-center gap-1.5">
                             <stat.icon className="h-3 w-3 text-muted-foreground/60" />
-                            <span className="text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground">{stat.label}</span>
+                            <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{stat.label}</span>
                           </div>
                           <p className="text-xs text-foreground">{stat.value}</p>
                         </div>
@@ -394,10 +394,10 @@ export default function AdminKolApplicationsPage() {
 
                     {active.platforms.length > 0 && (
                       <div className="px-5 py-4">
-                        <p className="mb-3 text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">平台帳號</p>
+                        <p className="mb-3 text-xs uppercase tracking-[0.3em] text-muted-foreground">平台帳號</p>
                         <div className="flex flex-wrap gap-2">
                           {active.platforms.map((platform) => (
-                            <span key={platform} className="border border-foreground/15 px-2 py-1 text-[0.6rem] uppercase tracking-wider text-muted-foreground">
+                            <span key={platform} className="border border-foreground/15 px-2 py-1 text-xs uppercase tracking-wider text-muted-foreground">
                               {platform}
                               {active.platformAccounts[platform] && (
                                 <span className="ml-1.5 normal-case text-foreground/70">{active.platformAccounts[platform]}</span>
@@ -426,7 +426,7 @@ export default function AdminKolApplicationsPage() {
                             type="button"
                             onClick={() => void decide(active.id, 'approve')}
                             disabled={actionLoadingId === active.id}
-                            className="flex items-center gap-1.5 bg-foreground px-3 py-2 text-[0.65rem] uppercase tracking-widest text-background transition-colors duration-150 hover:bg-foreground/85 disabled:opacity-60"
+                            className="flex items-center gap-1.5 bg-foreground px-3 py-2 text-xs uppercase tracking-[0.3em] text-background transition-colors duration-150 hover:bg-foreground/85 disabled:opacity-60"
                           >
                             <Check className="h-3 w-3" />
                             {active.status === 'denied' ? '重新通過' : '通過'}
@@ -436,7 +436,7 @@ export default function AdminKolApplicationsPage() {
                               type="button"
                               onClick={openRejectModal}
                               disabled={actionLoadingId === active.id}
-                              className="flex items-center gap-1.5 border border-border px-3 py-2 text-[0.65rem] uppercase tracking-widest text-muted-foreground transition-colors duration-150 hover:border-foreground hover:text-foreground disabled:opacity-60"
+                              className="flex items-center gap-1.5 border border-border px-3 py-2 text-xs uppercase tracking-[0.3em] text-muted-foreground transition-colors duration-150 hover:border-foreground hover:text-foreground disabled:opacity-60"
                             >
                               <X className="h-3 w-3" />
                               拒絕
@@ -480,7 +480,7 @@ export default function AdminKolApplicationsPage() {
               <div className="border-b border-[#ddcfbf] px-6 py-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-2">
-                    <p className="text-[0.65rem] uppercase tracking-[0.32em] text-[#9a7c67]">Reject Application</p>
+                    <p className="text-xs uppercase tracking-[0.4em] text-[#9a7c67]">Reject Application</p>
                     <h3 className="text-2xl font-serif text-[#1d1a16]">填寫拒絕原因</h3>
                     <p className="max-w-xl text-sm leading-relaxed text-[#746558]">
                       這段內容會顯示給申請者參考。可以留白，但若有具體補件方向，會更方便對方之後調整後再申請。
@@ -499,12 +499,12 @@ export default function AdminKolApplicationsPage() {
 
               <div className="space-y-5 px-6 py-6">
                 <div className="border border-[#e1d4c6] bg-white/70 px-4 py-3">
-                  <p className="text-[0.58rem] uppercase tracking-[0.24em] text-[#9a8a7e]">目前申請者</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-[#9a8a7e]">目前申請者</p>
                   <p className="mt-1 text-sm text-[#1e1914]">{active.name} · {active.email}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="reject-reason-modal" className="text-[0.62rem] uppercase tracking-[0.24em] text-[#7d6c60]">
+                  <label htmlFor="reject-reason-modal" className="text-xs uppercase tracking-[0.3em] text-[#7d6c60]">
                     拒絕原因（選填）
                   </label>
                   <textarea
@@ -522,7 +522,7 @@ export default function AdminKolApplicationsPage() {
                     type="button"
                     onClick={closeRejectModal}
                     disabled={actionLoadingId === active.id}
-                    className="border border-[#d8cbbb] bg-white px-4 py-3 text-[0.65rem] uppercase tracking-[0.2em] text-[#6f665d] transition-colors hover:bg-[#f7f1ea] disabled:opacity-60"
+                    className="border border-[#d8cbbb] bg-white px-4 py-3 text-xs uppercase tracking-[0.3em] text-[#6f665d] transition-colors hover:bg-[#f7f1ea] disabled:opacity-60"
                   >
                     取消
                   </button>
@@ -533,7 +533,7 @@ export default function AdminKolApplicationsPage() {
                       setRejectModalOpen(false)
                     }}
                     disabled={actionLoadingId === active.id}
-                    className="inline-flex items-center gap-2 border border-[#1d1a16] bg-[#1d1a16] px-4 py-3 text-[0.65rem] uppercase tracking-[0.2em] text-white transition-colors hover:bg-[#332820] disabled:opacity-60"
+                    className="inline-flex items-center gap-2 border border-[#1d1a16] bg-[#1d1a16] px-4 py-3 text-xs uppercase tracking-[0.3em] text-white transition-colors hover:bg-[#332820] disabled:opacity-60"
                   >
                     <X className="h-3.5 w-3.5" />
                     確認拒絕
