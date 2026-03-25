@@ -76,6 +76,7 @@ export default function OnboardingPage() {
           data: {
             signup_role: role,
             full_name: kolData?.name ?? '',
+            kol_username: kolData?.username ?? '',
           },
         },
       })
@@ -227,7 +228,7 @@ export default function OnboardingPage() {
           }}
         />
         <Link href="/" className="inline-flex items-center gap-3 relative z-10">
-          <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">{brandName}</span>
+          <span className="text-[#FAF9F6] text-lg tracking-tight">{brandName}</span>
           <span className="text-[#6B6560] text-sm tracking-widest">{brandTagline}</span>
         </Link>
 
@@ -249,7 +250,7 @@ export default function OnboardingPage() {
               {content.stats.map((s) => (
                 <div key={s.label} className="bg-[#1A1A1A] px-4 py-5">
                   <p className="text-xl font-serif text-[#FAF9F6]">{s.value}</p>
-                  <p className="text-[0.65rem] uppercase tracking-widest text-[#6B6560] mt-1.5">{s.label}</p>
+                  <p className="text-xs uppercase tracking-[0.4em] text-[#6B6560] mt-1.5">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -265,7 +266,7 @@ export default function OnboardingPage() {
       <div className="flex-1 bg-[#FAF9F6] flex flex-col overflow-auto">
         <div className="flex items-center justify-between px-8 pt-8">
           <Link href="/" className="lg:hidden flex items-center gap-2">
-            <span className="text-[#1A1A1A] font-semibold tracking-tight">{brandName}</span>
+            <span className="text-[#1A1A1A] tracking-tight">{brandName}</span>
             <span className="text-[#6B6560] text-sm tracking-widest">{brandTagline}</span>
           </Link>
           <div className="hidden lg:flex items-center gap-3">

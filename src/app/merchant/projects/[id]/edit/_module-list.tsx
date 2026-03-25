@@ -124,7 +124,7 @@ function ModuleIcon({
 
 function HiddenBadge() {
   return (
-    <p className="flex items-center gap-1 text-[0.58rem] text-muted-foreground/50">
+    <p className="flex items-center gap-1 text-xs text-muted-foreground/50">
       <EyeOff className="h-2.5 w-2.5" />
       已隱藏
     </p>

@@ -3,6 +3,7 @@ export type Step = 1 | 2 | 3
 
 export type KolSignupDraft = {
   name: string
+  username: string
   email: string
   password: string
   platforms: string[]

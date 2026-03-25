@@ -137,11 +137,11 @@ export default function LoginContent() {
 
     const nextPath = searchParams.get('next')
     if (nextPath && nextPath.startsWith('/')) {
-      router.push(nextPath)
+      window.location.href = nextPath
       return
     }
 
-    router.push(resolveRoleHomePath(role))
+    window.location.href = resolveRoleHomePath(role)
   }
 
   return (
@@ -161,7 +161,7 @@ export default function LoginContent() {
         {/* logo */}
         <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
           <Link href="/" className="inline-flex items-center gap-3">
-            <span className="text-[#FAF9F6] text-lg font-semibold tracking-tight">PartnerLink</span>
+            <span className="text-[#FAF9F6] text-lg tracking-tight">PartnerLink</span>
             <span className="text-[#6B6560] text-sm tracking-widest">夥伴</span>
           </Link>
         </motion.div>
@@ -217,7 +217,7 @@ export default function LoginContent() {
         {/* top bar — logo (mobile) + close button */}
         <div className="flex items-center justify-between px-8 pt-8">
           <Link href="/" className="lg:hidden flex items-center gap-2">
-            <span className="text-[#1A1A1A] font-semibold tracking-tight">PartnerLink</span>
+            <span className="text-[#1A1A1A] tracking-tight">PartnerLink</span>
             <span className="text-[#6B6560] text-sm tracking-widest">夥伴</span>
           </Link>
           <div className="hidden lg:block" />
@@ -256,7 +256,7 @@ export default function LoginContent() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-5 border border-[#E8E4DF] bg-white/70 px-4 py-3"
               >
-                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-[#8A837B]">KOL 申請提醒</p>
+                <p className="text-xs uppercase tracking-[0.4em] text-[#8A837B]">KOL 申請提醒</p>
                 <p className="mt-2 text-xs leading-relaxed text-[#6B6560]">
                   登入成功後，系統才會正式送出你的 KOL 申請並進入審核流程。
                 </p>

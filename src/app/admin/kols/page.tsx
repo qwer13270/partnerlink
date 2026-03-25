@@ -80,15 +80,15 @@ export default function AdminKolsPage() {
       {/* ── Count badge ── */}
       <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="flex items-center gap-3">
         {loading ? (
-          <span className="text-[0.6rem] uppercase tracking-widest text-muted-foreground border border-border px-2 py-1">
+          <span className="text-xs uppercase tracking-[0.4em] text-muted-foreground border border-border px-2 py-1">
             讀取中…
           </span>
         ) : kols.length > 0 ? (
-          <span className="text-[0.6rem] uppercase tracking-widest text-foreground border border-foreground/30 px-2 py-1">
+          <span className="text-xs uppercase tracking-[0.4em] text-foreground border border-foreground/30 px-2 py-1">
             {kols.length} 位已核准
           </span>
         ) : (
-          <span className="text-[0.6rem] uppercase tracking-widest text-muted-foreground border border-border px-2 py-1">
+          <span className="text-xs uppercase tracking-[0.4em] text-muted-foreground border border-border px-2 py-1">
             尚無已核准 KOL
           </span>
         )}
@@ -114,8 +114,8 @@ export default function AdminKolsPage() {
           <div className="border border-foreground/15">
             {/* List header */}
             <div className="px-4 py-3 border-b border-foreground/[0.08] flex items-center justify-between">
-              <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">已核准名單</p>
-              {!loading && <span className="text-[0.6rem] text-muted-foreground">{kols.length} 位</span>}
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">已核准名單</p>
+              {!loading && <span className="text-xs text-muted-foreground">{kols.length} 位</span>}
             </div>
 
             <div className="max-h-[72vh] overflow-auto divide-y divide-foreground/[0.08]">
@@ -158,10 +158,10 @@ export default function AdminKolsPage() {
                           </span>
 
                           <div className="min-w-0 flex-1">
-                            <p className={`text-sm font-medium truncate ${active ? 'text-background' : 'text-foreground'}`}>
+                            <p className={`text-sm truncate ${active ? 'text-background' : 'text-foreground'}`}>
                               {kol.full_name}
                             </p>
-                            <p className={`text-[0.65rem] truncate mt-0.5 ${active ? 'text-background/60' : 'text-muted-foreground'}`}>
+                            <p className={`text-xs truncate mt-0.5 ${active ? 'text-background/60' : 'text-muted-foreground'}`}>
                               {kol.platforms.length > 0 ? kol.platforms.join(' · ') : '未填寫平台'}
                             </p>
                           </div>
@@ -201,10 +201,10 @@ export default function AdminKolsPage() {
                       <div className="flex items-start justify-between gap-3 flex-wrap">
                         <div>
                           <h2 className="text-xl font-serif">{activeKol.full_name}</h2>
-                          <p className="text-[0.65rem] text-muted-foreground mt-0.5">{activeKol.email}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{activeKol.email}</p>
                         </div>
                         {activeKol.content_type && (
-                          <span className="text-[0.6rem] font-mono text-muted-foreground border border-border px-1.5 py-0.5 shrink-0">
+                          <span className="text-xs font-mono text-muted-foreground border border-border px-1.5 py-0.5 shrink-0">
                             {activeKol.content_type}
                           </span>
                         )}
@@ -213,7 +213,7 @@ export default function AdminKolsPage() {
                       {/* Platforms */}
                       <div className="flex flex-wrap gap-1.5 mt-3">
                         {activeKol.platforms.map((p) => (
-                          <span key={p} className="text-[0.6rem] uppercase tracking-wider border border-foreground/15 px-2 py-1 text-muted-foreground">
+                          <span key={p} className="text-xs uppercase tracking-wider border border-foreground/15 px-2 py-1 text-muted-foreground">
                             {p}
                             {activeKol.platform_accounts?.[p] && (
                               <span className="ml-1.5 text-foreground/70">{activeKol.platform_accounts[p]}</span>
@@ -244,7 +244,7 @@ export default function AdminKolsPage() {
                     <div key={item.label} className="px-4 py-3">
                       <div className="flex items-center gap-1.5 mb-1">
                         <item.icon className="h-3 w-3 text-muted-foreground/60" />
-                        <span className="text-[0.58rem] uppercase tracking-[0.2em] text-muted-foreground">{item.label}</span>
+                        <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{item.label}</span>
                       </div>
                       <p className="text-xs text-foreground break-all">{item.value}</p>
                     </div>
@@ -254,8 +254,8 @@ export default function AdminKolsPage() {
                 {/* Photos */}
                 <div className="px-5 py-5">
                   <div className="flex items-center justify-between mb-4">
-                    <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">作品照片</p>
-                    <span className="text-[0.6rem] text-muted-foreground">{activeKol.photos.length} 張</span>
+                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">作品照片</p>
+                    <span className="text-xs text-muted-foreground">{activeKol.photos.length} 張</span>
                   </div>
                   {activeKol.photos.length > 0 ? (
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
@@ -265,7 +265,7 @@ export default function AdminKolsPage() {
                           <img src={photo} alt={`${activeKol.full_name} ${i + 1}`} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors duration-200" />
                           <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-200 bg-gradient-to-t from-black/70 to-transparent px-3 py-2">
-                            <span className="text-[0.58rem] uppercase tracking-widest text-white/80">Photo {i + 1}</span>
+                            <span className="text-xs uppercase tracking-[0.3em] text-white/80">Photo {i + 1}</span>
                           </div>
                         </div>
                       ))}
@@ -280,8 +280,8 @@ export default function AdminKolsPage() {
                 {/* Videos */}
                 <div className="px-5 py-5">
                   <div className="flex items-center justify-between mb-4">
-                    <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground">作品影片</p>
-                    <span className="text-[0.6rem] text-muted-foreground">{activeKol.videos.length} 部</span>
+                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">作品影片</p>
+                    <span className="text-xs text-muted-foreground">{activeKol.videos.length} 部</span>
                   </div>
                   {activeKol.videos.length > 0 ? (
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
@@ -301,7 +301,7 @@ export default function AdminKolsPage() {
                           </div>
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 z-[5]" />
                           <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-200 z-20 bg-gradient-to-t from-black/90 to-transparent px-3 py-2">
-                            <p className="truncate text-[0.62rem] text-white/80">{video.title || `影片 ${i + 1}`}</p>
+                            <p className="truncate text-xs text-white/80">{video.title || `影片 ${i + 1}`}</p>
                           </div>
                         </div>
                       ))}

@@ -68,7 +68,7 @@ export function KolPlatformAccountsStep({
 
       <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp}>
         <div className="p-4 bg-[#FFF8EE] border border-[#F0D9A8] mb-6">
-          <p className="text-xs font-medium text-[#7A5520] uppercase tracking-widest mb-1">平台帳號</p>
+          <p className="text-xs text-[#7A5520] uppercase tracking-[0.4em] mb-1">平台帳號</p>
           <p className="text-xs text-[#9A7040] leading-relaxed">
             請先勾選主要平台，再填寫你在每個平台上的帳號名稱、頁面連結或可辨識的社群 ID。
           </p>

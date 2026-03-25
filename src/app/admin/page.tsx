@@ -42,19 +42,19 @@ export default function AdminOverviewPage() {
       </motion.div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-foreground/10 border border-foreground/15">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {OVERVIEW_STATS.map((stat, i) => (
           <motion.div key={stat.label} custom={1 + i} initial="hidden" animate="visible" variants={fadeUp}>
             <Link
               href={stat.href}
-              className="block bg-background hover:bg-muted/20 transition-colors duration-150 p-5 h-full"
+              className="block rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-md p-5 h-full"
             >
-              <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground">{stat.label}</p>
+              <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">{stat.label}</p>
               <p className={`text-3xl font-serif mt-2 ${stat.urgent && stat.value > 0 ? 'text-amber-700' : ''}`}>
                 {stat.value}
               </p>
               {stat.urgent && stat.value > 0 && (
-                <p className="text-[0.6rem] text-amber-600 mt-1">待處理</p>
+                <p className="text-xs text-amber-600 mt-1">待處理</p>
               )}
             </Link>
           </motion.div>
@@ -73,26 +73,28 @@ export default function AdminOverviewPage() {
             <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">最新 KOL 申請</p>
             <Link
               href="/admin/kol-applications"
-              className="text-[0.6rem] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              className="text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
             >
               查看全部 <ArrowRight className="h-3 w-3" />
             </Link>
           </motion.div>
-          <div className="border border-foreground/15 divide-y divide-foreground/[0.08]">
-            {RECENT_KOL_APPS.map((app, i) => (
-              <motion.div
-                key={app.name} custom={6 + i} initial="hidden" animate="visible" variants={fadeUp}
-                className="px-5 py-4 flex items-center justify-between"
-              >
-                <div>
-                  <p className="text-sm font-medium">{app.name}</p>
-                  <p className="text-[0.65rem] text-muted-foreground mt-0.5">
-                    {app.platform} · {app.followers} 粉絲
-                  </p>
-                </div>
-                <p className="text-[0.6rem] font-mono text-muted-foreground">{app.date}</p>
-              </motion.div>
-            ))}
+          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden">
+            <div className="divide-y divide-foreground/[0.06]">
+              {RECENT_KOL_APPS.map((app, i) => (
+                <motion.div
+                  key={app.name} custom={6 + i} initial="hidden" animate="visible" variants={fadeUp}
+                  className="px-5 py-4 flex items-center justify-between"
+                >
+                  <div>
+                    <p className="text-sm">{app.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {app.platform} · {app.followers} 粉絲
+                    </p>
+                  </div>
+                  <p className="text-xs font-mono text-muted-foreground">{app.date}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -105,26 +107,28 @@ export default function AdminOverviewPage() {
             <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">最新商家申請</p>
             <Link
               href="/admin/merchant-applications"
-              className="text-[0.6rem] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              className="text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
             >
               查看全部 <ArrowRight className="h-3 w-3" />
             </Link>
           </motion.div>
-          <div className="border border-foreground/15 divide-y divide-foreground/[0.08]">
-            {RECENT_MERCHANT_APPS.map((app, i) => (
-              <motion.div
-                key={app.name} custom={6 + i} initial="hidden" animate="visible" variants={fadeUp}
-                className="px-5 py-4 flex items-center justify-between"
-              >
-                <div>
-                  <p className="text-sm font-medium">{app.name}</p>
-                  <p className="text-[0.65rem] text-muted-foreground mt-0.5">
-                    {app.contact} · {app.type}
-                  </p>
-                </div>
-                <p className="text-[0.6rem] font-mono text-muted-foreground">{app.date}</p>
-              </motion.div>
-            ))}
+          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden">
+            <div className="divide-y divide-foreground/[0.06]">
+              {RECENT_MERCHANT_APPS.map((app, i) => (
+                <motion.div
+                  key={app.name} custom={6 + i} initial="hidden" animate="visible" variants={fadeUp}
+                  className="px-5 py-4 flex items-center justify-between"
+                >
+                  <div>
+                    <p className="text-sm">{app.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {app.contact} · {app.type}
+                    </p>
+                  </div>
+                  <p className="text-xs font-mono text-muted-foreground">{app.date}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
 
