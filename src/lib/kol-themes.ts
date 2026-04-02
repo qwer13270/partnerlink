@@ -21,14 +21,14 @@ export const KOL_THEMES = {
     '--k-accent-line': 'rgba(75,152,214,0.20)',
     '--k-accent-tag':  'rgba(75,152,214,0.28)',
   },
-  carbon: {
-    label:             '暖炭',
-    '--k-hero':        '#0F0D0C',
-    '--k-body':        '#161311',
-    '--k-accent':      '#C8A882',
-    '--k-accent-dim':  'rgba(200,168,130,0.13)',
-    '--k-accent-line': 'rgba(200,168,130,0.18)',
-    '--k-accent-tag':  'rgba(200,168,130,0.25)',
+  obsidian: {
+    label:             '純黑',
+    '--k-hero':        '#000000',
+    '--k-body':        '#0A0A0A',
+    '--k-accent':      '#F2F2F2',
+    '--k-accent-dim':  'rgba(242,242,242,0.10)',
+    '--k-accent-line': 'rgba(242,242,242,0.16)',
+    '--k-accent-tag':  'rgba(242,242,242,0.20)',
   },
   forest: {
     label:             '深林',
@@ -51,7 +51,7 @@ export const KOL_THEMES = {
 } as const
 
 export type KolThemeKey = keyof typeof KOL_THEMES
-export const DEFAULT_KOL_THEME: KolThemeKey = 'noir'
+export const DEFAULT_KOL_THEME: KolThemeKey = 'obsidian'
 
 /** Returns only the CSS custom-property keys (strips `label`) */
 export function getKolThemeVars(key: string): Record<string, string> {
