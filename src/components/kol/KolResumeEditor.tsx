@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft,
@@ -18,6 +19,8 @@ import {
   Smartphone,
   Eye,
   Palette,
+  Camera,
+  LoaderCircle,
 } from 'lucide-react'
 import Link from 'next/link'
 import type { KolResumeData, ResumeMediaItem } from '@/data/mock-resume'
@@ -388,7 +391,7 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
       )}
 
       {/* ── Photos ─────────────────────────────────── */}
-      <div className="rounded-xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/[0.07]">
           <div className="flex items-center gap-2">
             <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">照片</p>
@@ -486,7 +489,7 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
       </div>{/* card */}
 
       {/* ── Videos ─────────────────────────────────── */}
-      <div className="rounded-xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/[0.07]">
           <div className="flex items-center gap-2">
             <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">影片</p>
@@ -559,6 +562,7 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
 // ── Main editor ────────────────────────────────────────────────────────────
 
 export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
+  const router = useRouter()
   const [displayName,   setDisplayName]   = useState(resume.displayName)
   const [bio,           setBio]           = useState(resume.bio)
   const [followerCount, setFollowerCount] = useState(String(resume.followerCount))
@@ -571,6 +575,55 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
   const [viewMode,      setViewMode]      = useState<'desktop' | 'mobile'>('desktop')
   const [iframeReady,   setIframeReady]   = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  // ── Profile photo state ──────────────────────────────────────────────────
+  const [photoUrl,     setPhotoUrl]     = useState<string | null>(resume.profilePhotoUrl ?? null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [photoFile,    setPhotoFile]    = useState<File | null>(null)
+  const [photoSaving,  setPhotoSaving]  = useState(false)
+  const [photoSuccess, setPhotoSuccess] = useState(false)
+  const [photoError,   setPhotoError]   = useState('')
+  const photoInputRef = useRef<HTMLInputElement>(null)
+
+  const handlePhotoChange = (file: File) => {
+    setPhotoFile(file)
+    setPhotoPreview(URL.createObjectURL(file))
+    setPhotoError('')
+    setPhotoSuccess(false)
+  }
+
+  const handlePhotoSave = async () => {
+    if (!photoFile) return
+    setPhotoSaving(true)
+    setPhotoError('')
+    try {
+      const profileRes  = await fetch('/api/kol/profile')
+      const profileData = (await profileRes.json().catch(() => null)) as { profile?: { bio?: string } } | null
+      const currentBio  = profileData?.profile?.bio ?? bio
+
+      const formData = new FormData()
+      formData.append('bio', currentBio)
+      formData.append('profilePhoto', photoFile)
+
+      const res     = await fetch('/api/kol/profile', { method: 'PUT', body: formData })
+      const payload = (await res.json().catch(() => null)) as { profile?: { profilePhotoUrl?: string | null }; error?: string } | null
+
+      if (!res.ok) { setPhotoError(payload?.error ?? '儲存失敗，請稍後再試。'); return }
+
+      const newUrl = payload?.profile?.profilePhotoUrl ?? null
+      setPhotoUrl(newUrl)
+      setPhotoPreview(null)
+      setPhotoFile(null)
+      setPhotoSuccess(true)
+      window.dispatchEvent(new CustomEvent('profile-photo-updated', { detail: { url: newUrl } }))
+      router.refresh()
+      setTimeout(() => setPhotoSuccess(false), 2000)
+    } catch (e) {
+      setPhotoError(e instanceof Error ? e.message : '儲存失敗，請稍後再試。')
+    } finally {
+      setPhotoSaving(false)
+    }
+  }
 
   // Reset ready state when view mode switches (new iframe mounts)
   useEffect(() => { setIframeReady(false) }, [viewMode])
@@ -593,7 +646,7 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
     if (!iframeReady) return
     pushToFrame(liveResume)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [iframeReady, displayName, bio, followerCount, nicheTags, mediaItems, colorTheme])
+  }, [iframeReady, displayName, bio, followerCount, nicheTags, mediaItems, colorTheme, photoUrl, photoPreview])
 
   // Build the live resume for the right-side preview
   const liveResume: KolResumeData = {
@@ -604,6 +657,7 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
     nicheTags,
     media: mediaItems,
     colorTheme,
+    profilePhotoUrl: photoPreview ?? photoUrl,
   }
 
   const isDirty =
@@ -780,6 +834,81 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                   exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}
                   className="space-y-5 px-5 py-5"
                 >
+                  {/* ── Profile photo ── */}
+                  <div>
+                    <p className="mb-3 text-xs uppercase tracking-[0.4em] text-muted-foreground">個人頭像</p>
+                    <div className="flex items-center gap-4">
+                      {/* Avatar preview */}
+                      <div className="relative shrink-0">
+                        <div className="h-16 w-16 rounded-full overflow-hidden border border-foreground/15 bg-muted/30 flex items-center justify-center">
+                          {(photoPreview ?? photoUrl) ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={photoPreview ?? photoUrl ?? ''}
+                              alt={displayName}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-2xl font-serif text-muted-foreground select-none">
+                              {(displayName || 'K').slice(0, 1).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        {photoSuccess && (
+                          <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-emerald-500">
+                            <CheckCircle2 className="h-2.5 w-2.5 text-white" />
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <label className="group flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-foreground/20 px-3 py-2.5 transition-all hover:border-foreground/40 hover:bg-foreground/[0.02]">
+                          <Camera className="h-3.5 w-3.5 shrink-0 text-muted-foreground group-hover:text-foreground transition-colors" />
+                          <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+                            {photoPreview ? '重新選擇' : (photoUrl ? '更換頭像' : '上傳頭像')}
+                          </span>
+                          <input
+                            ref={photoInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const f = e.target.files?.[0]
+                              if (f) handlePhotoChange(f)
+                              e.target.value = ''
+                            }}
+                          />
+                        </label>
+
+                        {photoPreview && (
+                          <button
+                            type="button"
+                            onClick={handlePhotoSave}
+                            disabled={photoSaving || photoSuccess}
+                            className="flex w-full items-center justify-center gap-2 rounded-md bg-foreground px-3 py-2 text-xs uppercase tracking-[0.2em] text-background transition-opacity hover:bg-foreground/85 disabled:opacity-40"
+                          >
+                            {photoSaving ? (
+                              <><LoaderCircle className="h-3 w-3 animate-spin" />上傳中…</>
+                            ) : photoSuccess ? (
+                              <><CheckCircle2 className="h-3 w-3" />已更新</>
+                            ) : (
+                              '確認上傳'
+                            )}
+                          </button>
+                        )}
+
+                        {photoError && (
+                          <p className="text-xs text-red-600">{photoError}</p>
+                        )}
+
+                        <p className="text-[0.6rem] text-muted-foreground/50">JPG、PNG，最大 10 MB</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="h-px bg-foreground/[0.07]" />
+
                   <Field label="顯示名稱">
                     <Input
                       type="text"

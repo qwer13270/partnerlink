@@ -46,73 +46,73 @@
   --radius-2xl: calc(var(--radius) + 8px);
 
   /* Kanzo Studio - Editorial Minimalist Palette */
-  --color-cream: #FAF9F6;
-  --color-cream-dark: #F2F0EC;
-  --color-warm-white: #FEFDFB;
-  --color-charcoal: #1A1A1A;
-  --color-warm-gray: #6B6560;
-  --color-light-gray: #E8E4DF;
-  --color-terracotta: #B5886C;
-  --color-sage: #8B9A7D;
-  --color-sand: #C4B49A;
-  --color-rose: #C9A59A;
+  --color-cream: #faf9f6;
+  --color-cream-dark: #f2f0ec;
+  --color-warm-white: #fefdfb;
+  --color-charcoal: #1a1a1a;
+  --color-warm-gray: #6b6560;
+  --color-light-gray: #e8e4df;
+  --color-terracotta: #b5886c;
+  --color-sage: #8b9a7d;
+  --color-sand: #c4b49a;
+  --color-rose: #c9a59a;
 }
 
 :root {
   --radius: 0.25rem;
   /* Light editorial theme */
-  --background: #FAF9F6;
-  --foreground: #1A1A1A;
-  --card: #FFFFFF;
-  --card-foreground: #1A1A1A;
-  --popover: #FFFFFF;
-  --popover-foreground: #1A1A1A;
-  --primary: #1A1A1A;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F2F0EC;
-  --secondary-foreground: #1A1A1A;
-  --muted: #F2F0EC;
-  --muted-foreground: #6B6560;
-  --accent: #F2F0EC;
-  --accent-foreground: #1A1A1A;
-  --destructive: #C9A59A;
-  --border: #E8E4DF;
-  --input: #FFFFFF;
-  --ring: #1A1A1A;
-  --chart-1: #1A1A1A;
-  --chart-2: #6B6560;
-  --chart-3: #B5886C;
-  --chart-4: #8B9A7D;
-  --chart-5: #C4B49A;
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #1A1A1A;
-  --sidebar-primary: #1A1A1A;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F2F0EC;
-  --sidebar-accent-foreground: #1A1A1A;
-  --sidebar-border: #E8E4DF;
-  --sidebar-ring: #1A1A1A;
+  --background: #faf9f6;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #1a1a1a;
+  --primary-foreground: #ffffff;
+  --secondary: #f2f0ec;
+  --secondary-foreground: #1a1a1a;
+  --muted: #f2f0ec;
+  --muted-foreground: #6b6560;
+  --accent: #f2f0ec;
+  --accent-foreground: #1a1a1a;
+  --destructive: #c9a59a;
+  --border: #e8e4df;
+  --input: #ffffff;
+  --ring: #1a1a1a;
+  --chart-1: #1a1a1a;
+  --chart-2: #6b6560;
+  --chart-3: #b5886c;
+  --chart-4: #8b9a7d;
+  --chart-5: #c4b49a;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: #1a1a1a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f2f0ec;
+  --sidebar-accent-foreground: #1a1a1a;
+  --sidebar-border: #e8e4df;
+  --sidebar-ring: #1a1a1a;
 }
 
 .dark {
-  --background: #1A1A1A;
-  --foreground: #FAF9F6;
+  --background: #1a1a1a;
+  --foreground: #faf9f6;
   --card: #242424;
-  --card-foreground: #FAF9F6;
+  --card-foreground: #faf9f6;
   --popover: #242424;
-  --popover-foreground: #FAF9F6;
-  --primary: #FAF9F6;
-  --primary-foreground: #1A1A1A;
-  --secondary: #2A2A2A;
-  --secondary-foreground: #FAF9F6;
-  --muted: #2A2A2A;
-  --muted-foreground: #A0A0A0;
-  --accent: #2A2A2A;
-  --accent-foreground: #FAF9F6;
-  --destructive: #C9A59A;
-  --border: #3A3A3A;
-  --input: #2A2A2A;
-  --ring: #FAF9F6;
+  --popover-foreground: #faf9f6;
+  --primary: #faf9f6;
+  --primary-foreground: #1a1a1a;
+  --secondary: #2a2a2a;
+  --secondary-foreground: #faf9f6;
+  --muted: #2a2a2a;
+  --muted-foreground: #a0a0a0;
+  --accent: #2a2a2a;
+  --accent-foreground: #faf9f6;
+  --destructive: #c9a59a;
+  --border: #3a3a3a;
+  --input: #2a2a2a;
+  --ring: #faf9f6;
 }
 
 @layer base {
@@ -127,11 +127,18 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
   }
 
   /* Editorial Serif Headings */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-serif);
     @apply font-normal tracking-tight;
   }
@@ -162,8 +169,8 @@
 
   /* Selection */
   ::selection {
-    background-color: #1A1A1A;
-    color: #FFFFFF;
+    background-color: #1a1a1a;
+    color: #ffffff;
   }
 }
 
@@ -282,7 +289,7 @@
 }
 
 .nav-link::after {
-  content: '';
+  content: "";
   @apply absolute bottom-0 left-0 w-0 h-px bg-foreground;
   @apply transition-all duration-300 ease-out;
 }
@@ -506,6 +513,29 @@
 }
 
 /* ============================================
+   CARD LINEN — Warm linen bg + subtle grain
+   Default card surface. Replaces bg-stone-50.
+   ============================================ */
+
+.bg-linen {
+  background-color: rgb(249, 247, 244);
+  position: relative;
+  isolation: isolate;
+}
+
+.bg-linen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 120px 120px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ============================================
    SCROLLBAR - Minimal
    ============================================ */
 
@@ -519,12 +549,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D8D4CF;
+  background: #d8d4cf;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #C8C4BF;
+  background: #c8c4bf;
 }
 
 /* ============================================
@@ -580,8 +610,15 @@
 }
 
 @keyframes nudge {
-  0%, 100% { transform: translateX(0); opacity: 1; }
-  50%       { transform: translateX(4px); opacity: 0.6; }
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(4px);
+    opacity: 0.6;
+  }
 }
 
 .animate-fade-up {
@@ -593,12 +630,24 @@
 }
 
 /* Stagger delays for children */
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
-.stagger-5 { animation-delay: 0.5s; }
-.stagger-6 { animation-delay: 0.6s; }
+.stagger-1 {
+  animation-delay: 0.1s;
+}
+.stagger-2 {
+  animation-delay: 0.2s;
+}
+.stagger-3 {
+  animation-delay: 0.3s;
+}
+.stagger-4 {
+  animation-delay: 0.4s;
+}
+.stagger-5 {
+  animation-delay: 0.5s;
+}
+.stagger-6 {
+  animation-delay: 0.6s;
+}
 
 /* Image hover zoom */
 .image-zoom {
@@ -621,7 +670,7 @@
 }
 
 .link-underline::after {
-  content: '';
+  content: "";
   @apply absolute bottom-0 left-0 w-full h-px bg-current;
   @apply origin-left scale-x-0 transition-transform duration-300 ease-out;
 }
