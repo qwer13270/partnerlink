@@ -55,11 +55,11 @@ const ALL_APPLICATIONS: Application[] = [
 // ── Config ───────────────────────────────────────────────────────────────────
 
 const STATUS_CFG: Record<AppStatus, {
-  label: string; icon: React.ElementType; dot: string; text: string; rowBg: string
+  label: string; icon: React.ElementType; dot: string; text: string; badge: string; rowBg: string
 }> = {
-  pending:  { label: '審核中', icon: Clock,        dot: 'bg-amber-400',   text: 'text-amber-700',   rowBg: '' },
-  approved: { label: '已核准', icon: CheckCircle2, dot: 'bg-emerald-500', text: 'text-emerald-700', rowBg: '' },
-  rejected: { label: '未通過', icon: XCircle,      dot: 'bg-red-400',     text: 'text-red-600',     rowBg: 'bg-red-50/30' },
+  pending:  { label: '審核中', icon: Clock,        dot: 'bg-amber-400',   text: 'text-amber-700',   badge: 'bg-amber-50 text-amber-700 border border-amber-200/60',     rowBg: '' },
+  approved: { label: '已核准', icon: CheckCircle2, dot: 'bg-emerald-500', text: 'text-emerald-700', badge: 'bg-emerald-50 text-emerald-700 border border-emerald-200/60', rowBg: '' },
+  rejected: { label: '未通過', icon: XCircle,      dot: 'bg-red-400',     text: 'text-red-600',     badge: 'bg-red-50 text-red-600 border border-red-200/60',             rowBg: 'bg-red-50/30' },
 }
 
 const TABS: { key: AppStatus | 'all'; label: string }[] = [
@@ -118,7 +118,7 @@ function ApplicationRow({ app, index }: { app: Application; index: number }) {
         {/* Right side */}
         <div className="flex items-center gap-3 shrink-0">
           <span className="hidden sm:block text-xs text-muted-foreground">{app.date}</span>
-          <span className={`text-xs uppercase tracking-widest ${cfg.text}`}>
+          <span className={`text-[0.72rem] font-medium px-2 py-0.5 rounded ${cfg.badge}`}>
             {cfg.label}
           </span>
           {isRejected && (
@@ -203,7 +203,7 @@ export default function ApplicationsPage() {
             { label: '已核准', value: counts.approved, color: 'text-emerald-600' },
             { label: '未通過', value: counts.rejected, color: 'text-red-500'     },
           ].map(s => (
-            <div key={s.label} className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm px-6 py-5 transition-shadow duration-300 hover:shadow-md">
+            <div key={s.label} className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm px-6 py-5 transition-shadow duration-300 hover:shadow-md">
               <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
                 {s.label}
               </p>
@@ -218,7 +218,7 @@ export default function ApplicationsPage() {
       {/* ── FILTER TABS + TABLE ─────────────────────────────── */}
       <motion.div variants={fadeUp} className="space-y-0">
 
-        <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
 
         {/* Tabs */}
         <div className="flex border-b border-foreground/10">

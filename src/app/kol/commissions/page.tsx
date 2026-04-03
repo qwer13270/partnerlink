@@ -1,210 +1,158 @@
-'use client'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { getRoleFromUser, resolveRoleHomePath } from '@/lib/auth'
+import { getSupabaseUrl, getSupabasePublishableKey } from '@/lib/supabase/env'
+import { getSupabaseAdminClient } from '@/lib/supabase/admin'
+import KolCommissionsClient from '@/components/kol/KolCommissionsClient'
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown } from 'lucide-react'
-
-// ── Animation ──────────────────────────────────────────────────────────────
-const fadeUp = {
-  hidden: { opacity: 0, y: 14 },
-  visible: (i: number) => ({
-    opacity: 1, y: 0,
-    transition: { duration: 0.45, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] as const },
-  }),
-}
-
-// ── Types & mock data ────────────────────────────────────────────────────────
-type CommissionStatus = 'pending' | 'confirmed' | 'paid'
-
-type CommissionEntry = {
+export type CommissionEntry = {
   id: string
-  date: string
-  salePriceWan: number
-  rate: string
-  amountWan: number
-  status: CommissionStatus
+  date: string          // ISO string — deal_confirmed_at
+  dealValueWan: number  // 萬
+  commissionRate: number
+  commissionWan: number // computed
 }
 
-type PropertyGroup = {
-  propertyId: string
-  property: string
-  rate: string
+export type CommissionGroup = {
+  projectId: string
+  projectName: string
+  commissionRate: number
   entries: CommissionEntry[]
 }
 
-const PROPERTY_GROUPS: PropertyGroup[] = [
-  {
-    propertyId: 'prop-005',
-    property: '潤泰敦峰',
-    rate: '4.2%',
-    entries: [
-      { id: 'COM-260213-001', date: '2026-02-13', salePriceWan: 5800, rate: '4.2%', amountWan: 243.6, status: 'paid'    },
-      { id: 'COM-260109-002', date: '2026-01-09', salePriceWan: 4200, rate: '4.2%', amountWan: 176.4, status: 'paid'    },
-    ],
-  },
-  {
-    propertyId: 'prop-001',
-    property: '璞真建設 — 光河',
-    rate: '3.5%',
-    entries: [
-      { id: 'COM-260205-003', date: '2026-02-05', salePriceWan: 2380, rate: '3.5%', amountWan:  83.3, status: 'pending' },
-      { id: 'COM-251118-004', date: '2025-11-18', salePriceWan: 1980, rate: '3.5%', amountWan:  69.3, status: 'paid'    },
-      { id: 'COM-250903-005', date: '2025-09-03', salePriceWan: 3200, rate: '3.5%', amountWan: 112.0, status: 'paid'    },
-    ],
-  },
-]
-
-const STATUS_CFG: Record<CommissionStatus, { label: string; color: string }> = {
-  pending:   { label: '待入帳', color: 'text-amber-700 border-amber-200 bg-amber-50'       },
-  confirmed: { label: '已確認', color: 'text-emerald-700 border-emerald-200 bg-emerald-50' },
-  paid:      { label: '已入帳', color: 'text-blue-700 border-blue-200 bg-blue-50'           },
-}
-
-// ── Summary totals ───────────────────────────────────────────────────────────
-const allEntries    = PROPERTY_GROUPS.flatMap((g) => g.entries)
-const totalAmount   = allEntries.reduce((s, c) => s + c.amountWan, 0)
-const pendingAmount = allEntries.filter((c) => c.status === 'pending').reduce((s, c) => s + c.amountWan, 0)
-const paidAmount    = allEntries.filter((c) => c.status === 'paid').reduce((s, c) => s + c.amountWan, 0)
-
-// ── PropertyRow ─────────────────────────────────────────────────────────────
-function PropertyRow({ group, index }: { group: PropertyGroup; index: number }) {
-  const [open, setOpen] = useState(false)
-
-  const groupTotal    = group.entries.reduce((s, c) => s + c.amountWan, 0)
-  const pendingCount  = group.entries.filter((c) => c.status === 'pending').length
-
-  return (
-    <motion.div
-      custom={3 + index} initial="hidden" animate="visible" variants={fadeUp}
-      className="border-b border-foreground/[0.08] last:border-b-0"
-    >
-      {/* ── Clickable header ── */}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-full text-left px-5 py-5 flex items-start gap-4 hover:bg-muted/30 transition-colors duration-150"
-      >
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1.5">
-            <p className="text-sm font-medium">{group.property}</p>
-            {pendingCount > 0 && (
-              <span className="text-xs uppercase tracking-widest text-amber-700 border border-amber-200 bg-amber-50 px-1.5 py-px">
-                {pendingCount} 待入帳
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            佣金比率 {group.rate}
-            <span className="mx-1.5 opacity-30">·</span>
-            {group.entries.length} 筆成交
-            <span className="mx-1.5 opacity-30">·</span>
-            累計佣金 <span className="font-medium text-foreground">{groupTotal.toFixed(1)} 萬</span>
-          </p>
-        </div>
-        <ChevronDown
-          className={`h-4 w-4 text-muted-foreground shrink-0 mt-0.5 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {/* ── Expanded entries ── */}
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden"
-          >
-            <div className="border-t border-foreground/[0.08] bg-foreground/[0.015] divide-y divide-foreground/[0.06]">
-              {group.entries.map((entry) => {
-                const cfg = STATUS_CFG[entry.status]
-                return (
-                  <div key={entry.id} className="px-5 py-4 pl-8">
-                    {/* Date + ID + status */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs text-muted-foreground font-mono">{entry.date}</p>
-                        <span className="text-xs text-muted-foreground/50 font-mono"># {entry.id}</span>
-                      </div>
-                      <span className={`text-xs uppercase tracking-widest px-1.5 py-px border ${cfg.color}`}>
-                        {cfg.label}
-                      </span>
-                    </div>
-                    {/* 3 stat boxes */}
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { label: '成交金額', value: `${entry.salePriceWan.toLocaleString('zh-TW')} 萬` },
-                        { label: '佣金比率', value: entry.rate                                           },
-                        { label: '佣金金額', value: `${entry.amountWan.toFixed(1)} 萬`                  },
-                      ].map((s) => (
-                        <div key={s.label} className="border border-foreground/15 px-3 py-2.5 text-center bg-background">
-                          <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
-                          <p className="text-base font-serif mt-1">{s.value}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+export default async function KolCommissionsPage() {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    getSupabaseUrl(),
+    getSupabasePublishableKey(),
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll() },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options as CookieOptions)
+          })
+        },
+      },
+    },
   )
-}
 
-// ── Page ─────────────────────────────────────────────────────────────────────
-export default function KolCommissionsPage() {
-  return (
-    <div className="space-y-12">
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-      {/* ── Header ── */}
-      <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
-        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">佣金管理</p>
-        <h1 className="text-3xl font-serif">佣金紀錄</h1>
-        <p className="text-sm text-muted-foreground mt-2">
-          每筆成交佣金在合約確認後 30 個工作天內撥款。
-        </p>
-      </motion.div>
+  const role = getRoleFromUser(user)
+  if (role !== 'kol') redirect(role ? resolveRoleHomePath(role) : '/login')
 
-      {/* ── Summary stats ── */}
-      <motion.div
-        custom={1} initial="hidden" animate="visible" variants={fadeUp}
-        className="grid grid-cols-3 gap-3"
-      >
-        {[
-          { label: '累計佣金', value: totalAmount   },
-          { label: '待入帳',   value: pendingAmount  },
-          { label: '已入帳',   value: paidAmount     },
-        ].map((stat) => (
-          <div key={stat.label} className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm px-5 py-6 text-center transition-shadow duration-300 hover:shadow-md">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">{stat.label}</p>
-            <p className="text-4xl font-serif">{stat.value.toFixed(1)}</p>
-            <p className="text-xs text-muted-foreground mt-1">萬元</p>
-          </div>
-        ))}
-      </motion.div>
+  const admin = getSupabaseAdminClient()
 
-      {/* ── Commission history ── */}
-      <div>
-        <motion.div
-          custom={2} initial="hidden" animate="visible" variants={fadeUp}
-          className="flex items-center justify-between mb-4"
-        >
-          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">佣金明細</p>
-          <span className="text-xs uppercase tracking-widest text-muted-foreground">
-            {PROPERTY_GROUPS.length} 個商案 · {allEntries.length} 筆成交
-          </span>
-        </motion.div>
+  // 1. Fetch this KOL's referral links (need project_id + collaboration_id)
+  const { data: refLinks } = await admin
+    .from('referral_links')
+    .select('id, project_id, collaboration_id')
+    .eq('kol_user_id', user.id)
 
-        <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden">
-          {PROPERTY_GROUPS.map((group, i) => (
-            <PropertyRow key={group.propertyId} group={group} index={i} />
-          ))}
-        </div>
-      </div>
+  const links = refLinks ?? []
+  if (links.length === 0) {
+    return <KolCommissionsClient groups={[]} />
+  }
 
-    </div>
+  const linkIds       = links.map(l => l.id as string)
+  const projectIds    = [...new Set(links.map(l => l.project_id as string))]
+  const collabIds     = links.map(l => l.collaboration_id as string).filter(Boolean)
+
+  // 2. Parallel: deal conversions + project names + collaborations (for commission rates)
+  const [dealsR, projectsR, collabsR] = await Promise.all([
+    admin
+      .from('referral_conversions')
+      .select('id, referral_link_id, deal_value, deal_confirmed_at, converted_at')
+      .eq('conversion_type', 'deal')
+      .in('referral_link_id', linkIds)
+      .order('deal_confirmed_at', { ascending: false }),
+    admin
+      .from('properties')
+      .select('id, name')
+      .in('id', projectIds),
+    collabIds.length > 0
+      ? admin.from('collaborations').select('id, request_id').in('id', collabIds)
+      : Promise.resolve({ data: [] }),
+  ])
+
+  // 3. Commission rates via collaborations → collaboration_requests
+  const requestIds = ((collabsR.data ?? []) as { id: string; request_id: string }[])
+    .map(c => c.request_id)
+    .filter(Boolean)
+
+  const { data: requestsData } = requestIds.length > 0
+    ? await admin
+        .from('collaboration_requests')
+        .select('id, commission_rate')
+        .in('id', requestIds)
+    : { data: [] }
+
+  // 4. Build lookup maps
+  const projectById = new Map(
+    (projectsR.data ?? []).map(p => [p.id as string, p.name as string]),
   )
+
+  const requestById = new Map(
+    (requestsData ?? []).map(r => [r.id as string, r.commission_rate as number | null]),
+  )
+
+  const collabById = new Map(
+    ((collabsR.data ?? []) as { id: string; request_id: string }[]).map(c => [
+      c.id,
+      requestById.get(c.request_id) ?? null,
+    ]),
+  )
+
+  // link_id → { projectId, commissionRate }
+  const linkMeta = new Map(
+    links.map(l => [
+      l.id as string,
+      {
+        projectId:      l.project_id as string,
+        commissionRate: collabById.get(l.collaboration_id as string) ?? null,
+      },
+    ]),
+  )
+
+  // 5. Group deals by project
+  const groupMap = new Map<string, CommissionGroup>()
+
+  for (const deal of dealsR.data ?? []) {
+    const lid  = deal.referral_link_id as string
+    const meta = linkMeta.get(lid)
+    if (!meta) continue
+
+    const rate     = meta.commissionRate
+    if (rate === null) continue  // skip deals with no known rate
+
+    const dealVal  = typeof deal.deal_value === 'number' ? deal.deal_value : 0
+    const commWan  = parseFloat(((dealVal * rate) / 100).toFixed(2))
+    const dateStr  = (deal.deal_confirmed_at ?? deal.converted_at) as string
+
+    const entry: CommissionEntry = {
+      id:             deal.id as string,
+      date:           dateStr,
+      dealValueWan:   dealVal,
+      commissionRate: rate,
+      commissionWan:  commWan,
+    }
+
+    const pid = meta.projectId
+    if (!groupMap.has(pid)) {
+      groupMap.set(pid, {
+        projectId:      pid,
+        projectName:    projectById.get(pid) ?? '未知案場',
+        commissionRate: rate,
+        entries:        [],
+      })
+    }
+    groupMap.get(pid)!.entries.push(entry)
+  }
+
+  const groups = [...groupMap.values()]
+
+  return <KolCommissionsClient groups={groups} />
 }
