@@ -82,6 +82,28 @@ export const PROPERTY_THEMES = {
 export type PropertyThemeKey = keyof typeof PROPERTY_THEMES
 export const DEFAULT_THEME_KEY: PropertyThemeKey = 'dark-gold'
 
+export const PROPERTY_FONT_THEMES = {
+  editorial: {
+    '--p-font-display': 'var(--font-serif-tc-base)',
+    '--p-font-body': 'var(--font-sans-tc-base)',
+    '--font-serif': 'var(--font-serif-base)',
+    '--font-serif-tc': 'var(--font-serif-tc-base)',
+    '--font-sans': 'var(--font-sans-base)',
+    '--font-sans-tc': 'var(--font-sans-tc-base)',
+  },
+  modern: {
+    '--p-font-display': 'var(--font-sans-tc-base)',
+    '--p-font-body': 'var(--font-sans-tc-base)',
+    '--font-serif': 'var(--font-sans-base)',
+    '--font-serif-tc': 'var(--font-sans-tc-base)',
+    '--font-sans': 'var(--font-sans-base)',
+    '--font-sans-tc': 'var(--font-sans-tc-base)',
+  },
+} as const
+
+export type PropertyFontKey = keyof typeof PROPERTY_FONT_THEMES
+export const DEFAULT_FONT_KEY: PropertyFontKey = 'editorial'
+
 export const PROPERTY_PUBLISH_STATUSES = ['draft', 'published'] as const
 export type PropertyPublishStatus = (typeof PROPERTY_PUBLISH_STATUSES)[number]
 
@@ -156,6 +178,7 @@ export type PropertyModuleSettings = {
   teamMemberCount?: 4 | 5
   captions?: Record<string, string>
   themeKey?: string
+  fontKey?: string
 }
 
 export type PropertyModule = {
@@ -365,6 +388,7 @@ export type TongchuangTemplateContent = {
   indoorCommonsTitle: string
   indoorAmenities: Array<{ sectionKey: string; url: string; alt: string; label: string }>
   colorTheme: PropertyThemeKey
+  fontTheme: PropertyFontKey
   modules: TongchuangTemplateModule[]
 }
 
@@ -850,6 +874,11 @@ export function buildTongchuangTemplateContent(
       const mod = modules.find((m) => m.moduleType === 'color_theme')
       const key = mod?.settings.themeKey
       return (key && key in PROPERTY_THEMES ? key : DEFAULT_THEME_KEY) as PropertyThemeKey
+    })(),
+    fontTheme: (() => {
+      const mod = modules.find((m) => m.moduleType === 'color_theme')
+      const key = mod?.settings.fontKey
+      return (key && key in PROPERTY_FONT_THEMES ? key : DEFAULT_FONT_KEY) as PropertyFontKey
     })(),
     modules: templateModules,
   }

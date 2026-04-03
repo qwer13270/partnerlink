@@ -88,7 +88,10 @@ export async function PATCH(
   const nextName = normalizeString(project.name, existing.name)
   const slugCandidate = rawSlug || existing.slug
   const slug = await ensureUniqueSlug(slugCandidate, id)
-  const publishStatus = parsePublishStatus(project.publishStatus)
+  const publishStatus =
+    project.publishStatus === undefined
+      ? existing.publishStatus
+      : parsePublishStatus(project.publishStatus)
   const publishedAt =
     publishStatus === 'published'
       ? existing.publishStatus === 'published'
@@ -339,6 +342,7 @@ function sanitizeModules(modules: PropertyModule[]) {
         if (s.teamMemberCount != null)    base.teamMemberCount    = s.teamMemberCount
         if (s.captions != null)           base.captions           = s.captions
         if (s.themeKey != null)           base.themeKey           = s.themeKey
+        if (s.fontKey != null)            base.fontKey            = s.fontKey
         return base
       })(),
     }

@@ -7,9 +7,15 @@ import { useMemo, useState, type ReactNode } from "react";
 import type {
   TongchuangTemplateContent,
   TongchuangTemplateModule,
+  PropertyFontKey,
   PropertyThemeKey,
 } from "@/lib/property-template";
-import { PROPERTY_THEMES, DEFAULT_THEME_KEY } from "@/lib/property-template";
+import {
+  PROPERTY_FONT_THEMES,
+  PROPERTY_THEMES,
+  DEFAULT_FONT_KEY,
+  DEFAULT_THEME_KEY,
+} from "@/lib/property-template";
 
 const PropertyMap = dynamic(() => import("./PropertyMap"), {
   ssr: false,
@@ -74,11 +80,12 @@ export default function TongchuangWingPage({
   }, [content.modules]);
 
   const themeVars = PROPERTY_THEMES[content.colorTheme as PropertyThemeKey] ?? PROPERTY_THEMES[DEFAULT_THEME_KEY];
+  const fontVars = PROPERTY_FONT_THEMES[content.fontTheme as PropertyFontKey] ?? PROPERTY_FONT_THEMES[DEFAULT_FONT_KEY];
 
   return (
     <div
       className="overflow-x-hidden bg-[var(--p-bg)] text-[var(--p-text-warm)]"
-      style={themeVars as unknown as React.CSSProperties}
+      style={{ ...themeVars, ...fontVars } as unknown as React.CSSProperties}
     >
       {orderedModules.map((module, index) => (
         <div key={module.id}>
@@ -558,7 +565,7 @@ function renderModule({
     case "contact":
       return (
         <>
-          <section className="relative overflow-hidden bg-[var(--p-bg-contact)] px-6 py-20 md:px-14 md:py-28" id="contact">
+          <section className="relative overflow-hidden bg-[var(--p-bg)] px-6 py-20 md:px-14 md:py-28" id="contact">
             <div
               className="pointer-events-none absolute right-[-2%] top-1/2 hidden -translate-y-1/2 whitespace-pre font-serif text-[var(--p-accent)]/[0.025] select-none lg:block"
               style={{ fontSize: 190 }}
@@ -936,8 +943,10 @@ function renderModule({
       const row2         = imgs.slice(3, 6)
       const hasImages    = imgs.length > 0
       const placeholders = Array.from({ length: Math.max(0, 6 - imgs.length) })
-      // Mobile: hero is img[0], strip is imgs[1..5]
-      const mobileStrip  = hasImages ? imgs.slice(1) : Array.from({ length: 5 }, (_, i) => null as typeof imgs[0] | null)
+      const mobileItems  =
+        hasImages
+          ? imgs
+          : Array.from({ length: 6 }, () => null as typeof imgs[0] | null)
 
       return (
         <section className="bg-[var(--p-bg)] py-20 md:px-14 md:py-28">
@@ -953,9 +962,9 @@ function renderModule({
               >
                 {content.surroundingsTitle}
               </h2>
-              {/* Swipe hint — mobile only, shown when there are supporting images */}
+              {/* Swipe hint — mobile only */}
               <p className="mb-1 flex items-center gap-1.5 text-[11px] tracking-widest text-[var(--p-text-ghost)] md:hidden">
-                <span>更多</span>
+                <span>滑動</span>
                 <svg width="16" height="8" viewBox="0 0 16 8" fill="none" className="animate-[nudge_1.8s_ease-in-out_infinite]">
                   <path d="M0 4h13M10 1l3 3-3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -964,54 +973,30 @@ function renderModule({
             <div className="mt-5 h-px bg-[var(--p-border)] md:mt-7" />
           </motion.div>
 
-          {/* ── Mobile layout ── */}
-          <div className="md:hidden">
-            {/* Hero — full bleed, taller aspect */}
-            <motion.div {...reveal(0.05)} className="group px-6">
-              <div className="relative aspect-[5/3] w-full overflow-hidden bg-[var(--p-bg-card)]">
-                {row1Hero ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={row1Hero.url}
-                    alt={row1Hero.alt}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                  />
-                ) : (
-                  <SurroundingsPlaceholder label="01" />
-                )}
+          {/* ── Mobile: horizontal snap-scroll carousel ── */}
+          <div
+            className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-6 pl-6 pr-2 md:hidden"
+            style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+          >
+            {mobileItems.map((img, i) => (
+              <div key={img?.sectionKey ?? i} className="w-[78vw] flex-none snap-center">
+                <motion.div {...reveal(0.05 + i * 0.06)} className="group">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--p-bg-card)]">
+                    {img ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={img.url}
+                        alt={img.alt}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                      />
+                    ) : (
+                      <SurroundingsPlaceholder label={String(i + 1).padStart(2, '0')} />
+                    )}
+                  </div>
+                  {img?.caption && <SurroundingsCaption text={img.caption} />}
+                </motion.div>
               </div>
-              {row1Hero?.caption && (
-                <div className="px-0">
-                  <SurroundingsCaption text={row1Hero.caption} />
-                </div>
-              )}
-            </motion.div>
-
-            {/* Supporting strip — snap-scroll */}
-            <div
-              className="mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-6 pl-6 pr-2"
-              style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
-            >
-              {mobileStrip.map((img, i) => (
-                <div key={i} className="w-[68vw] flex-none snap-center">
-                  <motion.div {...reveal(0.08 + i * 0.06)} className="group">
-                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--p-bg-card)]">
-                      {img ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={img.url}
-                          alt={img.alt}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                        />
-                      ) : (
-                        <SurroundingsPlaceholder label={`0${i + 2}`} />
-                      )}
-                    </div>
-                    {img?.caption && <SurroundingsCaption text={img.caption} />}
-                  </motion.div>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
 
           {/* ── Desktop: editorial grid (unchanged) ── */}
@@ -1292,7 +1277,7 @@ function ContactFormBlock({
             value={fields.email} onChange={update('email')} />
         </FormField>
         <FormField label="有興趣的房型">
-          <select className={`${inputCls} cursor-pointer bg-[var(--p-bg-contact)]`}
+          <select className={`${inputCls} cursor-pointer bg-[var(--p-bg)]`}
             value={fields.unitType} onChange={update('unitType')}>
             <option value="">請選擇</option>
             <option>35坪 精奢2房</option>

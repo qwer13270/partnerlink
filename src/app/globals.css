@@ -127,6 +127,10 @@
 
   body {
     @apply bg-background text-foreground;
+    --font-serif-base: var(--font-serif);
+    --font-sans-base: var(--font-sans);
+    --font-serif-tc-base: var(--font-serif-tc);
+    --font-sans-tc-base: var(--font-sans-tc);
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
