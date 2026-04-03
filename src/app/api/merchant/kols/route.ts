@@ -115,6 +115,22 @@ export async function GET(request: NextRequest) {
     return acc
   }, {})
 
+  // Fetch the real kol_username from auth.users metadata for each KOL
+  const userMetaResults = await Promise.all(
+    kols.map((kol) =>
+      typeof kol.user_id === 'string'
+        ? admin.auth.admin.getUserById(kol.user_id).then((r) => ({
+            userId: kol.user_id as string,
+            kolUsername: typeof r.data?.user?.user_metadata?.kol_username === 'string'
+              ? r.data.user.user_metadata.kol_username
+              : null,
+          }))
+        : Promise.resolve({ userId: '', kolUsername: null }),
+    ),
+  )
+
+  const usernameByUserId = new Map(userMetaResults.map((r) => [r.userId, r.kolUsername]))
+
   const hydratedKols = kols.map((kol) => {
     const assets = mediaByApplication[kol.id] ?? []
     const profilePhotoPath =
@@ -135,9 +151,17 @@ export async function GET(request: NextRequest) {
       }))
       .filter((item) => item.url.length > 0)
 
+    // Prefer the user-chosen kol_username; fall back to email-derived
+    const userId = typeof kol.user_id === 'string' ? kol.user_id : ''
+    const chosenUsername = usernameByUserId.get(userId) ?? null
+    const emailStr = typeof kol.email === 'string' ? kol.email : ''
+    const username = chosenUsername ?? emailStr.split('@')[0].replace(/[^a-z0-9_]/gi, '_').toLowerCase()
+
     return {
       id:               kol.id,
+      kol_user_id:      userId,
       full_name:        kol.full_name,
+      username,
       platforms:        kol.platforms,
       follower_range:   kol.follower_range,
       content_type:     kol.content_type,

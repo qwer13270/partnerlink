@@ -39,6 +39,7 @@ export type ProjectDetail = {
   slug: string
   name: string
   publishStatus: 'draft' | 'published'
+  collabDescription: string
   subtitle: string
   districtLabel: string
   completionBadge: string

@@ -73,7 +73,7 @@ export default function AdminMerchantsPage() {
 
       {/* Table */}
       <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp}
-        className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden divide-y divide-foreground/[0.06]"
+        className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden divide-y divide-foreground/[0.06]"
       >
         {/* Column headers */}
         <div className="px-5 py-2 grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 items-center">

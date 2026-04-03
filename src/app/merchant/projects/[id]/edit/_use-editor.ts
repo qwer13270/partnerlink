@@ -161,6 +161,7 @@ export function useEditor(id: string) {
         project: {
           slug,
           name:                  project.name,
+          collabDescription:     project.collabDescription,
           subtitle:              project.subtitle,
           districtLabel:         project.districtLabel,
           completionBadge:       project.completionBadge,
@@ -384,6 +385,7 @@ function projectSnapshot(project: ProjectDetail) {
   return {
     slug:                   project.slug,
     name:                   project.name,
+    collabDescription:      project.collabDescription,
     publishStatus:          project.publishStatus,
     subtitle:               project.subtitle,
     districtLabel:          project.districtLabel,

@@ -26,11 +26,11 @@ const fadeUp = {
 type LeadStatus = Referral['status']
 
 const STATUS_CFG: Record<LeadStatus, { label: string; color: string }> = {
-  'pending-tour':   { label: '待看屋', color: 'text-muted-foreground border-border'                  },
-  toured:           { label: '已看屋', color: 'text-blue-700 border-blue-200 bg-blue-50'             },
-  negotiating:      { label: '議價中', color: 'text-amber-700 border-amber-200 bg-amber-50'          },
-  'sale-confirmed': { label: '已成交', color: 'text-emerald-700 border-emerald-200 bg-emerald-50'    },
-  cancelled:        { label: '已取消', color: 'text-red-700 border-red-200 bg-red-50'                },
+  'pending-tour':   { label: '待看屋', color: 'bg-zinc-100 text-zinc-500 border border-zinc-200/60'          },
+  toured:           { label: '已看屋', color: 'bg-blue-50 text-blue-600 border border-blue-200/60'            },
+  negotiating:      { label: '議價中', color: 'bg-amber-50 text-amber-700 border border-amber-200/60'         },
+  'sale-confirmed': { label: '已成交', color: 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'   },
+  cancelled:        { label: '已取消', color: 'bg-red-50 text-red-600 border border-red-200/60'               },
 }
 
 const STATUS_FILTERS: { value: LeadStatus | 'all'; label: string }[] = [
@@ -42,23 +42,18 @@ const STATUS_FILTERS: { value: LeadStatus | 'all'; label: string }[] = [
   { value: 'cancelled',      label: '已取消'  },
 ]
 
-const KOL_FILTERS = [
-  { value: 'all',     label: '全部 KOL' },
-  { value: 'kol-001', label: '陳莎拉'   },
-  { value: 'kol-003', label: '林佳慧'   },
-  { value: 'kol-005', label: '吳美玲'   },
-]
 
 // ── Filter chip ──────────────────────────────────────────────────────────────
 function Chip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className={`text-xs uppercase tracking-[0.3em] px-3 py-1.5 border transition-colors duration-150 ${
-        active
-          ? 'bg-foreground text-background border-foreground'
-          : 'border-foreground/15 text-muted-foreground hover:border-foreground hover:text-foreground'
-      }`}
+      className="text-[0.78rem] font-medium px-3.5 py-1.5 rounded-full transition-all duration-150 active:scale-[0.97]"
+      style={{
+        background: active ? 'hsl(var(--foreground))' : 'rgba(0,0,0,0.06)',
+        color: active ? 'hsl(var(--background))' : 'rgba(0,0,0,0.55)',
+        boxShadow: 'none',
+      }}
     >
       {label}
     </button>
@@ -69,17 +64,15 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
 export default function MerchantLeadsPage() {
   const { data, isLoading, updateReferralStatus } = useMerchantReferrals()
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all')
-  const [kolFilter, setKolFilter] = useState('all')
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const rows = useMemo(() => {
     if (!data) return []
     return data.filter((r) => {
       if (statusFilter !== 'all' && r.status !== statusFilter) return false
-      if (kolFilter !== 'all' && r.kolId !== kolFilter) return false
       return true
     })
-  }, [data, statusFilter, kolFilter])
+  }, [data, statusFilter])
 
   const selectedLead = data?.find((r) => r.id === selectedId) ?? null
 
@@ -118,22 +111,7 @@ export default function MerchantLeadsPage() {
           </div>
         </div>
 
-        {/* KOL chips */}
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-2">KOL</p>
-          <div className="flex flex-wrap gap-2">
-            {KOL_FILTERS.map((opt) => (
-              <Chip
-                key={opt.value}
-                label={opt.label}
-                active={kolFilter === opt.value}
-                onClick={() => setKolFilter(opt.value)}
-              />
-            ))}
-          </div>
-        </div>
-
-      </motion.div>
+</motion.div>
 
       {/* ── Lead list ── */}
       <div>
@@ -146,15 +124,15 @@ export default function MerchantLeadsPage() {
         </motion.div>
 
         {isLoading ? (
-          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm px-5 py-8 text-center">
+          <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm px-5 py-8 text-center">
             <p className="text-sm text-muted-foreground">載入中⋯</p>
           </div>
         ) : rows.length === 0 ? (
-          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm px-5 py-8 text-center">
+          <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm px-5 py-8 text-center">
             <p className="text-sm text-muted-foreground">沒有符合條件的紀錄。</p>
           </div>
         ) : (
-          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden divide-y divide-foreground/[0.06]">
+          <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden divide-y divide-foreground/[0.06]">
             {rows.map((lead, i) => {
               const cfg = STATUS_CFG[lead.status]
               return (
@@ -167,7 +145,7 @@ export default function MerchantLeadsPage() {
                     {/* Lead name + status */}
                     <div className="flex items-center gap-2 mb-1.5">
                       <p className="text-sm font-medium">{lead.leadName}</p>
-                      <span className={`text-xs uppercase tracking-widest px-1.5 py-px border shrink-0 ${cfg.color}`}>
+                      <span className={`text-[0.72rem] font-medium px-2 py-0.5 rounded shrink-0 ${cfg.color}`}>
                         {cfg.label}
                       </span>
                     </div>
@@ -193,7 +171,7 @@ export default function MerchantLeadsPage() {
                   {lead.status === 'negotiating' && (
                     <button
                       onClick={() => setSelectedId(lead.id)}
-                      className="shrink-0 text-xs uppercase tracking-[0.3em] px-3 py-1.5 bg-foreground text-background border border-foreground hover:bg-foreground/85 transition-colors duration-150"
+                      className="shrink-0 text-[0.78rem] font-medium px-3.5 py-1.5 rounded-lg bg-foreground text-background hover:bg-foreground/88 active:scale-[0.97] transition-all duration-150"
                     >
                       確認成交
                     </button>
@@ -217,13 +195,13 @@ export default function MerchantLeadsPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSelectedId(null)}
-              className="text-xs uppercase tracking-[0.3em] px-4 py-2 border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-150"
+              className="text-[0.78rem] font-medium px-4 py-2 rounded-lg bg-black/[0.06] text-foreground/70 hover:bg-black/[0.10] active:scale-[0.97] transition-all duration-150"
             >
               取消
             </button>
             <button
               onClick={handleConfirmSale}
-              className="text-xs uppercase tracking-[0.3em] px-4 py-2 bg-foreground text-background border border-foreground hover:bg-foreground/85 transition-colors duration-150"
+              className="text-[0.78rem] font-medium px-4 py-2 rounded-lg bg-foreground text-background hover:bg-foreground/88 active:scale-[0.97] transition-all duration-150"
             >
               確認成交
             </button>

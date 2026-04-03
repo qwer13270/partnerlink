@@ -178,7 +178,7 @@ export default function AnalyticsPage() {
               extra: <span className="text-xs text-muted-foreground uppercase tracking-widest">2025 Q4 · 件</span>,
             },
           ].map(({ label, labelSub, value, extra }) => (
-            <div key={label} className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm px-5 py-5">
+            <div key={label} className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm px-5 py-5">
               <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{label}</p>
               <p className="text-xs text-muted-foreground/60 mb-2">{labelSub}</p>
               <p className="text-2xl font-serif font-light mb-2">{value}</p>
@@ -190,7 +190,7 @@ export default function AnalyticsPage() {
 
       {/* ── Line chart ── */}
       <motion.div {...fadeUp(0.15)}>
-        <div className="rounded-2xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
           {/* Chart header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-foreground/[0.07]">
             <div>
@@ -290,7 +290,7 @@ export default function AnalyticsPage() {
 
       {/* ── Quarterly table ── */}
       <motion.div {...fadeUp(0.2)}>
-        <div className="rounded-2xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
           {/* Table header */}
           <div className="px-6 py-4 border-b border-foreground/[0.07]">
             <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">各季成交資料</p>
@@ -356,7 +356,7 @@ export default function AnalyticsPage() {
 
       {/* ── Comparable properties ── */}
       <motion.div {...fadeUp(0.25)}>
-        <div className="rounded-2xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-foreground/[0.08] bg-background shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-foreground/[0.07]">
             <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">周邊競品比較</p>
             <p className="text-xs text-muted-foreground/60 mt-0.5">距離 {meta.name} 3km 以內</p>

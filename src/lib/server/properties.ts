@@ -33,6 +33,7 @@ type PropertyRow = {
   map_lat: number | null
   map_lng: number | null
   map_zoom: number | null
+  collab_description: string | null
   published_at: string | null
   created_at: string
   updated_at: string
@@ -107,6 +108,7 @@ export type MerchantProjectDetail = MerchantProjectSummary & {
     storagePath: string
     sortOrder: number
   }>
+  collabDescription: string | null
   contentItems: PropertyContentItem[]
   modules: PropertyModule[]
   template: TongchuangTemplateContent
@@ -141,6 +143,7 @@ export async function listMerchantProjects(userId: string) {
     .from('properties')
     .select('id,slug,name,template_key,publish_status,created_at,updated_at')
     .eq('merchant_user_id', userId)
+    .eq('is_archived', false)
     .order('updated_at', { ascending: false })
 
   if (error) {
@@ -216,6 +219,8 @@ async function getPropertyRowsById(propertyId: string) {
 export async function getMerchantProjectDetail(userId: string, propertyId: string) {
   const rows = await getPropertyRowsById(propertyId)
   if (rows.property.merchant_user_id !== userId) return null
+  // Archived projects are treated as non-existent for editing purposes
+  if ((rows.property as unknown as { is_archived?: boolean }).is_archived) return null
   return toMerchantProjectDetail(rows.property, rows.images, rows.contentItems, rows.modules)
 }
 
@@ -340,6 +345,7 @@ export function toMerchantProjectDetail(
     mapLat: typeof property.map_lat === 'number' ? property.map_lat : DEFAULT_PROPERTY_FIELDS.mapLat,
     mapLng: typeof property.map_lng === 'number' ? property.map_lng : DEFAULT_PROPERTY_FIELDS.mapLng,
     mapZoom: typeof property.map_zoom === 'number' ? property.map_zoom : DEFAULT_PROPERTY_FIELDS.mapZoom,
+    collabDescription: property.collab_description ?? null,
     images: imageList,
     contentItems: normalizedItems,
     modules: normalizedModules,

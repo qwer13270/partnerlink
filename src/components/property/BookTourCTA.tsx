@@ -13,7 +13,7 @@ interface BookTourCTAProps {
   referrer?: string | null
 }
 
-export default function BookTourCTA({ property: _property, referrer }: BookTourCTAProps) {
+export default function BookTourCTA({ property, referrer }: BookTourCTAProps) {
   const t = strings.property.bookTour
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -36,21 +36,22 @@ export default function BookTourCTA({ property: _property, referrer }: BookTourC
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await fetch('/api/inquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        property_slug: property.slug,
+        name:          formData.name,
+        phone:         formData.phone,
+        email:         formData.email,
+        message:       [formData.preferredDate && `偏好日期：${formData.preferredDate}`, formData.message]
+          .filter(Boolean).join('\n') || null,
+      }),
+    }).catch(() => null) // best-effort — UX always succeeds
 
-    toast.success(t.thankYou, {
-      duration: 5000,
-    })
+    toast.success(t.thankYou, { duration: 5000 })
 
-    // Reset form
-    setFormData({
-      name: '',
-      phone: '',
-      email: '',
-      preferredDate: '',
-      message: '',
-    })
+    setFormData({ name: '', phone: '', email: '', preferredDate: '', message: '' })
     setIsSubmitting(false)
   }
 

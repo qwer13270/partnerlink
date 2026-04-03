@@ -31,6 +31,7 @@ type ProjectPatchBody = {
     mapLng?: number | string | null
     mapZoom?: number | string | null
     publishStatus?: string
+    collabDescription?: string
   }
   contentItems?: PropertyContentItem[]
   modules?: PropertyModule[]
@@ -122,6 +123,9 @@ export async function PATCH(
       map_zoom: normalizeNullableNumber(project.mapZoom, existing.mapZoom),
       publish_status: publishStatus,
       published_at: publishedAt,
+      collab_description: typeof project.collabDescription === 'string'
+        ? project.collabDescription.trim() || null
+        : existing.collabDescription ?? null,
     })
     .eq('id', id)
     .eq('merchant_user_id', auth.user.id)
@@ -240,29 +244,34 @@ export async function DELETE(
 
   const admin = getSupabaseAdminClient()
 
-  // 1. Delete storage files
-  const storagePaths = existing.images
-    .map((img) => img.storagePath)
-    .filter(Boolean)
+  // 1. Delete media files from storage (free up space; content text is kept)
+  const storagePaths = existing.images.map((img) => img.storagePath).filter(Boolean)
   if (storagePaths.length > 0) {
     await admin.storage.from('property-media').remove(storagePaths).catch(() => null)
   }
 
-  // 2. Delete content items (cascade should handle this, but explicit is safer)
-  await admin.from('property_content_items').delete().eq('property_id', id)
-
-  // 3. Delete image rows
+  // 2. Delete image DB rows (files are gone; rows are now stale)
   await admin.from('property_images').delete().eq('property_id', id)
 
-  // 4. Delete the property itself
+  // 3. Deactivate all KOL referral links — no new clicks or inquiries
+  await admin.from('referral_links').update({ is_active: false }).eq('project_id', id)
+
+  // 4. Archive the project (soft delete) — preserves all customer/commission history
+  // Blank out the slug so it becomes available for new projects
+  const archivedSlug = `__archived_${id}`
   const { error } = await admin
     .from('properties')
-    .delete()
+    .update({
+      is_archived:    true,
+      archived_at:    new Date().toISOString(),
+      publish_status: 'draft',
+      slug:           archivedSlug,
+    })
     .eq('id', id)
     .eq('merchant_user_id', auth.user.id)
 
   if (error) {
-    return NextResponse.json({ error: `Failed to delete project: ${error.message}` }, { status: 500 })
+    return NextResponse.json({ error: `Failed to archive project: ${error.message}` }, { status: 500 })
   }
 
   return NextResponse.json({ ok: true })

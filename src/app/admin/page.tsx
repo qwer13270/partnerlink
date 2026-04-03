@@ -47,7 +47,7 @@ export default function AdminOverviewPage() {
           <motion.div key={stat.label} custom={1 + i} initial="hidden" animate="visible" variants={fadeUp}>
             <Link
               href={stat.href}
-              className="block rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-md p-5 h-full"
+              className="block rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-md p-5 h-full"
             >
               <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">{stat.label}</p>
               <p className={`text-3xl font-serif mt-2 ${stat.urgent && stat.value > 0 ? 'text-amber-700' : ''}`}>
@@ -78,7 +78,7 @@ export default function AdminOverviewPage() {
               查看全部 <ArrowRight className="h-3 w-3" />
             </Link>
           </motion.div>
-          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden">
+          <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
             <div className="divide-y divide-foreground/[0.06]">
               {RECENT_KOL_APPS.map((app, i) => (
                 <motion.div
@@ -112,7 +112,7 @@ export default function AdminOverviewPage() {
               查看全部 <ArrowRight className="h-3 w-3" />
             </Link>
           </motion.div>
-          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden">
+          <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
             <div className="divide-y divide-foreground/[0.06]">
               {RECENT_MERCHANT_APPS.map((app, i) => (
                 <motion.div
