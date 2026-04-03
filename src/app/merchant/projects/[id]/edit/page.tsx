@@ -10,7 +10,12 @@ import { SectionPanel }      from './_panels'
 import { ModuleListItem, PinnedModuleItem } from './_module-list'
 import { MODULE_META } from './_types'
 import type { PropertyModule } from './_types'
-import { PROPERTY_THEMES, type PropertyModuleType, type PropertyThemeKey } from '@/lib/property-template'
+import {
+  PROPERTY_THEMES,
+  type PropertyFontKey,
+  type PropertyModuleType,
+  type PropertyThemeKey,
+} from '@/lib/property-template'
 
 // ── Theme metadata ────────────────────────────────────────────────────────────
 
@@ -20,6 +25,23 @@ const THEME_META: Record<PropertyThemeKey, { zh: string; en: string }> = {
   'graphite':   { zh: '石墨', en: 'Graphite'   },
   'vermillion': { zh: '暗朱', en: 'Vermillion' },
   'cloud':      { zh: '雲霧', en: 'Cloud'      },
+}
+
+const FONT_META: Record<PropertyFontKey, { zh: string; en: string; sample: string; displayFont: string; bodyFont: string }> = {
+  editorial: {
+    zh: '雅緻襯線',
+    en: 'Editorial',
+    sample: '細節與留白，讓建築更顯份量',
+    displayFont: 'var(--font-serif-tc-base)',
+    bodyFont: 'var(--font-sans-tc-base)',
+  },
+  modern: {
+    zh: '現代黑體',
+    en: 'Modern Sans',
+    sample: '俐落節奏，適合更當代的商案語氣',
+    displayFont: 'var(--font-sans-tc-base)',
+    bodyFont: 'var(--font-sans-tc-base)',
+  },
 }
 
 function ThemePicker({
@@ -78,6 +100,76 @@ function ThemePicker({
                       <path d="M2 6l2.5 2.5L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   )}
+                </button>
+              )
+            },
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function FontPicker({
+  currentFont,
+  onSelect,
+}: {
+  currentFont: PropertyFontKey
+  onSelect: (key: PropertyFontKey) => void
+}) {
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="px-4 py-4">
+        <p className="mb-4 text-xs uppercase tracking-[0.4em] text-muted-foreground/50">
+          選擇字型風格
+        </p>
+        <div className="space-y-2">
+          {(Object.entries(FONT_META) as [PropertyFontKey, (typeof FONT_META)[PropertyFontKey]][]).map(
+            ([key, meta]) => {
+              const selected = currentFont === key
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => onSelect(key)}
+                  className={[
+                    'group relative w-full rounded-sm border px-4 py-3 text-left transition-all duration-200',
+                    selected
+                      ? 'border-foreground/30 bg-foreground/[0.03]'
+                      : 'border-foreground/[0.06] hover:border-foreground/[0.15] hover:bg-foreground/[0.015]',
+                  ].join(' ')}
+                >
+                  <div
+                    className={`absolute left-0 top-2 bottom-2 w-0.5 rounded-full transition-opacity duration-200 ${selected ? 'opacity-100' : 'opacity-0'}`}
+                    style={{ background: 'currentColor' }}
+                  />
+
+                  <div className="flex items-start gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-[0.82rem] font-medium leading-none">{meta.zh}</p>
+                        <p className="text-[0.62rem] uppercase tracking-[0.28em] text-muted-foreground/55">{meta.en}</p>
+                      </div>
+                      <p
+                        className="mt-3 text-[1.05rem] leading-snug text-foreground"
+                        style={{ fontFamily: meta.displayFont, fontWeight: 400 }}
+                      >
+                        典藏建築語氣
+                      </p>
+                      <p
+                        className="mt-1 text-[0.76rem] leading-relaxed text-muted-foreground"
+                        style={{ fontFamily: meta.bodyFont }}
+                      >
+                        {meta.sample}
+                      </p>
+                    </div>
+
+                    {selected && (
+                      <svg className="mt-1 h-3 w-3 shrink-0 text-foreground/50" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l2.5 2.5L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </div>
                 </button>
               )
             },
@@ -229,7 +321,7 @@ export default function EditProjectPage() {
     toggleModuleVisibility, reorderModules,
     addModule, removeModule, selectModule,
     handleImageUpload, handleImageDelete,
-    currentTheme, setColorTheme,
+    currentTheme, currentFont, setColorTheme, setFontTheme,
   } = editor
 
   const iframeRef  = useRef<HTMLIFrameElement>(null)
@@ -391,7 +483,7 @@ export default function EditProjectPage() {
           <AnimatePresence mode="wait" initial={false}>
 
             {/* List / Theme views — share the same slide-in panel */}
-            {(sidebarView === 'list' || sidebarView === 'theme') && (
+            {(sidebarView === 'list' || sidebarView === 'theme' || sidebarView === 'font') && (
               <motion.div
                 key="list"
                 initial={{ x: '-100%', opacity: 0 }}
@@ -403,7 +495,7 @@ export default function EditProjectPage() {
                 {/* Tab header */}
                 <div className="shrink-0 border-b border-foreground/[0.07] px-5 pt-4">
                   <div className="flex items-center">
-                    {([['list', '模塊'], ['theme', '顏色']] as const).map(([view, label]) => {
+                    {([['list', '模塊'], ['theme', '顏色'], ['font', '字型']] as const).map(([view, label]) => {
                       const active = sidebarView === view
                       return (
                         <button
@@ -440,7 +532,7 @@ export default function EditProjectPage() {
                     >
                       <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
                         {(() => {
-                          // color_theme is managed via the 顏色 tab — hide it from the drag list.
+                          // color_theme is managed via the 顏色 / 字型 tabs — hide it from the drag list.
                           // Reorder.Group requires values to exactly match rendered items, so we
                           // filter BOTH values and children, then re-append hidden modules when
                           // calling reorderModules so they are never dropped from state.
@@ -506,6 +598,19 @@ export default function EditProjectPage() {
                       className="flex min-h-0 flex-1 flex-col overflow-hidden"
                     >
                       <ThemePicker currentTheme={currentTheme} onSelect={setColorTheme} />
+                    </motion.div>
+                  )}
+
+                  {sidebarView === 'font' && (
+                    <motion.div
+                      key="font"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.15 }}
+                      className="flex min-h-0 flex-1 flex-col overflow-hidden"
+                    >
+                      <FontPicker currentFont={currentFont} onSelect={setFontTheme} />
                     </motion.div>
                   )}
 

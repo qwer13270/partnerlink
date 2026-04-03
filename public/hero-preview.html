@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hero Section — Design Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Bebas+Neue&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Tenor+Sans&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0E0E0E;
+  font-family: -apple-system, sans-serif;
+  padding: 48px 32px 80px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 72px;
+}
+.page-header h1 {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #444;
+  margin-bottom: 10px;
+}
+.page-header p { font-family: 'DM Mono', monospace; font-size: 11px; color: #333; }
+
+.direction { max-width: 1100px; margin: 0 auto 80px; }
+.direction-label {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+}
+.direction-num { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.4em; color: #444; text-transform: uppercase; }
+.direction-name { font-family: 'DM Mono', monospace; font-size: 12px; color: #666; letter-spacing: 0.15em; text-transform: uppercase; }
+.direction-label::after { content: ''; flex: 1; height: 1px; background: #1e1e1e; }
+
+/* Avatar placeholder */
+.avatar {
+  background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
+}
+.avatar span {
+  font-family: 'Cormorant Garamond', serif;
+  color: rgba(255,255,255,0.25);
+  font-size: 3.5rem;
+  font-weight: 300;
+}
+.avatar-light span { color: rgba(0,0,0,0.15); }
+.avatar-light { background: linear-gradient(135deg, #d8d2c9 0%, #c8c0b4 100%); }
+
+/* Grain */
+.grain {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────
+   ① CINEMATIC FULL-BLEED
+───────────────────────────────────── */
+.d1 {
+  position: relative;
+  height: 580px;
+  background: #0D0D0F;
+  overflow: hidden;
+}
+.d1-photo-zone {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 52%;
+  background: linear-gradient(135deg, #1a1a24 0%, #252535 50%, #1e1e2a 100%);
+}
+.d1-photo-zone::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, #0D0D0F 0%, transparent 60%);
+}
+.d1-photo-avatar {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.7;
+}
+.d1-avatar-wrap {
+  position: absolute;
+  right: 80px; top: 50%;
+  transform: translateY(-50%);
+  width: 260px; height: 380px;
+  z-index: 1;
+}
+.d1-avatar-rect {
+  width: 100%; height: 100%;
+  background: linear-gradient(145deg, #1e2028 0%, #2a2c3a 100%);
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.d1-avatar-rect span {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 7rem; font-weight: 300;
+  color: rgba(255,255,255,0.15);
+}
+.d1-content {
+  position: absolute;
+  left: 72px; bottom: 72px;
+  z-index: 2;
+  max-width: 520px;
+}
+.d1-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.d1-eyebrow::before {
+  content: ''; width: 24px; height: 1px;
+  background: rgba(255,255,255,0.2);
+}
+.d1-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.5rem, 7vw, 6rem);
+  font-weight: 300; line-height: 0.9;
+  color: #fff; letter-spacing: -0.02em;
+  margin-bottom: 32px;
+  font-style: italic;
+}
+.d1-meta {
+  display: flex; align-items: center; gap: 28px;
+}
+.d1-tags {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.d1-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 5px 10px;
+}
+.d1-stat {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.3);
+}
+.d1-stat strong {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem; font-weight: 300;
+  color: rgba(255,255,255,0.8);
+  line-height: 1; margin-bottom: 4px;
+}
+.d1-scroll {
+  position: absolute;
+  right: 36px; bottom: 36px;
+  writing-mode: vertical-rl;
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  display: flex; align-items: center; gap: 12px;
+  z-index: 3;
+}
+.d1-scroll::after {
+  content: ''; width: 1px; height: 48px;
+  background: rgba(255,255,255,0.12);
+}
+
+/* ─────────────────────────────────────
+   ② NEWSPAPER BROADSHEET
+───────────────────────────────────── */
+.d2 {
+  background: #FAF8F4;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+.d2-masthead {
+  border-bottom: 3px solid #1A1A1A;
+  padding: 16px 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.d2-masthead-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px; letter-spacing: 0.4em;
+  text-transform: uppercase; color: #1A1A1A;
+}
+.d2-masthead-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; color: #888; letter-spacing: 0.1em;
+}
+.d2-body {
+  padding: 48px 64px 56px;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 56px;
+  align-items: start;
+}
+.d2-left {}
+.d2-kicker {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.45em;
+  text-transform: uppercase; color: #888;
+  margin-bottom: 12px;
+  border-top: 2px solid #1A1A1A;
+  padding-top: 10px;
+  display: inline-block;
+}
+.d2-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3.2rem, 6vw, 5.5rem);
+  font-weight: 900; line-height: 0.92;
+  color: #1A1A1A; letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+.d2-subhead {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 15px; line-height: 1.6;
+  color: #555; max-width: 460px;
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+  margin-top: 24px;
+}
+.d2-byline {
+  margin-top: 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: 0.3em;
+  text-transform: uppercase; color: #aaa;
+  display: flex; align-items: center; gap: 16px;
+}
+.d2-byline::before {
+  content: ''; width: 20px; height: 1px; background: #ccc;
+}
+.d2-right {
+  padding-top: 4px;
+}
+.d2-photo-frame {
+  border: 1px solid #ccc;
+  padding: 6px; background: #fff;
+  margin-bottom: 12px;
+  box-shadow: 2px 2px 0 #e0dbd4;
+}
+.d2-photo-inner {
+  width: 100%; height: 320px;
+  background: linear-gradient(145deg, #d0ccc4 0%, #bab4aa 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+.d2-photo-inner span {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 5rem; font-weight: 300;
+  color: rgba(0,0,0,0.15);
+}
+.d2-caption {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.1em;
+  color: #999; padding: 0 2px;
+}
+.d2-stats-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0; border: 1px solid #ddd;
+  margin-top: 20px;
+}
+.d2-stat-cell {
+  padding: 14px 16px;
+  border-right: 1px solid #ddd;
+}
+.d2-stat-cell:nth-child(2) { border-right: none; }
+.d2-stat-cell:nth-child(3),
+.d2-stat-cell:nth-child(4) {
+  border-top: 1px solid #ddd;
+}
+.d2-stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 7.5px; letter-spacing: 0.3em;
+  text-transform: uppercase; color: #aaa;
+  margin-bottom: 4px;
+}
+.d2-stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; font-weight: 700;
+  color: #1A1A1A; line-height: 1;
+}
+
+/* ─────────────────────────────────────
+   ③ SPLIT ACCENT
+───────────────────────────────────── */
+.d3 {
+  display: grid;
+  grid-template-columns: 5fr 4fr;
+  min-height: 560px;
+  overflow: hidden;
+  position: relative;
+}
+.d3-left {
+  background: #1A1A1A;
+  padding: 64px 72px;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+.d3-left .grain { opacity: 0.05; }
+.d3-glow {
+  position: absolute;
+  top: -100px; left: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(196,180,154,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.d3-top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; z-index: 1;
+}
+.d3-wordmark {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+}
+.d3-handle {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; color: rgba(255,255,255,0.2);
+  letter-spacing: 0.1em;
+}
+.d3-main { position: relative; z-index: 1; padding: 48px 0; }
+.d3-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: 0.55em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 28px;
+}
+.d3-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.8rem, 7vw, 6.5rem);
+  font-weight: 300; line-height: 0.9;
+  color: #fff; letter-spacing: -0.01em;
+  margin-bottom: 40px;
+}
+.d3-tags {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+.d3-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 5px 10px;
+  transition: all 0.15s;
+}
+.d3-followers {
+  display: flex; align-items: baseline; gap: 10px;
+  position: relative; z-index: 1;
+}
+.d3-followers-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem; font-weight: 300;
+  color: rgba(255,255,255,0.85); line-height: 1;
+}
+.d3-followers-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.35em;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+}
+.d3-right {
+  background: #C4B49A;
+  position: relative;
+  display: flex; align-items: flex-end; justify-content: center;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+.d3-right-grain {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 256px; opacity: 0.08; pointer-events: none;
+}
+.d3-photo-wrap {
+  position: relative; z-index: 1;
+  width: 280px; height: 380px;
+  margin-bottom: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
+  border-top: 1px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.d3-photo-wrap span {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 6rem; font-weight: 300;
+  color: rgba(255,255,255,0.3);
+}
+.d3-accent-label {
+  position: absolute;
+  left: 32px; bottom: 32px;
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  writing-mode: horizontal-tb;
+  z-index: 2;
+}
+
+/* ─────────────────────────────────────
+   ④ MINIMAL TYPOGRAPHIC
+───────────────────────────────────── */
+.d4 {
+  background: #F7F4EF;
+  padding: 56px 80px 64px;
+  position: relative;
+  overflow: hidden;
+  min-height: 500px;
+}
+.d4-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 52px;
+}
+.d4-wordmark {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.45em;
+  text-transform: uppercase; color: #bbb;
+}
+.d4-handle {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; color: #bbb; letter-spacing: 0.1em;
+}
+.d4-center {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 48px; align-items: end;
+}
+.d4-name-wrap { position: relative; }
+.d4-name {
+  font-family: 'Tenor Sans', sans-serif;
+  font-size: clamp(4rem, 9vw, 7.5rem);
+  line-height: 0.88; letter-spacing: -0.04em;
+  color: #1A1A1A;
+  margin-bottom: 36px;
+}
+.d4-name em {
+  font-style: normal;
+  color: #C4B49A;
+}
+.d4-bottom-row {
+  display: flex; align-items: flex-end;
+  gap: 32px;
+}
+.d4-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.d4-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: #aaa;
+  background: #EEE9E2; padding: 5px 10px;
+}
+.d4-divider { width: 1px; height: 40px; background: #ddd; align-self: center; }
+.d4-follower-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: #aaa;
+}
+.d4-follower-text strong {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem; font-weight: 300;
+  color: #2a2a2a; line-height: 1;
+  letter-spacing: -0.01em; margin-bottom: 4px;
+}
+.d4-right {
+  display: flex; flex-direction: column;
+  align-items: flex-end; justify-content: flex-end;
+  gap: 16px;
+}
+.d4-avatar-sm {
+  width: 160px; height: 200px;
+  background: linear-gradient(145deg, #d0ccc4, #bab4aa);
+  border: 1px solid #ccc; display: flex;
+  align-items: center; justify-content: center;
+}
+.d4-avatar-sm span {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.5rem; font-weight: 300; color: rgba(0,0,0,0.18);
+}
+.d4-scroll-hint {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.35em;
+  text-transform: uppercase; color: #ccc;
+  display: flex; align-items: center; gap: 8px;
+}
+.d4-scroll-hint::after {
+  content: '↓'; color: #ccc;
+}
+
+/* ─────────────────────────────────────
+   ⑤ WARM EDITORIAL CARD
+───────────────────────────────────── */
+.d5 {
+  background: #1C1814;
+  padding: 48px 64px 56px;
+  position: relative; overflow: hidden;
+  min-height: 560px;
+  display: flex; flex-direction: column;
+}
+.d5-grain {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 256px; opacity: 0.06; pointer-events: none;
+}
+.d5-warm-glow {
+  position: absolute;
+  bottom: -200px; left: -100px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(180,120,60,0.12) 0%, transparent 65%);
+  border-radius: 50%; pointer-events: none;
+}
+.d5-top {
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; z-index: 1;
+  margin-bottom: auto;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.d5-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+}
+.d5-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px; letter-spacing: 0.3em;
+  color: rgba(255,255,255,0.15);
+}
+.d5-main {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 60px;
+  align-items: end;
+  padding-top: 48px;
+  flex: 1;
+}
+.d5-text {}
+.d5-kicker {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: #C4966A;
+  margin-bottom: 20px;
+}
+.d5-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(4rem, 8vw, 7rem);
+  font-weight: 300; line-height: 0.88;
+  color: #F5EFE6; letter-spacing: -0.02em;
+  margin-bottom: 36px;
+}
+.d5-tags {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 40px;
+}
+.d5-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 5px 10px;
+  background: rgba(255,255,255,0.025);
+}
+.d5-bottom-info {
+  display: flex; align-items: center; gap: 28px;
+}
+.d5-stat { }
+.d5-stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 4px;
+}
+.d5-stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem; font-weight: 300;
+  color: rgba(255,255,255,0.75); line-height: 1;
+}
+.d5-vr { width: 1px; height: 40px; background: rgba(255,255,255,0.08); }
+.d5-handle {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.25);
+}
+.d5-photo-side {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 16px;
+}
+.d5-avatar-wrap {
+  position: relative;
+  width: 220px; height: 280px;
+}
+.d5-avatar-inner {
+  width: 100%; height: 100%;
+  background: linear-gradient(145deg, #2a2318 0%, #352c20 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: center;
+}
+.d5-avatar-inner span {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 5rem; font-weight: 300;
+  color: rgba(255,255,255,0.12);
+}
+.d5-avatar-accent {
+  position: absolute;
+  bottom: -12px; right: -12px;
+  width: 100%; height: 100%;
+  border: 1px solid rgba(196,150,106,0.15);
+  pointer-events: none;
+}
+.d5-scroll-area {
+  display: flex; align-items: center; gap: 8px;
+  align-self: flex-end;
+}
+.d5-scroll-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.15);
+}
+.d5-scroll-line { width: 32px; height: 1px; background: rgba(255,255,255,0.1); }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Hero Section — Design Directions</h1>
+  <p>KOL Resume Page · First Section</p>
+</div>
+
+<!-- ① Cinematic Full-Bleed -->
+<div class="direction">
+  <div class="direction-label">
+    <span class="direction-num">①</span>
+    <span class="direction-name">Cinematic Full-Bleed — film poster feel, photo bleeds right, name anchored bottom-left</span>
+  </div>
+  <div class="d1">
+    <div class="grain"></div>
+    <div class="d1-photo-zone">
+      <div class="d1-avatar-rect"><span>T</span></div>
+    </div>
+    <div class="d1-avatar-wrap">
+      <div class="d1-avatar-rect"><span>T</span></div>
+    </div>
+    <div class="d1-content">
+      <div class="d1-eyebrow">KOL 創作者 · PartnerLink</div>
+      <h1 class="d1-name">Tony<br>Huang</h1>
+      <div class="d1-meta">
+        <div class="d1-stat">
+          <strong>12.5萬</strong>
+          追蹤者
+        </div>
+        <div class="d1-tags">
+          <span class="d1-tag">房地產</span>
+          <span class="d1-tag">豪宅</span>
+          <span class="d1-tag">台北</span>
+        </div>
+      </div>
+    </div>
+    <div class="d1-scroll">Scroll</div>
+  </div>
+</div>
+
+<!-- ② Newspaper Broadsheet -->
+<div class="direction">
+  <div class="direction-label">
+    <span class="direction-num">②</span>
+    <span class="direction-name">Newspaper Broadsheet — editorial masthead, giant black type, framed photo card</span>
+  </div>
+  <div class="d2">
+    <div class="d2-masthead">
+      <span class="d2-masthead-title">PartnerLink · KOL Resume</span>
+      <span class="d2-masthead-date">創作者 @mosburger_ggggg</span>
+    </div>
+    <div class="d2-body">
+      <div class="d2-left">
+        <div class="d2-kicker">KOL 創作者</div>
+        <h1 class="d2-headline">Tony<br>Huang</h1>
+        <p class="d2-subhead">
+          專注於台北、新北豪宅市場的生活風格創作者。每週深度開箱預售案，影片精準傳遞買房眉角。
+        </p>
+        <div class="d2-byline">@mosburger_ggggg · PartnerLink 創作者</div>
+      </div>
+      <div class="d2-right">
+        <div class="d2-photo-frame">
+          <div class="d2-photo-inner"><span>T</span></div>
+        </div>
+        <div class="d2-caption">Tony Huang · 房地產創作者</div>
+        <div class="d2-stats-row">
+          <div class="d2-stat-cell">
+            <div class="d2-stat-label">追蹤者</div>
+            <div class="d2-stat-value">12.5萬</div>
+          </div>
+          <div class="d2-stat-cell">
+            <div class="d2-stat-label">合作案件</div>
+            <div class="d2-stat-value">2</div>
+          </div>
+          <div class="d2-stat-cell">
+            <div class="d2-stat-label">內容類型</div>
+            <div class="d2-stat-value" style="font-size:1rem;">房地產</div>
+          </div>
+          <div class="d2-stat-cell">
+            <div class="d2-stat-label">平台</div>
+            <div class="d2-stat-value" style="font-size:1rem;">IG · TT</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ③ Split Accent -->
+<div class="direction">
+  <div class="direction-label">
+    <span class="direction-num">③</span>
+    <span class="direction-name">Split Accent — dark left with name + stats, warm sand right with photo flush to bottom</span>
+  </div>
+  <div class="d3">
+    <div class="d3-left">
+      <div class="grain"></div>
+      <div class="d3-glow"></div>
+      <div class="d3-top-bar">
+        <span class="d3-wordmark">PartnerLink · KOL</span>
+        <span class="d3-handle">@mosburger_ggggg</span>
+      </div>
+      <div class="d3-main">
+        <div class="d3-label">KOL 創作者</div>
+        <h1 class="d3-name">Tony<br>Huang</h1>
+        <div class="d3-tags">
+          <span class="d3-tag">房地產</span>
+          <span class="d3-tag">豪宅</span>
+          <span class="d3-tag">生活風格</span>
+          <span class="d3-tag">台北</span>
+        </div>
+      </div>
+      <div class="d3-followers">
+        <span class="d3-followers-num">12.5萬</span>
+        <div>
+          <div class="d3-followers-meta">追蹤者</div>
+        </div>
+      </div>
+    </div>
+    <div class="d3-right">
+      <div class="d3-right-grain"></div>
+      <div class="d3-photo-wrap">
+        <span>T</span>
+      </div>
+      <div class="d3-accent-label">KOL Profile</div>
+    </div>
+  </div>
+</div>
+
+<!-- ④ Minimal Typographic -->
+<div class="direction">
+  <div class="direction-label">
+    <span class="direction-num">④</span>
+    <span class="direction-name">Minimal Typographic — cream bg, oversized name, small portrait tucked right, breathable</span>
+  </div>
+  <div class="d4">
+    <div class="d4-top">
+      <span class="d4-wordmark">PartnerLink · KOL</span>
+      <span class="d4-handle">@mosburger_ggggg</span>
+    </div>
+    <div class="d4-center">
+      <div class="d4-name-wrap">
+        <h1 class="d4-name">Tony<br><em>Huang</em></h1>
+        <div class="d4-bottom-row">
+          <div class="d4-tags">
+            <span class="d4-tag">房地產</span>
+            <span class="d4-tag">豪宅</span>
+            <span class="d4-tag">台北</span>
+          </div>
+          <div class="d4-divider"></div>
+          <div class="d4-follower-text">
+            <strong>12.5萬</strong>追蹤者
+          </div>
+        </div>
+      </div>
+      <div class="d4-right">
+        <div class="d4-avatar-sm"><span>T</span></div>
+        <div class="d4-scroll-hint">Scroll</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ⑤ Warm Editorial -->
+<div class="direction">
+  <div class="direction-label">
+    <span class="direction-num">⑤</span>
+    <span class="direction-name">Warm Editorial — deep warm dark bg, amber accent, offset photo with shadow border</span>
+  </div>
+  <div class="d5">
+    <div class="d5-grain"></div>
+    <div class="d5-warm-glow"></div>
+    <div class="d5-top">
+      <span class="d5-logo">PartnerLink · KOL</span>
+      <span class="d5-number">創作者履歷</span>
+    </div>
+    <div class="d5-main">
+      <div class="d5-text">
+        <div class="d5-kicker">KOL 創作者</div>
+        <h1 class="d5-name">Tony<br>Huang</h1>
+        <div class="d5-tags">
+          <span class="d5-tag">房地產</span>
+          <span class="d5-tag">豪宅</span>
+          <span class="d5-tag">生活風格</span>
+          <span class="d5-tag">台北</span>
+        </div>
+        <div class="d5-bottom-info">
+          <div class="d5-stat">
+            <div class="d5-stat-label">追蹤者</div>
+            <div class="d5-stat-value">12.5萬</div>
+          </div>
+          <div class="d5-vr"></div>
+          <div class="d5-handle">@mosburger_ggggg</div>
+        </div>
+      </div>
+      <div class="d5-photo-side">
+        <div class="d5-avatar-wrap">
+          <div class="d5-avatar-inner"><span>T</span></div>
+          <div class="d5-avatar-accent"></div>
+        </div>
+        <div class="d5-scroll-area">
+          <span class="d5-scroll-text">Scroll</span>
+          <div class="d5-scroll-line"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

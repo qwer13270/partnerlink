@@ -6,10 +6,12 @@ import { toast } from 'sonner'
 import {
   buildTongchuangTemplateContent,
   createImageSectionModule,
+  DEFAULT_FONT_KEY,
   DEFAULT_PROPERTY_CONTENT_ITEMS,
   DEFAULT_THEME_KEY,
   getModuleDefinition,
   isEnglishSlug,
+  type PropertyFontKey,
   type PropertyContentItem,
   type PropertyModule,
   type PropertyModuleType,
@@ -30,7 +32,7 @@ export function useEditor(id: string) {
 
   // ── UI state ───────────────────────────────────────────────────────────────
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null)
-  const [sidebarView,      setSidebarView]      = useState<'list' | 'edit' | 'theme'>('list')
+  const [sidebarView,      setSidebarView]      = useState<'list' | 'edit' | 'theme' | 'font'>('list')
   const [loading,          setLoading]          = useState(true)
   const [saving,           setSaving]           = useState(false)
   const [publishing,       setPublishing]       = useState(false)
@@ -100,6 +102,11 @@ export function useEditor(id: string) {
 
   const currentTheme = useMemo(
     () => (draftProject?.modules.find((m) => m.moduleType === 'color_theme')?.settings.themeKey as PropertyThemeKey | undefined) ?? DEFAULT_THEME_KEY,
+    [draftProject],
+  )
+
+  const currentFont = useMemo(
+    () => (draftProject?.modules.find((m) => m.moduleType === 'color_theme')?.settings.fontKey as PropertyFontKey | undefined) ?? DEFAULT_FONT_KEY,
     [draftProject],
   )
 
@@ -340,6 +347,29 @@ export function useEditor(id: string) {
     })
   }
 
+  function setFontTheme(key: PropertyFontKey) {
+    setDraftProject((p) => {
+      if (!p) return p
+      const existing = p.modules.find((m) => m.moduleType === 'color_theme')
+      if (existing) {
+        return {
+          ...p,
+          modules: p.modules.map((m) =>
+            m.moduleType === 'color_theme' ? { ...m, settings: { ...m.settings, fontKey: key } } : m,
+          ),
+        }
+      }
+      const newModule: PropertyModule = {
+        id: crypto.randomUUID(),
+        moduleType: 'color_theme',
+        sortOrder: p.modules.length,
+        isVisible: true,
+        settings: { fontKey: key },
+      }
+      return { ...p, modules: [...p.modules, newModule] }
+    })
+  }
+
   return {
     // Data
     draftProject,
@@ -349,6 +379,7 @@ export function useEditor(id: string) {
     normalModules,
     pinnedModules,
     currentTheme,
+    currentFont,
     // Status
     loading,
     saving,
@@ -376,6 +407,7 @@ export function useEditor(id: string) {
     removeModule,
     selectModule,
     setColorTheme,
+    setFontTheme,
   }
 }
 

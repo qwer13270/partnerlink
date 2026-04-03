@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KOL Home — Apple Aesthetic Preview</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #F5F5F7;
+      --card-bg: rgba(255, 255, 255, 0.78);
+      --card-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.08);
+      --card-shadow-hover: 0 4px 16px rgba(0,0,0,0.06), 0 16px 48px rgba(0,0,0,0.12);
+      --radius-card: 18px;
+      --radius-sm: 12px;
+      --radius-pill: 980px;
+      --blue: #0071E3;
+      --blue-hover: #0077ED;
+      --dark: #1C1C1E;
+      --text-primary: #1D1D1F;
+      --text-secondary: #6E6E73;
+      --text-tertiary: #AEAEB2;
+      --divider: rgba(0,0,0,0.06);
+      --font: -apple-system, "SF Pro Display", BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      --ease-spring: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    html, body {
+      min-height: 100vh;
+      background-color: var(--bg);
+      font-family: var(--font);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      padding: 48px 24px 80px;
+    }
+
+    /* ── Layout ── */
+    .page-shell {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── Entrance Animations ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate {
+      opacity: 0;
+      animation: fadeUp 0.56s var(--ease-spring) forwards;
+    }
+
+    .delay-1 { animation-delay: 0.05s; }
+    .delay-2 { animation-delay: 0.12s; }
+    .delay-3 { animation-delay: 0.20s; }
+    .delay-4 { animation-delay: 0.29s; }
+    .delay-5 { animation-delay: 0.38s; }
+
+    /* ── Wordmark / Nav Bar ── */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px 8px;
+      animation: fadeUp 0.4s var(--ease-spring) 0s both;
+    }
+
+    .wordmark {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wordmark-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--blue);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wordmark-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .wordmark-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .wordmark-text span {
+      color: var(--blue);
+    }
+
+    .nav-date {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+
+    /* ── Hero Header Card ── */
+    .hero-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      padding: 32px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      transition: box-shadow 0.2s var(--ease-spring);
+    }
+
+    .hero-card:hover {
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .hero-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+      letter-spacing: -0.02em;
+    }
+
+    .hero-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hero-greeting {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-name {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .hero-subtitle {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      font-weight: 400;
+      margin-top: 1px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 20px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: all 0.2s var(--ease-spring);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 113, 227, 0.28);
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-hover);
+      box-shadow: 0 4px 16px rgba(0, 113, 227, 0.38);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-ghost {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--text-primary);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(0, 0, 0, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost:active {
+      transform: translateY(0);
+    }
+
+    .btn svg {
+      flex-shrink: 0;
+    }
+
+    /* ── Dark Resume Banner ── */
+    .resume-card {
+      background: rgba(28, 28, 30, 0.94);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      border-radius: var(--radius-card);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18), 0 1px 0 rgba(255,255,255,0.06) inset;
+      padding: 28px 36px;
+      transition: box-shadow 0.2s var(--ease-spring);
+    }
+
+    .resume-card:hover {
+      box-shadow: 0 8px 36px rgba(0,0,0,0.26), 0 1px 0 rgba(255,255,255,0.08) inset;
+    }
+
+    .resume-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .resume-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .resume-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .resume-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+
+    .resume-progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress-track {
+      width: 120px;
+      height: 4px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #0071E3, #34AADC);
+      border-radius: 2px;
+      transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .progress-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.45);
+      white-space: nowrap;
+    }
+
+    .resume-steps {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-sm);
+      padding: 16px 18px;
+      transition: all 0.2s var(--ease-spring);
+      cursor: pointer;
+    }
+
+    .step-item:hover {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.14);
+      transform: translateY(-1px);
+    }
+
+    .step-icon-wrap {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-icon-wrap.blue {
+      background: rgba(0, 113, 227, 0.22);
+    }
+
+    .step-icon-wrap.teal {
+      background: rgba(52, 170, 220, 0.22);
+    }
+
+    .step-icon-wrap svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .step-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .step-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+
+    .step-desc {
+      font-size: 12px;
+      color: rgba(255,255,255,0.38);
+    }
+
+    .step-arrow {
+      margin-left: auto;
+      color: rgba(255,255,255,0.25);
+      flex-shrink: 0;
+    }
+
+    /* ── Stats Strip — 3 Individual Cards ── */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      padding: 28px 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.2s var(--ease-spring);
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--card-shadow-hover);
+      transform: translateY(-2px);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .stat-value {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .stat-value.blue {
+      color: var(--blue);
+    }
+
+    .stat-meta {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .stat-meta .trend-up {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      color: #34C759;
+      font-weight: 500;
+    }
+
+    .stat-meta .trend-down {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      color: #FF3B30;
+      font-weight: 500;
+    }
+
+    .stat-icon {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      opacity: 0.07;
+    }
+
+    .stat-icon svg {
+      width: 44px;
+      height: 44px;
+    }
+
+    /* ── Applications Card ── */
+    .applications-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      transition: box-shadow 0.2s var(--ease-spring);
+    }
+
+    .applications-card:hover {
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 28px 16px;
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .card-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .card-eyebrow {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .card-action-link {
+      font-size: 13px;
+      color: var(--blue);
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+
+    .card-action-link:hover {
+      opacity: 0.75;
+    }
+
+    /* Column headers */
+    .table-col-headers {
+      display: grid;
+      grid-template-columns: 1fr 140px 100px 90px;
+      gap: 0;
+      padding: 10px 28px;
+      border-bottom: 1px solid var(--divider);
+      background: rgba(0,0,0,0.015);
+    }
+
+    .col-header {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    .col-header.right {
+      text-align: right;
+    }
+
+    /* Application rows */
+    .app-row {
+      display: grid;
+      grid-template-columns: 1fr 140px 100px 90px;
+      gap: 0;
+      padding: 18px 28px;
+      align-items: center;
+      transition: background 0.15s var(--ease-spring);
+      cursor: pointer;
+    }
+
+    .app-row:not(:last-child) {
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .app-row:hover {
+      background: rgba(0, 113, 227, 0.03);
+    }
+
+    .app-project {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .project-name {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .project-meta {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .app-date {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .app-commission {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+    }
+
+    .badge-wrap {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+
+    .badge::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .badge-pending {
+      background: rgba(255, 159, 10, 0.12);
+      color: #B25000;
+    }
+
+    .badge-pending::before {
+      background: #FF9F0A;
+    }
+
+    .badge-approved {
+      background: rgba(52, 199, 89, 0.12);
+      color: #1A7F37;
+    }
+
+    .badge-approved::before {
+      background: #34C759;
+    }
+
+    .badge-rejected {
+      background: rgba(255, 59, 48, 0.10);
+      color: #D70015;
+    }
+
+    .badge-rejected::before {
+      background: #FF3B30;
+    }
+
+    /* ── Footer Note ── */
+    .preview-note {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      padding-top: 16px;
+      letter-spacing: 0.01em;
+      animation: fadeUp 0.5s var(--ease-spring) 0.55s both;
+    }
+
+    .preview-note strong {
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.18);
+      border-radius: 3px;
+    }
+
+    /* ── Responsive touch ── */
+    @media (max-width: 640px) {
+      body { padding: 24px 16px 60px; }
+      .hero-card { flex-direction: column; align-items: flex-start; }
+      .hero-actions { width: 100%; }
+      .stats-strip { grid-template-columns: 1fr; }
+      .resume-steps { grid-template-columns: 1fr; }
+      .table-col-headers { display: none; }
+      .app-row {
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto;
+      }
+      .app-date, .app-commission { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+
+    <!-- Top Nav / Wordmark -->
+    <nav class="top-nav animate delay-1">
+      <div class="wordmark">
+        <div class="wordmark-icon">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2L13.5 5.25V10.75L8 14L2.5 10.75V5.25L8 2Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M8 6.5L10 7.75V10.25L8 11.5L6 10.25V7.75L8 6.5Z" fill="white"/>
+          </svg>
+        </div>
+        <span class="wordmark-text">Partner<span>Link</span></span>
+      </div>
+      <span class="nav-date">2026年3月25日 週三</span>
+    </nav>
+
+    <!-- Hero Header Card -->
+    <div class="hero-card animate delay-1">
+      <div class="hero-left">
+        <div class="avatar">陳</div>
+        <div class="hero-text">
+          <span class="hero-greeting">早安，歡迎回來</span>
+          <span class="hero-name">陳曉明</span>
+          <span class="hero-subtitle">KOL · 加入於 2025年9月</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="void(0)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M7 1v8M4 6l3 3 3-3M2 10v1a1 1 0 001 1h8a1 1 0 001-1v-1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          推廣連結
+        </button>
+        <button class="btn btn-ghost" onclick="void(0)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="2" y="1.5" width="10" height="11" rx="1.5" stroke="#1D1D1F" stroke-width="1.4"/>
+            <path d="M4.5 5h5M4.5 7.5h5M4.5 10h3" stroke="#1D1D1F" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          我的履歷
+        </button>
+      </div>
+    </div>
+
+    <!-- Dark Resume Completion Banner -->
+    <div class="resume-card animate delay-2">
+      <div class="resume-header">
+        <div class="resume-title-group">
+          <span class="resume-eyebrow">待辦事項</span>
+          <span class="resume-title">完成你的履歷</span>
+        </div>
+        <div class="resume-progress-wrap">
+          <div class="progress-track">
+            <div class="progress-fill" id="resumeProgress"></div>
+          </div>
+          <span class="progress-label">0 / 2 完成</span>
+        </div>
+      </div>
+      <div class="resume-steps">
+        <div class="step-item">
+          <div class="step-icon-wrap blue">
+            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="9" cy="6.5" r="3" stroke="#0071E3" stroke-width="1.5"/>
+              <path d="M2.5 15.5c0-3.314 2.91-6 6.5-6s6.5 2.686 6.5 6" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="step-text">
+            <span class="step-label">上傳個人頭像</span>
+            <span class="step-desc">讓品牌認識你</span>
+          </div>
+          <svg class="step-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="step-item">
+          <div class="step-icon-wrap teal">
+            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="3.5" width="14" height="11" rx="2" stroke="#34AADC" stroke-width="1.5"/>
+              <path d="M6 8.5h6M6 11h4" stroke="#34AADC" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="step-text">
+            <span class="step-label">上傳作品媒體</span>
+            <span class="step-desc">展示你的最佳案例</span>
+          </div>
+          <svg class="step-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Strip — 3 Individual Floating Cards -->
+    <div class="stats-strip">
+
+      <!-- 活躍連結 -->
+      <div class="stat-card animate delay-3">
+        <span class="stat-label">活躍連結</span>
+        <span class="stat-value blue" id="statLinks">5</span>
+        <span class="stat-meta">
+          <span class="trend-up">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+              <path d="M2 8L5.5 4.5L9 8" stroke="#34C759" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            +2
+          </span>
+          較上月
+        </span>
+        <div class="stat-icon">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 26l8-8M15 22l-3 3a4 4 0 005.66 5.66l3-3M29 22l3-3a4 4 0 00-5.66-5.66l-3 3" stroke="#0071E3" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 本月成交 -->
+      <div class="stat-card animate delay-3">
+        <span class="stat-label">本月成交</span>
+        <span class="stat-value" id="statDeals">23</span>
+        <span class="stat-meta">
+          <span class="trend-up">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+              <path d="M2 8L5.5 4.5L9 8" stroke="#34C759" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            +8
+          </span>
+          較上月
+        </span>
+        <div class="stat-icon">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="12" width="28" height="22" rx="3" stroke="#1D1D1F" stroke-width="2.5"/>
+            <path d="M8 18h28" stroke="#1D1D1F" stroke-width="2"/>
+            <path d="M15 26h2M21 26h2M27 26h2" stroke="#1D1D1F" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 轉換率 -->
+      <div class="stat-card animate delay-3">
+        <span class="stat-label">轉換率</span>
+        <span class="stat-value" id="statConv">6.2<span style="font-size:1.8rem;font-weight:500;color:var(--text-secondary);letter-spacing:-0.01em;">%</span></span>
+        <span class="stat-meta">
+          <span class="trend-down">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+              <path d="M2 3L5.5 6.5L9 3" stroke="#FF3B30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            -0.4%
+          </span>
+          較上月
+        </span>
+        <div class="stat-icon">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 32L16 22l7 5 7-10 6 8" stroke="#1D1D1F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Recent Applications Card -->
+    <div class="applications-card animate delay-4">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="card-eyebrow">近期動態</span>
+          <span class="card-title">最近申請</span>
+        </div>
+        <a class="card-action-link" href="#">查看全部</a>
+      </div>
+
+      <!-- Column Headers -->
+      <div class="table-col-headers">
+        <span class="col-header">項目</span>
+        <span class="col-header">申請日期</span>
+        <span class="col-header">預期佣金</span>
+        <span class="col-header right">狀態</span>
+      </div>
+
+      <!-- Row 1 — 審核中 -->
+      <div class="app-row">
+        <div class="app-project">
+          <span class="project-name">台北信義 The River</span>
+          <span class="project-meta">信義區 · 2–4 房</span>
+        </div>
+        <span class="app-date">2026/03/22</span>
+        <span class="app-commission">NT$240,000</span>
+        <div class="badge-wrap">
+          <span class="badge badge-pending">審核中</span>
+        </div>
+      </div>
+
+      <!-- Row 2 — 已核准 -->
+      <div class="app-row">
+        <div class="app-project">
+          <span class="project-name">新竹科技苑</span>
+          <span class="project-meta">竹北區 · 3 房</span>
+        </div>
+        <span class="app-date">2026/03/15</span>
+        <span class="app-commission">NT$185,000</span>
+        <div class="badge-wrap">
+          <span class="badge badge-approved">已核准</span>
+        </div>
+      </div>
+
+      <!-- Row 3 — 未通過 -->
+      <div class="app-row">
+        <div class="app-project">
+          <span class="project-name">桃園航空城豪宅</span>
+          <span class="project-meta">桃園區 · 4 房</span>
+        </div>
+        <span class="app-date">2026/03/08</span>
+        <span class="app-commission">NT$320,000</span>
+        <div class="badge-wrap">
+          <span class="badge badge-rejected">未通過</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Preview Note -->
+    <p class="preview-note">
+      <strong>設計預覽</strong> — Apple 風格重設計 · KOL 首頁儀表板 · PartnerLink 房客平台
+    </p>
+
+  </div>
+
+  <script>
+    // Animate progress bar after page load
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        var fill = document.getElementById('resumeProgress');
+        if (fill) fill.style.width = '0%';
+      }, 800);
+    });
+
+    // Subtle number count-up for stats
+    function countUp(el, target, decimals, duration) {
+      var start = 0;
+      var startTime = null;
+      var suffix = '';
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        var progress = Math.min((timestamp - startTime) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        var current = eased * target;
+        if (decimals > 0) {
+          el.textContent = current.toFixed(decimals);
+        } else {
+          el.textContent = Math.round(current);
+        }
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          if (decimals > 0) {
+            el.textContent = target.toFixed(decimals);
+          } else {
+            el.textContent = target;
+          }
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    // Run count-ups when cards are visible
+    var observed = false;
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !observed) {
+          observed = true;
+          setTimeout(function() {
+            countUp(document.getElementById('statLinks'), 5, 0, 900);
+            countUp(document.getElementById('statDeals'), 23, 0, 1100);
+          }, 300);
+
+          // Conversion rate has a unit suffix — handle separately
+          var convEl = document.getElementById('statConv');
+          if (convEl) {
+            var start = 0;
+            var target = 6.2;
+            var startTime = null;
+            var dur = 1000;
+            function stepConv(timestamp) {
+              if (!startTime) startTime = timestamp;
+              var progress = Math.min((timestamp - startTime) / dur, 1);
+              var eased = 1 - Math.pow(1 - progress, 3);
+              var current = (eased * target).toFixed(1);
+              convEl.innerHTML = current + '<span style="font-size:1.8rem;font-weight:500;color:var(--text-secondary);letter-spacing:-0.01em;">%</span>';
+              if (progress < 1) requestAnimationFrame(stepConv);
+            }
+            setTimeout(function() { requestAnimationFrame(stepConv); }, 300);
+          }
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    var statsStrip = document.querySelector('.stats-strip');
+    if (statsStrip) observer.observe(statsStrip);
+  </script>
+</body>
+</html>

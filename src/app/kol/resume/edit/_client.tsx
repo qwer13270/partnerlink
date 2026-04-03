@@ -16,7 +16,7 @@ export default function KolResumeEditClient({
   return (
     <KolResumeEditor
       resume={resume}
-      onClose={() => router.push('/kol/resume')}
+      onClose={() => router.push('/kol/home')}
       onSave={(updated) => setResume(updated)}
     />
   )

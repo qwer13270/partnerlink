@@ -93,6 +93,56 @@ function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   )
 }
 
+// ── Asset row ──────────────────────────────────────────────────────────────
+
+type AssetRowProps = {
+  asset: MediaAsset
+  isSaved: boolean
+  onCaptionChange: (id: string, caption: string) => void
+  onCaptionBlur: (id: string, caption: string) => void
+  onDelete: (id: string) => void
+}
+
+function AssetRow({ asset, isSaved, onCaptionChange, onCaptionBlur, onDelete }: AssetRowProps) {
+  return (
+    <div className="group flex items-center gap-3 rounded border border-foreground/8 bg-foreground/[0.015] px-3 py-2.5 transition-colors hover:border-foreground/15">
+      <div className="h-[2.75rem] w-[3.5rem] shrink-0 overflow-hidden rounded-sm border border-foreground/10 bg-muted/20">
+        {asset.mediaType === 'video' ? (
+          <div className="flex h-full w-full items-center justify-center" style={{ background: 'linear-gradient(135deg, #1C2530 0%, #2E4052 100%)' }}>
+            <Play className="h-3 w-3 fill-white/60 text-white/60" />
+          </div>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={asset.url} alt="" className="h-full w-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-xs text-muted-foreground mb-1">{asset.fileName}</p>
+        <textarea
+          rows={2}
+          value={asset.caption}
+          onChange={(e) => onCaptionChange(asset.id, e.target.value)}
+          onBlur={(e) => onCaptionBlur(asset.id, e.target.value)}
+          placeholder="新增說明文字…"
+          className={`${inputBase} resize-y rounded border border-foreground/10 py-1 text-[0.65rem] focus:border-foreground/30`}
+        />
+      </div>
+      <div className="flex shrink-0 flex-col items-center gap-1.5">
+        <AnimatePresence>
+          {isSaved && (
+            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.15 }}>
+              <Check className="h-3.5 w-3.5 text-emerald-500" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <button type="button" onClick={() => onDelete(asset.id)} className="text-muted-foreground/30 opacity-0 transition-all duration-150 hover:text-red-500 group-hover:opacity-100" aria-label="刪除">
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ── Upload helper ──────────────────────────────────────────────────────────
 
 function uploadResumeMedia({
@@ -331,43 +381,6 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
     </AnimatePresence>
   )
 
-  const AssetRow = ({ asset }: { asset: MediaAsset }) => (
-    <div className="group flex items-center gap-3 rounded border border-foreground/8 bg-foreground/[0.015] px-3 py-2.5 transition-colors hover:border-foreground/15">
-      <div className="h-[2.75rem] w-[3.5rem] shrink-0 overflow-hidden rounded-sm border border-foreground/10 bg-muted/20">
-        {asset.mediaType === 'video' ? (
-          <div className="flex h-full w-full items-center justify-center" style={{ background: 'linear-gradient(135deg, #1C2530 0%, #2E4052 100%)' }}>
-            <Play className="h-3 w-3 fill-white/60 text-white/60" />
-          </div>
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={asset.url} alt="" className="h-full w-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
-        )}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-xs text-muted-foreground mb-1">{asset.fileName}</p>
-        <textarea
-          rows={2}
-          value={asset.caption}
-          onChange={(e) => handleCaptionChange(asset.id, e.target.value)}
-          onBlur={(e) => handleCaptionBlur(asset.id, e.target.value)}
-          placeholder="新增說明文字…"
-          className={`${inputBase} resize-y rounded border border-foreground/10 py-1 text-[0.65rem] focus:border-foreground/30`}
-        />
-      </div>
-      <div className="flex shrink-0 flex-col items-center gap-1.5">
-        <AnimatePresence>
-          {savedIds.has(asset.id) && (
-            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.15 }}>
-              <Check className="h-3.5 w-3.5 text-emerald-500" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <button type="button" onClick={() => handleDelete(asset.id)} className="text-muted-foreground/30 opacity-0 transition-all duration-150 hover:text-red-500 group-hover:opacity-100" aria-label="刪除">
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
-      </div>
-    </div>
-  )
 
   return (
     <div
@@ -548,7 +561,7 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
               </button>
             ) : (
               <div className="space-y-2">
-                {videos.map((asset) => <AssetRow key={asset.id} asset={asset} />)}
+                {videos.map((asset) => <AssetRow key={asset.id} asset={asset} isSaved={savedIds.has(asset.id)} onCaptionChange={handleCaptionChange} onCaptionBlur={handleCaptionBlur} onDelete={handleDelete} />)}
               </div>
             )}
           </>

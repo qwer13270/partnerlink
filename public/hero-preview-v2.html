@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOL Hero — 5 Design Directions v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=Bebas+Neue&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Tenor+Sans&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #111;
+    color: #fff;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    height: 52px;
+  }
+  nav a {
+    color: rgba(255,255,255,0.45);
+    text-decoration: none;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.45rem 1rem;
+    border-radius: 2px;
+    transition: color 0.2s, background 0.2s;
+    white-space: nowrap;
+  }
+  nav a:hover { color: #fff; background: rgba(255,255,255,0.06); }
+  nav span {
+    color: rgba(255,255,255,0.15);
+    font-size: 0.55rem;
+    margin: 0 0.5rem;
+  }
+
+  /* ── SECTION LABELS ── */
+  .design-label {
+    background: #0a0a0a;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 1.2rem 2rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .design-label .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    color: rgba(255,255,255,0.12);
+    line-height: 1;
+    font-style: italic;
+  }
+
+  /* ── SHARED HERO BASE ── */
+  .hero {
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* MOCK AVATAR — consistent placeholder */
+  .mock-photo {
+    background: linear-gradient(135deg, #8B7355 0%, #C4A882 40%, #9E8B73 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .mock-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.25) 100%);
+  }
+  .mock-photo .initials {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    color: rgba(255,255,255,0.6);
+    font-style: italic;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     DESIGN ① LUXURY PORTRAIT CARD
+     Cream paper background, tilted portrait, editorial serif
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .d1 {
+    background: #F4F0E8;
+    color: #1A1714;
+  }
+
+  .d1-noise {
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px;
+  }
+
+  .d1-inner {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5rem 5vw 4rem;
+    max-width: 1300px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .d1-kicker {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+    color: #8B7355;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .d1-kicker::before {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: #8B7355;
+  }
+
+  .d1-layout {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 0;
+    align-items: end;
+  }
+
+  .d1-text {
+    padding-right: 4rem;
+    padding-bottom: 3rem;
+  }
+
+  .d1-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4rem, 9vw, 9.5rem);
+    font-weight: 900;
+    font-style: italic;
+    line-height: 0.88;
+    letter-spacing: -0.02em;
+    color: #1A1714;
+    margin-bottom: 3rem;
+  }
+
+  .d1-name em {
+    font-style: normal;
+    color: #8B7355;
+  }
+
+  .d1-gold-rule {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, #8B7355, transparent);
+    margin-bottom: 2.5rem;
+  }
+
+  .d1-meta {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+  }
+
+  .d1-stat-label {
+    font-size: 0.52rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #8B7355;
+    margin-bottom: 0.4rem;
+  }
+
+  .d1-stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #1A1714;
+    line-height: 1;
+  }
+
+  .d1-stat-mono {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: #5C5040;
+  }
+
+  .d1-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+  .d1-tag {
+    border: 1px solid #C8B99A;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #8B7355;
+  }
+
+  .d1-photo-wrap {
+    position: relative;
+    align-self: end;
+  }
+
+  .d1-photo-card {
+    width: 380px;
+    height: 480px;
+    border: 8px solid #fff;
+    box-shadow: -20px -20px 0 #E8E0D0, 20px 20px 0 #C8B99A;
+    transform: rotate(1.5deg);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .d1-photo-card .mock-photo {
+    width: 100%;
+    height: 100%;
+  }
+
+  .d1-photo-caption {
+    position: absolute;
+    bottom: -1.5rem;
+    right: 0;
+    font-size: 0.52rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #8B7355;
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     DESIGN ② BRUTALIST NUMBERS
+     White bg, follower count as hero, condensed grotesque
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .d2 {
+    background: #FAFAF8;
+    color: #0C0C0A;
+  }
+
+  .d2-inner {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    min-height: 100vh;
+  }
+
+  .d2-left {
+    padding: 5rem 4rem 4rem;
+    border-right: 2px solid #0C0C0A;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .d2-eyebrow {
+    font-size: 0.55rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: #999;
+  }
+
+  .d2-count-wrap {
+    margin: 0 -0.5rem;
+  }
+
+  .d2-count-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 0.5rem;
+    border-left: 3px solid #0C0C0A;
+    padding-left: 0.75rem;
+  }
+
+  .d2-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(8rem, 20vw, 18rem);
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    color: #0C0C0A;
+  }
+
+  .d2-count span {
+    color: #D4311A;
+  }
+
+  .d2-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    border-top: 1px solid #0C0C0A;
+    padding-top: 1.5rem;
+  }
+
+  .d2-name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 3.5rem);
+    font-weight: 800;
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+  }
+
+  .d2-handle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: #D4311A;
+    font-weight: 400;
+    margin-top: 0.5rem;
+  }
+
+  .d2-tags-vert {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: flex-end;
+  }
+
+  .d2-tag {
+    background: #0C0C0A;
+    color: #FAFAF8;
+    font-size: 0.52rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.8rem;
+  }
+
+  .d2-right {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .d2-photo {
+    flex: 1;
+    background: linear-gradient(160deg, #2A2A28 0%, #4A4A45 100%);
+  }
+
+  .d2-photo .mock-photo {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+  }
+
+  .d2-side-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-size: 0.52rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: #999;
+    padding: 1.5rem 1.2rem;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     DESIGN ③ GRADIENT FADE
+     Deep navy-to-black, photo fades into background, poetic
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .d3 {
+    background: #0D1117;
+    color: #F0ECE4;
+  }
+
+  .d3-photo-bg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 55%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .d3-photo-bg .mock-photo {
+    width: 100%;
+    height: 100%;
+  }
+
+  .d3-photo-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      #0D1117 0%,
+      #0D1117 5%,
+      rgba(13,17,23,0.85) 30%,
+      rgba(13,17,23,0.4) 60%,
+      rgba(13,17,23,0.15) 100%
+    );
+  }
+
+  .d3-photo-bg::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to top, #0D1117 0%, transparent 100%);
+    z-index: 1;
+  }
+
+  .d3-inner {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 5rem 5vw;
+    max-width: 780px;
+  }
+
+  .d3-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 2.5rem;
+  }
+  .d3-kicker-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4DA8DA;
+  }
+  .d3-kicker-text {
+    font-size: 0.58rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: #4DA8DA;
+  }
+
+  .d3-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(4rem, 10vw, 10rem);
+    font-weight: 300;
+    line-height: 0.88;
+    letter-spacing: -0.01em;
+    color: #F0ECE4;
+    margin-bottom: 3rem;
+  }
+
+  .d3-name em {
+    font-style: italic;
+    color: rgba(240,236,228,0.55);
+  }
+
+  .d3-divider {
+    width: 60px;
+    height: 1px;
+    background: rgba(240,236,228,0.25);
+    margin-bottom: 2rem;
+  }
+
+  .d3-bio-preview {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: rgba(240,236,228,0.55);
+    line-height: 1.7;
+    max-width: 520px;
+    margin-bottom: 3rem;
+  }
+
+  .d3-stats {
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .d3-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .d3-stat-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #F0ECE4;
+    line-height: 1;
+  }
+
+  .d3-stat-label {
+    font-size: 0.52rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: rgba(240,236,228,0.35);
+  }
+
+  .d3-divider-vert {
+    width: 1px;
+    height: 40px;
+    background: rgba(240,236,228,0.12);
+  }
+
+  .d3-tags {
+    position: absolute;
+    top: 5rem;
+    right: 5vw;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.6rem;
+    z-index: 2;
+  }
+
+  .d3-tag {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(240,236,228,0.5);
+    border: 1px solid rgba(240,236,228,0.15);
+    padding: 0.3rem 0.8rem;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     DESIGN ④ WARM TERRACOTTA
+     Sandy warm background, asymmetric layout, large oval photo
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .d4 {
+    background: #EDE5D8;
+    color: #2A2118;
+  }
+
+  .d4-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(42,33,24,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(42,33,24,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .d4-inner {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 5rem 5vw;
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .d4-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4rem;
+  }
+
+  .d4-site-name {
+    font-family: 'Tenor Sans', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    color: #8A6F55;
+  }
+
+  .d4-nav {
+    display: flex;
+    gap: 2rem;
+  }
+  .d4-nav a {
+    font-size: 0.58rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #8A6F55;
+    text-decoration: none;
+  }
+
+  .d4-content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .d4-left {}
+
+  .d4-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #2A2118;
+    color: #EDE5D8;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: 0.5rem 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .d4-badge-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #C4875A;
+  }
+
+  .d4-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(3.5rem, 8vw, 7.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: #2A2118;
+    margin-bottom: 2.5rem;
+  }
+
+  .d4-name-italic {
+    font-style: italic;
+    color: #C4875A;
+  }
+
+  .d4-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: #5C4A35;
+    line-height: 1.7;
+    max-width: 380px;
+    margin-bottom: 2.5rem;
+  }
+
+  .d4-meta-row {
+    display: flex;
+    gap: 0;
+    border: 1px solid rgba(42,33,24,0.15);
+    display: inline-flex;
+  }
+
+  .d4-meta-item {
+    padding: 1rem 2rem;
+    border-right: 1px solid rgba(42,33,24,0.15);
+  }
+  .d4-meta-item:last-child { border-right: none; }
+
+  .d4-meta-val {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.8rem;
+    color: #2A2118;
+    line-height: 1;
+  }
+
+  .d4-meta-label {
+    font-size: 0.5rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: #8A6F55;
+    margin-top: 0.3rem;
+  }
+
+  .d4-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .d4-oval-wrap {
+    position: relative;
+  }
+
+  .d4-oval {
+    width: 340px;
+    height: 420px;
+    border-radius: 200px;
+    overflow: hidden;
+    border: 6px solid #2A2118;
+    position: relative;
+    z-index: 1;
+  }
+
+  .d4-oval .mock-photo {
+    width: 100%;
+    height: 100%;
+  }
+
+  .d4-oval-bg {
+    position: absolute;
+    width: 340px;
+    height: 420px;
+    border-radius: 200px;
+    border: 2px solid #C4875A;
+    top: 16px;
+    left: 16px;
+  }
+
+  .d4-tags {
+    position: absolute;
+    bottom: -2rem;
+    right: -3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .d4-tag {
+    background: #2A2118;
+    color: #EDE5D8;
+    font-size: 0.52rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    white-space: nowrap;
+  }
+
+  .d4-scroll {
+    margin-top: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .d4-scroll-line {
+    width: 40px; height: 1px;
+    background: rgba(42,33,24,0.25);
+  }
+  .d4-scroll-text {
+    font-size: 0.52rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: rgba(42,33,24,0.4);
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     DESIGN ⑤ MAGAZINE SPREAD
+     Two-column: photo fills left, text right — like a magazine cover story
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .d5 {
+    background: #F7F3EE;
+    color: #1A1612;
+    flex-direction: row;
+  }
+
+  .d5-left {
+    width: 50%;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .d5-left .mock-photo {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+  }
+
+  .d5-left-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem 2.5rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+  }
+
+  .d5-issue {
+    font-size: 0.5rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .d5-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 4rem 4.5rem;
+    border-left: 1px solid rgba(26,22,18,0.1);
+  }
+
+  .d5-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .d5-brand {
+    font-family: 'Tenor Sans', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    color: #8B7355;
+  }
+
+  .d5-date {
+    font-size: 0.52rem;
+    letter-spacing: 0.3em;
+    color: rgba(26,22,18,0.35);
+    text-transform: uppercase;
+  }
+
+  .d5-mid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 0;
+  }
+
+  .d5-section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .d5-section-line {
+    width: 28px; height: 2px;
+    background: #8B7355;
+  }
+  .d5-section-text {
+    font-size: 0.55rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: #8B7355;
+  }
+
+  .d5-name {
+    font-family: 'Libre Baskerville', serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    color: #1A1612;
+    margin-bottom: 1.5rem;
+  }
+
+  .d5-name em {
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .d5-handle-line {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .d5-handle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: rgba(26,22,18,0.4);
+  }
+  .d5-handle-rule {
+    flex: 1;
+    height: 1px;
+    background: rgba(26,22,18,0.1);
+  }
+
+  .d5-pull-quote {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 1rem;
+    font-style: italic;
+    line-height: 1.75;
+    color: rgba(26,22,18,0.65);
+    border-left: 3px solid #C4A882;
+    padding-left: 1.5rem;
+    margin-bottom: 2.5rem;
+    max-width: 380px;
+  }
+
+  .d5-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .d5-tag {
+    border: 1px solid rgba(26,22,18,0.2);
+    padding: 0.3rem 0.85rem;
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(26,22,18,0.55);
+  }
+
+  .d5-bottom {
+    border-top: 1px solid rgba(26,22,18,0.08);
+    padding-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .d5-follower-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .d5-follower-val {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #1A1612;
+  }
+  .d5-follower-label {
+    font-size: 0.5rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: rgba(26,22,18,0.35);
+  }
+
+  .d5-socials {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+  .d5-social {
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(26,22,18,0.4);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  /* ── SCROLL HINT ── */
+  .scroll-hint {
+    text-align: center;
+    padding: 3rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+  }
+
+  .section-wrap { padding-top: 52px; }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <a href="#d1">① Luxury Portrait</a>
+  <span>·</span>
+  <a href="#d2">② Brutalist Numbers</a>
+  <span>·</span>
+  <a href="#d3">③ Gradient Fade</a>
+  <span>·</span>
+  <a href="#d4">④ Warm Oval</a>
+  <span>·</span>
+  <a href="#d5">⑤ Magazine Spread</a>
+</nav>
+
+<div class="section-wrap">
+
+<!-- ═══════════════════════════════════════════════════════
+     ① LUXURY PORTRAIT CARD
+════════════════════════════════════════════════════════ -->
+<div id="d1">
+  <div class="design-label">
+    <span class="num">①</span>
+    <span>Luxury Portrait Card — Cream paper, tilted portrait, italic Playfair, gold accents</span>
+  </div>
+  <section class="hero d1">
+    <div class="d1-noise"></div>
+    <div class="d1-inner">
+      <div class="d1-kicker">KOL 創作者 · PartnerLink</div>
+      <div class="d1-layout">
+        <div class="d1-text">
+          <h1 class="d1-name">Tony<br><em>Chu</em></h1>
+          <div class="d1-gold-rule"></div>
+          <div class="d1-meta">
+            <div>
+              <div class="d1-stat-label">追蹤者</div>
+              <div class="d1-stat-val">12.8 萬</div>
+            </div>
+            <div>
+              <div class="d1-stat-label">帳號</div>
+              <div class="d1-stat-mono">@mosburger_ggggg</div>
+            </div>
+          </div>
+          <div class="d1-tags">
+            <span class="d1-tag">生活風格</span>
+            <span class="d1-tag">美食</span>
+            <span class="d1-tag">旅遊</span>
+          </div>
+        </div>
+
+        <div class="d1-photo-wrap">
+          <div class="d1-photo-card">
+            <div class="mock-photo">
+              <span class="initials">T</span>
+            </div>
+          </div>
+          <div class="d1-photo-caption">KOL Profile · 2026</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ② BRUTALIST NUMBERS
+════════════════════════════════════════════════════════ -->
+<div id="d2">
+  <div class="design-label">
+    <span class="num">②</span>
+    <span>Brutalist Numbers — Follower count as hero type, Bebas Neue, white + black + red</span>
+  </div>
+  <section class="hero d2">
+    <div class="d2-inner">
+      <div class="d2-left">
+        <div class="d2-eyebrow">KOL 創作者 / PartnerLink</div>
+
+        <div class="d2-count-wrap">
+          <div class="d2-count-label">累積追蹤</div>
+          <div class="d2-count">128<span>K</span></div>
+        </div>
+
+        <div class="d2-bottom">
+          <div>
+            <div class="d2-name">Tony<br>Chu</div>
+            <div class="d2-handle">@mosburger_ggggg</div>
+          </div>
+          <div class="d2-tags-vert">
+            <span class="d2-tag">生活風格</span>
+            <span class="d2-tag">美食</span>
+            <span class="d2-tag">旅遊</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="d2-right">
+        <div class="d2-photo">
+          <div class="mock-photo" style="min-height: 100%;"></div>
+        </div>
+        <div class="d2-side-label">
+          <span>KOL Profile</span>
+          <span>·</span>
+          <span>PartnerLink</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ③ GRADIENT FADE
+════════════════════════════════════════════════════════ -->
+<div id="d3">
+  <div class="design-label">
+    <span class="num">③</span>
+    <span>Gradient Fade — Deep navy, full-bleed photo fades into dark, Cormorant Garamond, blue accent</span>
+  </div>
+  <section class="hero d3">
+    <div class="d3-photo-bg">
+      <div class="mock-photo" style="width:100%; height:100%;"></div>
+    </div>
+
+    <div class="d3-tags">
+      <span class="d3-tag">生活風格</span>
+      <span class="d3-tag">美食</span>
+      <span class="d3-tag">旅遊</span>
+    </div>
+
+    <div class="d3-inner">
+      <div class="d3-kicker">
+        <div class="d3-kicker-dot"></div>
+        <span class="d3-kicker-text">KOL 創作者 · PartnerLink</span>
+      </div>
+
+      <h1 class="d3-name">Tony<br><em>Chu</em></h1>
+
+      <div class="d3-divider"></div>
+
+      <p class="d3-bio-preview">"用鏡頭記錄台灣最真實的美食與生活，<br>讓每一個角落都成為故事的起點。"</p>
+
+      <div class="d3-stats">
+        <div class="d3-stat">
+          <div class="d3-stat-val">12.8 萬</div>
+          <div class="d3-stat-label">追蹤者</div>
+        </div>
+        <div class="d3-divider-vert"></div>
+        <div class="d3-stat">
+          <div class="d3-stat-val">@mosburger_ggggg</div>
+          <div class="d3-stat-label">帳號</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ④ WARM OVAL
+════════════════════════════════════════════════════════ -->
+<div id="d4">
+  <div class="design-label">
+    <span class="num">④</span>
+    <span>Warm Oval — Sandy linen, tall oval portrait frame, Instrument Serif, terracotta accent</span>
+  </div>
+  <section class="hero d4">
+    <div class="d4-grid-bg"></div>
+    <div class="d4-inner">
+      <div class="d4-top-bar">
+        <div class="d4-site-name">PartnerLink</div>
+        <div class="d4-nav">
+          <a href="#">作品集</a>
+          <a href="#">關於</a>
+          <a href="#">聯絡</a>
+        </div>
+      </div>
+
+      <div class="d4-content">
+        <div class="d4-left">
+          <div class="d4-badge">
+            <span class="d4-badge-dot"></span>
+            KOL 創作者
+          </div>
+          <h1 class="d4-name">Tony<br><span class="d4-name-italic">Chu.</span></h1>
+          <p class="d4-desc">記錄台灣最真實的美食與生活風格，<br>用影像說出每個角落的故事。</p>
+          <div class="d4-meta-row">
+            <div class="d4-meta-item">
+              <div class="d4-meta-val">12.8萬</div>
+              <div class="d4-meta-label">追蹤者</div>
+            </div>
+            <div class="d4-meta-item">
+              <div class="d4-meta-val">3</div>
+              <div class="d4-meta-label">平台</div>
+            </div>
+          </div>
+          <div class="d4-scroll">
+            <div class="d4-scroll-line"></div>
+            <span class="d4-scroll-text">Scroll</span>
+          </div>
+        </div>
+
+        <div class="d4-right">
+          <div class="d4-oval-wrap">
+            <div class="d4-oval">
+              <div class="mock-photo">
+                <span class="initials">T</span>
+              </div>
+            </div>
+            <div class="d4-oval-bg"></div>
+            <div class="d4-tags">
+              <span class="d4-tag">生活風格</span>
+              <span class="d4-tag">美食</span>
+              <span class="d4-tag">旅遊</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ⑤ MAGAZINE SPREAD
+════════════════════════════════════════════════════════ -->
+<div id="d5">
+  <div class="design-label">
+    <span class="num">⑤</span>
+    <span>Magazine Spread — Full-bleed photo left, editorial text right, Libre Baskerville, warm ivory</span>
+  </div>
+  <section class="hero d5">
+    <div class="d5-left">
+      <div class="mock-photo" style="width:100%; height:100%; min-height:100vh;">
+        <span class="initials">T</span>
+      </div>
+      <div class="d5-left-overlay">
+        <div class="d5-issue">PartnerLink · Issue No.12 · 2026</div>
+      </div>
+    </div>
+
+    <div class="d5-right">
+      <div class="d5-top">
+        <div class="d5-brand">PartnerLink</div>
+        <div class="d5-date">Mar 2026</div>
+      </div>
+
+      <div class="d5-mid">
+        <div class="d5-section-label">
+          <div class="d5-section-line"></div>
+          <span class="d5-section-text">KOL 創作者</span>
+        </div>
+
+        <h1 class="d5-name">Tony<br><em>Chu</em></h1>
+
+        <div class="d5-handle-line">
+          <span class="d5-handle">@mosburger_ggggg</span>
+          <div class="d5-handle-rule"></div>
+        </div>
+
+        <blockquote class="d5-pull-quote">
+          用鏡頭記錄台灣最真實的美食與生活，<br>讓每一個角落都成為故事的起點。
+        </blockquote>
+
+        <div class="d5-tags">
+          <span class="d5-tag">生活風格</span>
+          <span class="d5-tag">美食</span>
+          <span class="d5-tag">旅遊</span>
+        </div>
+      </div>
+
+      <div class="d5-bottom">
+        <div class="d5-follower-block">
+          <div class="d5-follower-val">12.8萬</div>
+          <div class="d5-follower-label">追蹤者</div>
+        </div>
+        <div class="d5-socials">
+          <a class="d5-social">Instagram</a>
+          <a class="d5-social">TikTok</a>
+          <a class="d5-social">YouTube</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="scroll-hint">— 以上為五個設計方向，請選擇您最喜歡的版本 —</div>
+
+</div><!-- end section-wrap -->
+</body>
+</html>
