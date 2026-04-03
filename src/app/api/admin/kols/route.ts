@@ -2,141 +2,180 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { requireApiRole } from '@/lib/server/api-auth'
 
-type MediaAssetRow = {
-  application_id: string
-  media_type: 'image' | 'video'
-  storage_bucket: string
-  storage_path: string
-  sort_order: number
-}
+type ReferralLinkRow = { id: string; kol_user_id: string; project_id: string }
+type ClickRow        = { referral_link_id: string }
+type ConversionRow   = { referral_link_id: string }
+type PropertyRow     = { id: string; is_archived: boolean }
 
 export async function GET(request: NextRequest) {
   const auth = await requireApiRole(request, ['admin'])
   if (!auth.ok) return auth.response
 
   const admin = getSupabaseAdminClient()
+
+  // ── 1. Fetch approved KOL applications ──────────────────────────────────
   const { data, error } = await admin
     .from('kol_applications')
     .select([
-      'id',
-      'user_id',
-      'email',
-      'full_name',
-      'platforms',
-      'platform_accounts',
-      'follower_range',
-      'content_type',
-      'bio',
-      'city',
-      'avg_views',
-      'engagement_rate',
+      'id', 'user_id', 'email', 'full_name',
+      'platforms', 'platform_accounts',
+      'follower_range', 'content_type',
+      'bio', 'city', 'avg_views', 'engagement_rate',
       'profile_photo_path',
-      'submitted_at',
-      'reviewed_at',
-      'created_at',
+      'submitted_at', 'reviewed_at', 'created_at',
     ].join(','))
     .eq('status', 'approved')
     .order('reviewed_at', { ascending: false })
 
   if (error) {
-    return NextResponse.json(
-      { error: `Failed to load KOLs: ${error.message}` },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: `Failed to load KOLs: ${error.message}` }, { status: 500 })
   }
 
-  const kols = ((data ?? []) as unknown) as Array<Record<string, unknown> & { id: string }>
+  const kols = ((data ?? []) as unknown) as Array<Record<string, unknown> & { id: string; user_id: string }>
   if (kols.length === 0) {
     return NextResponse.json({ ok: true, kols: [] })
   }
 
-  const applicationIds = kols.map((item) => item.id)
-  const { data: rawMediaAssets, error: mediaError } = await admin
-    .from('kol_media_assets')
-    .select('application_id,media_type,storage_bucket,storage_path,sort_order')
-    .in('application_id', applicationIds)
-    .order('sort_order', { ascending: true })
+  const userIds = kols.map((k) => k.user_id).filter(Boolean) as string[]
 
-  if (mediaError) {
-    return NextResponse.json(
-      { error: `Failed to load media assets: ${mediaError.message}` },
-      { status: 500 },
-    )
-  }
-
-  const mediaAssets = (rawMediaAssets ?? []) as MediaAssetRow[]
-  const byBucket = mediaAssets.reduce<Record<string, string[]>>((acc, item) => {
-    if (!acc[item.storage_bucket]) acc[item.storage_bucket] = []
-    acc[item.storage_bucket].push(item.storage_path)
-    return acc
-  }, {})
-
-  for (const kol of kols) {
-    const profilePhotoPath =
-      typeof kol.profile_photo_path === 'string'
-        ? kol.profile_photo_path
-        : ''
-
-    if (!profilePhotoPath) continue
-    if (!byBucket['kol-media']) byBucket['kol-media'] = []
-    if (!byBucket['kol-media'].includes(profilePhotoPath)) {
-      byBucket['kol-media'].push(profilePhotoPath)
-    }
-  }
+  // ── 2. Profile photos (signed URLs) ─────────────────────────────────────
+  const profilePaths = kols
+    .map((k) => typeof k.profile_photo_path === 'string' ? k.profile_photo_path : '')
+    .filter(Boolean)
 
   const signedUrlByPath = new Map<string, string>()
+  if (profilePaths.length > 0) {
+    const { data: signedUrls } = await admin.storage
+      .from('kol-media')
+      .createSignedUrls(profilePaths, 60 * 60)
+    signedUrls?.forEach((s, i) => {
+      if (s?.signedUrl) signedUrlByPath.set(profilePaths[i], s.signedUrl)
+    })
+  }
 
-  for (const [bucket, paths] of Object.entries(byBucket)) {
-    if (paths.length === 0) continue
+  // ── 3. Collaboration stats via referral_links ────────────────────────────
+  const { data: linksData } = await admin
+    .from('referral_links')
+    .select('id,kol_user_id,project_id')
+    .in('kol_user_id', userIds)
 
-    const { data: signedUrls, error: signError } = await admin.storage
-      .from(bucket)
-      .createSignedUrls(paths, 60 * 60)
+  const links = (linksData ?? []) as ReferralLinkRow[]
+  const linkIds    = links.map((l) => l.id)
+  const projectIds = [...new Set(links.map((l) => l.project_id).filter(Boolean))]
 
-    if (signError) {
-      return NextResponse.json(
-        { error: `Failed to sign media URLs: ${signError.message}` },
-        { status: 500 },
-      )
-    }
-
-    for (let index = 0; index < paths.length; index += 1) {
-      const signed = signedUrls?.[index]
-      if (signed?.signedUrl) signedUrlByPath.set(paths[index], signed.signedUrl)
+  // Fetch is_archived for each project
+  const archivedByProjectId = new Map<string, boolean>()
+  if (projectIds.length > 0) {
+    const { data: propsData } = await admin
+      .from('properties')
+      .select('id,is_archived')
+      .in('id', projectIds)
+    for (const row of (propsData ?? []) as PropertyRow[]) {
+      archivedByProjectId.set(row.id, row.is_archived ?? false)
     }
   }
 
-  const mediaByApplication = mediaAssets.reduce<Record<string, MediaAssetRow[]>>((acc, item) => {
-    if (!acc[item.application_id]) acc[item.application_id] = []
-    acc[item.application_id].push(item)
-    return acc
-  }, {})
+  // Active + archived projects per KOL
+  const activeProjectsPerKol   = new Map<string, number>()
+  const archivedProjectsPerKol = new Map<string, number>()
+  for (const link of links) {
+    const isArchived = archivedByProjectId.get(link.project_id) ?? false
+    if (isArchived) {
+      archivedProjectsPerKol.set(link.kol_user_id, (archivedProjectsPerKol.get(link.kol_user_id) ?? 0) + 1)
+    } else {
+      activeProjectsPerKol.set(link.kol_user_id, (activeProjectsPerKol.get(link.kol_user_id) ?? 0) + 1)
+    }
+  }
 
+  // Clicks per link
+  const clicksPerLink = new Map<string, number>()
+  if (linkIds.length > 0) {
+    const { data: clicksData } = await admin
+      .from('referral_clicks')
+      .select('referral_link_id')
+      .in('referral_link_id', linkIds)
+    for (const row of (clicksData ?? []) as ClickRow[]) {
+      clicksPerLink.set(row.referral_link_id, (clicksPerLink.get(row.referral_link_id) ?? 0) + 1)
+    }
+  }
+
+  // Conversions per link
+  const conversionsPerLink = new Map<string, number>()
+  if (linkIds.length > 0) {
+    const { data: convData } = await admin
+      .from('referral_conversions')
+      .select('referral_link_id')
+      .in('referral_link_id', linkIds)
+    for (const row of (convData ?? []) as ConversionRow[]) {
+      conversionsPerLink.set(row.referral_link_id, (conversionsPerLink.get(row.referral_link_id) ?? 0) + 1)
+    }
+  }
+
+  // Aggregate clicks + conversions per KOL
+  const clicksPerKol      = new Map<string, number>()
+  const conversionsPerKol = new Map<string, number>()
+  for (const link of links) {
+    const c = clicksPerLink.get(link.id) ?? 0
+    const v = conversionsPerLink.get(link.id) ?? 0
+    clicksPerKol.set(link.kol_user_id,      (clicksPerKol.get(link.kol_user_id) ?? 0) + c)
+    conversionsPerKol.set(link.kol_user_id, (conversionsPerKol.get(link.kol_user_id) ?? 0) + v)
+  }
+
+  // ── 4. KOL usernames from auth metadata ─────────────────────────────────
+  const userMetaResults = await Promise.all(
+    kols.map((kol) =>
+      admin.auth.admin.getUserById(kol.user_id).then((r) => {
+        const meta = r.data?.user?.user_metadata ?? {}
+        const resumeBio = (meta.kol_resume as Record<string, unknown> | undefined)?.bio
+        return {
+          userId:      kol.user_id,
+          kolUsername: typeof meta.kol_username === 'string' ? meta.kol_username : null,
+          resumeBio:   typeof resumeBio === 'string' && resumeBio.length > 0 ? resumeBio : null,
+        }
+      })
+    ),
+  )
+  const usernameByUserId = new Map(userMetaResults.map((r) => [r.userId, r.kolUsername]))
+
+  // ── 5. Hydrate ────────────────────────────────────────────────────────────
   const hydratedKols = kols.map((kol) => {
-    const assets = mediaByApplication[kol.id] ?? []
-    const profilePhotoPath =
-      typeof kol.profile_photo_path === 'string'
-        ? kol.profile_photo_path
-        : ''
+    const profilePhotoPath = typeof kol.profile_photo_path === 'string' ? kol.profile_photo_path : ''
+    const userId = kol.user_id
 
-    const photos = assets
-      .filter((asset) => asset.media_type === 'image' && asset.storage_path !== profilePhotoPath)
-      .map((asset) => signedUrlByPath.get(asset.storage_path))
-      .filter((url): url is string => Boolean(url))
+    const chosenUsername = usernameByUserId.get(userId) ?? null
+    const emailStr       = typeof kol.email === 'string' ? kol.email : ''
+    const username       = chosenUsername ?? emailStr.split('@')[0].replace(/[^a-z0-9_]/gi, '_').toLowerCase()
 
-    const videos = assets
-      .filter((asset) => asset.media_type === 'video')
-      .map((asset, index) => ({
-        url: signedUrlByPath.get(asset.storage_path) ?? '',
-        title: `作品影片 ${index + 1}`,
-      }))
-      .filter((item) => item.url.length > 0)
+    const savedResumeBio = typeof userMetaResults.find(r => r.userId === userId)?.resumeBio === 'string'
+      ? userMetaResults.find(r => r.userId === userId)?.resumeBio as string
+      : null
+    const bio = savedResumeBio ?? (typeof kol.bio === 'string' ? kol.bio : null)
+
+    const totalClicks      = clicksPerKol.get(userId) ?? 0
+    const totalConversions = conversionsPerKol.get(userId) ?? 0
 
     return {
-      ...kol,
+      id:              kol.id,
+      user_id:         userId,
+      email:           kol.email,
+      full_name:       kol.full_name,
+      username,
+      platforms:       kol.platforms,
+      platform_accounts: kol.platform_accounts,
+      follower_range:  kol.follower_range,
+      content_type:    kol.content_type,
+      bio,
+      city:            kol.city,
+      avg_views:       kol.avg_views,
+      engagement_rate: kol.engagement_rate,
       profile_photo_url: profilePhotoPath ? (signedUrlByPath.get(profilePhotoPath) ?? '') : '',
-      photos,
-      videos,
+      submitted_at:    kol.submitted_at,
+      reviewed_at:     kol.reviewed_at,
+      created_at:      kol.created_at,
+      activeProjects:   activeProjectsPerKol.get(userId) ?? 0,
+      archivedProjects: archivedProjectsPerKol.get(userId) ?? 0,
+      totalClicks,
+      totalConversions,
     }
   })
 

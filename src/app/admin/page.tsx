@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
@@ -12,25 +13,39 @@ const fadeUp = {
   }),
 }
 
-const OVERVIEW_STATS = [
-  { label: 'KOL 待審申請',  value: 5,  href: '/admin/kol-applications',      urgent: true  },
-  { label: '商家待審申請',  value: 2,  href: '/admin/merchant-applications',  urgent: true  },
-  { label: '活躍 KOL',      value: 12, href: '/admin/kols',                   urgent: false },
-  { label: '合作商家',      value: 4,  href: '/admin/merchants',              urgent: false },
-]
-
-const RECENT_KOL_APPS = [
-  { name: '趙子豪', platform: 'YouTube',   followers: '15.2萬', date: '2026-02-26' },
-  { name: '黃詠欣', platform: 'Instagram', followers: '8.3萬',  date: '2026-02-25' },
-  { name: '鄭宜蓁', platform: 'TikTok',   followers: '22.1萬', date: '2026-02-24' },
-]
-
-const RECENT_MERCHANT_APPS = [
-  { name: '信義聯合建設', contact: '張建銘', type: '預售屋', date: '2026-02-25' },
-  { name: '新北大地產',   contact: '李佳怡', type: '成屋',   date: '2026-02-24' },
-]
+type OverviewData = {
+  stats: {
+    pendingKols: number
+    pendingMerchants: number
+    activeKols: number
+    activeMerchants: number
+  }
+  recentKolApps: Array<{ name: string; platform: string; followerRange: string; date: string }>
+  recentMerchantApps: Array<{ name: string; contact: string; date: string }>
+}
 
 export default function AdminOverviewPage() {
+  const [data, setData] = useState<OverviewData | null>(null)
+
+  useEffect(() => {
+    fetch('/api/admin/overview', { cache: 'no-store' })
+      .then(r => r.json())
+      .then((d: OverviewData & { ok?: boolean }) => { if (d.ok) setData(d) })
+      .catch(() => {})
+  }, [])
+
+  const stats = data ? [
+    { label: 'KOL 待審申請',  value: data.stats.pendingKols,      href: '/admin/kol-applications',      urgent: true  },
+    { label: '商家待審申請',  value: data.stats.pendingMerchants,  href: '/admin/merchant-applications',  urgent: true  },
+    { label: '活躍 KOL',      value: data.stats.activeKols,        href: '/admin/kols',                   urgent: false },
+    { label: '合作商家',      value: data.stats.activeMerchants,   href: '/admin/merchants',              urgent: false },
+  ] : [
+    { label: 'KOL 待審申請',  value: null, href: '/admin/kol-applications',     urgent: true  },
+    { label: '商家待審申請',  value: null, href: '/admin/merchant-applications', urgent: true  },
+    { label: '活躍 KOL',      value: null, href: '/admin/kols',                  urgent: false },
+    { label: '合作商家',      value: null, href: '/admin/merchants',             urgent: false },
+  ]
+
   return (
     <div className="space-y-10">
 
@@ -43,17 +58,21 @@ export default function AdminOverviewPage() {
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {OVERVIEW_STATS.map((stat, i) => (
+        {stats.map((stat, i) => (
           <motion.div key={stat.label} custom={1 + i} initial="hidden" animate="visible" variants={fadeUp}>
             <Link
               href={stat.href}
               className="block rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-md p-5 h-full"
             >
               <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">{stat.label}</p>
-              <p className={`text-3xl font-serif mt-2 ${stat.urgent && stat.value > 0 ? 'text-amber-700' : ''}`}>
-                {stat.value}
-              </p>
-              {stat.urgent && stat.value > 0 && (
+              {stat.value === null ? (
+                <div className="h-8 w-12 bg-foreground/[0.06] rounded animate-pulse mt-2" />
+              ) : (
+                <p className={`text-3xl font-serif mt-2 ${stat.urgent && stat.value > 0 ? 'text-amber-700' : ''}`}>
+                  {stat.value}
+                </p>
+              )}
+              {stat.urgent && stat.value != null && stat.value > 0 && (
                 <p className="text-xs text-amber-600 mt-1">待處理</p>
               )}
             </Link>
@@ -80,20 +99,34 @@ export default function AdminOverviewPage() {
           </motion.div>
           <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
             <div className="divide-y divide-foreground/[0.06]">
-              {RECENT_KOL_APPS.map((app, i) => (
-                <motion.div
-                  key={app.name} custom={6 + i} initial="hidden" animate="visible" variants={fadeUp}
-                  className="px-5 py-4 flex items-center justify-between"
-                >
-                  <div>
-                    <p className="text-sm">{app.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {app.platform} · {app.followers} 粉絲
-                    </p>
+              {!data ? (
+                [0, 1, 2].map(i => (
+                  <div key={i} className="px-5 py-4 flex items-center justify-between">
+                    <div className="space-y-1.5">
+                      <div className="h-3 w-24 bg-foreground/[0.07] rounded animate-pulse" />
+                      <div className="h-2.5 w-32 bg-foreground/[0.04] rounded animate-pulse" />
+                    </div>
+                    <div className="h-2.5 w-20 bg-foreground/[0.04] rounded animate-pulse" />
                   </div>
-                  <p className="text-xs font-mono text-muted-foreground">{app.date}</p>
-                </motion.div>
-              ))}
+                ))
+              ) : data.recentKolApps.length === 0 ? (
+                <div className="px-5 py-6 text-xs text-muted-foreground/50 text-center">目前無待審申請</div>
+              ) : (
+                data.recentKolApps.map((app, i) => (
+                  <motion.div
+                    key={i} custom={6 + i} initial="hidden" animate="visible" variants={fadeUp}
+                    className="px-5 py-4 flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-sm">{app.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {app.platform}{app.followerRange ? ` · ${app.followerRange}` : ''}
+                      </p>
+                    </div>
+                    <p className="text-xs font-mono text-muted-foreground">{app.date}</p>
+                  </motion.div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -114,20 +147,32 @@ export default function AdminOverviewPage() {
           </motion.div>
           <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
             <div className="divide-y divide-foreground/[0.06]">
-              {RECENT_MERCHANT_APPS.map((app, i) => (
-                <motion.div
-                  key={app.name} custom={6 + i} initial="hidden" animate="visible" variants={fadeUp}
-                  className="px-5 py-4 flex items-center justify-between"
-                >
-                  <div>
-                    <p className="text-sm">{app.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {app.contact} · {app.type}
-                    </p>
+              {!data ? (
+                [0, 1].map(i => (
+                  <div key={i} className="px-5 py-4 flex items-center justify-between">
+                    <div className="space-y-1.5">
+                      <div className="h-3 w-28 bg-foreground/[0.07] rounded animate-pulse" />
+                      <div className="h-2.5 w-20 bg-foreground/[0.04] rounded animate-pulse" />
+                    </div>
+                    <div className="h-2.5 w-20 bg-foreground/[0.04] rounded animate-pulse" />
                   </div>
-                  <p className="text-xs font-mono text-muted-foreground">{app.date}</p>
-                </motion.div>
-              ))}
+                ))
+              ) : data.recentMerchantApps.length === 0 ? (
+                <div className="px-5 py-6 text-xs text-muted-foreground/50 text-center">目前無待審申請</div>
+              ) : (
+                data.recentMerchantApps.map((app, i) => (
+                  <motion.div
+                    key={i} custom={6 + i} initial="hidden" animate="visible" variants={fadeUp}
+                    className="px-5 py-4 flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-sm">{app.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{app.contact}</p>
+                    </div>
+                    <p className="text-xs font-mono text-muted-foreground">{app.date}</p>
+                  </motion.div>
+                ))
+              )}
             </div>
           </div>
         </div>

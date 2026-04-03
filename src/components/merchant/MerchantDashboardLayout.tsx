@@ -30,7 +30,8 @@ const ANALYSE: NavItem[] = [
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function getProjectId(pathname: string): string | null {
   const m = pathname.match(/^\/merchant\/projects\/([^/]+)/)
-  return m ? m[1] : null
+  if (!m || m[1] === 'archived') return null
+  return m[1]
 }
 
 // ── Section label — sits between nav groups ──────────────────────────────────
