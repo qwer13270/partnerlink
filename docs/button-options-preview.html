@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Button Options — KOL Resume Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --stone-50:  #fafaf9;
+      --stone-100: #f5f5f4;
+      --stone-200: #e7e5e4;
+      --stone-300: #d6d3d1;
+      --stone-400: #a8a29e;
+      --stone-500: #78716c;
+      --stone-600: #57534e;
+      --stone-700: #44403c;
+      --stone-900: #1c1917;
+      --warm-taupe: #e8e3db;
+      --warm-taupe-hover: #ddd7ce;
+      --page-bg: #f0ede8;
+      --foreground: #1a1918;
+    }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--page-bg);
+      min-height: 100vh;
+      padding: 48px 24px 80px;
+      color: var(--foreground);
+    }
+
+    .page-title {
+      font-family: 'EB Garamond', serif;
+      font-size: 13px;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--stone-500);
+      margin-bottom: 8px;
+    }
+
+    .page-heading {
+      font-family: 'EB Garamond', serif;
+      font-size: 34px;
+      font-weight: 400;
+      color: var(--foreground);
+      margin-bottom: 48px;
+      line-height: 1.1;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+    }
+
+    /* ── Base card — mirrors the actual page ── */
+    .card {
+      background: var(--stone-50);
+      border: 1px solid rgba(26,25,24,0.08);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+
+    .option-label {
+      position: absolute;
+      top: -10px;
+      left: 16px;
+      background: var(--foreground);
+      color: #fff;
+      font-size: 9px;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 4px;
+    }
+
+    .card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(26,25,24,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .card-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: rgba(26,25,24,0.55);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .card-title {
+      font-family: 'EB Garamond', serif;
+      font-size: 19px;
+      color: var(--foreground);
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+
+    .card-body {
+      font-family: 'DM Mono', monospace;
+      font-size: 10.5px;
+      line-height: 1.7;
+      color: var(--stone-500);
+      margin-bottom: 24px;
+      flex: 1;
+    }
+
+    /* ── Shared button base ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 400;
+      padding: 10px 16px;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      letter-spacing: 0.01em;
+    }
+
+    .btn svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    /* Primary — same across all 5 */
+    .btn-primary {
+      background: var(--foreground);
+      color: #fff;
+      margin-bottom: 8px;
+      width: 100%;
+    }
+    .btn-primary:hover { background: rgba(26,25,24,0.88); }
+
+    /* ── Option 1: Stone-200 (current) ── */
+    .btn-stone200 {
+      background: var(--stone-200);
+      color: rgba(26,25,24,0.65);
+      width: 100%;
+    }
+    .btn-stone200:hover { background: var(--stone-300); }
+
+    /* ── Option 2: Outlined ── */
+    .btn-outlined {
+      background: transparent;
+      color: rgba(26,25,24,0.55);
+      border: 1.5px solid rgba(26,25,24,0.22);
+      width: 100%;
+    }
+    .btn-outlined:hover {
+      background: rgba(26,25,24,0.03);
+      border-color: rgba(26,25,24,0.38);
+      color: rgba(26,25,24,0.75);
+    }
+
+    /* ── Option 3: White elevated ── */
+    .btn-white {
+      background: #fff;
+      color: rgba(26,25,24,0.60);
+      border: 1px solid var(--stone-200);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
+      width: 100%;
+    }
+    .btn-white:hover {
+      box-shadow: 0 2px 6px rgba(0,0,0,0.09), 0 1px 3px rgba(0,0,0,0.06);
+      color: rgba(26,25,24,0.80);
+    }
+
+    /* ── Option 4: Warm taupe ── */
+    .btn-taupe {
+      background: var(--warm-taupe);
+      color: var(--stone-600);
+      width: 100%;
+    }
+    .btn-taupe:hover {
+      background: var(--warm-taupe-hover);
+      color: var(--stone-700);
+    }
+
+    /* ── Option 5: Ghost text ── */
+    .btn-ghost {
+      background: transparent;
+      color: var(--stone-500);
+      padding: 10px 0;
+      width: 100%;
+      justify-content: flex-start;
+      gap: 8px;
+      position: relative;
+    }
+    .btn-ghost::after {
+      content: '';
+      position: absolute;
+      bottom: 6px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--stone-400);
+      transition: width 0.25s ease;
+    }
+    .btn-ghost:hover { color: var(--stone-700); }
+    .btn-ghost:hover::after { width: 100%; }
+    .btn-ghost .arrow {
+      margin-left: auto;
+      font-size: 14px;
+      transition: transform 0.2s ease;
+    }
+    .btn-ghost:hover .arrow { transform: translateX(3px); }
+
+    /* ── Description strip ── */
+    .desc {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(26,25,24,0.07);
+      font-size: 9.5px;
+      letter-spacing: 0.02em;
+      color: var(--stone-400);
+      line-height: 1.6;
+    }
+    .desc strong { color: var(--stone-600); font-weight: 400; }
+
+    /* ── Highlight banner ── */
+    .recommended {
+      border-color: rgba(26,25,24,0.18);
+      box-shadow: 0 0 0 1.5px rgba(26,25,24,0.10), 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .recommended .option-label {
+      background: #b45309;
+    }
+
+    @media (max-width: 680px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <p class="page-title">PartnerLink · KOL</p>
+  <h1 class="page-heading">查看公開頁面 — Button Options</h1>
+
+  <div class="grid">
+
+    <!-- Option 1: Stone-200 (current) -->
+    <div class="card">
+      <span class="option-label">01 · Current</span>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M15 3H19a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M9 3h6v4H9z"/></svg>
+      </div>
+      <p class="card-title">編輯履歷</p>
+      <p class="card-body">更新個人頭像、自我介紹、專長標籤與作品集媒體</p>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        開始編輯
+      </button>
+
+      <div class="card-icon" style="margin-top:20px; margin-bottom:20px;">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </div>
+      <p class="card-title">查看公開頁面</p>
+      <p class="card-body">以訪客視角預覽你的公開履歷，確認商家所見內容</p>
+      <button class="btn btn-stone200">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        前往查看
+      </button>
+      <p class="desc"><strong>stone-200</strong> — Warm neutral gray. Visible but low contrast against stone-50 card. Safe, forgettable.</p>
+    </div>
+
+    <!-- Option 2: Outlined -->
+    <div class="card">
+      <span class="option-label">02 · Outlined</span>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M15 3H19a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M9 3h6v4H9z"/></svg>
+      </div>
+      <p class="card-title">編輯履歷</p>
+      <p class="card-body">更新個人頭像、自我介紹、專長標籤與作品集媒體</p>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        開始編輯
+      </button>
+      <div class="card-icon" style="margin-top:20px; margin-bottom:20px;">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </div>
+      <p class="card-title">查看公開頁面</p>
+      <p class="card-body">以訪客視角預覽你的公開履歷，確認商家所見內容</p>
+      <button class="btn btn-outlined">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        前往查看
+      </button>
+      <p class="desc"><strong>Outlined</strong> — Transparent fill, visible border. Creates clear hierarchy — primary is filled, secondary is framed. Crisp and editorial.</p>
+    </div>
+
+    <!-- Option 3: White elevated -->
+    <div class="card recommended">
+      <span class="option-label" style="background:#b45309;">03 · Recommended</span>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M15 3H19a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M9 3h6v4H9z"/></svg>
+      </div>
+      <p class="card-title">編輯履歷</p>
+      <p class="card-body">更新個人頭像、自我介紹、專長標籤與作品集媒體</p>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        開始編輯
+      </button>
+      <div class="card-icon" style="margin-top:20px; margin-bottom:20px;">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </div>
+      <p class="card-title">查看公開頁面</p>
+      <p class="card-body">以訪客視角預覽你的公開履歷，確認商家所見內容</p>
+      <button class="btn btn-white">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        前往查看
+      </button>
+      <p class="desc"><strong>White elevated</strong> — White bg with soft shadow lifts off the stone-50 card. Feels premium. The shadow creates depth without adding color noise.</p>
+    </div>
+
+    <!-- Option 4: Warm taupe -->
+    <div class="card">
+      <span class="option-label">04 · Warm taupe</span>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M15 3H19a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M9 3h6v4H9z"/></svg>
+      </div>
+      <p class="card-title">編輯履歷</p>
+      <p class="card-body">更新個人頭像、自我介紹、專長標籤與作品集媒體</p>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        開始編輯
+      </button>
+      <div class="card-icon" style="margin-top:20px; margin-bottom:20px;">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </div>
+      <p class="card-title">查看公開頁面</p>
+      <p class="card-body">以訪客視角預覽你的公開履歷，確認商家所見內容</p>
+      <button class="btn btn-taupe">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        前往查看
+      </button>
+      <p class="desc"><strong>Warm taupe #e8e3db</strong> — The email palette color. Warmer than stone-200, blends organically with the overall app tone. Cohesive and earthy.</p>
+    </div>
+
+    <!-- Option 5: Ghost text -->
+    <div class="card">
+      <span class="option-label">05 · Ghost text</span>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M15 3H19a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M9 3h6v4H9z"/></svg>
+      </div>
+      <p class="card-title">編輯履歷</p>
+      <p class="card-body">更新個人頭像、自我介紹、專長標籤與作品集媒體</p>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        開始編輯
+      </button>
+      <div class="card-icon" style="margin-top:20px; margin-bottom:20px;">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </div>
+      <p class="card-title">查看公開頁面</p>
+      <p class="card-body">以訪客視角預覽你的公開履歷，確認商家所見內容</p>
+      <button class="btn btn-ghost">
+        前往查看
+        <span class="arrow">→</span>
+      </button>
+      <p class="desc"><strong>Ghost / text link</strong> — No background, animated underline on hover, sliding arrow. Maximum contrast with the primary. Very editorial. Subtle but intentional.</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

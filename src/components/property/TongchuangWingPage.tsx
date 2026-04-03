@@ -578,54 +578,12 @@ function renderModule({
                 {content.contactBody}
               </p>
 
-              <div className="flex flex-col gap-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField label="姓名">
-                    <input type="text" placeholder="您的姓名" className={inputCls} />
-                  </FormField>
-                  <FormField label="聯絡電話">
-                    <input type="tel" placeholder="0912 345 678" className={inputCls} />
-                  </FormField>
-                </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField label="電子信箱">
-                    <input type="email" placeholder="email@example.com" className={inputCls} />
-                  </FormField>
-                  <FormField label="有興趣的房型">
-                    <select className={`${inputCls} cursor-pointer bg-[var(--p-bg-contact)]`}>
-                      <option value="">請選擇</option>
-                      <option>35坪 精奢2房</option>
-                      <option>45坪 精奢2-3房</option>
-                      <option>58坪 精奢3房</option>
-                    </select>
-                  </FormField>
-                </div>
-                <FormField label="備註">
-                  <textarea
-                    placeholder="如有其他問題或特殊需求，請在此說明…"
-                    className={`${inputCls} min-h-[90px] resize-y`}
-                  />
-                </FormField>
-                <div className="mt-2 flex items-center justify-between gap-4">
-                  <p className="[font-family:var(--font-serif-tc)] max-w-[180px] text-[10px] leading-[1.8] text-[var(--p-text-ghost)]">
-                    您的資料將受到嚴格保護，僅供本案聯繫使用。
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!isEditing) setSubmitted(true);
-                    }}
-                    className={[
-                      "shrink-0 px-8 py-3 [font-family:var(--font-serif-tc)] text-[12px] tracking-[0.18em] transition-all duration-300",
-                      submitted
-                        ? "cursor-default bg-[var(--p-accent)]/40 text-[var(--p-text)]"
-                        : "cursor-pointer bg-[var(--p-accent)] text-[var(--p-bg)] hover:bg-[var(--p-accent-lt)]",
-                    ].join(" ")}
-                  >
-                    {submitted ? "已送出，感謝您 ✓" : "送出預約"}
-                  </button>
-                </div>
-              </div>
+              <ContactFormBlock
+                slug={content.slug}
+                isEditing={isEditing}
+                submitted={submitted}
+                setSubmitted={setSubmitted}
+              />
             </motion.div>
           </section>
           <ImageBreaks breaks={content.imageBreaks?.contact} />
@@ -1272,6 +1230,103 @@ function GoldDivider() {
 
 const inputCls =
   "w-full bg-[var(--p-bg-card)] border border-[var(--p-border)] px-4 py-3 text-[13px] text-[var(--p-text-warm)] outline-none transition-colors duration-300 placeholder:text-[var(--p-text-ghost)] focus:border-[var(--p-accent)]/50";
+
+// ── ContactFormBlock ───────────────────────────────────────────────────────────
+// Controlled version of the contact form — submits to /api/inquiries and logs
+// referral attribution via the hk_ref cookie set by the /r/[code] route.
+function ContactFormBlock({
+  slug,
+  isEditing,
+  submitted,
+  setSubmitted,
+}: {
+  slug:         string
+  isEditing:    boolean
+  submitted:    boolean
+  setSubmitted: (v: boolean) => void
+}) {
+  const [fields, setFields] = useState({ name: '', phone: '', email: '', unitType: '', notes: '' })
+  const [submitting, setSubmitting] = useState(false)
+
+  const update = (key: keyof typeof fields) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      setFields(prev => ({ ...prev, [key]: e.target.value }))
+
+  const handleSubmit = async () => {
+    if (isEditing || submitted || submitting) return
+    if (!fields.name.trim()) return
+    setSubmitting(true)
+
+    await fetch('/api/inquiries', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        property_slug: slug,
+        name:          fields.name,
+        phone:         fields.phone || null,
+        email:         fields.email || null,
+        message:       [fields.unitType && `有興趣的房型：${fields.unitType}`, fields.notes]
+          .filter(Boolean).join('\n') || null,
+      }),
+    }).catch(() => null)
+
+    setSubmitting(false)
+    setSubmitted(true)
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <FormField label="姓名">
+          <input type="text" placeholder="您的姓名" className={inputCls}
+            value={fields.name} onChange={update('name')} />
+        </FormField>
+        <FormField label="聯絡電話">
+          <input type="tel" placeholder="0912 345 678" className={inputCls}
+            value={fields.phone} onChange={update('phone')} />
+        </FormField>
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <FormField label="電子信箱">
+          <input type="email" placeholder="email@example.com" className={inputCls}
+            value={fields.email} onChange={update('email')} />
+        </FormField>
+        <FormField label="有興趣的房型">
+          <select className={`${inputCls} cursor-pointer bg-[var(--p-bg-contact)]`}
+            value={fields.unitType} onChange={update('unitType')}>
+            <option value="">請選擇</option>
+            <option>35坪 精奢2房</option>
+            <option>45坪 精奢2-3房</option>
+            <option>58坪 精奢3房</option>
+          </select>
+        </FormField>
+      </div>
+      <FormField label="備註">
+        <textarea placeholder="如有其他問題或特殊需求，請在此說明…"
+          className={`${inputCls} min-h-[90px] resize-y`}
+          value={fields.notes} onChange={update('notes')} />
+      </FormField>
+      <div className="mt-2 flex items-center justify-between gap-4">
+        <p className="[font-family:var(--font-serif-tc)] max-w-[180px] text-[10px] leading-[1.8] text-[var(--p-text-ghost)]">
+          您的資料將受到嚴格保護，僅供本案聯繫使用。
+        </p>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={submitting}
+          className={[
+            "shrink-0 px-8 py-3 [font-family:var(--font-serif-tc)] text-[12px] tracking-[0.18em] transition-all duration-300",
+            submitted || submitting
+              ? "cursor-default bg-[var(--p-accent)]/40 text-[var(--p-text)]"
+              : "cursor-pointer bg-[var(--p-accent)] text-[var(--p-bg)] hover:bg-[var(--p-accent-lt)]",
+          ].join(" ")}
+        >
+          {submitted ? "已送出，感謝您 ✓" : submitting ? "送出中…" : "送出預約"}
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
