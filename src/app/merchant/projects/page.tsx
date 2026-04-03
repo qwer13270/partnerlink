@@ -3,7 +3,7 @@
 import { startTransition, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Plus, X, ArrowUpRight, Trash2 } from 'lucide-react'
+import { Plus, X, ArrowUpRight, Trash2, Archive } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { pinyin } from 'pinyin-pro'
@@ -17,6 +17,14 @@ type ProjectSummary = {
   publishStatus: 'draft' | 'published'
   createdAt: string
   updatedAt: string
+}
+
+type ArchivedProjectSummary = {
+  id: string
+  name: string
+  templateKey: string
+  archivedAt: string
+  createdAt: string
 }
 
 // ── Template icons ───────────────────────────────────────────────────────────
@@ -363,6 +371,83 @@ function DeleteModal({ project, onClose, onDeleted }: { project: ProjectSummary;
   )
 }
 
+// ── Archived project card ─────────────────────────────────────────────────────
+function ArchivedProjectCard({ project, index }: { project: ArchivedProjectSummary; index: number }) {
+  const isResidential = project.templateKey === 'tongchuang-wing'
+  const archivedDate  = new Date(project.archivedAt).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      className="group/archived"
+    >
+      <Link
+        href={`/merchant/projects/archived/${project.id}`}
+        className="block rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] p-5 opacity-60 hover:opacity-80 hover:border-foreground/[0.12] hover:shadow-sm transition-all duration-200"
+      >
+        {/* Top row */}
+        <div className="flex items-start justify-between mb-5">
+          <div className="w-11 h-11 rounded-xl border border-foreground/[0.06] bg-foreground/[0.04] flex items-center justify-center text-foreground/25">
+            {isResidential
+              ? <ResidentialIcon className="h-5 w-5" />
+              : <CommercialIcon  className="h-5 w-5" />
+            }
+          </div>
+          <span className="text-[0.72rem] font-medium px-2 py-0.5 rounded border bg-foreground/[0.04] text-foreground/35 border-foreground/[0.08] inline-flex items-center gap-1.5">
+            <Archive className="h-3 w-3" />
+            已封存
+          </span>
+        </div>
+
+        {/* Name */}
+        <div className="mb-4">
+          <h2 className="font-serif text-[0.98rem] leading-snug mb-1 truncate text-foreground/40">
+            {project.name}
+          </h2>
+          <p className="text-[0.68rem] font-mono text-muted-foreground/30 truncate">
+            {new Date(project.createdAt).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long' })} 建立
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-3.5 border-t border-foreground/[0.05]">
+          <span className="text-[0.68rem] font-mono text-muted-foreground/30">
+            封存於 {archivedDate}
+          </span>
+          <ArrowUpRight className="w-3.5 h-3.5 text-foreground/20 opacity-0 group-hover/archived:opacity-100 -translate-x-1 group-hover/archived:translate-x-0 transition-all duration-200" />
+        </div>
+      </Link>
+    </motion.div>
+  )
+}
+
+// ── Archived empty state ──────────────────────────────────────────────────────
+function ArchivedEmptyState() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className="flex flex-col items-center justify-center py-24 text-center"
+    >
+      <div className="mb-8 opacity-[0.10]">
+        <Archive className="h-20 w-20 text-foreground mx-auto" />
+      </div>
+      <p className="text-[0.62rem] font-mono uppercase tracking-[0.55em] text-muted-foreground/40 mb-4">
+        ARCHIVE
+      </p>
+      <h2 className="text-xl font-serif font-light text-foreground mb-3">
+        沒有已封存的商案
+      </h2>
+      <p className="text-sm text-muted-foreground/50 max-w-xs leading-relaxed">
+        封存的商案會保留所有客戶與佣金紀錄，並顯示於此處。
+      </p>
+    </motion.div>
+  )
+}
+
 // ── Card skeleton ──────────────────────────────────────────────────────────────
 function CardSkeleton({ index }: { index: number }) {
   return (
@@ -387,24 +472,46 @@ function CardSkeleton({ index }: { index: number }) {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function MerchantProjectsPage() {
-  const router      = useRouter()
-  const [projects, setProjects] = useState<ProjectSummary[]>([])
-  const [loading, setLoading]   = useState(true)
-  const [showModal, setShowModal] = useState(false)
+  const router = useRouter()
+  const [tab, setTab] = useState<'active' | 'archived'>('active')
+
+  const [projects, setProjects]             = useState<ProjectSummary[]>([])
+  const [loadingActive, setLoadingActive]   = useState(true)
+
+  const [archived, setArchived]             = useState<ArchivedProjectSummary[]>([])
+  const [loadingArchived, setLoadingArchived] = useState(false)
+  const archivedFetched                     = useRef(false)
+
+  const [showModal, setShowModal]       = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<ProjectSummary | null>(null)
 
+  // Fetch active projects on mount
   useEffect(() => {
     let active = true
     fetch('/api/merchant/projects', { cache: 'no-store' })
       .then(r => r.json())
-      .then((d: { projects?: ProjectSummary[]; error?: string }) => {
+      .then((d: { projects?: ProjectSummary[] }) => {
         if (!active) return
         setProjects(Array.isArray(d.projects) ? d.projects : [])
-        setLoading(false)
+        setLoadingActive(false)
       })
-      .catch(() => { if (active) setLoading(false) })
+      .catch(() => { if (active) setLoadingActive(false) })
     return () => { active = false }
   }, [])
+
+  // Fetch archived projects lazily on first tab switch
+  useEffect(() => {
+    if (tab !== 'archived' || archivedFetched.current) return
+    archivedFetched.current = true
+    setLoadingArchived(true)
+    fetch('/api/merchant/projects/archived', { cache: 'no-store' })
+      .then(r => r.json())
+      .then((d: { projects?: ArchivedProjectSummary[] }) => {
+        setArchived(Array.isArray(d.projects) ? d.projects : [])
+        setLoadingArchived(false)
+      })
+      .catch(() => setLoadingArchived(false))
+  }, [tab])
 
   function handleCreated(id: string) {
     setShowModal(false)
@@ -414,6 +521,8 @@ export default function MerchantProjectsPage() {
   function handleDeleted(id: string) {
     setDeleteTarget(null)
     setProjects(prev => prev.filter(p => p.id !== id))
+    // Invalidate archive cache so it refreshes next visit
+    archivedFetched.current = false
   }
 
   return (
@@ -424,7 +533,7 @@ export default function MerchantProjectsPage() {
         <motion.div
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="relative mb-10"
+          className="relative mb-8"
         >
           <p className="text-[0.58rem] font-mono uppercase tracking-[0.55em] text-muted-foreground/40 mb-3">
             MERCHANT / PROJECTS
@@ -433,31 +542,94 @@ export default function MerchantProjectsPage() {
             <h1 className="font-serif font-light" style={{ fontSize: 'clamp(28px, 4vw, 38px)', lineHeight: 1.1 }}>
               商案管理
             </h1>
-            <button
-              onClick={() => setShowModal(true)}
-              className="rounded-lg bg-foreground text-background font-medium text-[0.78rem] px-4 py-2.5 inline-flex items-center gap-2 hover:bg-foreground/88 active:scale-[0.97] transition-all duration-150 shrink-0 mb-0.5"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              新增商案
-            </button>
+            {tab === 'active' && (
+              <button
+                onClick={() => setShowModal(true)}
+                className="rounded-lg bg-foreground text-background font-medium text-[0.78rem] px-4 py-2.5 inline-flex items-center gap-2 hover:bg-foreground/88 active:scale-[0.97] transition-all duration-150 shrink-0 mb-0.5"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                新增商案
+              </button>
+            )}
           </div>
           <div className="mt-6 h-px bg-foreground/[0.08]" />
         </motion.div>
 
+        {/* ── Tab switcher ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className="flex items-center gap-1 mb-8 w-fit"
+        >
+          {(['active', 'archived'] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`relative px-4 py-1.5 rounded-lg text-[0.72rem] font-mono tracking-[0.08em] transition-all duration-200 ${
+                tab === t
+                  ? 'bg-foreground text-background'
+                  : 'text-muted-foreground/50 hover:text-foreground/70 hover:bg-foreground/[0.05]'
+              }`}
+            >
+              {t === 'active' ? '進行中' : '已封存'}
+              {t === 'active' && !loadingActive && projects.length > 0 && (
+                <span className={`ml-1.5 text-[0.65rem] font-mono ${tab === 'active' ? 'text-background/50' : 'text-muted-foreground/35'}`}>
+                  {projects.length}
+                </span>
+              )}
+              {t === 'archived' && !loadingArchived && archivedFetched.current && archived.length > 0 && (
+                <span className={`ml-1.5 text-[0.65rem] font-mono ${tab === 'archived' ? 'text-background/50' : 'text-muted-foreground/35'}`}>
+                  {archived.length}
+                </span>
+              )}
+            </button>
+          ))}
+        </motion.div>
+
         {/* ── Content ── */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[0, 1, 2, 3].map(i => <CardSkeleton key={i} index={i} />)}
-          </div>
-        ) : projects.length === 0 ? (
-          <EmptyState onNew={() => setShowModal(true)} />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {projects.map((p, i) => (
-              <ProjectCard key={p.id} project={p} index={i} onDelete={setDeleteTarget} />
-            ))}
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {tab === 'active' ? (
+            <motion.div
+              key="active"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {loadingActive ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[0, 1, 2, 3].map(i => <CardSkeleton key={i} index={i} />)}
+                </div>
+              ) : projects.length === 0 ? (
+                <EmptyState onNew={() => setShowModal(true)} />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {projects.map((p, i) => (
+                    <ProjectCard key={p.id} project={p} index={i} onDelete={setDeleteTarget} />
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="archived"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {loadingArchived ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[0, 1, 2].map(i => <CardSkeleton key={i} index={i} />)}
+                </div>
+              ) : archived.length === 0 ? (
+                <ArchivedEmptyState />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {archived.map((p, i) => (
+                    <ArchivedProjectCard key={p.id} project={p} index={i} />
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
 

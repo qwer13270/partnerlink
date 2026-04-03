@@ -169,6 +169,88 @@ export async function listMerchantProjects(userId: string) {
   }))
 }
 
+export type ArchivedProjectSummary = {
+  id: string
+  name: string
+  templateKey: string
+  archivedAt: string
+  createdAt: string
+}
+
+export type ArchivedProjectDetail = {
+  id: string
+  name: string
+  templateKey: string
+  districtLabel: string | null
+  archivedAt: string
+  createdAt: string
+  publishedAt: string | null
+}
+
+export async function getMerchantArchivedProjectDetail(
+  userId: string,
+  projectId: string,
+): Promise<ArchivedProjectDetail | null> {
+  const admin = getSupabaseAdminClient()
+  const { data, error } = await admin
+    .from('properties')
+    .select('id,name,template_key,district_label,archived_at,created_at,published_at')
+    .eq('id', projectId)
+    .eq('merchant_user_id', userId)
+    .eq('is_archived', true)
+    .maybeSingle()
+
+  if (error || !data) return null
+
+  const row = data as {
+    id: string
+    name: string
+    template_key: string
+    district_label: string | null
+    archived_at: string | null
+    created_at: string
+    published_at: string | null
+  }
+
+  return {
+    id: row.id,
+    name: row.name,
+    templateKey: row.template_key,
+    districtLabel: row.district_label,
+    archivedAt: row.archived_at ?? row.created_at,
+    createdAt: row.created_at,
+    publishedAt: row.published_at,
+  }
+}
+
+export async function listArchivedMerchantProjects(userId: string): Promise<ArchivedProjectSummary[]> {
+  const admin = getSupabaseAdminClient()
+  const { data, error } = await admin
+    .from('properties')
+    .select('id,name,template_key,archived_at,created_at')
+    .eq('merchant_user_id', userId)
+    .eq('is_archived', true)
+    .order('archived_at', { ascending: false })
+
+  if (error) {
+    throw new Error(`Failed to load archived projects: ${error.message}`)
+  }
+
+  return ((data ?? []) as Array<{
+    id: string
+    name: string
+    template_key: string
+    archived_at: string | null
+    created_at: string
+  }>).map((row) => ({
+    id: row.id,
+    name: row.name,
+    templateKey: row.template_key,
+    archivedAt: row.archived_at ?? row.created_at,
+    createdAt: row.created_at,
+  }))
+}
+
 async function getPropertyRowsById(propertyId: string) {
   const admin = getSupabaseAdminClient()
   const [

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ExternalLink } from 'lucide-react'
+import Link from 'next/link'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
@@ -12,36 +13,53 @@ const fadeUp = {
   }),
 }
 
-type Status = 'active' | 'suspended'
+type Project = {
+  id: string
+  name: string
+  slug: string
+  publishStatus: string
+  isArchived: boolean
+  createdAt: string
+  dealValue: number
+}
 
 type Merchant = {
   id: string
-  company: string
-  contact: string
-  phone: string
-  projectType: string
+  userId: string
+  companyName: string
+  contactName: string | null
+  phone: string | null
+  city: string | null
+  status: string
+  createdAt: string
   activeProjects: number
-  totalKols: number
-  totalLeads: number
-  joinDate: string
-  status: Status
+  archivedProjects: number
+  totalDealValue: number
+  projects: Project[]
 }
 
-const INITIAL: Merchant[] = [
-  { id: 'm-001', company: '信義聯合建設',   contact: '張建銘', phone: '02-2345-6789', projectType: '預售屋', activeProjects: 2, totalKols: 8,  totalLeads: 143, joinDate: '2025-09-01', status: 'active'    },
-  { id: 'm-002', company: '新北大地產',     contact: '李佳怡', phone: '02-8901-2345', projectType: '成屋',   activeProjects: 1, totalKols: 3,  totalLeads: 57,  joinDate: '2025-10-15', status: 'active'    },
-  { id: 'm-003', company: '台中優質住宅',   contact: '陳文正', phone: '04-2234-5678', projectType: '預售屋', activeProjects: 3, totalKols: 12, totalLeads: 289, joinDate: '2025-08-20', status: 'active'    },
-  { id: 'm-004', company: '桃園精緻建設',   contact: '林美玲', phone: '03-3456-7890', projectType: '成屋',   activeProjects: 0, totalKols: 2,  totalLeads: 18,  joinDate: '2025-11-30', status: 'suspended' },
-]
+function fmtDeal(wan: number): string {
+  if (wan === 0) return '—'
+  if (wan >= 10000) return `${(wan / 10000).toFixed(wan % 10000 === 0 ? 0 : 1)} 億`
+  return `${wan.toLocaleString()} 萬`
+}
 
 export default function AdminMerchantsPage() {
-  const [merchants, setMerchants] = useState<Merchant[]>(INITIAL)
+  const [merchants, setMerchants]   = useState<Merchant[]>([])
+  const [loading, setLoading]       = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  const toggleStatus = (id: string) =>
-    setMerchants(prev => prev.map(m => m.id === id ? { ...m, status: m.status === 'active' ? 'suspended' : 'active' } : m))
+  useEffect(() => {
+    fetch('/api/admin/merchants', { cache: 'no-store' })
+      .then(r => r.json())
+      .then((d: { ok?: boolean; merchants?: Merchant[] }) => {
+        if (d.ok) setMerchants(d.merchants ?? [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
 
-  const activeCount = merchants.filter(m => m.status === 'active').length
+  const activeCount    = merchants.filter(m => m.status === 'active').length
   const suspendedCount = merchants.filter(m => m.status === 'suspended').length
 
   return (
@@ -51,23 +69,29 @@ export default function AdminMerchantsPage() {
       <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">管理後台</p>
         <h1 className="text-3xl font-serif">商家管理</h1>
-        <p className="text-sm text-muted-foreground mt-2">
-          管理已通過審核的合作商家，查看專案與帶看數據，或停用帳號。
-        </p>
+        <p className="text-sm text-muted-foreground mt-2">管理已通過審核的合作商家，查看專案數據。</p>
       </motion.div>
 
       {/* Summary badges */}
       <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="flex items-center gap-3 flex-wrap">
-        <span className="text-xs uppercase tracking-[0.4em] border border-foreground/15 px-2 py-1 text-muted-foreground">
-          共 {merchants.length} 家商家
-        </span>
-        <span className="text-xs uppercase tracking-[0.4em] border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-700">
-          {activeCount} 家合作中
-        </span>
-        {suspendedCount > 0 && (
-          <span className="text-xs uppercase tracking-[0.4em] border border-red-200 bg-red-50 px-2 py-1 text-red-600">
-            {suspendedCount} 家停用
-          </span>
+        {loading ? (
+          <div className="h-6 w-32 bg-foreground/[0.06] rounded animate-pulse" />
+        ) : (
+          <>
+            <span className="text-xs uppercase tracking-[0.4em] border border-foreground/15 px-2 py-1 text-muted-foreground">
+              共 {merchants.length} 家商家
+            </span>
+            {activeCount > 0 && activeCount < merchants.length && (
+              <span className="text-xs uppercase tracking-[0.4em] border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-700">
+                {activeCount} 家合作中
+              </span>
+            )}
+            {suspendedCount > 0 && suspendedCount < merchants.length && (
+              <span className="text-xs uppercase tracking-[0.4em] border border-red-200 bg-red-50 px-2 py-1 text-red-600">
+                {suspendedCount} 家停用
+              </span>
+            )}
+          </>
         )}
       </motion.div>
 
@@ -76,93 +100,152 @@ export default function AdminMerchantsPage() {
         className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden divide-y divide-foreground/[0.06]"
       >
         {/* Column headers */}
-        <div className="px-5 py-2 grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 items-center">
+        <div className="px-5 py-2 grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center">
           <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">商家</p>
-          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground w-20 text-right">活躍商案</p>
-          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground w-20 text-right">合作 KOL</p>
-          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground w-20 text-right">帶看累計</p>
-          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground w-16 text-right">操作</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground w-28 text-right">總成交金額</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground w-24 text-right">商案數</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground w-8" />
         </div>
 
-        <AnimatePresence>
-          {merchants.map((merchant) => (
-            <motion.div key={merchant.id} layout>
-              {/* Main row */}
-              <div
-                className={`px-5 py-4 grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 items-center cursor-pointer hover:bg-muted/20 transition-colors duration-150 ${merchant.status === 'suspended' ? 'opacity-50' : ''}`}
-                onClick={() => setExpandedId(expandedId === merchant.id ? null : merchant.id)}
-              >
-                {/* Merchant info */}
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm">{merchant.company}</p>
-                    <span className="text-xs font-mono text-muted-foreground border border-foreground/10 px-1.5 py-px">
-                      {merchant.projectType}
-                    </span>
-                    {merchant.status === 'suspended' && (
-                      <span className="text-xs uppercase tracking-[0.3em] text-red-600 border border-red-200 bg-red-50 px-1.5 py-px">停用</span>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {merchant.contact}
-                    <span className="mx-1.5 opacity-30">·</span>
-                    {merchant.phone}
-                  </p>
-                </div>
-
-                {/* Active projects */}
-                <p className="text-sm font-mono w-20 text-right">{merchant.activeProjects}</p>
-
-                {/* KOL count */}
-                <p className="text-sm font-mono w-20 text-right">{merchant.totalKols}</p>
-
-                {/* Leads */}
-                <p className="text-sm font-mono w-20 text-right">{merchant.totalLeads}</p>
-
-                {/* Expand icon */}
-                <div className="w-16 flex justify-end text-muted-foreground">
-                  {expandedId === merchant.id ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                </div>
+        {loading ? (
+          [0, 1, 2].map(i => (
+            <div key={i} className="px-5 py-4 grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center">
+              <div className="space-y-1.5">
+                <div className="h-3.5 w-36 bg-foreground/[0.07] rounded animate-pulse" />
+                <div className="h-2.5 w-48 bg-foreground/[0.04] rounded animate-pulse" />
               </div>
+              <div className="h-3 w-16 bg-foreground/[0.05] rounded animate-pulse" />
+              <div className="h-3 w-16 bg-foreground/[0.05] rounded animate-pulse" />
+              <div className="h-3 w-4 bg-foreground/[0.04] rounded animate-pulse" />
+            </div>
+          ))
+        ) : merchants.length === 0 ? (
+          <div className="px-5 py-10 text-center text-sm text-muted-foreground/50">目前尚無已審核商家</div>
+        ) : (
+          <AnimatePresence>
+            {merchants.map((merchant) => {
+              const isOpen = expandedId === merchant.id
+              const totalProjects = merchant.activeProjects + merchant.archivedProjects
+              return (
+                <motion.div key={merchant.id} layout>
 
-              {/* Expanded panel */}
-              <AnimatePresence>
-                {expandedId === merchant.id && (
-                  <motion.div
-                    key="expanded"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.22 }}
-                    className="overflow-hidden border-t border-foreground/[0.06]"
+                  {/* Main row */}
+                  <div
+                    className={`px-5 py-4 grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center cursor-pointer hover:bg-muted/20 transition-colors duration-150 ${merchant.status === 'suspended' ? 'opacity-50' : ''}`}
+                    onClick={() => setExpandedId(isOpen ? null : merchant.id)}
                   >
-                    <div className="px-5 py-4 bg-muted/10 flex items-center justify-between gap-6 flex-wrap">
-                      {/* Meta */}
-                      <div className="text-xs text-muted-foreground space-y-1">
-                        <p>加入日期：{merchant.joinDate}</p>
-                        <p>商家 ID：{merchant.id}</p>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm">{merchant.companyName}</p>
+                        {merchant.status === 'suspended' && (
+                          <span className="text-xs uppercase tracking-[0.3em] text-red-600 border border-red-200 bg-red-50 px-1.5 py-px">停用</span>
+                        )}
                       </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); toggleStatus(merchant.id) }}
-                          className={`text-xs uppercase tracking-[0.3em] px-3 py-2 border transition-colors duration-150 ${
-                            merchant.status === 'active'
-                              ? 'border-red-200 text-red-600 hover:bg-red-50'
-                              : 'border-foreground/15 text-muted-foreground hover:border-foreground hover:text-foreground'
-                          }`}
-                        >
-                          {merchant.status === 'active' ? '停用帳號' : '恢復帳號'}
-                        </button>
-                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {[merchant.contactName, merchant.phone, merchant.city].filter(Boolean).join(' · ')}
+                      </p>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+
+                    {/* 總成交金額 */}
+                    <p className="text-sm font-serif w-28 text-right">{fmtDeal(merchant.totalDealValue)}</p>
+
+                    {/* 商案數 — active + archived */}
+                    <div className="w-24 flex items-center justify-end gap-1.5">
+                      <span className="inline-flex items-center gap-1 text-[0.67rem] font-medium px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/50">
+                        <span className="w-1 h-1 rounded-full bg-emerald-500 shrink-0" />
+                        {merchant.activeProjects}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[0.67rem] font-medium px-1.5 py-0.5 rounded bg-foreground/[0.03] text-foreground/40 border border-foreground/[0.07]">
+                        <span className="w-1 h-1 rounded-full bg-foreground/20 shrink-0" />
+                        {merchant.archivedProjects}
+                      </span>
+                    </div>
+
+                    <div className="w-8 flex justify-end text-muted-foreground">
+                      <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </div>
+
+                  {/* Expanded — project list */}
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        key="expanded"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.22 }}
+                        className="overflow-hidden border-t border-foreground/[0.06]"
+                      >
+                        <div className="bg-foreground/[0.015] px-6 py-4 space-y-3">
+
+                          {/* Meta row */}
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-muted-foreground">
+                              加入日期：{new Date(merchant.createdAt).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                            <span className="text-xs text-muted-foreground/50 font-mono">{totalProjects} 個商案</span>
+                          </div>
+
+                          {/* Project list */}
+                          {merchant.projects.length === 0 ? (
+                            <p className="text-xs text-muted-foreground/40 py-2">尚無商案</p>
+                          ) : (
+                            <div className="space-y-1.5">
+                              {[...merchant.projects].sort((a, b) => {
+                                if (a.isArchived !== b.isArchived) return a.isArchived ? 1 : -1
+                                if (a.publishStatus !== b.publishStatus) return a.publishStatus === 'published' ? -1 : 1
+                                return 0
+                              }).map((p) => (
+                                <div key={p.id} className="flex items-center justify-between gap-3 rounded-lg border border-foreground/[0.07] bg-background px-3.5 py-2.5 group">
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                      p.isArchived ? 'bg-foreground/20' :
+                                      p.publishStatus === 'published' ? 'bg-emerald-500' : 'bg-amber-400'
+                                    }`} />
+                                    <p className="text-sm truncate">{p.name}</p>
+                                  </div>
+                                  <div className="flex items-center gap-3 shrink-0">
+                                    {/* 成交金額 */}
+                                    <p className="text-xs font-serif text-muted-foreground">
+                                      {fmtDeal(p.dealValue)}
+                                    </p>
+                                    <span className={`text-[0.67rem] font-medium px-1.5 py-0.5 rounded border ${
+                                      p.isArchived
+                                        ? 'bg-foreground/[0.03] text-foreground/35 border-foreground/[0.07]'
+                                        : p.publishStatus === 'published'
+                                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50'
+                                          : 'bg-amber-50 text-amber-700 border-amber-200/50'
+                                    }`}>
+                                      {p.isArchived ? '已封存' : p.publishStatus === 'published' ? '已發布' : '草稿'}
+                                    </span>
+                                    {!p.isArchived && (
+                                      <Link
+                                        href={`/properties/${p.slug}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-muted-foreground hover:text-foreground"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <ExternalLink className="h-3 w-3" />
+                                      </Link>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+        )}
       </motion.div>
 
     </div>
