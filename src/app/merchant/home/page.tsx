@@ -1,184 +1,225 @@
-'use client'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { getSupabaseUrl, getSupabasePublishableKey } from '@/lib/supabase/env'
+import { getSupabaseAdminClient } from '@/lib/supabase/admin'
+import MerchantHomeClient from '@/components/merchant/MerchantHomeClient'
 
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
-
-// ── Animation ──────────────────────────────────────────────────────────────
-const fadeUp = {
-  hidden: { opacity: 0, y: 14 },
-  visible: (i: number) => ({
-    opacity: 1, y: 0,
-    transition: { duration: 0.45, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] as const },
-  }),
+export type RecentCustomer = {
+  id: string
+  name: string | null
+  projectName: string
+  kolName: string | null
+  submittedAt: string
+  status: 'inquiry' | 'visited' | 'deal'
 }
 
-// ── Mock data ────────────────────────────────────────────────────────────────
-type MerchantProfile = {
-  company_name: string
+export type PendingRequest = {
+  id: string
+  kolName: string | null
+  projectId: string
+  projectName: string | null
+  commissionRate: number | null
+  createdAt: string
 }
 
-type LeadStatus = 'pending-tour' | 'toured' | 'negotiating' | 'sale-confirmed' | 'cancelled'
-
-const RECENT_LEADS: {
-  id: string; leadName: string; property: string; kolName: string; date: string; status: LeadStatus
-}[] = [
-  { id: 'r-001', leadName: '王○明', property: '璞真建設 — 光河', kolName: '陳莎拉', date: '2026-02-23', status: 'negotiating'    },
-  { id: 'r-002', leadName: '李○華', property: '璞真建設 — 光河', kolName: '陳莎拉', date: '2026-02-21', status: 'toured'          },
-  { id: 'r-003', leadName: '黃○偉', property: '潤泰敦峰',        kolName: '林佳慧', date: '2026-02-18', status: 'sale-confirmed'  },
-]
-
-const PENDING_APPLICATIONS = [
-  { id: 'app-001', name: '何俊傑', platform: 'YouTube',   followers: '12.4萬', property: '璞真建設 — 光河', appliedDate: '2026-02-24' },
-  { id: 'app-002', name: '蔡佳蓉', platform: 'Instagram', followers: '8.7萬',  property: '潤泰敦峰',        appliedDate: '2026-02-23' },
-]
-
-const LEAD_STATUS_CFG: Record<LeadStatus, { label: string; color: string }> = {
-  'pending-tour':   { label: '待預約', color: 'text-muted-foreground border-border'                    },
-  toured:           { label: '已預約', color: 'text-blue-700 border-blue-200 bg-blue-50'              },
-  negotiating:      { label: '議價中', color: 'text-amber-700 border-amber-200 bg-amber-50'            },
-  'sale-confirmed': { label: '已成交', color: 'text-emerald-700 border-emerald-200 bg-emerald-50'     },
-  cancelled:        { label: '已取消', color: 'text-red-700 border-red-200 bg-red-50'                  },
+export type MerchantStats = {
+  projectCount: number
+  activeKolCount: number
+  monthVisits: number
+  monthDeals: number
 }
 
-// ── Page ─────────────────────────────────────────────────────────────────────
-export default function MerchantHomePage() {
-  const [merchantName, setMerchantName] = useState('商家夥伴')
+export type MerchantHomeData = {
+  merchantName: string
+  stats: MerchantStats
+  recentCustomers: RecentCustomer[]
+  pendingRequests: PendingRequest[]
+}
 
-  useEffect(() => {
-    const controller = new AbortController()
+export default async function MerchantHomePage() {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    getSupabaseUrl(),
+    getSupabasePublishableKey(),
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll() },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options as CookieOptions)
+          })
+        },
+      },
+    },
+  )
 
-    async function loadProfile() {
-      try {
-        const response = await fetch('/api/merchant/profile', { signal: controller.signal })
-        const payload = (await response.json().catch(() => null)) as { profile?: MerchantProfile } | null
-        if (response.ok && payload?.profile?.company_name) {
-          setMerchantName(payload.profile.company_name)
-        }
-      } catch {
-        // Keep the fallback mock heading if the profile is temporarily unavailable.
-      }
-    }
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth/login')
 
-    void loadProfile()
-    return () => controller.abort()
-  }, [])
+  const admin = getSupabaseAdminClient()
+
+  // ── Merchant profile + projects (parallel) ────────────────────────────────
+  const [{ data: profile }, { data: projects }] = await Promise.all([
+    admin.from('merchant_profiles').select('company_name').eq('user_id', user.id).maybeSingle(),
+    admin.from('properties').select('id, name').eq('merchant_user_id', user.id).eq('is_archived', false),
+  ])
+
+  const merchantName = (profile?.company_name as string | null) ?? '商家夥伴'
+  const projectList  = projects ?? []
+  const projectIds   = projectList.map(p => p.id as string)
+  const projectNameById = new Map(projectList.map(p => [p.id as string, p.name as string]))
+
+  if (projectIds.length === 0) {
+    return (
+      <MerchantHomeClient
+        data={{
+          merchantName,
+          stats: { projectCount: 0, activeKolCount: 0, monthVisits: 0, monthDeals: 0 },
+          recentCustomers: [],
+          pendingRequests: [],
+        }}
+      />
+    )
+  }
+
+  const monthStart = new Date(
+    new Date().getFullYear(), new Date().getMonth(), 1,
+  ).toISOString()
+
+  // ── Referral links + pending requests (parallel) ──────────────────────────
+  const [{ data: refLinks }, { data: pendingReqs }] = await Promise.all([
+    admin.from('referral_links').select('id, kol_user_id, is_active').in('project_id', projectIds),
+    admin
+      .from('collaboration_requests')
+      .select('id, kol_user_id, project_id, commission_rate, created_at')
+      .eq('merchant_user_id', user.id)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
+      .limit(5),
+  ])
+
+  const allLinks    = refLinks ?? []
+  const linkIds     = allLinks.map(l => l.id as string)
+  const activeKolIds = [...new Set(
+    allLinks.filter(l => l.is_active).map(l => l.kol_user_id as string).filter(Boolean),
+  )]
+
+  // link_id → kol_user_id
+  const linkKolMap = new Map(
+    allLinks.map(l => [l.id as string, l.kol_user_id as string | null]),
+  )
+
+  // ── Conversions + inquiries + KOL names (parallel) ────────────────────────
+  const kolUserIds = [
+    ...new Set([
+      ...activeKolIds,
+      ...((pendingReqs ?? []).map(r => r.kol_user_id as string).filter(Boolean)),
+    ]),
+  ]
+
+  const [convR, inquiryR, kolR] = await Promise.all([
+    linkIds.length > 0
+      ? admin
+          .from('referral_conversions')
+          .select('id, referral_link_id, name, conversion_type, visited_at, deal_value, deal_confirmed_at, converted_at')
+          .in('referral_link_id', linkIds)
+          .order('converted_at', { ascending: false })
+      : Promise.resolve({ data: [] }),
+    admin
+      .from('property_inquiries')
+      .select('id, property_id, name, submitted_at, visited_at, deal_confirmed_at')
+      .in('property_id', projectIds)
+      .order('submitted_at', { ascending: false }),
+    kolUserIds.length > 0
+      ? admin
+          .from('kol_applications')
+          .select('user_id, full_name')
+          .in('user_id', kolUserIds)
+      : Promise.resolve({ data: [] }),
+  ])
+
+  const kolNameById = new Map(
+    ((kolR.data ?? []) as { user_id: string; full_name: string }[]).map(k => [
+      k.user_id, k.full_name,
+    ]),
+  )
+
+  // ── Compute stats ─────────────────────────────────────────────────────────
+  const allConvs = (convR.data ?? []) as {
+    id: string; referral_link_id: string; name: string | null
+    conversion_type: string; visited_at: string | null
+    deal_value: number | null; deal_confirmed_at: string | null; converted_at: string
+  }[]
+
+  const allInquiries = (inquiryR.data ?? []) as {
+    id: string; property_id: string; name: string | null
+    submitted_at: string; visited_at: string | null; deal_confirmed_at: string | null
+  }[]
+
+  const monthDeals = allConvs.filter(
+    r => r.conversion_type === 'deal' && r.converted_at >= monthStart,
+  ).length
+
+  const monthVisitsConv = allConvs.filter(
+    r => r.conversion_type === 'inquiry' && r.visited_at && r.visited_at >= monthStart,
+  ).length
+
+  const monthVisitsDirect = allInquiries.filter(
+    r => r.visited_at && r.visited_at >= monthStart,
+  ).length
+
+  const stats: MerchantStats = {
+    projectCount:   projectIds.length,
+    activeKolCount: activeKolIds.length,
+    monthVisits:    monthVisitsConv + monthVisitsDirect,
+    monthDeals,
+  }
+
+  // ── Recent customers (attributed + direct, merged, top 5) ─────────────────
+  const attributedRecent: RecentCustomer[] = allConvs
+    .filter(r => r.conversion_type === 'inquiry')
+    .map(r => {
+      const kolUserId = linkKolMap.get(r.referral_link_id) ?? null
+      // find project for this link
+      const link = allLinks.find(l => l.id === r.referral_link_id)
+      const projectId = link ? (link as unknown as { project_id?: string }).project_id : null
+      return {
+        id:          r.id,
+        name:        r.name,
+        projectName: (projectId ? projectNameById.get(projectId as string) : null) ?? '未知案場',
+        kolName:     kolUserId ? (kolNameById.get(kolUserId) ?? null) : null,
+        submittedAt: r.converted_at,
+        status:      r.deal_confirmed_at ? 'deal' : r.visited_at ? 'visited' : 'inquiry',
+      } as RecentCustomer
+    })
+
+  const directRecent: RecentCustomer[] = allInquiries.map(r => ({
+    id:          r.id,
+    name:        r.name,
+    projectName: projectNameById.get(r.property_id) ?? '未知案場',
+    kolName:     null,
+    submittedAt: r.submitted_at,
+    status:      r.deal_confirmed_at ? 'deal' : r.visited_at ? 'visited' : 'inquiry',
+  }))
+
+  const recentCustomers = [...attributedRecent, ...directRecent]
+    .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+    .slice(0, 5)
+
+  // ── Pending collaboration requests ────────────────────────────────────────
+  const pendingRequests: PendingRequest[] = (pendingReqs ?? []).map(r => ({
+    id:             r.id as string,
+    kolName:        kolNameById.get(r.kol_user_id as string) ?? null,
+    projectId:      r.project_id as string,
+    projectName:    projectNameById.get(r.project_id as string) ?? null,
+    commissionRate: typeof r.commission_rate === 'number' ? r.commission_rate : null,
+    createdAt:      r.created_at as string,
+  }))
 
   return (
-    <div className="space-y-12">
-
-      {/* ── Header ── */}
-      <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
-        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">商家後台</p>
-        <h1 className="text-3xl font-serif">歡迎回來，{merchantName}</h1>
-        <p className="text-sm text-muted-foreground mt-2">以下是您目前的商案總覽。</p>
-      </motion.div>
-
-      {/* ── Stats ── */}
-      <motion.div
-        custom={1} initial="hidden" animate="visible" variants={fadeUp}
-        className="grid grid-cols-2 md:grid-cols-4 gap-3"
-      >
-        {[
-          { label: '進行中商案', value: 2 },
-          { label: '合作 KOL',   value: 3 },
-          { label: '本月預約',   value: 18 },
-          { label: '本月成交',   value: 3 },
-        ].map((stat) => (
-          <div key={stat.label} className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm px-5 py-6 text-center transition-shadow duration-300 hover:shadow-md">
-            <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground mb-3">{stat.label}</p>
-            <p className="text-4xl font-serif">{stat.value}</p>
-          </div>
-        ))}
-      </motion.div>
-
-      {/* ── Two-column: Applications + Recent Leads ── */}
-      <div className="grid gap-8 lg:grid-cols-2">
-
-        {/* Pending KOL Applications */}
-        <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp}>
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">待審核申請</p>
-            {PENDING_APPLICATIONS.length > 0 && (
-              <span className="text-xs uppercase tracking-widest text-amber-700 border border-amber-200 bg-amber-50 px-1.5 py-px">
-                {PENDING_APPLICATIONS.length} 待處理
-              </span>
-            )}
-          </div>
-          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden divide-y divide-foreground/[0.06]">
-            {PENDING_APPLICATIONS.map((app) => (
-              <div key={app.id} className="px-5 py-4">
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div>
-                    <p className="text-sm font-medium">{app.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {app.platform} · {app.followers} 粉絲
-                      <span className="mx-1.5 opacity-30">·</span>
-                      申請推廣：{app.property}
-                    </p>
-                  </div>
-                  <p className="text-xs text-muted-foreground font-mono shrink-0">{app.appliedDate}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button className="text-xs uppercase tracking-[0.3em] px-3 py-1.5 bg-foreground text-background border border-foreground hover:bg-foreground/85 transition-colors duration-150">
-                    通過
-                  </button>
-                  <button className="text-xs uppercase tracking-[0.3em] px-3 py-1.5 border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-150">
-                    拒絕
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 text-right">
-            <Link
-              href="/merchant/kols"
-              className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors duration-150 group"
-            >
-              查看全部 KOL <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
-        </motion.div>
-
-        {/* Recent Leads */}
-        <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp}>
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">近期客戶</p>
-            <span className="text-xs text-muted-foreground">{RECENT_LEADS.length} 筆</span>
-          </div>
-          <div className="rounded-2xl border border-foreground/[0.08] bg-stone-50 shadow-sm overflow-hidden divide-y divide-foreground/[0.06]">
-            {RECENT_LEADS.map((lead) => {
-              const cfg = LEAD_STATUS_CFG[lead.status]
-              return (
-                <div key={lead.id} className="px-5 py-4 flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-medium">{lead.leadName}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {lead.property}
-                      <span className="mx-1.5 opacity-30">·</span>
-                      KOL {lead.kolName}
-                    </p>
-                    <p className="text-xs text-muted-foreground font-mono mt-0.5">{lead.date}</p>
-                  </div>
-                  <span className={`text-xs uppercase tracking-widest px-1.5 py-px border shrink-0 mt-0.5 ${cfg.color}`}>
-                    {cfg.label}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-          <div className="mt-3 text-right">
-            <Link
-              href="/merchant/leads"
-              className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors duration-150 group"
-            >
-              查看全部 <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
-        </motion.div>
-
-      </div>
-    </div>
+    <MerchantHomeClient
+      data={{ merchantName, stats, recentCustomers, pendingRequests }}
+    />
   )
 }
