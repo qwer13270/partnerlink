@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Check, ChevronDown, ExternalLink } from 'lucide-react'
+import { X, Check, ChevronDown, ExternalLink, Banknote, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 
 // ── Animation ──────────────────────────────────────────────────────────────
@@ -28,7 +28,24 @@ type Kol = {
   city: string
   bio: string
   profilePhotoUrl: string
+  collabFee: number | null
 }
+
+// ── Fee helpers ─────────────────────────────────────────────────────────────
+function formatFee(fee: number | null): string {
+  if (fee === null) return '–'
+  if (fee >= 10000) return `NT$${fee % 10000 === 0 ? fee / 10000 : (fee / 10000).toFixed(1)}萬`
+  return `NT$${fee.toLocaleString()}`
+}
+
+type FeeRange = 'all' | 'under5k' | '5k-20k' | '20k-50k' | 'over50k'
+const FEE_RANGES: { id: FeeRange; label: string; min: number; max: number }[] = [
+  { id: 'all',     label: '全部費用',   min: 0,     max: Infinity },
+  { id: 'under5k', label: '$5K 以下',   min: 0,     max: 5000    },
+  { id: '5k-20k',  label: '$5K–$20K',  min: 5000,  max: 20000   },
+  { id: '20k-50k', label: '$20K–$50K', min: 20000, max: 50000   },
+  { id: 'over50k', label: '$50K 以上',  min: 50000, max: Infinity },
+]
 
 type ApiKol = {
   id: string
@@ -42,13 +59,17 @@ type ApiKol = {
   city: string | null
   avg_views: string | null
   engagement_rate: string | null
+  collab_fee: number | null
   profile_photo_url?: string
 }
 
 type Project = {
   id: string
   name: string
+  type: string
 }
+
+type ItemInput = { item_name: string; quantity: string; estimated_value: string }
 
 type ApiPayload = {
   kols?: ApiKol[]
@@ -60,7 +81,7 @@ type RequestsPayload = {
 }
 
 type ProjectsPayload = {
-  projects?: { id: string; name: string }[]
+  projects?: { id: string; name: string; type?: string }[]
 }
 
 function asStringArray(value: unknown) {
@@ -83,6 +104,7 @@ function toViewModel(item: ApiKol): Kol {
     city:           item.city || '未填寫',
     bio:            item.bio || '尚未提供自我介紹。',
     profilePhotoUrl: typeof item.profile_photo_url === 'string' ? item.profile_photo_url : '',
+    collabFee: item.collab_fee,
   }
 }
 
@@ -92,6 +114,8 @@ function inviteKey(kolUserId: string, projectId: string) {
 }
 
 // ── Invite modal ───────────────────────────────────────────────────────────
+const EMPTY_ITEM: ItemInput = { item_name: '', quantity: '1', estimated_value: '' }
+
 function InviteModal({
   kol,
   projects,
@@ -105,18 +129,43 @@ function InviteModal({
   projectsLoading: boolean
   invitedPairs: Set<string>
   onClose: () => void
-  onConfirm: (projectId: string) => Promise<void>
+  onConfirm: (projectId: string, collaborationType: 'commission' | 'reciprocal', items: ItemInput[], sponsorshipBonus: number) => Promise<void>
 }) {
   const [selectedProject, setSelectedProject] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
+  const [items, setItems] = useState<ItemInput[]>([{ ...EMPTY_ITEM }])
+  const [sponsorshipBonus, setSponsorshipBonus] = useState('')
+
+  const selectedProjectObj = projects.find((p) => p.id === selectedProject)
+  const isReciprocal = selectedProjectObj?.type === '商案'
+
+  function addItem() {
+    setItems((prev) => [...prev, { ...EMPTY_ITEM }])
+  }
+  function removeItem(i: number) {
+    setItems((prev) => prev.filter((_, idx) => idx !== i))
+  }
+  function updateItem(i: number, field: keyof ItemInput, value: string) {
+    setItems((prev) => prev.map((it, idx) => idx === i ? { ...it, [field]: value } : it))
+  }
 
   async function handleSubmit() {
     if (!selectedProject || submitting) return
+
+    if (isReciprocal) {
+      const missingItem = items.some((it) => !it.item_name.trim() || !it.quantity || !it.estimated_value)
+      if (missingItem) {
+        setSubmitError('請填寫所有商品的名稱、數量與市值。')
+        return
+      }
+    }
+
     setSubmitting(true)
     setSubmitError('')
     try {
-      await onConfirm(selectedProject)
+      const bonus = sponsorshipBonus ? parseInt(sponsorshipBonus, 10) : 0
+      await onConfirm(selectedProject, isReciprocal ? 'reciprocal' : 'commission', items, isNaN(bonus) ? 0 : bonus)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : '送出失敗，請再試一次。')
       setSubmitting(false)
@@ -193,6 +242,77 @@ function InviteModal({
           )}
         </div>
 
+        {/* 互惠 items + 業配獎金 — only for 商案 projects */}
+        {isReciprocal && (
+          <div className="px-6 pb-5 border-t border-foreground/[0.08] pt-5 space-y-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">互惠商品</p>
+              <div className="space-y-2">
+                {items.map((item, i) => (
+                  <div key={i} className="flex gap-1.5 items-start">
+                    <input
+                      type="text"
+                      placeholder="商品名稱"
+                      value={item.item_name}
+                      onChange={(e) => updateItem(i, 'item_name', e.target.value)}
+                      className="flex-1 min-w-0 border border-foreground/20 bg-transparent px-2.5 py-1.5 text-xs placeholder:text-muted-foreground/50 focus:outline-none focus:border-foreground/50"
+                    />
+                    <input
+                      type="number"
+                      placeholder="數量"
+                      min={1}
+                      value={item.quantity}
+                      onChange={(e) => updateItem(i, 'quantity', e.target.value)}
+                      className="w-14 border border-foreground/20 bg-transparent px-2 py-1.5 text-xs placeholder:text-muted-foreground/50 focus:outline-none focus:border-foreground/50 text-center"
+                    />
+                    <div className="relative w-24">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[0.65rem] text-muted-foreground pointer-events-none">NT$</span>
+                      <input
+                        type="number"
+                        placeholder="市值"
+                        min={0}
+                        value={item.estimated_value}
+                        onChange={(e) => updateItem(i, 'estimated_value', e.target.value)}
+                        className="w-full border border-foreground/20 bg-transparent pl-7 pr-2 py-1.5 text-xs placeholder:text-muted-foreground/50 focus:outline-none focus:border-foreground/50"
+                      />
+                    </div>
+                    {items.length > 1 && (
+                      <button
+                        onClick={() => removeItem(i)}
+                        className="p-1.5 text-muted-foreground hover:text-red-500 transition-colors shrink-0 mt-0.5"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={addItem}
+                className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Plus className="h-3 w-3" />
+                新增商品
+              </button>
+            </div>
+
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-2">業配獎金 (NT$)</p>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none font-serif">NT$</span>
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="0 表示無獎金"
+                  value={sponsorshipBonus}
+                  onChange={(e) => setSponsorshipBonus(e.target.value)}
+                  className="w-full border border-foreground/20 bg-transparent pl-10 pr-3 py-2 text-sm font-serif placeholder:text-muted-foreground/40 focus:outline-none focus:border-foreground/50"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="px-6 pb-6 flex gap-2">
           <button
@@ -258,6 +378,10 @@ function KolRow({
         {/* Stats */}
         <div className="hidden md:flex items-center gap-5 shrink-0 mr-2">
           <div className="text-center">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">合作費用</p>
+            <p className="text-sm font-serif mt-0.5 text-amber-700">{formatFee(kol.collabFee)}</p>
+          </div>
+          <div className="text-center">
             <p className="text-xs uppercase tracking-widest text-muted-foreground">互動率</p>
             <p className="text-sm font-serif mt-0.5">{kol.engagementRate}</p>
           </div>
@@ -320,7 +444,14 @@ function KolRow({
                   </Link>
                 </div>
               )}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="rounded-xl border border-amber-200/60 bg-amber-50/60 px-3 py-2.5 text-center">
+                  <div className="flex items-center justify-center gap-1 mb-0.5">
+                    <Banknote className="h-2.5 w-2.5 text-amber-600" />
+                    <p className="text-xs uppercase tracking-[0.3em] text-amber-700">合作費用</p>
+                  </div>
+                  <p className="text-base font-serif mt-1 text-amber-800">{formatFee(kol.collabFee)}</p>
+                </div>
                 {[
                   { label: '平均觀看', value: kol.avgViews },
                   { label: '互動率', value: kol.engagementRate },
@@ -346,6 +477,7 @@ export default function MerchantKolBrowsePage() {
   const [loading, setLoading]             = useState(true)
   const [loadError, setLoadError]         = useState('')
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [activeFeeRange, setActiveFeeRange] = useState<FeeRange>('all')
   const [invitingKol, setInvitingKol]     = useState<Kol | null>(null)
 
   // Real projects for the invite modal
@@ -391,7 +523,7 @@ export default function MerchantKolBrowsePage() {
         const payload = (await res.json().catch(() => null)) as ProjectsPayload | null
         if (res.ok) {
           setProjects(
-            (payload?.projects ?? []).map((p) => ({ id: String(p.id), name: p.name })),
+            (payload?.projects ?? []).map((p) => ({ id: String(p.id), name: p.name, type: p.type ?? '建案' })),
           )
         }
       } catch {
@@ -432,24 +564,34 @@ export default function MerchantKolBrowsePage() {
     [kols],
   )
 
-  const filtered = useMemo(
-    () => kols.filter((k) => {
+  const filtered = useMemo(() => {
+    const feeRange = FEE_RANGES.find((r) => r.id === activeFeeRange) ?? FEE_RANGES[0]
+    return kols.filter((k) => {
       if (projects.some((p) => invitedPairs.has(inviteKey(k.kolUserId, p.id)))) return false
       if (activeCategory && k.category !== activeCategory) return false
+      if (feeRange.id !== 'all' && (k.collabFee === null || k.collabFee < feeRange.min || k.collabFee >= feeRange.max)) return false
       return true
-    }),
-    [activeCategory, kols, projects, invitedPairs],
-  )
+    })
+  }, [activeCategory, activeFeeRange, kols, projects, invitedPairs])
 
-  async function handleConfirm(projectId: string) {
+  async function handleConfirm(projectId: string, collaborationType: 'commission' | 'reciprocal', items: ItemInput[], sponsorshipBonus: number) {
     if (!invitingKol) return
 
     const res = await fetch('/api/collaboration-requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        project_id:  projectId,
-        kol_user_id: invitingKol.kolUserId,
+        project_id:         projectId,
+        kol_user_id:        invitingKol.kolUserId,
+        collaboration_type: collaborationType,
+        sponsorship_bonus:  collaborationType === 'reciprocal' ? sponsorshipBonus : undefined,
+        items: collaborationType === 'reciprocal'
+          ? items.map((it) => ({
+              item_name:       it.item_name.trim(),
+              quantity:        parseInt(it.quantity, 10) || 1,
+              estimated_value: parseInt(it.estimated_value, 10) || 0,
+            }))
+          : undefined,
       }),
     })
 
@@ -499,6 +641,28 @@ export default function MerchantKolBrowsePage() {
             }`}
           >
             {cat}
+          </button>
+        ))}
+      </motion.div>
+
+      {/* ── Fee range filter ── */}
+      <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp} className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground/60 shrink-0">
+          <Banknote className="h-3 w-3" />
+          合作費用
+        </div>
+        <div className="h-3.5 w-px bg-foreground/15" />
+        {FEE_RANGES.map((range) => (
+          <button
+            key={range.id}
+            onClick={() => setActiveFeeRange(range.id)}
+            className={`text-xs uppercase tracking-[0.3em] px-3 py-1.5 border transition-colors duration-150 ${
+              activeFeeRange === range.id
+                ? 'border-amber-700 bg-amber-700 text-white'
+                : 'border-foreground/20 text-muted-foreground hover:border-foreground/50 hover:text-foreground'
+            }`}
+          >
+            {range.label}
           </button>
         ))}
       </motion.div>

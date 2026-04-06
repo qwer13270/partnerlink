@@ -18,7 +18,7 @@ import { requireApiRole } from '@/lib/server/api-auth'
 type CreateProjectBody = {
   name?: string
   slug?: string
-  templateKey?: string
+  type?: string
 }
 
 export async function GET(request: NextRequest) {
@@ -49,9 +49,9 @@ export async function POST(request: NextRequest) {
   const name = rawName || defaults.name
 
   // Template key — validate against known set, fall back to default
-  const templateKey = PROPERTY_TEMPLATE_KEYS.includes(body.templateKey as typeof PROPERTY_TEMPLATE_KEYS[number])
-    ? (body.templateKey as typeof PROPERTY_TEMPLATE_KEYS[number])
-    : defaults.templateKey
+  const templateKey = PROPERTY_TEMPLATE_KEYS.includes(body.type as typeof PROPERTY_TEMPLATE_KEYS[number])
+    ? (body.type as typeof PROPERTY_TEMPLATE_KEYS[number])
+    : PROPERTY_TEMPLATE_KEYS[0]
 
   // Slug — use provided slug if valid, otherwise auto-generate
   const rawSlug = typeof body.slug === 'string' ? slugifyPropertyName(body.slug) : ''
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
   if (rawSlug && rawSlug !== 'merchant-project') {
     // Verify the provided slug is not already taken
     const admin2 = getSupabaseAdminClient()
-    const { data: existing } = await admin2.from('properties').select('id').eq('slug', rawSlug).maybeSingle()
+    const { data: existing } = await admin2.from('projects').select('id').eq('slug', rawSlug).maybeSingle()
     if (existing) {
       return NextResponse.json({ error: `slug "${rawSlug}" 已被使用，請更換。` }, { status: 409 })
     }
@@ -71,11 +71,11 @@ export async function POST(request: NextRequest) {
   const admin = getSupabaseAdminClient()
   const publishStatus = parsePublishStatus(undefined)
   const { data: property, error: propertyError } = await admin
-    .from('properties')
+    .from('projects')
     .insert({
       merchant_profile_id: merchantProfile.id,
       merchant_user_id: auth.user.id,
-      template_key: templateKey,
+      type: templateKey,
       slug,
       publish_status: publishStatus,
       name,
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
     .select('id,property_id,group_key,item_key,title,body,meta,accent,state,sort_order')
 
   if (contentError) {
-    await admin.from('properties').delete().eq('id', property.id)
+    await admin.from('projects').delete().eq('id', property.id)
     return NextResponse.json(
       { error: `Failed to seed project content: ${contentError.message}` },
       { status: 500 },
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
     )
 
   if (modulesError) {
-    await admin.from('properties').delete().eq('id', property.id)
+    await admin.from('projects').delete().eq('id', property.id)
     return NextResponse.json(
       { error: `Failed to seed project modules: ${modulesError.message}` },
       { status: 500 },
@@ -173,7 +173,7 @@ async function generateUniqueSlug(name: string) {
   for (let index = 0; index < 50; index += 1) {
     const candidate = index === 0 ? base : `${base}-${index + 1}`
     const { data } = await admin
-      .from('properties')
+      .from('projects')
       .select('id')
       .eq('slug', candidate)
       .maybeSingle()

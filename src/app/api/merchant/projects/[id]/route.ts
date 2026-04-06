@@ -101,7 +101,7 @@ export async function PATCH(
 
   const admin = getSupabaseAdminClient()
   const { data: updatedProperty, error: propertyError } = await admin
-    .from('properties')
+    .from('projects')
     .update({
       slug,
       name: nextName,
@@ -263,7 +263,7 @@ export async function DELETE(
   // Blank out the slug so it becomes available for new projects
   const archivedSlug = `__archived_${id}`
   const { error } = await admin
-    .from('properties')
+    .from('projects')
     .update({
       is_archived:    true,
       archived_at:    new Date().toISOString(),
@@ -368,7 +368,7 @@ function trimToNull(value: string | null | undefined) {
 async function ensureUniqueSlug(slug: string, propertyId: string) {
   const admin = getSupabaseAdminClient()
   const { data } = await admin
-    .from('properties')
+    .from('projects')
     .select('id')
     .eq('slug', slug)
     .neq('id', propertyId)

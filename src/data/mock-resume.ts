@@ -20,6 +20,7 @@ export type PlatformStats = {
   totalSales: number
   conversionRate: number
   activeProjects: number
+  totalProjects: number
 }
 
 export type KolResumeData = {
@@ -34,6 +35,7 @@ export type KolResumeData = {
   media: ResumeMediaItem[]
   platformStats: PlatformStats
   colorTheme?: string
+  collabFee?: number | null
 }
 
 export type ResumeViewerRole = 'self' | 'merchant' | 'admin' | 'public'
@@ -102,7 +104,9 @@ export const mockResumes: KolResumeData[] = [
       totalSales: 5,
       conversionRate: 3.0,
       activeProjects: 3,
+      totalProjects: 11,
     },
+    collabFee: 50000,
   },
   {
     username: 'mike_wang',
@@ -137,7 +141,9 @@ export const mockResumes: KolResumeData[] = [
       totalSales: 3,
       conversionRate: 2.7,
       activeProjects: 2,
+      totalProjects: 6,
     },
+    collabFee: 20000,
   },
 ]
 
@@ -162,6 +168,7 @@ export function createDefaultResume(username: string): KolResumeData {
       totalSales: 0,
       conversionRate: 0,
       activeProjects: 0,
+      totalProjects: 0,
     },
   }
 }

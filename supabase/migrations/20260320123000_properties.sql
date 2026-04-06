@@ -2,7 +2,7 @@ create table if not exists public.properties (
   id uuid primary key default gen_random_uuid(),
   merchant_profile_id uuid not null references public.merchant_profiles(id) on delete cascade,
   merchant_user_id uuid not null references auth.users(id) on delete cascade,
-  template_key text not null default 'tongchuang-wing' check (template_key in ('tongchuang-wing')),
+  template_key text not null default '建案' check (template_key in ('建案')),
   slug text not null unique,
   publish_status text not null default 'draft' check (publish_status in ('draft', 'published')),
   name text not null default '',

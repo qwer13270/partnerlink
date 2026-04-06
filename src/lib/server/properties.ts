@@ -13,7 +13,7 @@ type PropertyRow = {
   id: string
   merchant_profile_id: string
   merchant_user_id: string
-  template_key: string
+  type: string
   slug: string
   publish_status: 'draft' | 'published'
   name: string
@@ -75,7 +75,7 @@ export type MerchantProjectSummary = {
   id: string
   slug: string
   name: string
-  templateKey: string
+  type: string
   publishStatus: 'draft' | 'published'
   updatedAt: string
   createdAt: string
@@ -140,8 +140,8 @@ export async function getMerchantProfileForUser(userId: string) {
 export async function listMerchantProjects(userId: string) {
   const admin = getSupabaseAdminClient()
   const { data, error } = await admin
-    .from('properties')
-    .select('id,slug,name,template_key,publish_status,created_at,updated_at')
+    .from('projects')
+    .select('id,slug,name,type,publish_status,created_at,updated_at')
     .eq('merchant_user_id', userId)
     .eq('is_archived', false)
     .order('updated_at', { ascending: false })
@@ -154,7 +154,7 @@ export async function listMerchantProjects(userId: string) {
     id: string
     slug: string
     name: string
-    template_key: string
+    type: string
     publish_status: 'draft' | 'published'
     created_at: string
     updated_at: string
@@ -162,7 +162,7 @@ export async function listMerchantProjects(userId: string) {
     id: row.id,
     slug: row.slug,
     name: row.name,
-    templateKey: row.template_key,
+    type: row.type,
     publishStatus: row.publish_status,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -172,7 +172,7 @@ export async function listMerchantProjects(userId: string) {
 export type ArchivedProjectSummary = {
   id: string
   name: string
-  templateKey: string
+  type: string
   archivedAt: string
   createdAt: string
 }
@@ -180,7 +180,7 @@ export type ArchivedProjectSummary = {
 export type ArchivedProjectDetail = {
   id: string
   name: string
-  templateKey: string
+  type: string
   districtLabel: string | null
   archivedAt: string
   createdAt: string
@@ -193,8 +193,8 @@ export async function getMerchantArchivedProjectDetail(
 ): Promise<ArchivedProjectDetail | null> {
   const admin = getSupabaseAdminClient()
   const { data, error } = await admin
-    .from('properties')
-    .select('id,name,template_key,district_label,archived_at,created_at,published_at')
+    .from('projects')
+    .select('id,name,type,district_label,archived_at,created_at,published_at')
     .eq('id', projectId)
     .eq('merchant_user_id', userId)
     .eq('is_archived', true)
@@ -205,7 +205,7 @@ export async function getMerchantArchivedProjectDetail(
   const row = data as {
     id: string
     name: string
-    template_key: string
+    type: string
     district_label: string | null
     archived_at: string | null
     created_at: string
@@ -215,7 +215,7 @@ export async function getMerchantArchivedProjectDetail(
   return {
     id: row.id,
     name: row.name,
-    templateKey: row.template_key,
+    type: row.type,
     districtLabel: row.district_label,
     archivedAt: row.archived_at ?? row.created_at,
     createdAt: row.created_at,
@@ -226,8 +226,8 @@ export async function getMerchantArchivedProjectDetail(
 export async function listArchivedMerchantProjects(userId: string): Promise<ArchivedProjectSummary[]> {
   const admin = getSupabaseAdminClient()
   const { data, error } = await admin
-    .from('properties')
-    .select('id,name,template_key,archived_at,created_at')
+    .from('projects')
+    .select('id,name,type,archived_at,created_at')
     .eq('merchant_user_id', userId)
     .eq('is_archived', true)
     .order('archived_at', { ascending: false })
@@ -239,13 +239,13 @@ export async function listArchivedMerchantProjects(userId: string): Promise<Arch
   return ((data ?? []) as Array<{
     id: string
     name: string
-    template_key: string
+    type: string
     archived_at: string | null
     created_at: string
   }>).map((row) => ({
     id: row.id,
     name: row.name,
-    templateKey: row.template_key,
+    type: row.type,
     archivedAt: row.archived_at ?? row.created_at,
     createdAt: row.created_at,
   }))
@@ -259,7 +259,7 @@ async function getPropertyRowsById(propertyId: string) {
     { data: contentItems, error: contentItemsError },
     { data: modules, error: modulesError },
   ] = await Promise.all([
-    admin.from('properties').select('*').eq('id', propertyId).single(),
+    admin.from('projects').select('*').eq('id', propertyId).single(),
     admin
       .from('property_images')
       .select('id,property_id,section_key,storage_bucket,storage_path,alt_text,sort_order')
@@ -309,7 +309,7 @@ export async function getMerchantProjectDetail(userId: string, propertyId: strin
 export async function getPublishedPropertyBySlug(slug: string) {
   const admin = getSupabaseAdminClient()
   const { data, error } = await admin
-    .from('properties')
+    .from('projects')
     .select('id')
     .eq('slug', slug)
     .eq('publish_status', 'published')
@@ -404,7 +404,7 @@ export function toMerchantProjectDetail(
     id: property.id,
     slug: property.slug,
     name: property.name,
-    templateKey: property.template_key,
+    type: property.type,
     publishStatus: property.publish_status,
     createdAt: property.created_at,
     updatedAt: property.updated_at,

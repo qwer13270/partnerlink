@@ -31,7 +31,7 @@ export async function GET(
 
   // Resolve project slug
   const { data: property } = await admin
-    .from('properties')
+    .from('projects')
     .select('slug')
     .eq('id', link.project_id)
     .maybeSingle()

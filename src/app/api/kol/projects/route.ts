@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const admin = getSupabaseAdminClient()
 
   const { data, error } = await admin
-    .from('properties')
+    .from('projects')
     .select('id, merchant_user_id, name, subtitle, district_label, slug, created_at')
     .eq('publish_status', 'published')
     .order('created_at', { ascending: false })

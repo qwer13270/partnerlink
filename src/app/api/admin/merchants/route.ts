@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       .select('id,user_id,company_name,contact_name,phone,city,status,created_at')
       .order('created_at', { ascending: false }),
     admin
-      .from('properties')
+      .from('projects')
       .select('id,merchant_user_id,name,slug,publish_status,is_archived,created_at')
       .order('created_at', { ascending: false }),
   ])

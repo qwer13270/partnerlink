@@ -11,6 +11,7 @@ type ProfilePayload = {
   followerCount?: number
   nicheTags?: string[]
   socialLinks?: SocialLinks
+  collabFee?: number | null
 }
 
 export async function PATCH(req: Request) {
@@ -34,20 +35,37 @@ export async function PATCH(req: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = (await req.json()) as ProfilePayload
+  const { collabFee, ...resumeFields } = body
 
   const admin = getSupabaseAdminClient()
-  const { error } = await admin.auth.admin.updateUserById(user.id, {
+
+  // Save resume fields (everything except collabFee) to user metadata
+  const { error: metaError } = await admin.auth.admin.updateUserById(user.id, {
     user_metadata: {
       ...user.user_metadata,
       kol_resume: {
         ...(user.user_metadata?.kol_resume ?? {}),
-        ...body,
+        ...resumeFields,
       },
     },
   })
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  if (metaError) {
+    return NextResponse.json({ error: metaError.message }, { status: 500 })
+  }
+
+  // Save collabFee to kol_applications — single source of truth for the fee
+  if ('collabFee' in body) {
+    const feeValue = typeof collabFee === 'number' ? collabFee : null
+    const { error: feeError } = await admin
+      .from('kol_applications')
+      .update({ collab_fee: feeValue })
+      .eq('user_id', user.id)
+
+    if (feeError) {
+      console.error('[api/kol/resume/profile] collab_fee update:', feeError.message)
+      return NextResponse.json({ error: feeError.message }, { status: 500 })
+    }
   }
 
   return NextResponse.json({ ok: true })

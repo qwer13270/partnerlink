@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const admin = getSupabaseAdminClient()
 
   const { data: properties } = await admin
-    .from('properties')
+    .from('projects')
     .select('id,name,district_label,publish_status,merchant_user_id,created_at')
     .eq('is_archived', false)
     .order('created_at', { ascending: false })

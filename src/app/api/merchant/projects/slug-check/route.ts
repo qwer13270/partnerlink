@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
   const admin = getSupabaseAdminClient()
   const { data } = await admin
-    .from('properties')
+    .from('projects')
     .select('id')
     .eq('slug', normalized)
     .maybeSingle()

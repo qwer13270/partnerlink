@@ -54,7 +54,7 @@ function toNotif(r: CollabRequest, role: NotifRole, lastRead: number): Notif | n
     if (r.sender_role === 'kol' && (r.status === 'accepted' || r.status === 'declined')) {
       const ts = r.responded_at ?? r.created_at
       if (!within7(ts)) return null
-      return { id: r.id, href: '/kol/applications', accent: r.status === 'accepted' ? 'bg-emerald-500' : 'bg-red-400', text: r.status === 'accepted' ? `你在「${project}」的申請已通過` : `你在「${project}」的申請未通過`, time: timeAgo(ts), isUnread: new Date(ts).getTime() > lastRead }
+      return { id: r.id, href: r.status === 'accepted' ? '/kol/projects' : '/kol/inbox', accent: r.status === 'accepted' ? 'bg-emerald-500' : 'bg-red-400', text: r.status === 'accepted' ? `你在「${project}」的申請已通過` : `你在「${project}」的申請未通過`, time: timeAgo(ts), isUnread: new Date(ts).getTime() > lastRead }
     }
     return null
   }

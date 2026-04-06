@@ -572,6 +572,7 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
   )
 }
 
+
 // ── Main editor ────────────────────────────────────────────────────────────
 
 export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
@@ -583,6 +584,7 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
   const [tagInput,      setTagInput]      = useState('')
   const [mediaItems,    setMediaItems]    = useState<ResumeMediaItem[]>(() => resume.media)
   const [colorTheme,    setColorTheme]    = useState<KolThemeKey>((resume.colorTheme as KolThemeKey) ?? DEFAULT_KOL_THEME)
+  const [collabFee,     setCollabFee]     = useState(resume.collabFee != null ? String(resume.collabFee) : '')
   const [activeSection, setActiveSection] = useState<Section>('basics')
   const [saved,         setSaved]         = useState(false)
   const [viewMode,      setViewMode]      = useState<'desktop' | 'mobile'>('desktop')
@@ -659,9 +661,11 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
     if (!iframeReady) return
     pushToFrame(liveResume)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [iframeReady, displayName, bio, followerCount, nicheTags, mediaItems, colorTheme, photoUrl, photoPreview])
+  }, [iframeReady, displayName, bio, followerCount, nicheTags, mediaItems, colorTheme, photoUrl, photoPreview, collabFee])
 
   // Build the live resume for the right-side preview
+  const parsedFee = parseInt(collabFee, 10) || 0
+
   const liveResume: KolResumeData = {
     ...resume,
     displayName,
@@ -671,6 +675,7 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
     media: mediaItems,
     colorTheme,
     profilePhotoUrl: photoPreview ?? photoUrl,
+    collabFee: parsedFee > 0 ? parsedFee : null,
   }
 
   const isDirty =
@@ -678,7 +683,8 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
     bio !== resume.bio ||
     followerCount !== String(resume.followerCount) ||
     JSON.stringify(nicheTags) !== JSON.stringify(resume.nicheTags) ||
-    colorTheme !== (resume.colorTheme ?? DEFAULT_KOL_THEME)
+    colorTheme !== (resume.colorTheme ?? DEFAULT_KOL_THEME) ||
+    parsedFee !== (resume.collabFee ?? 0)
 
   const handleSave = async () => {
     try {
@@ -691,6 +697,7 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
           followerCount: liveResume.followerCount,
           nicheTags: liveResume.nicheTags,
           colorTheme: liveResume.colorTheme,
+          collabFee: liveResume.collabFee,
         }),
       })
     } catch {
@@ -985,6 +992,45 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                       </button>
                     </div>
                   </Field>
+
+                  <div className="h-px bg-foreground/[0.07]" />
+
+                  {/* ── Collaboration fee ── */}
+                  <div>
+                    <label className="mb-1.5 block text-xs uppercase tracking-[0.4em] text-muted-foreground">
+                      合作費用
+                    </label>
+
+                    <div className={`${fieldWrap} flex items-center`}>
+                      <span className="pl-3 text-xs text-muted-foreground/50 select-none shrink-0">NT$</span>
+                      <input
+                        type="number"
+                        min={0}
+                        value={collabFee}
+                        onChange={(e) => setCollabFee(e.target.value)}
+                        placeholder="例：20000"
+                        className={`${inputBase} pl-1.5`}
+                      />
+                    </div>
+
+                    {/* Live formatted preview */}
+                    <div className="mt-2 h-7 flex items-center">
+                      {parsedFee > 0 ? (
+                        <motion.p
+                          key={parsedFee}
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="text-xs text-muted-foreground/60"
+                        >
+                          NT${parsedFee.toLocaleString('zh-TW')}
+                          <span className="ml-1.5 text-muted-foreground/35">/ 每次合作</span>
+                        </motion.p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground/30">未設定費用，商家無法以預算篩選</p>
+                      )}
+                    </div>
+                  </div>
                 </motion.div>
               )}
 

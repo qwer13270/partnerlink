@@ -48,6 +48,12 @@ function formatFollowers(n: number): string {
   return n.toLocaleString('zh-TW')
 }
 
+function formatFee(n: number | null | undefined): string {
+  if (n == null || n <= 0) return '–'
+  if (n >= 10000) return `NT$${n % 10000 === 0 ? n / 10000 : (n / 10000).toFixed(1)}萬`
+  return `NT$${n.toLocaleString('zh-TW')}`
+}
+
 const PLATFORM_LABELS: Record<string, string> = {
   instagram: 'Instagram',
   youtube:   'YouTube',
@@ -202,7 +208,7 @@ export default function KolResumePage({ resume, viewerRole, previewMode = false 
     { label: '總預約',   value: resume.platformStats.totalBookings.toLocaleString('zh-TW'), icon: CalendarCheck     },
     { label: '總成交',   value: resume.platformStats.totalSales.toLocaleString('zh-TW'),    icon: BadgeDollarSign   },
     { label: '轉換率',   value: `${resume.platformStats.conversionRate.toFixed(1)}%`,        icon: TrendingUp        },
-    { label: '合作案件', value: String(resume.platformStats.activeProjects),                 icon: Link2             },
+    { label: '合作案件', value: String(resume.platformStats.totalProjects),                  icon: Link2             },
   ]
 
   const themeVars = getKolThemeVars(resume.colorTheme ?? '')
@@ -320,25 +326,36 @@ export default function KolResumePage({ resume, viewerRole, previewMode = false 
                   )}
                   <div className="w-px h-8 hidden sm:block" style={{ background: 'var(--k-accent-line)' }} />
                   <div>
-                    <p className="text-[0.55rem] uppercase tracking-[0.4em] mb-1 text-background/40">合作商案</p>
+                    <p className="text-[0.55rem] uppercase tracking-[0.4em] mb-1 text-background/40">總合作過的商案數</p>
                     <p className="font-serif text-2xl leading-none" style={{ color: 'var(--k-accent)' }}>
-                      {resume.platformStats.activeProjects}
+                      {resume.platformStats.totalProjects}
                     </p>
                   </div>
                   <div className="w-px h-8 hidden sm:block" style={{ background: 'var(--k-accent-line)' }} />
                   <div>
-                    <p className="text-[0.55rem] uppercase tracking-[0.4em] mb-1 text-background/40">成交數</p>
+                    <p className="text-[0.55rem] uppercase tracking-[0.4em] mb-1 text-background/40">累積成交數</p>
                     <p className="font-serif text-2xl leading-none" style={{ color: 'var(--k-accent)' }}>
                       {resume.platformStats.totalSales.toLocaleString('zh-TW')}
                     </p>
                   </div>
                   <div className="w-px h-8 hidden sm:block" style={{ background: 'var(--k-accent-line)' }} />
                   <div>
-                    <p className="text-[0.55rem] uppercase tracking-[0.4em] mb-1 text-background/40">轉換率</p>
+                    <p className="text-[0.55rem] uppercase tracking-[0.4em] mb-1 text-background/40">平均轉換率</p>
                     <p className="font-serif text-2xl leading-none" style={{ color: 'var(--k-accent)' }}>
                       {resume.platformStats.conversionRate.toFixed(1)}%
                     </p>
                   </div>
+                  {resume.collabFee != null && resume.collabFee > 0 && (
+                    <>
+                      <div className="w-px h-8 hidden sm:block" style={{ background: 'var(--k-accent-line)' }} />
+                      <div>
+                        <p className="text-[0.55rem] uppercase tracking-[0.4em] mb-1 text-background/40">合作費用</p>
+                        <p className="font-serif text-2xl leading-none" style={{ color: 'var(--k-accent)' }}>
+                          {formatFee(resume.collabFee)}
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </motion.div>
               </div>
 

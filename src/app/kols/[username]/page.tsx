@@ -11,6 +11,7 @@ import {
   type KolResumeData,
 } from '@/data/mock-resume'
 import KolResumePage from '@/components/kol/KolResumePage'
+import { fetchKolPlatformStats } from '@/lib/kol-stats'
 
 function toFullUrl(platform: string, value: string): string {
   if (value.startsWith('http://') || value.startsWith('https://')) return value
@@ -60,11 +61,11 @@ export default async function KolResumePublicPage({
 
   if (!kolUser) notFound()
 
-  // ── 2. Fetch application + media assets in parallel ──────────────────────
-  const [applicationResult, mediaAssetsResult] = await Promise.all([
+  // ── 2. Fetch application, media assets, and platform stats in parallel ───
+  const [applicationResult, mediaAssetsResult, platformStats] = await Promise.all([
     admin
       .from('kol_applications')
-      .select('id,profile_photo_path,full_name,bio,platform_accounts')
+      .select('id,profile_photo_path,full_name,bio,platform_accounts,collab_fee')
       .eq('user_id', kolUser.id)
       .eq('status', 'approved')
       .maybeSingle(),
@@ -74,6 +75,7 @@ export default async function KolResumePublicPage({
       .eq('user_id', kolUser.id)
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true }),
+    fetchKolPlatformStats(admin, kolUser.id),
   ])
 
   const application = applicationResult.data
@@ -186,13 +188,8 @@ export default async function KolResumePublicPage({
     nicheTags:      savedResume?.nicheTags ?? [],
     socialLinks,
     media:          realMedia,
-    platformStats:  {
-      totalClicks:    0,
-      totalBookings:  0,
-      totalSales:     0,
-      conversionRate: 0,
-      activeProjects: 0,
-    },
+    platformStats,
+    collabFee: typeof application?.collab_fee === 'number' ? application.collab_fee : null,
   }
 
   return <KolResumePage resume={resume} viewerRole={viewerRole} />

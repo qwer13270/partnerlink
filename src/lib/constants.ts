@@ -17,9 +17,8 @@ export const ROUTES = {
   properties: '/properties',
   kol: {
     dashboard: '/kol',
-    links: '/kol/links',
+    projects:  '/kol/projects',
     performance: '/kol/performance',
-    commissions: '/kol/commissions',
   },
   admin: {
     dashboard: '/admin',
