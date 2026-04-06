@@ -1,16 +1,15 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { Menu, Home, Link2, BadgeDollarSign, Mail } from 'lucide-react'
+import { Menu, Home, Layers, Mail } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import Sidebar, { MobileSidebar } from '@/components/layout/Sidebar'
 import { Button } from '@/components/ui/button'
 
 const sidebarItems = [
-  { href: '/kol/home',         labelKey: 'home',         icon: Home            },
-  { href: '/kol/links',        labelKey: 'myPromo',      icon: Link2           },
-  { href: '/kol/commissions',  labelKey: 'commissions',  icon: BadgeDollarSign },
-  { href: '/kol/inbox',        labelKey: 'inbox',        icon: Mail            },
+  { href: '/kol/home',     labelKey: 'home',     icon: Home   },
+  { href: '/kol/projects', labelKey: 'projects', icon: Layers },
+  { href: '/kol/inbox',    labelKey: 'inbox',    icon: Mail   },
 ]
 
 interface KOLDashboardLayoutProps {

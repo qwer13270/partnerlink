@@ -29,7 +29,7 @@ export async function PATCH(
 
   // Verify project belongs to this merchant (also get name for notification)
   const { data: project } = await admin
-    .from('properties')
+    .from('projects')
     .select('id, name')
     .eq('id', projectId)
     .eq('merchant_user_id', auth.user.id)
@@ -67,7 +67,7 @@ export async function PATCH(
         user_id: kolUserId,
         type:    'visited',
         title:   `「${projectName}」的客戶已看房，推廣效果顯現！`,
-        href:    '/kol/links',
+        href:    '/kol/projects',
       })
     }
   } else {

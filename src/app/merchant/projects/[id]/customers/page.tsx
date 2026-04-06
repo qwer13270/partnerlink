@@ -57,7 +57,7 @@ export default async function CustomersPage({
 
   // Verify project belongs to this merchant
   const { data: project } = await admin
-    .from('properties')
+    .from('projects')
     .select('id, name')
     .eq('id', projectId)
     .eq('merchant_user_id', user.id)

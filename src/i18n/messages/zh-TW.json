@@ -36,10 +36,9 @@
   "kol": {
     "sidebar": {
       "home": "首頁",
-      "myPromo": "我的推廣",
+      "projects": "合作項目",
       "applications": "商案申請",
       "resume": "我的履歷",
-      "commissions": "佣金紀錄",
       "inbox": "合作邀請"
     },
     "welcome": "歡迎回來",
@@ -97,7 +96,7 @@
       }
     },
     "commissions": {
-      "title": "佣金紀錄",
+      "title": "獎金紀錄",
       "notice": "佣金結構將於正式上線後公布",
       "saleDate": "成交日期",
       "salePrice": "成交金額",

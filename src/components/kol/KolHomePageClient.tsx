@@ -142,25 +142,27 @@ export default function KolHomePageClient({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {([
             {
-              label: '活躍連結',
-              value: kolStats.activeLinks.toString(),
-              sub: kolStats.totalLinks > 0 ? `共 ${kolStats.totalLinks} 條連結` : '尚無連結',
+              label: '本月點擊',
+              value: kolStats.monthClicks.toLocaleString('zh-TW'),
+              sub: kolStats.totalClicks > 0
+                ? `累計 ${kolStats.totalClicks.toLocaleString('zh-TW')} 次點擊`
+                : '尚無點擊紀錄',
               icon: Link2,
             },
             {
               label: '本月成交',
               value: kolStats.monthDeals.toString(),
               sub: kolStats.totalInquiries > 0
-                ? `累計 ${kolStats.totalInquiries} 筆詢問`
-                : '尚無詢問紀錄',
+                ? `累計 ${kolStats.totalInquiries} 筆看房`
+                : '尚無看房紀錄',
               icon: TrendingUp,
             },
             {
-              label: '轉換率',
-              value: kolStats.conversionRate !== null ? `${kolStats.conversionRate}%` : '—',
-              sub: kolStats.totalClicks > 0
-                ? `${kolStats.totalClicks.toLocaleString('zh-TW')} 次點擊`
-                : '尚無點擊紀錄',
+              label: '本月轉換率',
+              value: kolStats.monthConversion !== null ? `${kolStats.monthConversion}%` : '—',
+              sub: kolStats.monthClicks > 0
+                ? `${kolStats.monthClicks} 點擊 → ${kolStats.monthDeals} 成交`
+                : '本月尚無點擊',
               icon: TrendingUp,
             },
           ] as const).map((s) => {

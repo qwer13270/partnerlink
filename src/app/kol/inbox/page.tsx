@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, X, Clock, Building2, FileText, Inbox, CheckCircle2, XCircle } from 'lucide-react'
+import { Check, X, Clock, Building2, FileText, Inbox, CheckCircle2, XCircle, Package } from 'lucide-react'
 
 // ── Animation ──────────────────────────────────────────────────────────────
 const fadeUp = {
@@ -23,6 +23,13 @@ const tabFade = {
 type RequestStatus = 'pending' | 'accepted' | 'declined' | 'cancelled'
 type TabKey = 'pending' | 'accepted' | 'declined'
 
+type MutualBenefitItem = {
+  item_name: string
+  quantity: number
+  estimated_value: number
+  notes: string | null
+}
+
 type CollabRequest = {
   id: string
   project_id: string
@@ -36,6 +43,9 @@ type CollabRequest = {
   status: RequestStatus
   message: string | null
   commission_rate: number | null
+  collaboration_type: 'commission' | 'reciprocal' | 'sponsored'
+  sponsorship_bonus: number | null
+  items: MutualBenefitItem[]
   created_at: string
   responded_at: string | null
   cancelled_at: string | null
@@ -96,25 +106,70 @@ function PendingCard({
           <span className="mt-1 h-2 w-2 rounded-full bg-amber-400 shrink-0 animate-pulse" />
         </div>
 
-        {/* Commission rate */}
-        {req.commission_rate != null && (
-          <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-stone-100 border border-foreground/[0.07]">
-            <span className="text-[0.65rem] uppercase tracking-[0.35em] text-muted-foreground">佣金比例</span>
-            <span className="font-serif text-sm text-foreground">{req.commission_rate}%</span>
+        {/* Collaboration type details */}
+        {(req.collaboration_type === 'reciprocal' || req.collaboration_type === 'sponsored') ? (
+          <div className="mb-3 space-y-2">
+            {req.collaboration_type === 'sponsored' ? (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200/60 w-fit">
+                <Package className="h-3 w-3 text-amber-600" />
+                <span className="text-[0.65rem] uppercase tracking-[0.35em] text-amber-700 font-medium">業配合作</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-teal-50 border border-teal-200/60 w-fit">
+                <Package className="h-3 w-3 text-teal-600" />
+                <span className="text-[0.65rem] uppercase tracking-[0.35em] text-teal-700 font-medium">互惠合作</span>
+              </div>
+            )}
+            {req.collab_description && (
+              <div className="rounded-lg border border-foreground/[0.08] bg-stone-100/80 overflow-hidden">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-foreground/[0.06]">
+                  <div className="h-2.5 w-px rounded-full bg-amber-400" />
+                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-muted-foreground">合作內容</span>
+                </div>
+                <p className="px-3 py-2.5 text-xs text-foreground/80 leading-relaxed">
+                  {req.collab_description}
+                </p>
+              </div>
+            )}
+            {req.items.length > 0 && (
+              <div className="rounded-lg border border-foreground/[0.08] bg-stone-100/80 overflow-hidden">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-foreground/[0.06]">
+                  <div className="h-2.5 w-px rounded-full bg-teal-400" />
+                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-muted-foreground">寄送商品</span>
+                </div>
+                <div className="divide-y divide-foreground/[0.05]">
+                  {req.items.map((item, i) => (
+                    <div key={i} className="px-3 py-2 flex items-center justify-between gap-3">
+                      <span className="text-xs text-foreground/80">{item.item_name}</span>
+                      <div className="flex items-center gap-2 shrink-0 text-xs text-muted-foreground">
+                        <span>x{item.quantity}</span>
+                        <span className="opacity-30">·</span>
+                        <span className="font-serif text-foreground/70">NT${item.estimated_value.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {req.sponsorship_bonus != null && req.sponsorship_bonus > 0 && (
+              <div className="rounded-lg border border-foreground/[0.08] bg-stone-100/80 overflow-hidden">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-foreground/[0.06]">
+                  <div className="h-2.5 w-px rounded-full bg-amber-400" />
+                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-muted-foreground">業配獎金</span>
+                </div>
+                <p className="px-3 py-2.5 text-xs text-foreground/80 leading-relaxed font-serif">
+                  NT${req.sponsorship_bonus.toLocaleString()}
+                </p>
+              </div>
+            )}
           </div>
-        )}
-
-        {/* Collab description */}
-        {req.collab_description && (
-          <div className="mb-3 rounded-lg border border-foreground/[0.08] bg-stone-100/80 overflow-hidden">
-            <div className="flex items-center gap-2 px-3 py-2 border-b border-foreground/[0.06]">
-              <div className="h-2.5 w-px rounded-full bg-amber-400" />
-              <span className="text-[0.6rem] uppercase tracking-[0.45em] text-muted-foreground">合作內容</span>
+        ) : (
+          req.commission_rate != null && (
+            <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-stone-100 border border-foreground/[0.07]">
+              <span className="text-[0.65rem] uppercase tracking-[0.35em] text-muted-foreground">佣金比例</span>
+              <span className="font-serif text-sm text-foreground">{req.commission_rate}%</span>
             </div>
-            <p className="px-3 py-2.5 text-xs text-foreground/80 leading-relaxed">
-              {req.collab_description}
-            </p>
-          </div>
+          )
         )}
 
         {/* Message */}

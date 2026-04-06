@@ -1,7 +1,7 @@
 import { pinyin } from 'pinyin-pro'
 
-export const PROPERTY_TEMPLATE_KEY = 'tongchuang-wing' as const
-export const PROPERTY_TEMPLATE_KEYS = ['tongchuang-wing', 'tongchuang-wing-commercial'] as const
+export const PROPERTY_TEMPLATE_KEY = '建案' as const
+export const PROPERTY_TEMPLATE_KEYS = ['建案', '商案'] as const
 export type PropertyTemplateKey = (typeof PROPERTY_TEMPLATE_KEYS)[number]
 
 // ── Colour themes ─────────────────────────────────────────────────────────────

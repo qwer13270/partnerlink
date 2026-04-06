@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
   if (propertySlug) {
     const { data: property } = await admin
-      .from('properties')
+      .from('projects')
       .select('id, name, merchant_user_id')
       .eq('slug', propertySlug)
       .maybeSingle()
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         user_id: kolUserId,
         type:    'new_inquiry',
         title:   `「${projectName}」有新客戶透過你的推廣連結送出詢問`,
-        href:    '/kol/links',
+        href:    '/kol/projects',
       })
     }
     // Merchant notification

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, Check, X, ChevronDown, ExternalLink,
   Clock, Users, RotateCcw, Ban, Send, MessageSquare,
-  Percent, Pencil, Save,
+  Percent, Pencil, Save, Banknote, Plus, Trash2, Gift,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -27,6 +27,14 @@ type ProjectInfo = {
   publishStatus: 'draft' | 'published'
   districtLabel: string
   collabDescription: string | null
+  type: string | null
+}
+
+type ItemInput = {
+  item_name: string
+  quantity: string
+  estimated_value: string
+  notes: string
 }
 
 type Kol = {
@@ -42,7 +50,24 @@ type Kol = {
   city: string
   bio: string
   profilePhotoUrl: string
+  collabFee: number | null
 }
+
+// ── Fee helpers ─────────────────────────────────────────────────────────────
+function formatFee(fee: number | null): string {
+  if (fee === null) return '–'
+  if (fee >= 10000) return `NT$${fee % 10000 === 0 ? fee / 10000 : (fee / 10000).toFixed(1)}萬`
+  return `NT$${fee.toLocaleString()}`
+}
+
+type FeeRange = 'all' | 'under5k' | '5k-20k' | '20k-50k' | 'over50k'
+const FEE_RANGES: { id: FeeRange; label: string; min: number; max: number }[] = [
+  { id: 'all',      label: '全部費用',  min: 0,     max: Infinity },
+  { id: 'under5k',  label: '$5K 以下',  min: 0,     max: 5000    },
+  { id: '5k-20k',   label: '$5K–$20K', min: 5000,  max: 20000   },
+  { id: '20k-50k',  label: '$20K–$50K',min: 20000, max: 50000   },
+  { id: 'over50k',  label: '$50K 以上', min: 50000, max: Infinity },
+]
 
 type ApiKol = {
   id: string
@@ -56,6 +81,7 @@ type ApiKol = {
   city: string | null
   avg_views: string | null
   engagement_rate: string | null
+  collab_fee: number | null
   profile_photo_url?: string
 }
 
@@ -104,6 +130,7 @@ function toKol(item: ApiKol): Kol {
     city:           item.city || '—',
     bio:            item.bio || '尚未提供自我介紹。',
     profilePhotoUrl: typeof item.profile_photo_url === 'string' ? item.profile_photo_url : '',
+    collabFee: item.collab_fee,
   }
 }
 
@@ -298,6 +325,10 @@ function KolRow({
         {/* Stats — desktop */}
         <div className="hidden md:flex items-center gap-5 shrink-0 mr-1">
           <div className="text-center">
+            <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground">合作費用</p>
+            <p className="text-sm font-serif mt-0.5 text-amber-700">{formatFee(kol.collabFee)}</p>
+          </div>
+          <div className="text-center">
             <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground">互動率</p>
             <p className="text-sm font-serif mt-0.5">{kol.engagementRate}</p>
           </div>
@@ -349,7 +380,14 @@ function KolRow({
           >
             <div className="px-5 pb-5 pt-2 border-t border-foreground/[0.06] bg-muted/15">
               <p className="text-xs text-muted-foreground leading-relaxed mb-4">{kol.bio}</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="border border-amber-200/60 bg-amber-50/60 px-3 py-2.5 text-center">
+                  <div className="flex items-center justify-center gap-1 mb-0.5">
+                    <Banknote className="h-2.5 w-2.5 text-amber-600" />
+                    <p className="text-[0.6rem] uppercase tracking-[0.3em] text-amber-700">合作費用</p>
+                  </div>
+                  <p className="text-base font-serif mt-1 text-amber-800">{formatFee(kol.collabFee)}</p>
+                </div>
                 {[
                   { label: '平均觀看', value: kol.avgViews },
                   { label: '互動率',   value: kol.engagementRate },
@@ -518,6 +556,7 @@ export default function ProjectKolsPage() {
   const [kolsLoading, setKolsLoading]     = useState(true)
   const [kolsError, setKolsError]         = useState('')
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [activeFeeRange, setActiveFeeRange] = useState<FeeRange>('all')
 
   // Manage state
   const [requests, setRequests]         = useState<CollabRequest[]>([])
@@ -530,6 +569,10 @@ export default function ProjectKolsPage() {
   const [inviteModal, setInviteModal] = useState<{ kolUserId: string; kolName: string } | null>(null)
   const [commissionRate, setCommissionRate] = useState('')
   const [sendingInvite, setSendingInvite] = useState(false)
+  // 商案 form state
+  const [inviteCollabType, setInviteCollabType] = useState<'reciprocal' | 'sponsored'>('reciprocal')
+  const [items, setItems] = useState<ItemInput[]>([{ item_name: '', quantity: '1', estimated_value: '', notes: '' }])
+  const [sponsorshipBonus, setSponsorshipBonus] = useState('')
 
   // ── Load project info ───────────────────────────────────────────────────
   useEffect(() => {
@@ -540,6 +583,7 @@ export default function ProjectKolsPage() {
         setProject(payload.project ?? null)
         setCollabDescription(payload.project?.collabDescription ?? null)
       }
+      // type is already in payload.project from toMerchantProjectDetail
     }
     void load()
   }, [id])
@@ -626,14 +670,15 @@ export default function ProjectKolsPage() {
     [kols],
   )
 
-  const filteredKols = useMemo(
-    () => kols.filter((k) => {
+  const filteredKols = useMemo(() => {
+    const feeRange = FEE_RANGES.find((r) => r.id === activeFeeRange) ?? FEE_RANGES[0]
+    return kols.filter((k) => {
       if (invitedKolIds.has(k.kolUserId)) return false
       if (activeCategory && k.category !== activeCategory) return false
+      if (feeRange.id !== 'all' && (k.collabFee === null || k.collabFee < feeRange.min || k.collabFee >= feeRange.max)) return false
       return true
-    }),
-    [kols, activeCategory, invitedKolIds],
-  )
+    })
+  }, [kols, activeCategory, activeFeeRange, invitedKolIds])
 
   // ── Actions ─────────────────────────────────────────────────────────────
   function openInviteModal(kolUserId: string, kolName: string) {
@@ -646,23 +691,50 @@ export default function ProjectKolsPage() {
       return
     }
     setCommissionRate('')
+    setInviteCollabType('reciprocal')
+    setItems([{ item_name: '', quantity: '1', estimated_value: '', notes: '' }])
+    setSponsorshipBonus('')
     setInviteModal({ kolUserId, kolName })
   }
 
   async function confirmInvite() {
     if (!inviteModal) return
-    const rate = parseFloat(commissionRate)
-    if (!commissionRate || isNaN(rate) || rate < 0 || rate > 100) return
+    const isCommercial = project?.type === '商案'
     setSendingInvite(true)
     try {
-      const res = await fetch('/api/collaboration-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      let body: Record<string, unknown>
+      if (isCommercial) {
+        const validItems = items
+          .filter((it) => it.item_name.trim())
+          .map((it) => ({
+            item_name:       it.item_name.trim(),
+            quantity:        Math.max(1, parseInt(it.quantity) || 1),
+            estimated_value: parseInt(it.estimated_value) || 0,
+            notes:           it.notes.trim() || null,
+          }))
+        if (validItems.length === 0) return
+        body = {
+          project_id:         id,
+          kol_user_id:        inviteModal.kolUserId,
+          collaboration_type: inviteCollabType,
+          items:              validItems,
+          ...(inviteCollabType === 'sponsored' && sponsorshipBonus
+            ? { sponsorship_bonus: parseInt(sponsorshipBonus) }
+            : {}),
+        }
+      } else {
+        const rate = parseFloat(commissionRate)
+        if (!commissionRate || isNaN(rate) || rate < 0 || rate > 100) return
+        body = {
           project_id:      id,
           kol_user_id:     inviteModal.kolUserId,
           commission_rate: rate,
-        }),
+        }
+      }
+      const res = await fetch('/api/collaboration-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
       })
       const payload = await res.json().catch(() => null) as { error?: string } | null
       if (!res.ok) throw new Error(payload?.error ?? '邀請送出失敗。')
@@ -804,6 +876,33 @@ export default function ProjectKolsPage() {
                       }}
                     >
                       {label}
+                    </button>
+                  )
+                })}
+              </div>
+            </motion.div>
+
+            {/* Fee range filter */}
+            <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp}>
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground/60 shrink-0">
+                  <Banknote className="h-3 w-3" />
+                  合作費用
+                </div>
+                <div className="h-3.5 w-px bg-foreground/15" />
+                {FEE_RANGES.map((range) => {
+                  const isActive = activeFeeRange === range.id
+                  return (
+                    <button
+                      key={range.id}
+                      onClick={() => setActiveFeeRange(range.id)}
+                      className={`shrink-0 px-3 py-1.5 rounded-full text-[0.72rem] font-medium tracking-wide transition-all duration-150 active:scale-[0.96] select-none ${
+                        isActive
+                          ? 'bg-amber-700 text-white shadow-sm'
+                          : 'bg-black/[0.05] text-foreground/50 hover:bg-black/[0.09] hover:text-foreground/70'
+                      }`}
+                    >
+                      {range.label}
                     </button>
                   )
                 })}
@@ -980,29 +1079,132 @@ export default function ProjectKolsPage() {
                 </div>
               )}
 
-              {/* Commission rate input */}
-              <div className="mb-6">
-                <label className="block text-xs uppercase tracking-[0.35em] text-muted-foreground mb-2">
-                  佣金比例
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    value={commissionRate}
-                    onChange={(e) => setCommissionRate(e.target.value)}
-                    placeholder="0.0"
-                    className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pr-8 text-sm focus:outline-none focus:ring-1 focus:ring-foreground/20"
-                    autoFocus
-                  />
-                  <Percent className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50" />
+              {/* Form body — commission vs 商案 */}
+              {project?.type === '商案' ? (
+                <div className="mb-6 space-y-4">
+                  {/* Type selector */}
+                  <div className="flex gap-2">
+                    {(['reciprocal', 'sponsored'] as const).map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => { setInviteCollabType(t); setSponsorshipBonus('') }}
+                        className={`flex-1 py-2 text-xs uppercase tracking-[0.3em] border transition-colors duration-150 ${
+                          inviteCollabType === t
+                            ? 'border-foreground bg-foreground text-background'
+                            : 'border-foreground/20 text-muted-foreground hover:border-foreground/50'
+                        }`}
+                      >
+                        {t === 'reciprocal' ? '互惠' : '業配'}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Items */}
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground mb-2">公關商品</p>
+                    <div className="space-y-2">
+                      {items.map((item, idx) => (
+                        <div key={idx} className="flex gap-2 items-start">
+                          <div className="flex-1 min-w-0 grid grid-cols-3 gap-1.5">
+                            <input
+                              type="text"
+                              value={item.item_name}
+                              onChange={(e) => setItems((prev) => prev.map((it, i) => i === idx ? { ...it, item_name: e.target.value } : it))}
+                              placeholder="品項名稱"
+                              className="col-span-3 rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground/20"
+                            />
+                            <div className="relative">
+                              <input
+                                type="number"
+                                min="1"
+                                value={item.quantity}
+                                onChange={(e) => setItems((prev) => prev.map((it, i) => i === idx ? { ...it, quantity: e.target.value } : it))}
+                                placeholder="數量"
+                                className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground/20"
+                              />
+                              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[0.65rem] text-muted-foreground/50">件</span>
+                            </div>
+                            <div className="relative col-span-2">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[0.72rem] text-muted-foreground/50">NT$</span>
+                              <input
+                                type="number"
+                                min="0"
+                                value={item.estimated_value}
+                                onChange={(e) => setItems((prev) => prev.map((it, i) => i === idx ? { ...it, estimated_value: e.target.value } : it))}
+                                placeholder="市值"
+                                className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2 pl-9 text-sm focus:outline-none focus:ring-1 focus:ring-foreground/20"
+                              />
+                            </div>
+                          </div>
+                          {items.length > 1 && (
+                            <button
+                              onClick={() => setItems((prev) => prev.filter((_, i) => i !== idx))}
+                              className="mt-1.5 p-1.5 text-muted-foreground/40 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => setItems((prev) => [...prev, { item_name: '', quantity: '1', estimated_value: '', notes: '' }])}
+                      className="mt-2 flex items-center gap-1.5 text-[0.72rem] text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Plus className="h-3 w-3" />
+                      新增品項
+                    </button>
+                  </div>
+
+                  {/* Sponsorship bonus — 業配 only */}
+                  {inviteCollabType === 'sponsored' && (
+                    <div>
+                      <label className="block text-xs uppercase tracking-[0.35em] text-muted-foreground mb-2">
+                        <span className="flex items-center gap-1.5">
+                          <Gift className="h-3 w-3" />
+                          業配獎金
+                        </span>
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[0.72rem] text-muted-foreground/50">NT$</span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={sponsorshipBonus}
+                          onChange={(e) => setSponsorshipBonus(e.target.value)}
+                          placeholder="0"
+                          className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pl-9 text-sm focus:outline-none focus:ring-1 focus:ring-foreground/20"
+                        />
+                      </div>
+                      <p className="mt-1.5 text-[0.68rem] text-muted-foreground">
+                        KOL 確認收到商品後，業配獎金將自動記入獎金紀錄。
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <p className="mt-1.5 text-[0.68rem] text-muted-foreground">
-                  此佣金比例僅 KOL 本人可見，不公開。
-                </p>
-              </div>
+              ) : (
+                <div className="mb-6">
+                  <label className="block text-xs uppercase tracking-[0.35em] text-muted-foreground mb-2">
+                    佣金比例
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={commissionRate}
+                      onChange={(e) => setCommissionRate(e.target.value)}
+                      placeholder="0.0"
+                      className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pr-8 text-sm focus:outline-none focus:ring-1 focus:ring-foreground/20"
+                      autoFocus
+                    />
+                    <Percent className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50" />
+                  </div>
+                  <p className="mt-1.5 text-[0.68rem] text-muted-foreground">
+                    此佣金比例僅 KOL 本人可見，不公開。
+                  </p>
+                </div>
+              )}
 
               {/* Actions */}
               <div className="flex justify-end gap-2">
@@ -1015,7 +1217,13 @@ export default function ProjectKolsPage() {
                 </button>
                 <button
                   onClick={() => void confirmInvite()}
-                  disabled={sendingInvite || !commissionRate || isNaN(parseFloat(commissionRate))}
+                  disabled={
+                    sendingInvite || (
+                      project?.type === '商案'
+                        ? !items.some((it) => it.item_name.trim())
+                        : !commissionRate || isNaN(parseFloat(commissionRate))
+                    )
+                  }
                   className="rounded-lg bg-foreground px-5 py-2 text-[0.78rem] font-medium text-background hover:bg-foreground/88 active:scale-[0.97] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {sendingInvite ? '送出中…' : '送出邀請'}

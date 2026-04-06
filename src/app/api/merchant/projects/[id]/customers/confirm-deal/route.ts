@@ -40,7 +40,7 @@ export async function PATCH(
 
   // Verify project belongs to this merchant (also get name for notification)
   const { data: project } = await admin
-    .from('properties')
+    .from('projects')
     .select('id, name')
     .eq('id', projectId)
     .eq('merchant_user_id', auth.user.id)
@@ -91,7 +91,7 @@ export async function PATCH(
         user_id: kolUserId,
         type:    'deal',
         title:   `恭喜！「${projectName}」的客戶已成交，你即將獲得佣金`,
-        href:    '/kol/commissions',
+        href:    '/kol/projects',
       })
     }
   } else {
@@ -141,7 +141,7 @@ export async function PATCH(
           user_id: kol_user_id,
           type:    'deal',
           title:   `恭喜！「${projectName}」的客戶已成交，你即將獲得佣金`,
-          href:    '/kol/commissions',
+          href:    '/kol/projects',
         })
       }
     }

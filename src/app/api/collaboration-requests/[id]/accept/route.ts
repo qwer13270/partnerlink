@@ -26,7 +26,7 @@ export async function POST(
   // Verify the caller is the recipient before calling the RPC
   const { data: req, error: fetchError } = await admin
     .from('collaboration_requests')
-    .select('id, project_id, sender_role, merchant_user_id, kol_user_id, status')
+    .select('id, project_id, sender_role, merchant_user_id, kol_user_id, status, collaboration_type, sponsorship_bonus')
     .eq('id', id)
     .maybeSingle()
 
@@ -64,10 +64,12 @@ export async function POST(
   const { data: collab, error: insertError } = await admin
     .from('collaborations')
     .insert({
-      project_id:       req.project_id,
-      merchant_user_id: req.merchant_user_id,
-      kol_user_id:      req.kol_user_id,
-      request_id:       id,
+      project_id:         req.project_id,
+      merchant_user_id:   req.merchant_user_id,
+      kol_user_id:        req.kol_user_id,
+      request_id:         id,
+      collaboration_type: req.collaboration_type ?? 'commission',
+      sponsorship_bonus:  req.sponsorship_bonus ?? null,
     })
     .select('id')
     .single()
@@ -113,6 +115,16 @@ export async function POST(
   if (!referralCreated) {
     // Referral link creation is best-effort; the collaboration itself succeeded
     console.warn('[accept] could not create referral_link for collaboration', collab.id)
+  }
+
+  // For 互惠 and 業配 collabs, create an empty shipment row ready for merchant to fill
+  if (req.collaboration_type === 'reciprocal' || req.collaboration_type === 'sponsored') {
+    const { error: shipmentError } = await admin
+      .from('mutual_benefit_shipments')
+      .insert({ collaboration_id: collab.id })
+    if (shipmentError) {
+      console.error('[accept] insert mutual_benefit_shipments error:', shipmentError.message)
+    }
   }
 
   return NextResponse.json({ ok: true })

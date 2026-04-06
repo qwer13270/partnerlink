@@ -61,7 +61,7 @@ export default async function PropertyPage({ params, searchParams }: Props) {
   const dbProperty = await getPublishedPropertyBySlug(slug)
   const property = getPropertyBySlug(slug)
 
-  if (dbProperty?.templateKey === 'tongchuang-wing') {
+  if (dbProperty?.type === '建案') {
     return <TongchuangWingPage content={dbProperty.template} referrer={ref} />
   }
 

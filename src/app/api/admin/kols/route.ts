@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
   const archivedByProjectId = new Map<string, boolean>()
   if (projectIds.length > 0) {
     const { data: propsData } = await admin
-      .from('properties')
+      .from('projects')
       .select('id,is_archived')
       .in('id', projectIds)
     for (const row of (propsData ?? []) as PropertyRow[]) {

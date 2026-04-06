@@ -32,10 +32,13 @@ export type RecentCollab = {
 export type KolStats = {
   activeLinks: number
   totalLinks: number
-  monthDeals: number
-  conversionRate: number | null  // percentage, e.g. 6.2 means 6.2%
   totalClicks: number
   totalInquiries: number
+  conversionRate: number | null  // all-time: deals / clicks × 100
+  monthDeals: number
+  monthClicks: number
+  monthInquiries: number
+  monthConversion: number | null // this month: deals / inquiries × 100
 }
 
 export default async function KolHomePage() {
@@ -108,7 +111,7 @@ export default async function KolHomePage() {
     ? await Promise.all([
         admin
           .from('referral_clicks')
-          .select('referral_link_id')
+          .select('referral_link_id,visited_at')
           .in('referral_link_id', allLinkIds),
         admin
           .from('referral_conversions')
@@ -120,20 +123,33 @@ export default async function KolHomePage() {
   const totalClicks    = (clickRows ?? []).length
   const allConvs       = convRows ?? []
   const totalInquiries = allConvs.filter(r => r.conversion_type === 'inquiry').length
+  const totalDeals     = allConvs.filter(r => r.conversion_type === 'deal').length
   const monthDeals     = allConvs.filter(
     r => r.conversion_type === 'deal' && r.converted_at >= monthStart,
   ).length
-  const conversionRate = totalClicks > 0
-    ? parseFloat(((totalInquiries / totalClicks) * 100).toFixed(1))
+  const monthInquiries = allConvs.filter(
+    r => r.conversion_type === 'inquiry' && r.converted_at >= monthStart,
+  ).length
+
+  const monthClicks = (clickRows ?? []).filter(r => r.visited_at >= monthStart).length
+
+  const conversionRate  = totalClicks > 0
+    ? parseFloat(((totalDeals / totalClicks) * 100).toFixed(1))
+    : null
+  const monthConversion = monthClicks > 0
+    ? parseFloat(((monthDeals / monthClicks) * 100).toFixed(1))
     : null
 
   const kolStats: KolStats = {
     activeLinks,
     totalLinks: allLinkIds.length,
-    monthDeals,
-    conversionRate,
     totalClicks,
     totalInquiries,
+    conversionRate,
+    monthDeals,
+    monthClicks,
+    monthInquiries,
+    monthConversion,
   }
 
   // Enrich collabs with project name and merchant company name
@@ -143,7 +159,7 @@ export default async function KolHomePage() {
     const projectIds      = [...new Set(collabRowsSafe.map(r => r.project_id as string))]
     const merchantUserIds = [...new Set(collabRowsSafe.map(r => r.merchant_user_id as string))]
     const [{ data: projects }, { data: merchants }] = await Promise.all([
-      admin.from('properties').select('id,name').in('id', projectIds),
+      admin.from('projects').select('id,name').in('id', projectIds),
       admin.from('merchant_profiles').select('user_id,company_name').in('user_id', merchantUserIds),
     ])
     const projectNameById      = new Map((projects ?? []).map(p => [p.id as string, p.name as string]))

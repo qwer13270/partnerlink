@@ -65,7 +65,7 @@ function toNotif(r: CollabRequest, role: Role, lastReadAt: number): Notif | null
       const ts = r.responded_at ?? r.created_at
       if (!within7Days(ts)) return null
       return {
-        id: r.id, href: '/kol/applications',
+        id: r.id, href: r.status === 'accepted' ? '/kol/projects' : '/kol/inbox',
         accent: r.status === 'accepted' ? 'bg-emerald-500' : 'bg-red-400',
         text: r.status === 'accepted'
           ? `你在「${project}」的申請已通過`

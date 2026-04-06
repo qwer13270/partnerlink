@@ -13,7 +13,7 @@ type ProjectSummary = {
   id: string
   slug: string
   name: string
-  templateKey: string
+  type: string
   publishStatus: 'draft' | 'published'
   createdAt: string
   updatedAt: string
@@ -22,7 +22,7 @@ type ProjectSummary = {
 type ArchivedProjectSummary = {
   id: string
   name: string
-  templateKey: string
+  type: string
   archivedAt: string
   createdAt: string
 }
@@ -60,16 +60,16 @@ function clientSlugify(value: string) {
 }
 
 // ── Create modal ─────────────────────────────────────────────────────────────
-type TemplateKey = 'tongchuang-wing' | 'tongchuang-wing-commercial'
+type TemplateKey = '建案' | '商案'
 type SlugStatus  = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
 
 const TEMPLATES: { key: TemplateKey; label: string; sub: string; num: string }[] = [
-  { key: 'tongchuang-wing',            label: '建案模板', sub: '住宅 · 建案', num: '01' },
-  { key: 'tongchuang-wing-commercial', label: '商案模板', sub: '商業 · 地產', num: '02' },
+  { key: '建案', label: '建案模板', sub: '住宅 · 建案', num: '01' },
+  { key: '商案', label: '商案模板', sub: '商業 · 地產', num: '02' },
 ]
 
 function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
-  const [template, setTemplate]     = useState<TemplateKey>('tongchuang-wing')
+  const [template, setTemplate]     = useState<TemplateKey>('建案')
   const [name, setName]             = useState('')
   const [slug, setSlug]             = useState('')
   const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle')
@@ -100,7 +100,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
     setCreating(true)
     const r = await fetch('/api/merchant/projects', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name.trim(), slug, templateKey: template }),
+      body: JSON.stringify({ name: name.trim(), slug, type: template }),
     })
     const d = await r.json() as { project?: { id: string }; error?: string }
     setCreating(false)
@@ -148,7 +148,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
                         sel ? 'bg-foreground text-background border-foreground' : 'bg-linen border-foreground/[0.08] hover:border-foreground/30 hover:shadow-sm'
                       }`}>
                       <span className={`font-mono text-[0.65rem] tracking-[0.3em] self-end ${sel ? 'text-background/35' : 'text-muted-foreground/40'}`}>{opt.num}</span>
-                      {opt.key === 'tongchuang-wing'
+                      {opt.key === '建案'
                         ? <ResidentialIcon className={`h-10 w-10 ${sel ? 'text-background' : 'text-foreground/55'}`} />
                         : <CommercialIcon  className={`h-10 w-10 ${sel ? 'text-background' : 'text-foreground/55'}`} />
                       }
@@ -244,7 +244,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
 
 // ── Project card ───────────────────────────────────────────────────────────────
 function ProjectCard({ project, index, onDelete }: { project: ProjectSummary; index: number; onDelete: (p: ProjectSummary) => void }) {
-  const isResidential = project.templateKey === 'tongchuang-wing'
+  const isResidential = project.type === '建案'
   const updatedDate   = new Date(project.updatedAt).toLocaleDateString('zh-TW', { month: 'long', day: 'numeric' })
   const published     = project.publishStatus === 'published'
 
@@ -373,7 +373,7 @@ function DeleteModal({ project, onClose, onDeleted }: { project: ProjectSummary;
 
 // ── Archived project card ─────────────────────────────────────────────────────
 function ArchivedProjectCard({ project, index }: { project: ArchivedProjectSummary; index: number }) {
-  const isResidential = project.templateKey === 'tongchuang-wing'
+  const isResidential = project.type === '建案'
   const archivedDate  = new Date(project.archivedAt).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })
 
   return (

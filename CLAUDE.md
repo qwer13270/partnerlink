@@ -2,9 +2,7 @@
 
 ## Project Overview
 
-**HomeKey 房客** is a real estate affiliate marketing platform for Taiwan's apartment market. It connects apartment merchants with KOLs (Key Opinion Leaders) who earn commissions by referring buyers through trackable affiliate links.
-
-**Current phase**: Visual prototype/demo (investor-facing). All data is mock/hardcoded — no real backend, auth, or database yet.
+**HomeKey 房客** is a KOL and merchant platform. It connects KOL and merchants who earn commissions by referring buyers through trackable affiliate links.
 
 ## Tech Stack
 
@@ -12,8 +10,8 @@
 - **Styling**: Tailwind CSS v4 + shadcn/ui
 - **Charts**: Recharts
 - **Icons**: Lucide React
-- **i18n**: next-intl (Traditional Chinese `zh-TW` + English `en`)
 - **Animations**: Framer Motion
+- **Backend**: Supabase (auth + database)
 - **Deployment**: Vercel
 
 ## Dev Commands
@@ -26,17 +24,50 @@ npm run lint     # ESLint
 
 ## Key Conventions
 
-- **All data is mocked** — no API calls. Data lives in `src/data/`.
-- **i18n is required** — every user-facing string must use `next-intl` (`useTranslations`). Never hardcode English or Chinese strings directly in JSX.
+- **Data layer**: Real API routes in `src/app/api/` backed by Supabase. Some mock data remains in `src/data/` for UI development.
 - **Component style**: Use shadcn/ui components where possible. Extend with Tailwind utility classes.
 - **TypeScript**: Strict mode is on. Avoid `any`.
 - **File naming**: kebab-case for files/folders, PascalCase for components.
 
 ## Architecture Notes
 
-- The project is structured for future backend integration. Keep data-fetching logic in a dedicated layer (currently `src/data/`) so it can be swapped out for real API calls later.
-- No authentication exists yet. Role-based views (Admin / KOL / Merchant) are navigated directly.
+- Backend is Supabase. Auth is handled via `src/middleware.ts` and `src/lib/supabase/`. Real API routes live in `src/app/api/`.
+- Remaining mock data in `src/data/` is for UI-only features not yet wired to the backend.
 - Three user roles: **Admin**, **KOL**, **Merchant** — each has its own dashboard section.
+
+## 代碼風格 / Code Style
+
+### Components
+- Functional components only — no class components
+- `'use client'` directive at the top of client components; server components are `async` functions with no directive
+- Default exports for all components: `export default function ComponentName({ prop }: Props)`
+- Props typed with inline interfaces defined above the function in the same file
+- Shared domain types live in `src/lib/types.ts`; feature-specific types in a `_types.ts` file within the feature folder
+
+### Data Fetching
+- Pages are server components that fetch data upfront and pass it as props to `'use client'` child components
+- Parallel fetches use `Promise.all()`
+- Supabase: use `getSupabaseAdminClient()` server-side, `getSupabaseBrowserClient()` client-side
+- Client components do not use `useEffect` for initial data fetching — receive pre-fetched props instead
+- When a client component needs live data, fetch via `fetch('/api/...')` with a Bearer token
+
+### API Routes
+- Named exports for HTTP verbs: `export async function GET(...)`, `export async function POST(...)`
+- Auth check first on every route via `requireApiRole(request, ['role'])`
+- Errors returned as `NextResponse.json({ error: '...' }, { status: ### })`
+- Error logging pattern: `console.error('[api/route-name] operation:', error.message)`
+- Validate request body fields with type checks before use: `typeof body.field === 'string' ? body.field.trim() : ''`
+
+### Styling
+- All styling via Tailwind utility classes — no CSS modules
+- Use `cn()` from `@/lib/utils` for conditional or merged class names
+- Extract repeated class strings to constants (e.g., status color maps) rather than duplicating inline
+
+### Error Handling
+- API routes: return appropriate HTTP status codes with a `{ error }` JSON body
+- Client forms: store error in state (`const [submitError, setSubmitError] = useState<string | null>(null)`) and render in UI
+- After Supabase queries, always check `if (error || !data)` before proceeding
+- After `fetch()` calls, check `if (!res.ok)` and parse the error body
 
 ## Workflow Orchestration
 
@@ -90,6 +121,13 @@ npm run lint     # ESLint
 4. **Explain Changes**: High-level summary at each step
 5. **Document Results**: Add review section to tasks/todo.md
 6. **Capture Lessons**: Update tasks/lessons.md after corrections
+
+## 測試 / Testing
+
+- **Framework**: Vitest — unit tests for business logic in `src/lib/`
+- **Run tests**: `npm run test` (single run) or `npm run test:watch` (watch mode)
+- After any change to a tested file, run `npm run test` and fix all failures before marking the task done
+- Test files live in `__tests__/` folders next to the code they test (e.g. `src/lib/__tests__/`)
 
 ## Core Principles
 

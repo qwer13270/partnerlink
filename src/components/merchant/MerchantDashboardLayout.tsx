@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Menu, Home, LayoutGrid, ArrowLeft,
-  Users, Handshake, Pencil, Eye, BrainCircuit, BarChart3,
+  Users, Handshake, Pencil, Eye, BrainCircuit, BarChart3, Gift,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -16,10 +16,11 @@ import { cn } from '@/lib/utils'
 type NavItem = { seg: string; label: string; Icon: React.ElementType }
 
 const MANAGE: NavItem[] = [
-  { seg: 'customers', label: '客戶名單',     Icon: Users        },
-  { seg: 'kols',      label: 'KOL 合作',     Icon: Handshake    },
-  { seg: 'edit',      label: '商案編輯',     Icon: Pencil       },
-  { seg: 'preview',   label: '預覽頁面',     Icon: Eye          },
+  { seg: 'customers',     label: '客戶名單', Icon: Users     },
+  { seg: 'kols',          label: 'KOL 合作', Icon: Handshake },
+  { seg: 'mutual-benefit',label: '互惠紀錄', Icon: Gift      },
+  { seg: 'edit',          label: '商案編輯', Icon: Pencil    },
+  { seg: 'preview',       label: '預覽頁面', Icon: Eye       },
 ]
 
 const ANALYSE: NavItem[] = [
@@ -56,19 +57,27 @@ function SectionLabel({ children, gold }: { children: React.ReactNode; gold?: bo
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname  = usePathname()
   const projectId = getProjectId(pathname)
-  const [projectName, setProjectName] = useState<string | null>(null)
+  const [projectName,        setProjectName]        = useState<string | null>(null)
+  const [projectTemplateKey, setProjectTemplateKey] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!projectId) { setProjectName(null); return }
+    if (!projectId) { setProjectName(null); setProjectTemplateKey(null); return }
     let alive = true
     fetch(`/api/merchant/projects/${projectId}`, { cache: 'no-store' })
       .then(r => r.json())
-      .then((d: { project?: { name?: string } }) => {
-        if (alive) setProjectName(d.project?.name ?? null)
+      .then((d: { project?: { name?: string; type?: string } }) => {
+        if (alive) {
+          setProjectName(d.project?.name ?? null)
+          setProjectTemplateKey(d.project?.type ?? null)
+        }
       })
       .catch(() => {})
     return () => { alive = false }
   }, [projectId])
+
+  const isCommercial = projectTemplateKey === '商案'
+  const visibleManage  = projectTemplateKey === '建案' ? MANAGE.filter(item => item.seg !== 'mutual-benefit') : MANAGE
+  const visibleAnalyse = isCommercial ? ANALYSE.filter(item => item.seg !== 'analytics') : ANALYSE
 
   return (
     <nav className="sticky top-16 py-8">
@@ -109,7 +118,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             {/* MANAGE items */}
             <div className="space-y-1 mt-1">
               <SectionLabel>MANAGE</SectionLabel>
-              {MANAGE.map(({ seg, label, Icon }) => {
+              {projectTemplateKey === null ? (
+                <div className="space-y-1 px-6 py-2">
+                  {[1,2,3,4].map(i => <div key={i} className="h-3 rounded bg-foreground/[0.06] animate-pulse" style={{ width: `${55 + i * 8}%` }} />)}
+                </div>
+              ) : visibleManage.map(({ seg, label, Icon }) => {
                 const href   = `/merchant/projects/${projectId}/${seg}`
                 const active = pathname.startsWith(href)
                 return (
@@ -132,7 +145,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             {/* ANALYSE items */}
             <div className="space-y-1">
               <SectionLabel gold>ANALYSE</SectionLabel>
-              {ANALYSE.map(({ seg, label, Icon }) => {
+              {projectTemplateKey === null ? (
+                <div className="space-y-1 px-6 py-2">
+                  {[1,2].map(i => <div key={i} className="h-3 rounded bg-foreground/[0.06] animate-pulse" style={{ width: `${60 + i * 10}%` }} />)}
+                </div>
+              ) : visibleAnalyse.map(({ seg, label, Icon }) => {
                 const href   = `/merchant/projects/${projectId}/${seg}`
                 const active = pathname.startsWith(href)
                 return (

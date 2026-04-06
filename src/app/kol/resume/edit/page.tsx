@@ -5,6 +5,7 @@ import { getSupabaseUrl, getSupabasePublishableKey } from '@/lib/supabase/env'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getUsernameFromUser, getResumeByUsername, createDefaultResume } from '@/data/mock-resume'
 import type { SocialLinks } from '@/data/mock-resume'
+import { fetchKolPlatformStats } from '@/lib/kol-stats'
 import KolResumeEditClient from './_client'
 
 function platformAccountsToSocialLinks(accounts: Record<string, string>): SocialLinks {
@@ -52,11 +53,14 @@ export default async function KolResumeEditPage() {
       ? user.user_metadata.profile_photo_path
       : ''
 
-  const applicationResult = await admin
-    .from('kol_applications')
-    .select('profile_photo_path,full_name,bio,platform_accounts')
-    .eq('user_id', user.id)
-    .maybeSingle()
+  const [applicationResult, platformStats] = await Promise.all([
+    admin
+      .from('kol_applications')
+      .select('profile_photo_path,full_name,bio,platform_accounts,collab_fee')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    fetchKolPlatformStats(admin, user.id),
+  ])
 
   const application = applicationResult.data
 
@@ -105,6 +109,8 @@ export default async function KolResumeEditPage() {
     socialLinks,
     ...(savedResume?.followerCount !== undefined && { followerCount: savedResume.followerCount }),
     ...(savedResume?.nicheTags !== undefined && { nicheTags: savedResume.nicheTags }),
+    collabFee: typeof application?.collab_fee === 'number' ? application.collab_fee : null,
+    platformStats,
   }
 
   return <KolResumeEditClient initialResume={resume} />

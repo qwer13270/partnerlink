@@ -62,7 +62,7 @@ export default async function MerchantHomePage() {
   // ── Merchant profile + projects (parallel) ────────────────────────────────
   const [{ data: profile }, { data: projects }] = await Promise.all([
     admin.from('merchant_profiles').select('company_name').eq('user_id', user.id).maybeSingle(),
-    admin.from('properties').select('id, name').eq('merchant_user_id', user.id).eq('is_archived', false),
+    admin.from('projects').select('id, name').eq('merchant_user_id', user.id).eq('is_archived', false),
   ])
 
   const merchantName = (profile?.company_name as string | null) ?? '商家夥伴'

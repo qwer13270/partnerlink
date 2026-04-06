@@ -17,13 +17,25 @@ export async function POST(request: NextRequest) {
     merchant_user_id?: string
     message?: string
     commission_rate?: number
+    collaboration_type?: string
+    sponsorship_bonus?: number
+    items?: { item_name: string; quantity: number; estimated_value: number; notes?: string }[]
   }
 
-  const projectId     = typeof body.project_id === 'string' ? body.project_id.trim() : ''
-  const message       = typeof body.message    === 'string' ? body.message.trim() || null : null
-  const commissionRate = typeof body.commission_rate === 'number' && body.commission_rate >= 0 && body.commission_rate <= 100
+  const projectId        = typeof body.project_id === 'string' ? body.project_id.trim() : ''
+  const message          = typeof body.message    === 'string' ? body.message.trim() || null : null
+  const commissionRate   = typeof body.commission_rate === 'number' && body.commission_rate >= 0 && body.commission_rate <= 100
     ? body.commission_rate
     : null
+  const collaborationType = body.collaboration_type === 'reciprocal'
+    ? 'reciprocal'
+    : body.collaboration_type === 'sponsored'
+      ? 'sponsored'
+      : 'commission'
+  const sponsorshipBonus  = collaborationType === 'sponsored' && typeof body.sponsorship_bonus === 'number' && body.sponsorship_bonus >= 0
+    ? body.sponsorship_bonus
+    : null
+  const items = (collaborationType === 'reciprocal' || collaborationType === 'sponsored') && Array.isArray(body.items) ? body.items : []
 
   if (!projectId) {
     return NextResponse.json({ error: 'project_id is required.' }, { status: 400 })
@@ -52,7 +64,7 @@ export async function POST(request: NextRequest) {
 
   // Verify project exists and belongs to this merchant (if sender is merchant)
   const { data: project, error: projectError } = await admin
-    .from('properties')
+    .from('projects')
     .select('id, merchant_user_id')
     .eq('id', projectId)
     .maybeSingle()
@@ -68,12 +80,14 @@ export async function POST(request: NextRequest) {
   const { data, error } = await admin
     .from('collaboration_requests')
     .insert({
-      project_id:       projectId,
-      merchant_user_id: merchantUserId,
-      kol_user_id:      kolUserId,
-      sender_role:      senderRole,
+      project_id:         projectId,
+      merchant_user_id:   merchantUserId,
+      kol_user_id:        kolUserId,
+      sender_role:        senderRole,
       message,
-      commission_rate:  commissionRate,
+      commission_rate:    commissionRate,
+      collaboration_type: collaborationType,
+      sponsorship_bonus:  sponsorshipBonus,
     })
     .select('id, status, created_at')
     .single()
@@ -97,6 +111,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to create request.' }, { status: 500 })
   }
 
+  // Insert 公關商品 items if present (both 互惠 and 業配)
+  if ((collaborationType === 'reciprocal' || collaborationType === 'sponsored') && items.length > 0) {
+    const validItems = items.filter(
+      (it) =>
+        typeof it.item_name === 'string' && it.item_name.trim() &&
+        typeof it.quantity === 'number' && it.quantity > 0 &&
+        typeof it.estimated_value === 'number' && it.estimated_value >= 0,
+    )
+    if (validItems.length > 0) {
+      const { error: itemsError } = await admin
+        .from('mutual_benefit_items')
+        .insert(
+          validItems.map((it) => ({
+            collaboration_request_id: data.id,
+            item_name:       it.item_name.trim(),
+            quantity:        it.quantity,
+            estimated_value: it.estimated_value,
+            notes:           typeof it.notes === 'string' ? it.notes.trim() || null : null,
+          })),
+        )
+      if (itemsError) {
+        console.error('[api/collaboration-requests] insert items error:', itemsError.message)
+      }
+    }
+  }
+
   return NextResponse.json({ ok: true, request: data }, { status: 201 })
 }
 
@@ -118,7 +158,7 @@ export async function GET(request: NextRequest) {
 
   let query = admin
     .from('collaboration_requests')
-    .select('id, project_id, merchant_user_id, kol_user_id, sender_role, status, message, commission_rate, created_at, responded_at, cancelled_at')
+    .select('id, project_id, merchant_user_id, kol_user_id, sender_role, status, message, commission_rate, collaboration_type, sponsorship_bonus, created_at, responded_at, cancelled_at')
     .order('created_at', { ascending: false })
 
   if (auth.role !== 'admin') {
@@ -154,15 +194,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, requests: [] })
   }
 
-  // Enrich with project name, merchant company name, and KOL info in parallel
+  // Enrich with project name, merchant company name, KOL info, and 互惠 items in parallel
   const projectIds      = [...new Set(rows.map((r) => r.project_id as string).filter(Boolean))]
   const merchantUserIds = [...new Set(rows.map((r) => r.merchant_user_id as string).filter(Boolean))]
   const kolUserIds      = [...new Set(rows.map((r) => r.kol_user_id as string).filter(Boolean))]
+  const requestIds      = rows.map((r) => r.id as string)
 
-  const [projectsResult, merchantsResult, kolsResult] = await Promise.all([
-    admin.from('properties').select('id, name, collab_description').in('id', projectIds),
+  const [projectsResult, merchantsResult, kolsResult, itemsResult] = await Promise.all([
+    admin.from('projects').select('id, name, collab_description').in('id', projectIds),
     admin.from('merchant_profiles').select('user_id, company_name, contact_name').in('user_id', merchantUserIds),
     admin.from('kol_applications').select('user_id, full_name, platforms, follower_range').in('user_id', kolUserIds),
+    admin.from('mutual_benefit_items').select('collaboration_request_id, item_name, quantity, estimated_value, notes').in('collaboration_request_id', requestIds),
   ])
 
   const projectById = new Map(
@@ -186,6 +228,15 @@ export async function GET(request: NextRequest) {
     }),
   )
 
+  // Group mutual benefit items by request id
+  type ItemRow = { collaboration_request_id: string; item_name: string; quantity: number; estimated_value: number; notes: string | null }
+  const itemsByRequestId = new Map<string, ItemRow[]>()
+  for (const item of (itemsResult.data ?? []) as ItemRow[]) {
+    const list = itemsByRequestId.get(item.collaboration_request_id) ?? []
+    list.push(item)
+    itemsByRequestId.set(item.collaboration_request_id, list)
+  }
+
   const enriched = rows.map((r) => {
     const merchant = merchantByUserId.get(r.merchant_user_id as string)
     const kol      = kolByUserId.get(r.kol_user_id as string)
@@ -198,6 +249,7 @@ export async function GET(request: NextRequest) {
       kol_name:              kol?.full_name ?? null,
       kol_platform:          kol?.platform ?? null,
       kol_follower_range:    kol?.follower_range ?? null,
+      items:                 (itemsByRequestId.get(r.id as string) ?? []).map(({ item_name, quantity, estimated_value, notes }) => ({ item_name, quantity, estimated_value, notes })),
     }
   })
 
