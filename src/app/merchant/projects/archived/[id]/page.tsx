@@ -2,8 +2,9 @@ import { redirect } from 'next/navigation'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { ArrowLeft, Archive, Users, Handshake, BadgeCheck, DollarSign } from 'lucide-react'
+import { Archive, Users, Handshake, BadgeCheck, DollarSign } from 'lucide-react'
 import { getMerchantArchivedProjectDetail } from '@/lib/server/properties'
+import { typeLabel } from '@/lib/merchant-application'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getSupabaseUrl, getSupabasePublishableKey } from '@/lib/supabase/env'
 
@@ -183,15 +184,6 @@ export default async function ArchivedProjectDetailPage({
   return (
     <div className="max-w-2xl space-y-10">
 
-      {/* Back */}
-      <Link
-        href="/merchant/projects"
-        className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors duration-150"
-      >
-        <ArrowLeft className="h-3 w-3" />
-        商案列表
-      </Link>
-
       {/* Header */}
       <div className="pb-6" style={{ borderBottom: '1px solid rgba(26,26,26,0.08)' }}>
         <p className="text-[0.58rem] font-mono uppercase tracking-[0.55em] text-muted-foreground/35 mb-3">
@@ -284,7 +276,7 @@ export default async function ArchivedProjectDetailPage({
       <div>
         <SectionLabel>KOL 合作夥伴</SectionLabel>
         {kols.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground/35 font-mono">此商案無 KOL 合作紀錄。</p>
+          <p className="mt-3 text-sm text-muted-foreground/35 font-mono">此{typeLabel(project.type)}無 KOL 合作紀錄。</p>
         ) : (
           <div className="mt-3 border border-foreground/[0.07] divide-y divide-foreground/[0.05]">
             {kols.map((kol, i) => (

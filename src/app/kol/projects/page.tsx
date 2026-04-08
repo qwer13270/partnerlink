@@ -10,7 +10,7 @@ export type CollabSummary = {
   collaboration_id:   string
   project_id:         string
   project_name:       string
-  project_type:       '建案' | '商案'
+  project_type:       'property' | 'shop'
   collab_description: string | null
   collaboration_type: 'commission' | 'reciprocal' | 'sponsored'
   collab_status:      'active' | 'ended'
@@ -148,7 +148,7 @@ export default async function KolProjectsPage() {
       collaboration_id:    c.id as string,
       project_id:          c.project_id as string,
       project_name:        project?.name ?? '未知商案',
-      project_type:        (project?.type ?? '建案') as '建案' | '商案',
+      project_type:        (project?.type ?? '建案') as 'property' | 'shop',
       collab_description:  project?.collab_description ?? null,
       collaboration_type:  c.collaboration_type as 'commission' | 'reciprocal' | 'sponsored',
       collab_status:       c.status as 'active' | 'ended',

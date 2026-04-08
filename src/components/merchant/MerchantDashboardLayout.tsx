@@ -5,22 +5,25 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Menu, Home, LayoutGrid, ArrowLeft,
-  Users, Handshake, Pencil, Eye, BrainCircuit, BarChart3, Gift,
+  Users, Handshake, Pencil, Eye, BrainCircuit, BarChart3, Gift, ShoppingBag,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useMerchantType } from '@/hooks/useMerchantType'
+import { typeLabel } from '@/lib/merchant-application'
 
 // ── Sub-nav definitions ──────────────────────────────────────────────────────
 type NavItem = { seg: string; label: string; Icon: React.ElementType }
 
 const MANAGE: NavItem[] = [
-  { seg: 'customers',     label: '客戶名單', Icon: Users     },
-  { seg: 'kols',          label: 'KOL 合作', Icon: Handshake },
-  { seg: 'mutual-benefit',label: '互惠紀錄', Icon: Gift      },
-  { seg: 'edit',          label: '商案編輯', Icon: Pencil    },
-  { seg: 'preview',       label: '預覽頁面', Icon: Eye       },
+  { seg: 'customers',     label: '客戶名單', Icon: Users       },
+  { seg: 'kols',          label: 'KOL 合作', Icon: Handshake   },
+  { seg: 'mutual-benefit',label: '業配紀錄', Icon: Gift        },
+  { seg: 'products',      label: '管理商品', Icon: ShoppingBag },
+  { seg: 'edit',          label: '案場編輯', Icon: Pencil      },
+  { seg: 'preview',       label: '預覽頁面', Icon: Eye         },
 ]
 
 const ANALYSE: NavItem[] = [
@@ -57,6 +60,7 @@ function SectionLabel({ children, gold }: { children: React.ReactNode; gold?: bo
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname  = usePathname()
   const projectId = getProjectId(pathname)
+  const merchantType                             = useMerchantType()
   const [projectName,        setProjectName]        = useState<string | null>(null)
   const [projectTemplateKey, setProjectTemplateKey] = useState<string | null>(null)
 
@@ -75,8 +79,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     return () => { alive = false }
   }, [projectId])
 
-  const isCommercial = projectTemplateKey === '商案'
-  const visibleManage  = projectTemplateKey === '建案' ? MANAGE.filter(item => item.seg !== 'mutual-benefit') : MANAGE
+  const isCommercial = projectTemplateKey === 'shop'
+  const visibleManage  = isCommercial
+    ? MANAGE
+    : MANAGE.filter(item => item.seg !== 'mutual-benefit' && item.seg !== 'products')
   const visibleAnalyse = isCommercial ? ANALYSE.filter(item => item.seg !== 'analytics') : ANALYSE
 
   return (
@@ -102,7 +108,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                 className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors duration-200"
                 strokeWidth={1.5}
               />
-              <span className="text-sm">商案列表</span>
+              <span className="text-sm">{typeLabel(merchantType ?? 'shop')}列表</span>
             </Link>
 
             {/* Project identity */}
@@ -123,8 +129,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   {[1,2,3,4].map(i => <div key={i} className="h-3 rounded bg-foreground/[0.06] animate-pulse" style={{ width: `${55 + i * 8}%` }} />)}
                 </div>
               ) : visibleManage.map(({ seg, label, Icon }) => {
-                const href   = `/merchant/projects/${projectId}/${seg}`
-                const active = pathname.startsWith(href)
+                const href         = `/merchant/projects/${projectId}/${seg}`
+                const active       = pathname.startsWith(href)
+                const dynamicLabel =
+                  seg === 'customers' ? (isCommercial ? '訂單紀錄' : '客戶名單') :
+                  seg === 'edit'      ? (isCommercial ? '商案編輯' : '建案編輯') :
+                  label
                 return (
                   <Link
                     key={seg}
@@ -136,7 +146,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       className={cn('h-5 w-5 transition-colors duration-200', active ? 'text-foreground' : 'text-muted-foreground')}
                       strokeWidth={1.5}
                     />
-                    <span className="text-sm">{label}</span>
+                    <span className="text-sm">{dynamicLabel}</span>
                   </Link>
                 )
               })}
@@ -185,7 +195,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           >
             {[
               { href: '/merchant/home',     label: '首頁',     Icon: Home       },
-              { href: '/merchant/projects', label: '商案管理', Icon: LayoutGrid },
+              { href: '/merchant/projects', label: `${typeLabel(merchantType ?? 'shop')}管理`, Icon: LayoutGrid },
             ].map(({ href, label, Icon }) => {
               const active =
                 href === '/merchant/home'

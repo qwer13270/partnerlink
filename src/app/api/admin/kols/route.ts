@@ -5,7 +5,8 @@ import { requireApiRole } from '@/lib/server/api-auth'
 type ReferralLinkRow = { id: string; kol_user_id: string; project_id: string }
 type ClickRow        = { referral_link_id: string }
 type ConversionRow   = { referral_link_id: string }
-type PropertyRow     = { id: string; is_archived: boolean }
+type PropertyRow     = { id: string; is_archived: boolean; merchant_user_id: string | null }
+type MerchantProfileRow = { user_id: string; merchant_type: string | null }
 
 export async function GET(request: NextRequest) {
   const auth = await requireApiRole(request, ['admin'])
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
       'id', 'user_id', 'email', 'full_name',
       'platforms', 'platform_accounts',
       'follower_range', 'content_type',
-      'bio', 'city', 'avg_views', 'engagement_rate',
+      'bio', 'city',
       'profile_photo_path',
       'submitted_at', 'reviewed_at', 'created_at',
     ].join(','))
@@ -63,27 +64,51 @@ export async function GET(request: NextRequest) {
   const linkIds    = links.map((l) => l.id)
   const projectIds = [...new Set(links.map((l) => l.project_id).filter(Boolean))]
 
-  // Fetch is_archived for each project
-  const archivedByProjectId = new Map<string, boolean>()
+  // Fetch is_archived + merchant_user_id for each project
+  const archivedByProjectId      = new Map<string, boolean>()
+  const merchantUserByProjectId  = new Map<string, string>()
   if (projectIds.length > 0) {
     const { data: propsData } = await admin
       .from('projects')
-      .select('id,is_archived')
+      .select('id,is_archived,merchant_user_id')
       .in('id', projectIds)
     for (const row of (propsData ?? []) as PropertyRow[]) {
       archivedByProjectId.set(row.id, row.is_archived ?? false)
+      if (row.merchant_user_id) merchantUserByProjectId.set(row.id, row.merchant_user_id)
     }
   }
 
-  // Active + archived projects per KOL
-  const activeProjectsPerKol   = new Map<string, number>()
-  const archivedProjectsPerKol = new Map<string, number>()
+  // Fetch merchant_type for each unique merchant_user_id
+  const merchantTypeByUserId = new Map<string, string>()
+  const uniqueMerchantUserIds = [...new Set(merchantUserByProjectId.values())]
+  if (uniqueMerchantUserIds.length > 0) {
+    const { data: mpData } = await admin
+      .from('merchant_profiles')
+      .select('user_id,merchant_type')
+      .in('user_id', uniqueMerchantUserIds)
+    for (const row of (mpData ?? []) as MerchantProfileRow[]) {
+      if (row.merchant_type) merchantTypeByUserId.set(row.user_id, row.merchant_type)
+    }
+  }
+
+  // Active + archived projects per KOL, split by merchant_type
+  const activeProjectsPerKol    = new Map<string, number>()
+  const archivedProjectsPerKol  = new Map<string, number>()
+  const propertyProjectsPerKol  = new Map<string, number>()
+  const shopProjectsPerKol      = new Map<string, number>()
   for (const link of links) {
-    const isArchived = archivedByProjectId.get(link.project_id) ?? false
+    const isArchived    = archivedByProjectId.get(link.project_id) ?? false
+    const merchantUid   = merchantUserByProjectId.get(link.project_id)
+    const merchantType  = merchantUid ? (merchantTypeByUserId.get(merchantUid) ?? 'shop') : 'shop'
     if (isArchived) {
       archivedProjectsPerKol.set(link.kol_user_id, (archivedProjectsPerKol.get(link.kol_user_id) ?? 0) + 1)
     } else {
       activeProjectsPerKol.set(link.kol_user_id, (activeProjectsPerKol.get(link.kol_user_id) ?? 0) + 1)
+    }
+    if (merchantType === 'property') {
+      propertyProjectsPerKol.set(link.kol_user_id, (propertyProjectsPerKol.get(link.kol_user_id) ?? 0) + 1)
+    } else {
+      shopProjectsPerKol.set(link.kol_user_id, (shopProjectsPerKol.get(link.kol_user_id) ?? 0) + 1)
     }
   }
 
@@ -166,14 +191,14 @@ export async function GET(request: NextRequest) {
       content_type:    kol.content_type,
       bio,
       city:            kol.city,
-      avg_views:       kol.avg_views,
-      engagement_rate: kol.engagement_rate,
       profile_photo_url: profilePhotoPath ? (signedUrlByPath.get(profilePhotoPath) ?? '') : '',
       submitted_at:    kol.submitted_at,
       reviewed_at:     kol.reviewed_at,
       created_at:      kol.created_at,
-      activeProjects:   activeProjectsPerKol.get(userId) ?? 0,
-      archivedProjects: archivedProjectsPerKol.get(userId) ?? 0,
+      activeProjects:    activeProjectsPerKol.get(userId) ?? 0,
+      archivedProjects:  archivedProjectsPerKol.get(userId) ?? 0,
+      propertyProjects:  propertyProjectsPerKol.get(userId) ?? 0,
+      shopProjects:      shopProjectsPerKol.get(userId) ?? 0,
       totalClicks,
       totalConversions,
     }

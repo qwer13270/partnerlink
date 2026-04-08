@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, TrendingUp, TrendingDown, Building2, BarChart3, Home, Layers } from 'lucide-react'
+import { TrendingUp, TrendingDown, Building2, BarChart3, Home, Layers } from 'lucide-react'
 import {
   LineChart,
   Line,
@@ -128,17 +127,6 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-10 max-w-4xl">
-
-      {/* ── Back ── */}
-      <motion.div {...fadeUp(0)}>
-        <Link
-          href={`/merchant/projects/${id}`}
-          className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors duration-150"
-        >
-          <ArrowLeft className="w-3 h-3" />
-          返回商案
-        </Link>
-      </motion.div>
 
       {/* ── Title ── */}
       <motion.div {...fadeUp(0.05)}>

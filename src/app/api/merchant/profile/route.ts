@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const admin = getSupabaseAdminClient()
   const { data: profile, error } = await admin
     .from('merchant_profiles')
-    .select('id,user_id,application_id,email,company_name,contact_name,phone,city,status,created_at,updated_at')
+    .select('id,user_id,application_id,email,company_name,contact_name,phone,city,status,merchant_type,created_at,updated_at')
     .eq('user_id', auth.user.id)
     .single()
 

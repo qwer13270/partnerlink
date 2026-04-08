@@ -3,17 +3,20 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { typeLabel } from '@/lib/merchant-application'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 import TongchuangWingPage from '@/components/property/TongchuangWingPage'
-import type { TongchuangTemplateContent } from '@/lib/property-template'
+import ShangAnPage from '@/components/property/ShangAnPage'
+import type { TongchuangTemplateContent, ShangAnTemplateContent } from '@/lib/property-template'
 
 type PreviewProject = {
   id: string
   name: string
+  type: string
   publishStatus: 'draft' | 'published'
   slug: string
-  template: TongchuangTemplateContent
+  template: TongchuangTemplateContent | ShangAnTemplateContent
 }
 
 export default function MerchantProjectPreviewPage() {
@@ -59,21 +62,24 @@ export default function MerchantProjectPreviewPage() {
   if (!project) {
     return (
       <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center">
-        <div className="text-sm text-muted-foreground">找不到這個商案。</div>
+        <div className="text-sm text-muted-foreground">找不到這個案場。</div>
       </div>
     )
   }
+
+  const isShangAn = project.type === 'shop'
+  const publicUrl = isShangAn ? `/shops/${project.slug}` : `/properties/${project.slug}`
 
   return (
     <div className="fixed inset-0 z-[100] bg-background overflow-y-auto">
       <div className="sticky top-0 z-[110] flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-black/75 px-6 py-4 backdrop-blur-md lg:px-10">
         <div className="flex items-center gap-3 text-white">
           <Link
-            href="/merchant/projects"
+            href={`/merchant/projects/${id}/customers`}
             className="inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.2em] text-white/70 hover:text-white transition-colors duration-150"
           >
             <ArrowLeft className="w-3 h-3" />
-            返回商案
+            返回{typeLabel(project.type)}
           </Link>
           <span className={`text-[0.6rem] uppercase tracking-widest px-1.5 py-0.5 border ${project.publishStatus === 'published' ? 'text-emerald-200 border-emerald-300/40 bg-emerald-500/10' : 'text-amber-200 border-amber-300/40 bg-amber-500/10'}`}>
             {project.publishStatus === 'published' ? '已發布' : '草稿預覽'}
@@ -92,7 +98,7 @@ export default function MerchantProjectPreviewPage() {
           </Link>
           {project.publishStatus === 'published' && (
             <Link
-              href={`/properties/${project.slug}`}
+              href={publicUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-[0.65rem] uppercase tracking-widest border border-white px-3 py-2 text-white hover:bg-white hover:text-black transition-colors duration-150"
@@ -105,7 +111,11 @@ export default function MerchantProjectPreviewPage() {
       </div>
 
       <div className="min-h-screen bg-black">
-        <TongchuangWingPage content={project.template} />
+        {isShangAn ? (
+          <ShangAnPage content={project.template as ShangAnTemplateContent} />
+        ) : (
+          <TongchuangWingPage content={project.template as TongchuangTemplateContent} />
+        )}
       </div>
     </div>
   )

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Calendar, Check, CirclePlay, Images, Search, Sparkles, Users, X } from 'lucide-react'
+import { Calendar, Check, Search, Sparkles, Users, X } from 'lucide-react'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
@@ -28,8 +28,6 @@ type Application = {
   appliedDate: string
   reviewedAt: string
   city: string
-  avgViews: string
-  engagementRate: string
   rejectionReason: string
   status: ReviewStatus
 }
@@ -45,8 +43,6 @@ type ApiApplication = {
   content_type: string | null
   bio: string | null
   city: string | null
-  avg_views: string | null
-  engagement_rate: string | null
   profile_photo_url?: string
   submitted_at: string
   reviewed_at: string | null
@@ -87,8 +83,6 @@ function toViewModel(row: ApiApplication): Application {
     appliedDate: row.submitted_at ? row.submitted_at.slice(0, 10) : '',
     reviewedAt: row.reviewed_at ? row.reviewed_at.slice(0, 10) : '',
     city: row.city || '未填寫',
-    avgViews: row.avg_views || '未填寫',
-    engagementRate: row.engagement_rate || '未填寫',
     rejectionReason: row.rejection_reason || '',
     status: row.status,
   }
@@ -354,12 +348,10 @@ export default function AdminKolApplicationsPage() {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y divide-foreground/[0.06]">
+                    <div className="grid grid-cols-2 divide-x divide-y divide-foreground/[0.06]">
                       {[
-                        { icon: Users,       label: '粉絲數',   value: active.followers },
-                        { icon: Sparkles,    label: '主題',     value: active.category },
-                        { icon: Images,      label: '平均觀看', value: active.avgViews },
-                        { icon: CirclePlay,  label: '互動率',   value: active.engagementRate },
+                        { icon: Users,    label: '粉絲數', value: active.followers },
+                        { icon: Sparkles, label: '主題',   value: active.category },
                       ].map((stat) => (
                         <div key={stat.label} className="px-4 py-3 bg-linen/40">
                           <div className="flex items-center gap-1.5 mb-1.5">

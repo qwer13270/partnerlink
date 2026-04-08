@@ -2,10 +2,11 @@
 
 import { useEffect, useState, useMemo, useCallback, useRef, forwardRef, useImperativeHandle } from 'react'
 import { useParams } from 'next/navigation'
+import { typeLabel } from '@/lib/merchant-application'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  ArrowLeft, Check, X, ChevronDown, ExternalLink,
+  Check, X, ChevronDown, ExternalLink,
   Clock, Users, RotateCcw, Ban, Send, MessageSquare,
   Percent, Pencil, Save, Banknote, Plus, Trash2, Gift,
 } from 'lucide-react'
@@ -45,8 +46,6 @@ type Kol = {
   platform: string
   followers: string
   category: string
-  avgViews: string
-  engagementRate: string
   city: string
   bio: string
   profilePhotoUrl: string
@@ -79,8 +78,6 @@ type ApiKol = {
   content_type: string | null
   bio: string | null
   city: string | null
-  avg_views: string | null
-  engagement_rate: string | null
   collab_fee: number | null
   profile_photo_url?: string
 }
@@ -125,8 +122,6 @@ function toKol(item: ApiKol): Kol {
     platform:       platforms.length > 0 ? platforms.join(' / ') : '未填寫平台',
     followers:      item.follower_range || '未填寫',
     category:       item.content_type || '未分類',
-    avgViews:       item.avg_views || '—',
-    engagementRate: item.engagement_rate || '—',
     city:           item.city || '—',
     bio:            item.bio || '尚未提供自我介紹。',
     profilePhotoUrl: typeof item.profile_photo_url === 'string' ? item.profile_photo_url : '',
@@ -328,14 +323,6 @@ function KolRow({
             <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground">合作費用</p>
             <p className="text-sm font-serif mt-0.5 text-amber-700">{formatFee(kol.collabFee)}</p>
           </div>
-          <div className="text-center">
-            <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground">互動率</p>
-            <p className="text-sm font-serif mt-0.5">{kol.engagementRate}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground">平均觀看</p>
-            <p className="text-sm font-serif mt-0.5">{kol.avgViews}</p>
-          </div>
         </div>
 
         {/* Actions */}
@@ -380,7 +367,7 @@ function KolRow({
           >
             <div className="px-5 pb-5 pt-2 border-t border-foreground/[0.06] bg-muted/15">
               <p className="text-xs text-muted-foreground leading-relaxed mb-4">{kol.bio}</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="border border-amber-200/60 bg-amber-50/60 px-3 py-2.5 text-center">
                   <div className="flex items-center justify-center gap-1 mb-0.5">
                     <Banknote className="h-2.5 w-2.5 text-amber-600" />
@@ -388,16 +375,10 @@ function KolRow({
                   </div>
                   <p className="text-base font-serif mt-1 text-amber-800">{formatFee(kol.collabFee)}</p>
                 </div>
-                {[
-                  { label: '平均觀看', value: kol.avgViews },
-                  { label: '互動率',   value: kol.engagementRate },
-                  { label: '所在城市', value: kol.city },
-                ].map((s) => (
-                  <div key={s.label} className="border border-foreground/[0.08] bg-background px-3 py-2.5 text-center">
-                    <p className="text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground">{s.label}</p>
-                    <p className="text-base font-serif mt-1">{s.value}</p>
-                  </div>
-                ))}
+                <div className="border border-foreground/[0.08] bg-background px-3 py-2.5 text-center">
+                  <p className="text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground">所在城市</p>
+                  <p className="text-base font-serif mt-1">{kol.city}</p>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -699,7 +680,7 @@ export default function ProjectKolsPage() {
 
   async function confirmInvite() {
     if (!inviteModal) return
-    const isCommercial = project?.type === '商案'
+    const isCommercial = project?.type === 'shop'
     setSendingInvite(true)
     try {
       let body: Record<string, unknown>
@@ -777,23 +758,12 @@ export default function ProjectKolsPage() {
   return (
     <div className="space-y-8">
 
-      {/* ── Back ── */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}>
-        <Link
-          href="/merchant/projects"
-          className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors duration-150"
-        >
-          <ArrowLeft className="h-3 w-3" />
-          商案列表
-        </Link>
-      </motion.div>
-
       {/* ── Header ── */}
       <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">KOL 合作</p>
         <h1 className="text-3xl font-serif">{project?.name ?? '…'}</h1>
         <p className="text-sm text-muted-foreground mt-2">
-          探索並邀請 KOL，或管理此商案的所有合作申請。
+          探索並邀請 KOL，或管理此{typeLabel(project?.type ?? 'property')}的所有合作申請。
         </p>
       </motion.div>
 
@@ -1080,7 +1050,7 @@ export default function ProjectKolsPage() {
               )}
 
               {/* Form body — commission vs 商案 */}
-              {project?.type === '商案' ? (
+              {project?.type === 'shop' ? (
                 <div className="mb-6 space-y-4">
                   {/* Type selector */}
                   <div className="flex gap-2">
@@ -1219,7 +1189,7 @@ export default function ProjectKolsPage() {
                   onClick={() => void confirmInvite()}
                   disabled={
                     sendingInvite || (
-                      project?.type === '商案'
+                      project?.type === 'shop'
                         ? !items.some((it) => it.item_name.trim())
                         : !commissionRate || isNaN(parseFloat(commissionRate))
                     )

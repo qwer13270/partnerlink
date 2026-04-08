@@ -32,6 +32,7 @@ export type MerchantStats = {
 
 export type MerchantHomeData = {
   merchantName: string
+  merchantType: string
   stats: MerchantStats
   recentCustomers: RecentCustomer[]
   pendingRequests: PendingRequest[]
@@ -61,11 +62,12 @@ export default async function MerchantHomePage() {
 
   // ── Merchant profile + projects (parallel) ────────────────────────────────
   const [{ data: profile }, { data: projects }] = await Promise.all([
-    admin.from('merchant_profiles').select('company_name').eq('user_id', user.id).maybeSingle(),
+    admin.from('merchant_profiles').select('company_name,merchant_type').eq('user_id', user.id).maybeSingle(),
     admin.from('projects').select('id, name').eq('merchant_user_id', user.id).eq('is_archived', false),
   ])
 
   const merchantName = (profile?.company_name as string | null) ?? '商家夥伴'
+  const merchantType = (profile?.merchant_type as string | null) ?? 'shop'
   const projectList  = projects ?? []
   const projectIds   = projectList.map(p => p.id as string)
   const projectNameById = new Map(projectList.map(p => [p.id as string, p.name as string]))
@@ -73,8 +75,10 @@ export default async function MerchantHomePage() {
   if (projectIds.length === 0) {
     return (
       <MerchantHomeClient
+        merchantType={merchantType}
         data={{
           merchantName,
+          merchantType,
           stats: { projectCount: 0, activeKolCount: 0, monthVisits: 0, monthDeals: 0 },
           recentCustomers: [],
           pendingRequests: [],
@@ -219,7 +223,8 @@ export default async function MerchantHomePage() {
 
   return (
     <MerchantHomeClient
-      data={{ merchantName, stats, recentCustomers, pendingRequests }}
+      merchantType={merchantType}
+      data={{ merchantName, merchantType, stats, recentCustomers, pendingRequests }}
     />
   )
 }

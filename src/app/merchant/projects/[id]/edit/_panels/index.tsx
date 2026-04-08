@@ -16,6 +16,14 @@ import { SurroundingsPanel }  from './surroundings'
 import { TeamPanel }          from './team'
 import { IndoorCommonsPanel } from './indoor-commons'
 import { ColorThemePanel }   from './color-theme'
+import { ShopHeroPanel }     from './shop-hero'
+import { ShopProductsPanel } from './shop-products'
+import { ShopAboutPanel }    from './shop-about'
+import { ShopFeaturesPanel } from './shop-features'
+import { ShopGalleryPanel }  from './shop-gallery'
+import { ShopFaqPanel }      from './shop-faq'
+import { ShopContactPanel }  from './shop-contact'
+import { ShopFooterPanel }   from './shop-footer'
 
 // ── Panel registry ────────────────────────────────────────────────────────────
 // To add a new module:
@@ -36,6 +44,15 @@ const PANEL_REGISTRY: Record<PropertyModuleType, React.FC<PanelProps>> = {
   team:           TeamPanel,
   indoor_commons: IndoorCommonsPanel,
   color_theme:    ColorThemePanel,
+  // 商案 panels
+  shop_hero:     ShopHeroPanel,
+  shop_products: ShopProductsPanel,
+  shop_about:    ShopAboutPanel,
+  shop_features: ShopFeaturesPanel,
+  shop_gallery:  ShopGalleryPanel,
+  shop_faq:      ShopFaqPanel,
+  shop_contact:  ShopContactPanel,
+  shop_footer:   ShopFooterPanel,
 }
 
 export function SectionPanel(props: PanelProps) {

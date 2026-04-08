@@ -1,8 +1,54 @@
 'use client'
 
-import { Eye, EyeOff, GripVertical, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
+import { Eye, EyeOff, GripVertical, ChevronRight, ArrowUpRight } from 'lucide-react'
+import { Reorder, useDragControls } from 'framer-motion'
 import type { PropertyModule } from './_types'
 import { MODULE_META } from './_types'
+
+// ── Draggable module item (Reorder.Item + drag controls) ─────────────────────
+
+export function DraggableModuleItem({
+  module,
+  selected,
+  onSelect,
+  onToggleVisibility,
+  actionHref,
+}: {
+  module: PropertyModule
+  selected: boolean
+  onSelect: () => void
+  onToggleVisibility: () => void
+  actionHref?: string
+}) {
+  const controls = useDragControls()
+  return (
+    <Reorder.Item
+      value={module}
+      dragControls={controls}
+      dragListener={false}
+      as="div"
+      className="list-none"
+      whileDrag={{
+        scale: 1.02,
+        boxShadow: '0 6px 20px rgba(0,0,0,0.10)',
+        borderRadius: '8px',
+        zIndex: 10,
+        backgroundColor: 'hsl(var(--background))',
+      }}
+      transition={{ duration: 0.15 }}
+    >
+      <ModuleListItem
+        module={module}
+        selected={selected}
+        onSelect={onSelect}
+        onToggleVisibility={onToggleVisibility}
+        onDragHandlePointerDown={(e) => controls.start(e)}
+        actionHref={actionHref}
+      />
+    </Reorder.Item>
+  )
+}
 
 // ── Draggable list item (for reorderable modules) ─────────────────────────────
 
@@ -12,12 +58,14 @@ export function ModuleListItem({
   onSelect,
   onToggleVisibility,
   onDragHandlePointerDown,
+  actionHref,
 }: {
   module: PropertyModule
   selected: boolean
   onSelect: () => void
   onToggleVisibility: () => void
   onDragHandlePointerDown?: (e: React.PointerEvent<HTMLDivElement>) => void
+  actionHref?: string
 }) {
   const { label, Icon } = MODULE_META[module.moduleType]
 
@@ -49,6 +97,18 @@ export function ModuleListItem({
         </p>
         {!module.isVisible && <HiddenBadge />}
       </button>
+
+      {/* Optional action link */}
+      {actionHref && (
+        <Link
+          href={actionHref}
+          onClick={(e) => e.stopPropagation()}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground/30 transition-colors duration-150 hover:bg-foreground/[0.06] hover:text-muted-foreground"
+          title="管理商品"
+        >
+          <ArrowUpRight className="h-3.5 w-3.5" />
+        </Link>
+      )}
 
       {/* Visibility toggle */}
       <VisibilityButton isVisible={module.isVisible} onToggle={(e) => { e.stopPropagation(); onToggleVisibility() }} />

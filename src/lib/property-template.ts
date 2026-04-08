@@ -1,7 +1,7 @@
 import { pinyin } from 'pinyin-pro'
 
-export const PROPERTY_TEMPLATE_KEY = '建案' as const
-export const PROPERTY_TEMPLATE_KEYS = ['建案', '商案'] as const
+export const PROPERTY_TEMPLATE_KEY = 'property' as const
+export const PROPERTY_TEMPLATE_KEYS = ['property', 'shop'] as const
 export type PropertyTemplateKey = (typeof PROPERTY_TEMPLATE_KEYS)[number]
 
 // ── Colour themes ─────────────────────────────────────────────────────────────
@@ -115,6 +115,10 @@ export const PROPERTY_CONTENT_GROUPS = [
   'location_points',
   'floor_plan_units',
   'team_members',
+  // 商案 groups
+  'shop_products',
+  'shop_features',
+  'shop_faq',
 ] as const
 export type PropertyContentGroupKey = (typeof PROPERTY_CONTENT_GROUPS)[number]
 
@@ -147,8 +151,30 @@ export const PROPERTY_MODULE_TYPES = [
   'team',
   'indoor_commons',
   'color_theme',
+  // 商案 module types
+  'shop_hero',
+  'shop_products',
+  'shop_about',
+  'shop_features',
+  'shop_gallery',
+  'shop_faq',
+  'shop_contact',
+  'shop_footer',
 ] as const
 export type PropertyModuleType = (typeof PROPERTY_MODULE_TYPES)[number]
+
+// ── 商案 module type subset ────────────────────────────────────────────────────
+export const SHANGAN_MODULE_TYPES = [
+  'shop_hero',
+  'shop_products',
+  'shop_about',
+  'shop_features',
+  'shop_gallery',
+  'shop_faq',
+  'shop_contact',
+  'shop_footer',
+] as const
+export type ShangAnModuleType = (typeof SHANGAN_MODULE_TYPES)[number]
 
 export type PropertyContentItem = {
   id?: string
@@ -301,6 +327,71 @@ export const PROPERTY_MODULE_REGISTRY: Record<PropertyModuleType, PropertyModule
     singleton: true,
     pinned: false,
     defaultVisible: false,
+    legacySectionKey: null,
+  },
+  // ── 商案 modules ─────────────────────────────────────────────────────────────
+  shop_hero: {
+    type: 'shop_hero',
+    label: '店頭主視覺',
+    singleton: true,
+    pinned: false,
+    defaultVisible: true,
+    legacySectionKey: null,
+  },
+  shop_products: {
+    type: 'shop_products',
+    label: '商品列表',
+    singleton: true,
+    pinned: false,
+    defaultVisible: true,
+    legacySectionKey: null,
+  },
+  shop_about: {
+    type: 'shop_about',
+    label: '品牌故事',
+    singleton: true,
+    pinned: false,
+    defaultVisible: true,
+    legacySectionKey: null,
+  },
+  shop_features: {
+    type: 'shop_features',
+    label: '品牌特色',
+    singleton: true,
+    pinned: false,
+    defaultVisible: true,
+    legacySectionKey: null,
+  },
+  shop_gallery: {
+    type: 'shop_gallery',
+    label: '相簿',
+    singleton: true,
+    pinned: false,
+    defaultVisible: true,
+    legacySectionKey: null,
+  },
+  shop_faq: {
+    type: 'shop_faq',
+    label: '常見問題',
+    singleton: true,
+    pinned: false,
+    defaultVisible: true,
+    legacySectionKey: null,
+  },
+  shop_contact: {
+    type: 'shop_contact',
+    label: '聯絡資訊',
+    singleton: true,
+    pinned: true,
+    defaultVisible: true,
+    legacySectionKey: null,
+  },
+  shop_footer: {
+    type: 'shop_footer',
+    label: '頁尾',
+    singleton: true,
+    pinned: true,
+    defaultVisible: true,
     legacySectionKey: null,
   },
 }
@@ -608,7 +699,11 @@ export function isPropertyImageSlot(value: string): boolean {
     FLOOR_PLAN_IMAGE_PATTERN.test(value) ||
     SURROUNDINGS_IMAGE_PATTERN.test(value) ||
     TEAM_IMAGE_PATTERN.test(value) ||
-    INDOOR_IMAGE_PATTERN.test(value)
+    INDOOR_IMAGE_PATTERN.test(value) ||
+    // 商案 image slots
+    /^shop_gallery_[1-6]$/.test(value) ||
+    value === 'shop_hero_image' ||
+    /^shop_product_.+$/.test(value)
   )
 }
 
@@ -1013,4 +1108,238 @@ function bySortOrder(a: { sortOrder: number }, b: { sortOrder: number }) {
 
 function coerceNumber(value: number | null | undefined, fallback: number) {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// 商案 (ShangAn) Template
+// ══════════════════════════════════════════════════════════════════════════════
+
+export const SHANGAN_TEMPLATE_KEY = 'shop' as const
+
+export type ShangAnTemplateModule = {
+  id: string
+  moduleType: PropertyModuleType
+  label: string
+  isVisible: boolean
+  sortOrder: number
+  pinned: boolean
+  settings: PropertyModuleSettings
+}
+
+export type ShangAnProduct = {
+  itemKey: string | null
+  name: string
+  description: string
+  price: string
+  salesPrice: string
+  checkoutUrl: string
+  imageUrl: string | null
+}
+
+export type ShangAnTemplateContent = {
+  id: string
+  slug: string
+  templateKey: typeof SHANGAN_TEMPLATE_KEY
+  publishStatus: PropertyPublishStatus
+  // Identity (reused from existing scalar fields)
+  name: string          // shop name
+  subtitle: string      // tagline
+  // About
+  overviewTitle: string
+  overviewBody: string
+  // Contact
+  contactTitle: string
+  contactBody: string
+  contactPhone: string  // from salesPhone
+  // Footer
+  footerDisclaimer: string
+  // Theme
+  colorTheme: PropertyThemeKey
+  fontTheme: PropertyFontKey
+  // Products (from content items, groupKey: 'shop_products')
+  products: ShangAnProduct[]
+  // Features (from content items, groupKey: 'shop_features')
+  features: Array<{ itemKey: string | null; title: string; body: string }>
+  // FAQ (from content items, groupKey: 'shop_faq')
+  faq: Array<{ itemKey: string | null; question: string; answer: string }>
+  // Gallery images (sectionKey: shop_gallery_1 … shop_gallery_6)
+  galleryImages: Array<{ sectionKey: string; url: string; alt: string; caption: string }>
+  // Hero image (sectionKey: shop_hero_image)
+  heroImage: { url: string; alt: string } | null
+  // Modules
+  modules: ShangAnTemplateModule[]
+}
+
+export const DEFAULT_SHANGAN_FIELDS = {
+  name: '我的品牌',
+  subtitle: '品質生活，從這裡開始',
+  overviewTitle: '關於我們',
+  overviewBody: '我們致力於提供最優質的商品，讓每位顧客感受到品牌的溫度與用心。',
+  contactTitle: '聯絡我們',
+  contactBody: '有任何疑問或合作洽詢，歡迎隨時與我們聯繫。',
+  salesPhone: '',
+  footerDisclaimer: '本網站所有內容及圖片版權歸品牌所有，未經授權不得轉載或使用。',
+} as const
+
+export const DEFAULT_SHANGAN_CONTENT_ITEMS: PropertyContentItem[] = [
+  // meta = regular price, accent = sales price (empty = no sale), state = checkout URL
+  { groupKey: 'shop_products', itemKey: 'product_1', title: '精選商品 A', body: '高品質材料製成，適合日常使用的優質商品。', meta: 'NT$980', accent: '', state: null, sortOrder: 0 },
+  { groupKey: 'shop_products', itemKey: 'product_2', title: '精選商品 B', body: '獨特設計，兼具美觀與實用性，是您生活的好夥伴。', meta: 'NT$1,280', accent: '', state: null, sortOrder: 1 },
+  { groupKey: 'shop_products', itemKey: 'product_3', title: '精選商品 C', body: '嚴選原料，細心製作，每一個細節都展現品牌精神。', meta: 'NT$1,580', accent: '', state: null, sortOrder: 2 },
+  { groupKey: 'shop_features', itemKey: 'feature_1', title: '品質保證', body: '每件商品皆經過嚴格品管，確保最高品質。', meta: null, accent: null, state: null, sortOrder: 0 },
+  { groupKey: 'shop_features', itemKey: 'feature_2', title: '快速出貨', body: '下單後 24 小時內出貨，讓您盡快收到商品。', meta: null, accent: null, state: null, sortOrder: 1 },
+  { groupKey: 'shop_features', itemKey: 'feature_3', title: '7 天退換', body: '商品有問題？7 天內無條件退換，安心購買。', meta: null, accent: null, state: null, sortOrder: 2 },
+  { groupKey: 'shop_faq', itemKey: 'faq_1', title: '如何下單？', body: '點選商品頁面的「立即購買」按鈕，即可前往結帳頁面完成訂購。', meta: null, accent: null, state: null, sortOrder: 0 },
+  { groupKey: 'shop_faq', itemKey: 'faq_2', title: '運費怎麼計算？', body: '訂單滿 NT$1,000 免運費，未滿則收取 NT$60 運費。', meta: null, accent: null, state: null, sortOrder: 1 },
+  { groupKey: 'shop_faq', itemKey: 'faq_3', title: '可以退換貨嗎？', body: '商品未使用且保持原包裝，7 天內可申請退換貨。', meta: null, accent: null, state: null, sortOrder: 2 },
+]
+
+const SHANGAN_MODULE_ORDER: PropertyModuleType[] = [
+  'shop_hero',
+  'shop_products',
+  'shop_about',
+  'shop_features',
+  'shop_gallery',
+  'shop_faq',
+  'shop_contact',
+  'shop_footer',
+]
+
+export function getDefaultShangAnInsert() {
+  return {
+    templateKey: SHANGAN_TEMPLATE_KEY,
+    publishStatus: 'draft' as const,
+    ...DEFAULT_SHANGAN_FIELDS,
+  }
+}
+
+export function cloneDefaultShangAnContentItems() {
+  return DEFAULT_SHANGAN_CONTENT_ITEMS.map((item) => ({ ...item }))
+}
+
+export function createDefaultShangAnModules(): PropertyModule[] {
+  return SHANGAN_MODULE_ORDER.map((moduleType, index) => ({
+    id: crypto.randomUUID(),
+    moduleType,
+    sortOrder: index,
+    isVisible: true,
+    settings: {},
+  }))
+}
+
+type ShangAnTemplateSource = {
+  id: string
+  slug: string
+  publishStatus: PropertyPublishStatus
+  name: string | null
+  subtitle: string | null
+  overviewTitle: string | null
+  overviewBody: string | null
+  contactTitle: string | null
+  contactBody: string | null
+  salesPhone: string | null
+  footerDisclaimer: string | null
+}
+
+export function buildShangAnTemplateContent(
+  property: ShangAnTemplateSource,
+  images: TongchuangImageSource[],
+  contentItems: PropertyContentItem[],
+  modules: PropertyModule[] = createDefaultShangAnModules(),
+): ShangAnTemplateContent {
+  const imageMap = new Map(images.map((img) => [img.sectionKey, img]))
+  const items = contentItems.length > 0 ? contentItems : cloneDefaultShangAnContentItems()
+
+  const products = items
+    .filter((item) => item.groupKey === 'shop_products')
+    .sort(bySortOrder)
+    .map((item) => {
+      const imgKey = `shop_product_${item.itemKey}`
+      const img = imageMap.get(imgKey)
+      return {
+        itemKey: item.itemKey,
+        name: item.title ?? '',
+        description: item.body ?? '',
+        price: item.meta ?? '',
+        salesPrice: item.accent ?? '',
+        checkoutUrl: '',
+        imageUrl: img?.url ?? null,
+      }
+    })
+
+  const features = items
+    .filter((item) => item.groupKey === 'shop_features')
+    .sort(bySortOrder)
+    .map((item) => ({ itemKey: item.itemKey, title: item.title ?? '', body: item.body ?? '' }))
+
+  const faq = items
+    .filter((item) => item.groupKey === 'shop_faq')
+    .sort(bySortOrder)
+    .map((item) => ({ itemKey: item.itemKey, question: item.title ?? '', answer: item.body ?? '' }))
+
+  const gallerySlots = ['shop_gallery_1', 'shop_gallery_2', 'shop_gallery_3', 'shop_gallery_4', 'shop_gallery_5', 'shop_gallery_6']
+  const galleryCaptions = (() => {
+    const mod = modules.find((m) => m.moduleType === 'shop_gallery')
+    return mod?.settings.captions ?? {}
+  })()
+  const galleryImages = gallerySlots
+    .map((sectionKey) => imageMap.get(sectionKey))
+    .filter((img): img is TongchuangImageSource => !!img?.url)
+    .map((img) => ({
+      sectionKey: img.sectionKey,
+      url: img.url,
+      alt: img.altText || '',
+      caption: galleryCaptions[img.sectionKey] ?? '',
+    }))
+
+  const heroImg = imageMap.get('shop_hero_image')
+  const heroImage = heroImg?.url ? { url: heroImg.url, alt: heroImg.altText || '' } : null
+
+  const colorTheme = (() => {
+    const mod = modules.find((m) => m.moduleType === 'color_theme')
+    const key = mod?.settings.themeKey
+    return (key && key in PROPERTY_THEMES ? key : DEFAULT_THEME_KEY) as PropertyThemeKey
+  })()
+
+  const fontTheme = (() => {
+    const mod = modules.find((m) => m.moduleType === 'color_theme')
+    const key = mod?.settings.fontKey
+    return (key && key in PROPERTY_FONT_THEMES ? key : DEFAULT_FONT_KEY) as PropertyFontKey
+  })()
+
+  const templateModules: ShangAnTemplateModule[] = modules.map((module) => {
+    const definition = getModuleDefinition(module.moduleType)
+    return {
+      id: module.id,
+      moduleType: module.moduleType,
+      label: definition.label,
+      isVisible: module.isVisible,
+      sortOrder: module.sortOrder,
+      pinned: definition.pinned,
+      settings: module.settings,
+    }
+  })
+
+  return {
+    id: property.id,
+    slug: property.slug,
+    templateKey: SHANGAN_TEMPLATE_KEY,
+    publishStatus: property.publishStatus,
+    name: property.name || DEFAULT_SHANGAN_FIELDS.name,
+    subtitle: property.subtitle ?? DEFAULT_SHANGAN_FIELDS.subtitle,
+    overviewTitle: property.overviewTitle ?? DEFAULT_SHANGAN_FIELDS.overviewTitle,
+    overviewBody: property.overviewBody ?? DEFAULT_SHANGAN_FIELDS.overviewBody,
+    contactTitle: property.contactTitle ?? DEFAULT_SHANGAN_FIELDS.contactTitle,
+    contactBody: property.contactBody ?? DEFAULT_SHANGAN_FIELDS.contactBody,
+    contactPhone: property.salesPhone ?? DEFAULT_SHANGAN_FIELDS.salesPhone,
+    footerDisclaimer: property.footerDisclaimer ?? DEFAULT_SHANGAN_FIELDS.footerDisclaimer,
+    colorTheme,
+    fontTheme,
+    products,
+    features,
+    faq,
+    galleryImages,
+    heroImage,
+    modules: templateModules,
+  }
 }

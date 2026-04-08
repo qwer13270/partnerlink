@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import {
   cloneDefaultContentItems,
+  cloneDefaultShangAnContentItems,
   createDefaultPropertyModules,
+  createDefaultShangAnModules,
   getDefaultPropertyInsert,
+  getDefaultShangAnInsert,
   parsePublishStatus,
   slugifyPropertyName,
   PROPERTY_TEMPLATE_KEYS,
@@ -44,14 +47,23 @@ export async function POST(request: NextRequest) {
   }
 
   const body = (await request.json().catch(() => ({}))) as CreateProjectBody
-  const defaults = getDefaultPropertyInsert()
-  const rawName = typeof body.name === 'string' ? body.name.trim() : ''
-  const name = rawName || defaults.name
 
-  // Template key — validate against known set, fall back to default
+  // Template key — must match merchant's registered type
   const templateKey = PROPERTY_TEMPLATE_KEYS.includes(body.type as typeof PROPERTY_TEMPLATE_KEYS[number])
     ? (body.type as typeof PROPERTY_TEMPLATE_KEYS[number])
     : PROPERTY_TEMPLATE_KEYS[0]
+
+  if (merchantProfile.merchantType && templateKey !== merchantProfile.merchantType) {
+    return NextResponse.json(
+      { error: `你的帳號只能建立${merchantProfile.merchantType === 'shop' ? '商案' : '建案'}。` },
+      { status: 403 },
+    )
+  }
+
+  const isShangAn = templateKey === 'shop'
+  const defaults = isShangAn ? getDefaultShangAnInsert() : getDefaultPropertyInsert()
+  const rawName = typeof body.name === 'string' ? body.name.trim() : ''
+  const name = rawName || defaults.name
 
   // Slug — use provided slug if valid, otherwise auto-generate
   const rawSlug = typeof body.slug === 'string' ? slugifyPropertyName(body.slug) : ''
@@ -80,21 +92,21 @@ export async function POST(request: NextRequest) {
       publish_status: publishStatus,
       name,
       subtitle: defaults.subtitle,
-      district_label: defaults.districtLabel,
-      completion_badge: defaults.completionBadge,
+      district_label: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).districtLabel,
+      completion_badge: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).completionBadge,
       overview_title: defaults.overviewTitle,
       overview_body: defaults.overviewBody,
-      features_title: defaults.featuresTitle,
-      progress_title: defaults.progressTitle,
-      progress_completion_text: defaults.progressCompletionText,
-      location_title: defaults.locationTitle,
+      features_title: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).featuresTitle,
+      progress_title: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).progressTitle,
+      progress_completion_text: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).progressCompletionText,
+      location_title: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).locationTitle,
       contact_title: defaults.contactTitle,
       contact_body: defaults.contactBody,
       sales_phone: defaults.salesPhone,
       footer_disclaimer: defaults.footerDisclaimer,
-      map_lat: defaults.mapLat,
-      map_lng: defaults.mapLng,
-      map_zoom: defaults.mapZoom,
+      map_lat: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).mapLat,
+      map_lng: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).mapLng,
+      map_zoom: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).mapZoom,
       published_at: publishStatus === 'published' ? new Date().toISOString() : null,
     })
     .select('*')
@@ -107,8 +119,8 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const contentItems = cloneDefaultContentItems()
-  const modules = createDefaultPropertyModules()
+  const contentItems = isShangAn ? cloneDefaultShangAnContentItems() : cloneDefaultContentItems()
+  const modules = isShangAn ? createDefaultShangAnModules() : createDefaultPropertyModules()
   const { data: insertedItems, error: contentError } = await admin
     .from('property_content_items')
     .insert(

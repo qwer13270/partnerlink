@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
       'rejection_reason',
       'status',
       'created_at',
+      'merchant_type',
     ].join(','))
     .eq('status', status)
     .order('submitted_at', { ascending: true })

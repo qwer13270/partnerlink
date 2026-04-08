@@ -32,10 +32,16 @@ type Merchant = {
   city: string | null
   status: string
   createdAt: string
+  merchantType: string | null
   activeProjects: number
   archivedProjects: number
   totalDealValue: number
   projects: Project[]
+}
+
+const MERCHANT_TYPE_LABEL: Record<string, string> = {
+  property: '地產',
+  shop:     '商店',
 }
 
 function fmtDeal(wan: number): string {
@@ -137,6 +143,11 @@ export default function AdminMerchantsPage() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-sm">{merchant.companyName}</p>
+                        {merchant.merchantType && (
+                          <span className="text-[0.67rem] tracking-[0.2em] border border-foreground/10 bg-foreground/[0.04] text-foreground/50 px-1.5 py-px">
+                            {MERCHANT_TYPE_LABEL[merchant.merchantType] ?? merchant.merchantType}
+                          </span>
+                        )}
                         {merchant.status === 'suspended' && (
                           <span className="text-xs uppercase tracking-[0.3em] text-red-600 border border-red-200 bg-red-50 px-1.5 py-px">停用</span>
                         )}

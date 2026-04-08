@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useMerchantType } from '@/hooks/useMerchantType'
+import { typeLabel } from '@/lib/merchant-application'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Check, ChevronDown, ExternalLink, Banknote, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
@@ -23,8 +25,6 @@ type Kol = {
   platform: string
   followers: string
   category: string
-  avgViews: string
-  engagementRate: string
   city: string
   bio: string
   profilePhotoUrl: string
@@ -57,8 +57,6 @@ type ApiKol = {
   content_type: string | null
   bio: string | null
   city: string | null
-  avg_views: string | null
-  engagement_rate: string | null
   collab_fee: number | null
   profile_photo_url?: string
 }
@@ -99,8 +97,6 @@ function toViewModel(item: ApiKol): Kol {
     platform:       platforms.length > 0 ? platforms.join(' / ') : '未填寫平台',
     followers:      item.follower_range || '未填寫',
     category:       item.content_type || '未分類',
-    avgViews:       item.avg_views || '未填寫',
-    engagementRate: item.engagement_rate || '未填寫',
     city:           item.city || '未填寫',
     bio:            item.bio || '尚未提供自我介紹。',
     profilePhotoUrl: typeof item.profile_photo_url === 'string' ? item.profile_photo_url : '',
@@ -121,6 +117,7 @@ function InviteModal({
   projects,
   projectsLoading,
   invitedPairs,
+  merchantType,
   onClose,
   onConfirm,
 }: {
@@ -128,6 +125,7 @@ function InviteModal({
   projects: Project[]
   projectsLoading: boolean
   invitedPairs: Set<string>
+  merchantType: string
   onClose: () => void
   onConfirm: (projectId: string, collaborationType: 'commission' | 'reciprocal', items: ItemInput[], sponsorshipBonus: number) => Promise<void>
 }) {
@@ -138,7 +136,7 @@ function InviteModal({
   const [sponsorshipBonus, setSponsorshipBonus] = useState('')
 
   const selectedProjectObj = projects.find((p) => p.id === selectedProject)
-  const isReciprocal = selectedProjectObj?.type === '商案'
+  const isReciprocal = selectedProjectObj?.type === 'shop'
 
   function addItem() {
     setItems((prev) => [...prev, { ...EMPTY_ITEM }])
@@ -201,12 +199,12 @@ function InviteModal({
 
         {/* Project selection */}
         <div className="px-6 py-5">
-          <p className="text-xs text-muted-foreground mb-3">選擇要邀請此 KOL 合作的商案：</p>
+          <p className="text-xs text-muted-foreground mb-3">選擇要邀請此 KOL 合作的{typeLabel(merchantType)}：</p>
 
           {projectsLoading ? (
-            <p className="text-xs text-muted-foreground py-2">載入商案中…</p>
+            <p className="text-xs text-muted-foreground py-2">載入{typeLabel(merchantType)}中…</p>
           ) : projects.length === 0 ? (
-            <p className="text-xs text-muted-foreground py-2">目前尚無商案，請先建立商案。</p>
+            <p className="text-xs text-muted-foreground py-2">目前尚無{typeLabel(merchantType)}，請先建立{typeLabel(merchantType)}。</p>
           ) : (
             <div className="space-y-2">
               {projects.map((p) => {
@@ -381,14 +379,6 @@ function KolRow({
             <p className="text-xs uppercase tracking-widest text-muted-foreground">合作費用</p>
             <p className="text-sm font-serif mt-0.5 text-amber-700">{formatFee(kol.collabFee)}</p>
           </div>
-          <div className="text-center">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">互動率</p>
-            <p className="text-sm font-serif mt-0.5">{kol.engagementRate}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">平均觀看</p>
-            <p className="text-sm font-serif mt-0.5">{kol.avgViews}</p>
-          </div>
         </div>
 
         {/* Actions */}
@@ -444,7 +434,7 @@ function KolRow({
                   </Link>
                 </div>
               )}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="rounded-xl border border-amber-200/60 bg-amber-50/60 px-3 py-2.5 text-center">
                   <div className="flex items-center justify-center gap-1 mb-0.5">
                     <Banknote className="h-2.5 w-2.5 text-amber-600" />
@@ -452,16 +442,10 @@ function KolRow({
                   </div>
                   <p className="text-base font-serif mt-1 text-amber-800">{formatFee(kol.collabFee)}</p>
                 </div>
-                {[
-                  { label: '平均觀看', value: kol.avgViews },
-                  { label: '互動率', value: kol.engagementRate },
-                  { label: '所在城市', value: kol.city },
-                ].map((s) => (
-                  <div key={s.label} className="rounded-xl border border-foreground/[0.08] bg-background px-3 py-2.5 text-center">
-                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{s.label}</p>
-                    <p className="text-base font-serif mt-1">{s.value}</p>
-                  </div>
-                ))}
+                <div className="rounded-xl border border-foreground/[0.08] bg-background px-3 py-2.5 text-center">
+                  <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">所在城市</p>
+                  <p className="text-base font-serif mt-1">{kol.city}</p>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -479,6 +463,7 @@ export default function MerchantKolBrowsePage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [activeFeeRange, setActiveFeeRange] = useState<FeeRange>('all')
   const [invitingKol, setInvitingKol]     = useState<Kol | null>(null)
+  const merchantType = useMerchantType() ?? 'shop'
 
   // Real projects for the invite modal
   const [projects, setProjects]           = useState<Project[]>([])
@@ -523,7 +508,7 @@ export default function MerchantKolBrowsePage() {
         const payload = (await res.json().catch(() => null)) as ProjectsPayload | null
         if (res.ok) {
           setProjects(
-            (payload?.projects ?? []).map((p) => ({ id: String(p.id), name: p.name, type: p.type ?? '建案' })),
+            (payload?.projects ?? []).map((p) => ({ id: String(p.id), name: p.name, type: p.type ?? 'property' })),
           )
         }
       } catch {
@@ -614,7 +599,7 @@ export default function MerchantKolBrowsePage() {
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">商家後台</p>
         <h1 className="text-3xl font-serif">探索 KOL</h1>
         <p className="text-sm text-muted-foreground mt-2">
-          瀏覽平台上所有已核准的 KOL，主動邀請合適的創作者加入您的商案推廣。
+          瀏覽平台上所有已核准的 KOL，主動邀請合適的創作者加入您的{typeLabel(merchantType)}推廣。
         </p>
       </motion.div>
 
@@ -703,6 +688,7 @@ export default function MerchantKolBrowsePage() {
             projects={projects}
             projectsLoading={projectsLoading}
             invitedPairs={invitedPairs}
+            merchantType={merchantType}
             onClose={() => setInvitingKol(null)}
             onConfirm={handleConfirm}
           />

@@ -1,310 +1,25 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { ArrowLeft, Eye, EyeOff, Monitor, Plus, Save, Smartphone, Trash2 } from 'lucide-react'
-import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion'
+import { ArrowLeft, Eye, EyeOff, Monitor, Save, Smartphone, Trash2 } from 'lucide-react'
+import { motion, AnimatePresence, Reorder } from 'framer-motion'
 import { useEditor }         from './_use-editor'
 import { SectionPanel }      from './_panels'
-import { ModuleListItem, PinnedModuleItem } from './_module-list'
+import { ModuleListItem, PinnedModuleItem, DraggableModuleItem } from './_module-list'
 import { MODULE_META } from './_types'
-import type { PropertyModule } from './_types'
+import { typeLabel } from '@/lib/merchant-application'
+import { ThemePicker, FontPicker } from './_theme-font-picker'
+import { ModulePicker } from './_module-picker'
 import {
-  PROPERTY_THEMES,
-  type PropertyFontKey,
-  type PropertyModuleType,
-  type PropertyThemeKey,
-} from '@/lib/property-template'
-
-// ── Theme metadata ────────────────────────────────────────────────────────────
-
-const THEME_META: Record<PropertyThemeKey, { zh: string; en: string }> = {
-  'dark-gold':  { zh: '暗金', en: 'Dark Gold'  },
-  'ivory':      { zh: '象牙', en: 'Ivory'      },
-  'graphite':   { zh: '石墨', en: 'Graphite'   },
-  'vermillion': { zh: '暗朱', en: 'Vermillion' },
-  'cloud':      { zh: '雲霧', en: 'Cloud'      },
-}
-
-const FONT_META: Record<PropertyFontKey, { zh: string; en: string; sample: string; displayFont: string; bodyFont: string }> = {
-  editorial: {
-    zh: '雅緻襯線',
-    en: 'Editorial',
-    sample: '細節與留白，讓建築更顯份量',
-    displayFont: 'var(--font-serif-tc-base)',
-    bodyFont: 'var(--font-sans-tc-base)',
-  },
-  modern: {
-    zh: '現代黑體',
-    en: 'Modern Sans',
-    sample: '俐落節奏，適合更當代的商案語氣',
-    displayFont: 'var(--font-sans-tc-base)',
-    bodyFont: 'var(--font-sans-tc-base)',
-  },
-}
-
-function ThemePicker({
-  currentTheme,
-  onSelect,
-}: {
-  currentTheme: PropertyThemeKey
-  onSelect: (key: PropertyThemeKey) => void
-}) {
-  return (
-    <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="px-4 py-4">
-        <p className="mb-4 text-xs uppercase tracking-[0.4em] text-muted-foreground/50">
-          選擇色彩主題
-        </p>
-        <div className="space-y-1.5">
-          {(Object.entries(PROPERTY_THEMES) as [PropertyThemeKey, (typeof PROPERTY_THEMES)[PropertyThemeKey]][]).map(
-            ([key, vars]) => {
-              const selected = currentTheme === key
-              const { zh, en } = THEME_META[key]
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => onSelect(key)}
-                  className={[
-                    'group relative flex w-full items-center gap-3 rounded-sm border px-3 py-3 text-left transition-all duration-200',
-                    selected
-                      ? 'border-foreground/30 bg-foreground/[0.03]'
-                      : 'border-foreground/[0.06] hover:border-foreground/[0.15] hover:bg-foreground/[0.015]',
-                  ].join(' ')}
-                >
-                  {/* Selected accent bar */}
-                  <div
-                    className={`absolute left-0 top-2 bottom-2 w-0.5 rounded-full transition-opacity duration-200 ${selected ? 'opacity-100' : 'opacity-0'}`}
-                    style={{ background: vars['--p-accent'] }}
-                  />
-
-                  {/* Colour swatch — bg / card / accent / text bands */}
-                  <div className="flex h-9 w-[4.5rem] flex-none overflow-hidden rounded-sm shadow-sm">
-                    <div className="flex-[4]" style={{ background: vars['--p-bg'] }} />
-                    <div className="flex-[2]" style={{ background: vars['--p-bg-card'] }} />
-                    <div className="flex-[3]" style={{ background: vars['--p-accent'] }} />
-                    <div className="flex-[1]" style={{ background: vars['--p-text'] }} />
-                  </div>
-
-                  {/* Name */}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[0.8rem] font-medium leading-none">{zh}</p>
-                    <p className="mt-1.5 text-xs uppercase tracking-[0.3em] text-muted-foreground/50">{en}</p>
-                  </div>
-
-                  {/* Checkmark */}
-                  {selected && (
-                    <svg className="h-3 w-3 shrink-0 text-foreground/50" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l2.5 2.5L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                </button>
-              )
-            },
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function FontPicker({
-  currentFont,
-  onSelect,
-}: {
-  currentFont: PropertyFontKey
-  onSelect: (key: PropertyFontKey) => void
-}) {
-  return (
-    <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="px-4 py-4">
-        <p className="mb-4 text-xs uppercase tracking-[0.4em] text-muted-foreground/50">
-          選擇字型風格
-        </p>
-        <div className="space-y-2">
-          {(Object.entries(FONT_META) as [PropertyFontKey, (typeof FONT_META)[PropertyFontKey]][]).map(
-            ([key, meta]) => {
-              const selected = currentFont === key
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => onSelect(key)}
-                  className={[
-                    'group relative w-full rounded-sm border px-4 py-3 text-left transition-all duration-200',
-                    selected
-                      ? 'border-foreground/30 bg-foreground/[0.03]'
-                      : 'border-foreground/[0.06] hover:border-foreground/[0.15] hover:bg-foreground/[0.015]',
-                  ].join(' ')}
-                >
-                  <div
-                    className={`absolute left-0 top-2 bottom-2 w-0.5 rounded-full transition-opacity duration-200 ${selected ? 'opacity-100' : 'opacity-0'}`}
-                    style={{ background: 'currentColor' }}
-                  />
-
-                  <div className="flex items-start gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-baseline gap-2">
-                        <p className="text-[0.82rem] font-medium leading-none">{meta.zh}</p>
-                        <p className="text-[0.62rem] uppercase tracking-[0.28em] text-muted-foreground/55">{meta.en}</p>
-                      </div>
-                      <p
-                        className="mt-3 text-[1.05rem] leading-snug text-foreground"
-                        style={{ fontFamily: meta.displayFont, fontWeight: 400 }}
-                      >
-                        典藏建築語氣
-                      </p>
-                      <p
-                        className="mt-1 text-[0.76rem] leading-relaxed text-muted-foreground"
-                        style={{ fontFamily: meta.bodyFont }}
-                      >
-                        {meta.sample}
-                      </p>
-                    </div>
-
-                    {selected && (
-                      <svg className="mt-1 h-3 w-3 shrink-0 text-foreground/50" viewBox="0 0 12 12" fill="none">
-                        <path d="M2 6l2.5 2.5L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
-                  </div>
-                </button>
-              )
-            },
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── Module picker ─────────────────────────────────────────────────────────────
-
-const MODULE_TYPE_ORDER: PropertyModuleType[] = [
-  'intro_identity', 'intro_specs', 'features',
-  'progress', 'location', 'surroundings', 'team', 'indoor_commons', 'contact', 'footer', 'image_section', 'floor_plan',
-]
-
-function ModulePicker({
-  existingTypes,
-  onAdd,
-}: {
-  existingTypes: Set<PropertyModuleType>
-  onAdd: (type: PropertyModuleType) => void
-}) {
-  const [open, setOpen] = useState(false)
-
-  // Only show modules that can actually be added: image_section always, singletons only if not yet added
-  const addable = MODULE_TYPE_ORDER.filter(
-    (t) => t === 'image_section' || !existingTypes.has(t),
-  )
-
-  return (
-    <div className="shrink-0 border-t border-foreground/[0.07]">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="group flex w-full items-center gap-2.5 px-4 py-3 text-left transition-colors duration-150 hover:bg-foreground/[0.02]"
-      >
-        <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-colors duration-150 ${
-          open
-            ? 'border-foreground/30 bg-foreground/[0.05] text-foreground'
-            : 'border-foreground/12 bg-foreground/[0.03] text-muted-foreground group-hover:border-foreground/25 group-hover:text-foreground'
-        }`}>
-          <Plus className={`h-3 w-3 transition-transform duration-200 ${open ? 'rotate-45' : ''}`} />
-        </div>
-        <p className="text-xs uppercase tracking-[0.3em] text-foreground/60 group-hover:text-foreground/80">
-          新增模塊
-        </p>
-        {addable.length === 1 && (
-          <span className="ml-auto text-xs text-muted-foreground/40">僅剩圖片區塊</span>
-        )}
-      </button>
-
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden"
-          >
-            <div className="grid grid-cols-2 gap-1.5 px-3 pb-3">
-              {addable.map((type) => {
-                const meta = MODULE_META[type]
-                const isMulti = type === 'image_section'
-                return (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => { onAdd(type); setOpen(false) }}
-                    className="group flex items-center gap-2 rounded-md border border-foreground/12 bg-foreground/[0.04] px-2.5 py-2 text-left transition-all duration-150 hover:border-foreground/25 hover:bg-foreground/[0.08]"
-                  >
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-foreground/[0.06] text-foreground/50 transition-colors duration-150 group-hover:bg-foreground/[0.12] group-hover:text-foreground">
-                      <meta.Icon className="h-3 w-3" />
-                    </div>
-                    <span className="truncate text-xs text-foreground/65 transition-colors duration-150 group-hover:text-foreground">
-                      {meta.label}
-                    </span>
-                    {isMulti && (
-                      <span className="ml-auto shrink-0 rounded-sm bg-[#C9A96E]/12 px-1 py-px text-xs uppercase tracking-wider text-[#C9A96E]/70">
-                        可多個
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-// ── Draggable item wrapper (Framer Motion Reorder + drag controls) ────────────
-
-function DraggableModuleItem({
-  module,
-  selected,
-  onSelect,
-  onToggleVisibility,
-}: {
-  module: PropertyModule
-  selected: boolean
-  onSelect: () => void
-  onToggleVisibility: () => void
-}) {
-  const controls = useDragControls()
-  return (
-    <Reorder.Item
-      value={module}
-      dragControls={controls}
-      dragListener={false}
-      as="div"
-      className="list-none"
-      whileDrag={{
-        scale: 1.02,
-        boxShadow: '0 6px 20px rgba(0,0,0,0.10)',
-        borderRadius: '8px',
-        zIndex: 10,
-        backgroundColor: 'hsl(var(--background))',
-      }}
-      transition={{ duration: 0.15 }}
-    >
-      <ModuleListItem
-        module={module}
-        selected={selected}
-        onSelect={onSelect}
-        onToggleVisibility={onToggleVisibility}
-        onDragHandlePointerDown={(e) => controls.start(e)}
-      />
-    </Reorder.Item>
-  )
-}
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 export default function EditProjectPage() {
   const { id } = useParams<{ id: string }>()
@@ -317,6 +32,7 @@ export default function EditProjectPage() {
     sidebarView,
     setSidebarView,
     handleSave, handleConfirmLeave,
+    pendingLeavePath, confirmLeave, cancelLeave,
     updateProjectField, updateContentItem, updateModule,
     toggleModuleVisibility, reorderModules,
     addModule, removeModule, selectModule,
@@ -324,9 +40,16 @@ export default function EditProjectPage() {
     currentTheme, currentFont, setColorTheme, setFontTheme,
   } = editor
 
+  const existingModuleTypes = useMemo(
+    () => new Set(draftProject?.modules.map((m) => m.moduleType) ?? []),
+    [draftProject?.modules],
+  )
+
   const iframeRef  = useRef<HTMLIFrameElement>(null)
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop')
   const [iframeReady, setIframeReady] = useState(false)
+  const [iframeContentReady, setIframeContentReady] = useState(false)
+  const firstSendDone = useRef(false)
 
   // ── Listen for messages from iframe ───────────────────────────────────────
   useEffect(() => {
@@ -345,6 +68,11 @@ export default function EditProjectPage() {
       { type: 'update', content: liveTemplate, selectedModuleId: selectedModule?.id ?? null },
       '*',
     )
+    // On the very first send, wait a tick for the iframe to render then drop the overlay
+    if (!firstSendDone.current) {
+      firstSendDone.current = true
+      setTimeout(() => setIframeContentReady(true), 200)
+    }
   }, [iframeReady, liveTemplate, selectedModule?.id])
 
   // ── Loading / not-found states ─────────────────────────────────────────────
@@ -378,23 +106,30 @@ export default function EditProjectPage() {
   return (
     <div className="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-[#f0ece4]">
 
+      {/* ── Overlay — hides blank iframe until first content render ────────── */}
+      {!iframeContentReady && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background">
+          <p className="text-sm text-muted-foreground">載入商案內容中…</p>
+        </div>
+      )}
+
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <header className="shrink-0 border-b border-foreground/10 bg-background/98 backdrop-blur-md">
         <div className="flex items-center gap-4 px-5 py-4 lg:px-6">
           <button
             type="button"
-            onClick={() => handleConfirmLeave('/merchant/projects')}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150 hover:bg-foreground/5 hover:text-foreground"
-            aria-label="離開編輯器"
+            onClick={() => handleConfirmLeave(`/merchant/projects/${id}/customers`)}
+            className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-2 text-muted-foreground transition-colors duration-150 hover:bg-foreground/5 hover:text-foreground"
           >
-            <ArrowLeft className="h-4.5 w-4.5" />
+            <ArrowLeft className="h-4 w-4" />
+            <span className="text-xs">返回{typeLabel(draftProject.templateKey ?? 'property')}</span>
           </button>
 
           <div className="h-6 w-px shrink-0 bg-foreground/10" />
 
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm leading-snug text-foreground">{draftProject.name}</p>
-            <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">商案編輯器</p>
+            <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">{typeLabel(draftProject.templateKey ?? 'property')}編輯器</p>
           </div>
 
           {/* Status badges */}
@@ -443,6 +178,14 @@ export default function EditProjectPage() {
 
           {/* Actions */}
           <div className="flex shrink-0 items-center gap-2">
+            {draftProject?.templateKey === 'shop' && (
+              <Link
+                href={`/merchant/projects/${id}/products`}
+                className="hidden h-9 items-center gap-2 rounded-lg border border-foreground/15 px-3.5 text-xs uppercase tracking-[0.3em] text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground sm:inline-flex"
+              >
+                商品
+              </Link>
+            )}
             <Link
               href={`/merchant/projects/${id}/preview`}
               target="_blank"
@@ -553,6 +296,7 @@ export default function EditProjectPage() {
                                   selected={module.id === editor.selectedModule?.id}
                                   onSelect={() => selectModuleAndScroll(module.id)}
                                   onToggleVisibility={() => toggleModuleVisibility(module.id)}
+                                  actionHref={module.moduleType === 'shop_products' ? `/merchant/projects/${id}/products` : undefined}
                                 />
                               ))}
                             </Reorder.Group>
@@ -582,7 +326,8 @@ export default function EditProjectPage() {
                       </div>
 
                       <ModulePicker
-                        existingTypes={new Set(draftProject.modules.map((m) => m.moduleType))}
+                        existingTypes={existingModuleTypes}
+                        templateKey={draftProject?.templateKey ?? 'property'}
                         onAdd={(type) => { const newId = addModule(type); if (newId) setTimeout(() => scrollPreviewToModule(newId), 80) }}
                       />
                     </motion.div>
@@ -688,8 +433,8 @@ export default function EditProjectPage() {
                     project={draftProject}
                     module={selectedModule}
                     uploadingSlot={editor.uploadingSlot}
-                    fallbackImages={liveTemplate.images}
-                    imageBreaks={liveTemplate.imageBreaks}
+                    fallbackImages={'images' in liveTemplate ? liveTemplate.images : {} as never}
+                    imageBreaks={'imageBreaks' in liveTemplate ? liveTemplate.imageBreaks : {}}
                     onFieldChange={updateProjectField}
                     onContentItemChange={updateContentItem}
                     onModuleChange={updateModule}
@@ -729,6 +474,32 @@ export default function EditProjectPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Unsaved changes dialog ───────────────────────────────────────────── */}
+      <Dialog open={!!pendingLeavePath} onOpenChange={(open) => { if (!open) cancelLeave() }}>
+        <DialogContent showCloseButton={false} className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>離開前確認</DialogTitle>
+            <DialogDescription>你有尚未儲存的變更，離開後將會遺失。</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={cancelLeave}
+              className="inline-flex h-9 items-center rounded-lg border border-foreground/20 px-4 text-sm transition-colors hover:bg-foreground/5"
+            >
+              繼續編輯
+            </button>
+            <button
+              type="button"
+              onClick={confirmLeave}
+              className="inline-flex h-9 items-center rounded-lg bg-foreground px-4 text-sm text-background transition-opacity hover:opacity-80"
+            >
+              離開不儲存
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   )

@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useMerchantType } from '@/hooks/useMerchantType'
+import { typeLabel } from '@/lib/merchant-application'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, X, Clock, Users, RotateCcw, Ban, Send, MessageSquare, Layers } from 'lucide-react'
 
@@ -53,11 +55,13 @@ function ProjectFilterStrip({
   projects,
   selected,
   totalCount,
+  merchantType,
   onSelect,
 }: {
   projects: ProjectChip[]
   selected: string | null
   totalCount: number
+  merchantType: string
   onSelect: (id: string | null) => void
 }) {
   if (projects.length <= 1) return null
@@ -75,7 +79,7 @@ function ProjectFilterStrip({
           }`}
         >
           <Layers className="h-2.5 w-2.5" />
-          全部商案
+          全部{typeLabel(merchantType)}
           <span className={`text-[0.55rem] px-1 py-px tabular-nums ${
             selected === null ? 'bg-background/20' : 'bg-foreground/8'
           }`}>
@@ -333,6 +337,7 @@ export default function MerchantKolsPage() {
   const [loadErr, setLoadErr]           = useState('')
   const [activeTab, setActiveTab]       = useState<Tab>('inviting')
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
+  const merchantType = useMerchantType() ?? 'shop'
 
   const loadRequests = useCallback(async () => {
     setLoading(true)
@@ -504,6 +509,7 @@ export default function MerchantKolsPage() {
             projects={allProjects}
             selected={selectedProject}
             totalCount={requests.length}
+            merchantType={merchantType}
             onSelect={setSelectedProject}
           />
 

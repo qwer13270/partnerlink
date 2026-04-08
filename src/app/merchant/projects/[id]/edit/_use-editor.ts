@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import {
   buildTongchuangTemplateContent,
+  buildShangAnTemplateContent,
   createImageSectionModule,
   DEFAULT_FONT_KEY,
   DEFAULT_PROPERTY_CONTENT_ITEMS,
+  DEFAULT_SHANGAN_CONTENT_ITEMS,
   DEFAULT_THEME_KEY,
   getModuleDefinition,
   isEnglishSlug,
@@ -16,6 +18,8 @@ import {
   type PropertyModule,
   type PropertyModuleType,
   type PropertyThemeKey,
+  type ShangAnTemplateContent,
+  type TongchuangTemplateContent,
 } from '@/lib/property-template'
 import { IMAGE_SLOT_LABELS, type ProjectDetail, type ProjectImage } from './_types'
 
@@ -39,6 +43,7 @@ export function useEditor(id: string) {
   const [uploadingSlot,    setUploadingSlot]    = useState<string | null>(null)
   const [showDeleteModal,  setShowDeleteModal]  = useState(false)
   const [deleting,         setDeleting]         = useState(false)
+  const [pendingLeavePath, setPendingLeavePath] = useState<string | null>(null)
 
   // ── Data loading ───────────────────────────────────────────────────────────
   useEffect(() => {
@@ -53,7 +58,10 @@ export function useEditor(id: string) {
         setLoading(false)
         return
       }
-      const project = payload.project as ProjectDetail | null
+      const raw = payload.project as (ProjectDetail & { type?: string }) | null
+      const project: ProjectDetail | null = raw
+        ? { ...raw, templateKey: raw.type === 'shop' ? 'shop' : 'property' }
+        : null
       setSavedProject(project)
       setDraftProject(project)
       setSelectedModuleId(project?.modules?.[0]?.id ?? null)
@@ -80,7 +88,7 @@ export function useEditor(id: string) {
   }, [isDirty])
 
   // ── Derived values ─────────────────────────────────────────────────────────
-  const liveTemplate = useMemo(
+  const liveTemplate = useMemo<TongchuangTemplateContent | ShangAnTemplateContent | null>(
     () => (draftProject ? toLiveTemplate(draftProject) : null),
     [draftProject],
   )
@@ -152,8 +160,8 @@ export function useEditor(id: string) {
   async function handleSave(targetStatus?: 'draft' | 'published') {
     const project = draftProject
     if (!project) return
-    const slug = project.slug.trim().toLowerCase()
-    if (!isEnglishSlug(slug)) {
+    const scalars = toProjectScalars(project)
+    if (!isEnglishSlug(scalars.slug)) {
       toast.error('公開網址只能使用英文、數字與連字號')
       return
     }
@@ -166,26 +174,11 @@ export function useEditor(id: string) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         project: {
-          slug,
-          name:                  project.name,
-          collabDescription:     project.collabDescription,
-          subtitle:              project.subtitle,
-          districtLabel:         project.districtLabel,
-          completionBadge:       project.completionBadge,
-          overviewTitle:         project.overviewTitle,
-          overviewBody:          project.overviewBody,
-          featuresTitle:         project.featuresTitle,
-          progressTitle:         project.progressTitle,
-          progressCompletionText:project.progressCompletionText,
-          locationTitle:         project.locationTitle,
-          contactTitle:          project.contactTitle,
-          contactBody:           project.contactBody,
-          salesPhone:            project.salesPhone,
-          footerDisclaimer:      project.footerDisclaimer,
-          mapLat:                Number(project.mapLat),
-          mapLng:                Number(project.mapLng),
-          mapZoom:               Number(project.mapZoom),
-          publishStatus:         targetStatus ?? project.publishStatus,
+          ...scalars,
+          mapLat:        Number(project.mapLat),
+          mapLng:        Number(project.mapLng),
+          mapZoom:       Number(project.mapZoom),
+          publishStatus: targetStatus ?? project.publishStatus,
         },
         contentItems: project.contentItems,
         modules:      project.modules,
@@ -201,8 +194,10 @@ export function useEditor(id: string) {
       return
     }
 
-    setSavedProject(payload.project as ProjectDetail)
-    setDraftProject(payload.project as ProjectDetail)
+    const raw = payload.project as (ProjectDetail & { type?: string })
+    const saved: ProjectDetail = { ...raw, templateKey: raw.type === 'shop' ? 'shop' : 'property' }
+    setSavedProject(saved)
+    setDraftProject(saved)
     toast.success(targetStatus === 'published' ? '商案已發布' : '已儲存')
   }
 
@@ -217,8 +212,18 @@ export function useEditor(id: string) {
   }
 
   function handleConfirmLeave(path: string) {
-    if (isDirty && !window.confirm('你有尚未儲存的變更，確定要離開嗎？')) return
+    if (isDirty) { setPendingLeavePath(path); return }
     startTransition(() => router.push(path))
+  }
+
+  function confirmLeave() {
+    if (!pendingLeavePath) return
+    startTransition(() => router.push(pendingLeavePath))
+    setPendingLeavePath(null)
+  }
+
+  function cancelLeave() {
+    setPendingLeavePath(null)
   }
 
   // ── Field / content / module mutators ─────────────────────────────────────
@@ -295,6 +300,15 @@ export function useEditor(id: string) {
       }
       if (type === 'team' && !p.contentItems.some((item) => item.groupKey === 'team_members')) {
         contentItems = [...contentItems, ...DEFAULT_PROPERTY_CONTENT_ITEMS.filter((item) => item.groupKey === 'team_members')]
+      }
+      if (type === 'shop_products' && !p.contentItems.some((item) => item.groupKey === 'shop_products')) {
+        contentItems = [...contentItems, ...DEFAULT_SHANGAN_CONTENT_ITEMS.filter((item) => item.groupKey === 'shop_products')]
+      }
+      if (type === 'shop_features' && !p.contentItems.some((item) => item.groupKey === 'shop_features')) {
+        contentItems = [...contentItems, ...DEFAULT_SHANGAN_CONTENT_ITEMS.filter((item) => item.groupKey === 'shop_features')]
+      }
+      if (type === 'shop_faq' && !p.contentItems.some((item) => item.groupKey === 'shop_faq')) {
+        contentItems = [...contentItems, ...DEFAULT_SHANGAN_CONTENT_ITEMS.filter((item) => item.groupKey === 'shop_faq')]
       }
 
       return { ...p, modules: [...nextNormal, ...nextPinned], contentItems }
@@ -398,6 +412,9 @@ export function useEditor(id: string) {
     handleSave,
     handleDelete,
     handleConfirmLeave,
+    pendingLeavePath,
+    confirmLeave,
+    cancelLeave,
     updateProjectField,
     updateContentItem,
     updateModule,
@@ -413,12 +430,11 @@ export function useEditor(id: string) {
 
 // ── Private helpers ───────────────────────────────────────────────────────────
 
-function projectSnapshot(project: ProjectDetail) {
+function toProjectScalars(project: ProjectDetail) {
   return {
-    slug:                   project.slug,
+    slug:                   project.slug.trim().toLowerCase(),
     name:                   project.name,
     collabDescription:      project.collabDescription,
-    publishStatus:          project.publishStatus,
     subtitle:               project.subtitle,
     districtLabel:          project.districtLabel,
     completionBadge:        project.completionBadge,
@@ -435,13 +451,48 @@ function projectSnapshot(project: ProjectDetail) {
     mapLat:                 project.mapLat,
     mapLng:                 project.mapLng,
     mapZoom:                project.mapZoom,
-    images:        project.images.map((img) => ({ sectionKey: img.sectionKey, url: img.url, altText: img.altText, sortOrder: img.sortOrder })),
-    contentItems:  project.contentItems.map((item) => ({ groupKey: item.groupKey, itemKey: item.itemKey, title: item.title, body: item.body, meta: item.meta, accent: item.accent, state: item.state, sortOrder: item.sortOrder })),
-    modules:       project.modules.map((m) => ({ id: m.id, moduleType: m.moduleType, sortOrder: m.sortOrder, isVisible: m.isVisible, settings: m.settings })),
   }
 }
 
-function toLiveTemplate(project: ProjectDetail) {
+function projectSnapshot(project: ProjectDetail) {
+  return {
+    ...toProjectScalars(project),
+    publishStatus: project.publishStatus,
+    images:       project.images.map((img) => ({ sectionKey: img.sectionKey, url: img.url, altText: img.altText, sortOrder: img.sortOrder })),
+    contentItems: project.contentItems.map((item) => ({ groupKey: item.groupKey, itemKey: item.itemKey, title: item.title, body: item.body, meta: item.meta, accent: item.accent, state: item.state, sortOrder: item.sortOrder })),
+    modules:      project.modules.map((m) => ({ id: m.id, moduleType: m.moduleType, sortOrder: m.sortOrder, isVisible: m.isVisible, settings: m.settings })),
+  }
+}
+
+function toLiveTemplate(project: ProjectDetail): TongchuangTemplateContent | ShangAnTemplateContent {
+  const images = project.images.map((img) => ({
+    sectionKey: img.sectionKey,
+    url: img.url,
+    altText: img.altText,
+    sortOrder: img.sortOrder ?? 0,
+  }))
+
+  if (project.templateKey === 'shop') {
+    return buildShangAnTemplateContent(
+      {
+        id:               project.id,
+        slug:             project.slug,
+        publishStatus:    project.publishStatus,
+        name:             project.name,
+        subtitle:         project.subtitle,
+        overviewTitle:    project.overviewTitle,
+        overviewBody:     project.overviewBody,
+        contactTitle:     project.contactTitle,
+        contactBody:      project.contactBody,
+        salesPhone:       project.salesPhone,
+        footerDisclaimer: project.footerDisclaimer,
+      },
+      images,
+      project.contentItems,
+      project.modules,
+    )
+  }
+
   return buildTongchuangTemplateContent(
     {
       id:                     project.id,
@@ -465,7 +516,7 @@ function toLiveTemplate(project: ProjectDetail) {
       mapLng:                 project.mapLng,
       mapZoom:                project.mapZoom,
     },
-    project.images.map((img) => ({ sectionKey: img.sectionKey, url: img.url, altText: img.altText, sortOrder: img.sortOrder ?? 0 })),
+    images,
     project.contentItems,
     project.modules,
   )

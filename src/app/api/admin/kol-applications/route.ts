@@ -33,8 +33,6 @@ export async function GET(request: NextRequest) {
       'content_type',
       'bio',
       'city',
-      'avg_views',
-      'engagement_rate',
       'profile_photo_path',
       'photos',
       'videos',

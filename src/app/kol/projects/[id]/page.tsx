@@ -34,7 +34,7 @@ export type CollabDetail = {
   collaboration_id:    string
   project_id:          string
   project_name:        string
-  project_type:        '建案' | '商案'
+  project_type:        'property' | 'shop'
   collab_description:  string | null
   collaboration_type:  'commission' | 'reciprocal' | 'sponsored'
   collab_status:       'active' | 'ended'
@@ -137,12 +137,12 @@ export default async function KolProjectDetailPage({
   const deals     = allConvs.filter(r => r.conversion_type === 'deal').length
 
   // 4. Type-conditional data
-  const projectType = (project?.type ?? '建案') as '建案' | '商案'
+  const projectType = (project?.type ?? '建案') as 'property' | 'shop'
   let dealEntries: DealEntry[]  = []
   let items: MutualBenefitItem[] = []
   let shipment: Shipment | null  = null
 
-  if (projectType === '建案') {
+  if (projectType === 'property') {
     const rate = request?.commission_rate as number | null
     if (rate !== null) {
       dealEntries = allConvs
@@ -164,7 +164,7 @@ export default async function KolProjectDetailPage({
           }
         })
     }
-  } else if (projectType === '商案') {
+  } else if (projectType === 'shop') {
     // Fetch PR items + shipment
     const [itemsR, shipmentR] = await Promise.all([
       admin.from('mutual_benefit_items')

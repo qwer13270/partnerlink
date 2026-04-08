@@ -1,12 +1,15 @@
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import {
   DEFAULT_PROPERTY_FIELDS,
+  DEFAULT_SHANGAN_FIELDS,
   buildTongchuangTemplateContent,
+  buildShangAnTemplateContent,
   cloneDefaultContentItems,
   createDefaultPropertyModules,
   type PropertyContentItem,
   type PropertyModule,
   type TongchuangTemplateContent,
+  type ShangAnTemplateContent,
 } from '@/lib/property-template'
 
 type PropertyRow = {
@@ -111,7 +114,7 @@ export type MerchantProjectDetail = MerchantProjectSummary & {
   collabDescription: string | null
   contentItems: PropertyContentItem[]
   modules: PropertyModule[]
-  template: TongchuangTemplateContent
+  template: TongchuangTemplateContent | ShangAnTemplateContent
 }
 
 function toPublicStorageUrl(bucket: string, path: string) {
@@ -123,7 +126,7 @@ export async function getMerchantProfileForUser(userId: string) {
   const admin = getSupabaseAdminClient()
   const { data, error } = await admin
     .from('merchant_profiles')
-    .select('id,user_id,company_name')
+    .select('id,user_id,company_name,merchant_type')
     .eq('user_id', userId)
     .eq('status', 'active')
     .single()
@@ -134,6 +137,7 @@ export async function getMerchantProfileForUser(userId: string) {
     id: String(data.id),
     userId: String(data.user_id),
     companyName: String(data.company_name ?? ''),
+    merchantType: (data.merchant_type as string | null) ?? null,
   }
 }
 
@@ -367,38 +371,59 @@ export function toMerchantProjectDetail(
     }))
     .sort((a, b) => a.sortOrder - b.sortOrder)
 
-  const template = buildTongchuangTemplateContent(
-    {
-      id: property.id,
-      slug: property.slug,
-      publishStatus: property.publish_status,
-      name: property.name,
-      subtitle: property.subtitle,
-      districtLabel: property.district_label,
-      completionBadge: property.completion_badge,
-      overviewTitle: property.overview_title,
-      overviewBody: property.overview_body,
-      featuresTitle: property.features_title,
-      progressTitle: property.progress_title,
-      progressCompletionText: property.progress_completion_text,
-      locationTitle: property.location_title,
-      contactTitle: property.contact_title,
-      contactBody: property.contact_body,
-      salesPhone: property.sales_phone,
-      footerDisclaimer: property.footer_disclaimer,
-      mapLat: property.map_lat,
-      mapLng: property.map_lng,
-      mapZoom: property.map_zoom,
-    },
-    imageList.map((image) => ({
-      sectionKey: image.sectionKey,
-      url: image.url,
-      altText: image.altText,
-      sortOrder: image.sortOrder,
-    })),
-    normalizedItems,
-    normalizedModules,
-  )
+  const imageSources = imageList.map((image) => ({
+    sectionKey: image.sectionKey,
+    url: image.url,
+    altText: image.altText,
+    sortOrder: image.sortOrder,
+  }))
+
+  const template = property.type === 'shop'
+    ? buildShangAnTemplateContent(
+        {
+          id: property.id,
+          slug: property.slug,
+          publishStatus: property.publish_status,
+          name: property.name,
+          subtitle: property.subtitle,
+          overviewTitle: property.overview_title,
+          overviewBody: property.overview_body,
+          contactTitle: property.contact_title,
+          contactBody: property.contact_body,
+          salesPhone: property.sales_phone,
+          footerDisclaimer: property.footer_disclaimer,
+        },
+        imageSources,
+        normalizedItems,
+        normalizedModules,
+      )
+    : buildTongchuangTemplateContent(
+        {
+          id: property.id,
+          slug: property.slug,
+          publishStatus: property.publish_status,
+          name: property.name,
+          subtitle: property.subtitle,
+          districtLabel: property.district_label,
+          completionBadge: property.completion_badge,
+          overviewTitle: property.overview_title,
+          overviewBody: property.overview_body,
+          featuresTitle: property.features_title,
+          progressTitle: property.progress_title,
+          progressCompletionText: property.progress_completion_text,
+          locationTitle: property.location_title,
+          contactTitle: property.contact_title,
+          contactBody: property.contact_body,
+          salesPhone: property.sales_phone,
+          footerDisclaimer: property.footer_disclaimer,
+          mapLat: property.map_lat,
+          mapLng: property.map_lng,
+          mapZoom: property.map_zoom,
+        },
+        imageSources,
+        normalizedItems,
+        normalizedModules,
+      )
 
   return {
     id: property.id,
@@ -410,20 +435,20 @@ export function toMerchantProjectDetail(
     updatedAt: property.updated_at,
     merchantProfileId: property.merchant_profile_id,
     merchantUserId: property.merchant_user_id,
-    subtitle: property.subtitle ?? DEFAULT_PROPERTY_FIELDS.subtitle,
+    subtitle: property.subtitle ?? (property.type === 'shop' ? DEFAULT_SHANGAN_FIELDS.subtitle : DEFAULT_PROPERTY_FIELDS.subtitle),
     districtLabel: property.district_label ?? DEFAULT_PROPERTY_FIELDS.districtLabel,
     completionBadge: property.completion_badge ?? DEFAULT_PROPERTY_FIELDS.completionBadge,
-    overviewTitle: property.overview_title ?? DEFAULT_PROPERTY_FIELDS.overviewTitle,
-    overviewBody: property.overview_body ?? DEFAULT_PROPERTY_FIELDS.overviewBody,
+    overviewTitle: property.overview_title ?? (property.type === 'shop' ? DEFAULT_SHANGAN_FIELDS.overviewTitle : DEFAULT_PROPERTY_FIELDS.overviewTitle),
+    overviewBody: property.overview_body ?? (property.type === 'shop' ? DEFAULT_SHANGAN_FIELDS.overviewBody : DEFAULT_PROPERTY_FIELDS.overviewBody),
     featuresTitle: property.features_title ?? DEFAULT_PROPERTY_FIELDS.featuresTitle,
     progressTitle: property.progress_title ?? DEFAULT_PROPERTY_FIELDS.progressTitle,
     progressCompletionText:
       property.progress_completion_text ?? DEFAULT_PROPERTY_FIELDS.progressCompletionText,
     locationTitle: property.location_title ?? DEFAULT_PROPERTY_FIELDS.locationTitle,
-    contactTitle: property.contact_title ?? DEFAULT_PROPERTY_FIELDS.contactTitle,
-    contactBody: property.contact_body ?? DEFAULT_PROPERTY_FIELDS.contactBody,
+    contactTitle: property.contact_title ?? (property.type === 'shop' ? DEFAULT_SHANGAN_FIELDS.contactTitle : DEFAULT_PROPERTY_FIELDS.contactTitle),
+    contactBody: property.contact_body ?? (property.type === 'shop' ? DEFAULT_SHANGAN_FIELDS.contactBody : DEFAULT_PROPERTY_FIELDS.contactBody),
     salesPhone: property.sales_phone ?? DEFAULT_PROPERTY_FIELDS.salesPhone,
-    footerDisclaimer: property.footer_disclaimer ?? DEFAULT_PROPERTY_FIELDS.footerDisclaimer,
+    footerDisclaimer: property.footer_disclaimer ?? (property.type === 'shop' ? DEFAULT_SHANGAN_FIELDS.footerDisclaimer : DEFAULT_PROPERTY_FIELDS.footerDisclaimer),
     mapLat: typeof property.map_lat === 'number' ? property.map_lat : DEFAULT_PROPERTY_FIELDS.mapLat,
     mapLng: typeof property.map_lng === 'number' ? property.map_lng : DEFAULT_PROPERTY_FIELDS.mapLng,
     mapZoom: typeof property.map_zoom === 'number' ? property.map_zoom : DEFAULT_PROPERTY_FIELDS.mapZoom,

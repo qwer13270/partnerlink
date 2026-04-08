@@ -17,7 +17,7 @@ export async function POST(
   const admin = getSupabaseAdminClient()
   const { data: application, error: findError } = await admin
     .from('merchant_applications')
-    .select('id,user_id,status,email,company_name,contact_name,phone,city')
+    .select('id,user_id,status,email,company_name,contact_name,phone,city,merchant_type')
     .eq('id', id)
     .single()
 
@@ -72,6 +72,7 @@ export async function POST(
       contact_name: application.contact_name,
       phone: application.phone,
       city: application.city,
+      merchant_type: application.merchant_type ?? null,
       status: 'active',
       updated_at: now,
     }, { onConflict: 'user_id' })

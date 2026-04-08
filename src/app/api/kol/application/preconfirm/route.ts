@@ -12,8 +12,6 @@ type CreateKolApplicationPreconfirmBody = {
   contentType?: unknown
   bio?: unknown
   city?: unknown
-  avgViews?: unknown
-  engagementRate?: unknown
   photos?: unknown
   videos?: unknown
 }
@@ -96,8 +94,6 @@ export async function POST(request: NextRequest) {
     content_type: normalized.contentType,
     bio: normalized.bio,
     city: normalized.city,
-    avg_views: normalized.avgViews,
-    engagement_rate: normalized.engagementRate,
     photos: normalized.photos,
     videos: normalized.videos,
     status: 'pending_email_confirmation' as const,

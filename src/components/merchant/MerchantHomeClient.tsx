@@ -2,8 +2,9 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { ArrowRight, MousePointerClick, Handshake, DoorOpen, BadgeDollarSign } from 'lucide-react'
+import { ArrowRight, MousePointerClick, Handshake, DoorOpen, BadgeDollarSign, Home, Store } from 'lucide-react'
 import type { MerchantHomeData } from '@/app/merchant/home/page'
+import { typeLabel } from '@/lib/merchant-application'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
@@ -19,7 +20,7 @@ function formatDate(iso: string) {
   })
 }
 
-function CustomerStatusBadge({ status }: { status: 'inquiry' | 'visited' | 'deal' }) {
+function CustomerStatusBadge({ status, merchantType }: { status: 'inquiry' | 'visited' | 'deal'; merchantType: string }) {
   if (status === 'deal') return (
     <span className="text-[0.72rem] font-medium px-2 py-0.5 rounded border shrink-0 bg-emerald-50 text-emerald-700 border-emerald-200/60">
       已成交
@@ -27,7 +28,7 @@ function CustomerStatusBadge({ status }: { status: 'inquiry' | 'visited' | 'deal
   )
   if (status === 'visited') return (
     <span className="text-[0.72rem] font-medium px-2 py-0.5 rounded border shrink-0 bg-blue-50 text-blue-600 border-blue-200/60">
-      已看房
+      {merchantType === 'shop' ? '已到訪' : '已看房'}
     </span>
   )
   return (
@@ -37,7 +38,7 @@ function CustomerStatusBadge({ status }: { status: 'inquiry' | 'visited' | 'deal
   )
 }
 
-export default function MerchantHomeClient({ data }: { data: MerchantHomeData }) {
+export default function MerchantHomeClient({ data, merchantType }: { data: MerchantHomeData; merchantType: string }) {
   const { merchantName, stats, recentCustomers, pendingRequests } = data
 
   const today = new Date().toLocaleDateString('zh-TW', {
@@ -49,24 +50,56 @@ export default function MerchantHomeClient({ data }: { data: MerchantHomeData })
 
       {/* ── Header ── */}
       <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
-        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">
+        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">
           {today} · 商家後台
         </p>
+
+        {/* Merchant type classification mark */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.35, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded border text-[0.72rem] font-medium mb-4 select-none"
+          style={merchantType === 'shop'
+            ? { background: 'rgba(13,148,136,0.06)', borderColor: 'rgba(13,148,136,0.18)', color: '#0f766e' }
+            : { background: 'rgba(146,98,50,0.06)', borderColor: 'rgba(146,98,50,0.16)', color: '#7c5430' }
+          }
+        >
+          {merchantType === 'shop'
+            ? <Store className="h-3 w-3" strokeWidth={1.5} />
+            : <Home className="h-3 w-3" strokeWidth={1.5} />
+          }
+          <span>{merchantType === 'shop' ? '商業案場' : '住宅建案'}</span>
+          <span
+            className="font-mono text-[0.6rem] tracking-[0.14em]"
+            style={{ opacity: 0.4 }}
+          >
+            · {merchantType === 'shop' ? 'COMMERCIAL' : 'RESIDENTIAL'}
+          </span>
+        </motion.div>
+
         <h1 className="text-3xl font-serif">歡迎回來，{merchantName}</h1>
-        <p className="text-sm text-muted-foreground mt-2">以下是您目前的商案總覽。</p>
+        <p className="text-sm text-muted-foreground mt-2">以下是您目前的{typeLabel(merchantType)}總覽。</p>
       </motion.div>
 
       {/* ── Stats ── */}
       <motion.div
         custom={1} initial="hidden" animate="visible" variants={fadeUp}
-        className="grid grid-cols-2 md:grid-cols-4 gap-3"
+        className={`grid gap-3 ${merchantType === 'shop' ? 'grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}
       >
-        {([
-          { label: '進行中商案', value: stats.projectCount,   icon: MousePointerClick, color: undefined    },
-          { label: '合作 KOL',   value: stats.activeKolCount, icon: Handshake,          color: undefined    },
-          { label: '本月預約',   value: stats.monthVisits,    icon: DoorOpen,           color: '#2563eb'    },
-          { label: '本月成交',   value: stats.monthDeals,     icon: BadgeDollarSign,    color: '#3a8a5e'    },
-        ] as const).map((stat) => {
+        {(merchantType === 'shop'
+          ? [
+              { label: `進行中${typeLabel(merchantType)}`, value: stats.projectCount,   icon: MousePointerClick, color: undefined   },
+              { label: '合作 KOL',                        value: stats.activeKolCount, icon: Handshake,          color: undefined   },
+              { label: '本月營業額',                      value: stats.monthDeals,     icon: BadgeDollarSign,    color: '#3a8a5e'   },
+            ]
+          : [
+              { label: `進行中${typeLabel(merchantType)}`, value: stats.projectCount,   icon: MousePointerClick, color: undefined   },
+              { label: '合作 KOL',              value: stats.activeKolCount, icon: Handshake,          color: undefined   },
+              { label: '本月預約',              value: stats.monthVisits,    icon: DoorOpen,           color: '#2563eb'   },
+              { label: '本月成交',              value: stats.monthDeals,     icon: BadgeDollarSign,    color: '#3a8a5e'   },
+            ]
+        ).map((stat) => {
           const Icon = stat.icon
           return (
             <div
@@ -145,7 +178,7 @@ export default function MerchantHomeClient({ data }: { data: MerchantHomeData })
               href="/merchant/projects"
               className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors duration-150 group"
             >
-              查看全部商案 <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+              查看全部{typeLabel(merchantType)} <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
         </motion.div>
@@ -153,7 +186,7 @@ export default function MerchantHomeClient({ data }: { data: MerchantHomeData })
         {/* Recent Customers */}
         <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp}>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">近期客戶</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{merchantType === 'shop' ? '近期訂單' : '近期客戶'}</p>
             <span className="text-xs text-muted-foreground">{recentCustomers.length} 筆</span>
           </div>
 
@@ -180,7 +213,7 @@ export default function MerchantHomeClient({ data }: { data: MerchantHomeData })
                       </p>
                       <p className="text-xs text-muted-foreground font-mono mt-0.5">{formatDate(c.submittedAt)}</p>
                     </div>
-                    <CustomerStatusBadge status={c.status} />
+                    <CustomerStatusBadge status={c.status} merchantType={merchantType} />
                   </div>
                 ))}
               </div>
