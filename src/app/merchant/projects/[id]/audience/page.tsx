@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
-import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Upload, FileText, CheckCircle2, Users, MapPin, Banknote, Target, Sparkles } from 'lucide-react'
+import { Upload, FileText, CheckCircle2, Users, MapPin, Banknote, Target, Sparkles } from 'lucide-react'
 import {
   BarChart,
   Bar,
@@ -121,16 +120,6 @@ export default function AudiencePage() {
 
   return (
     <div className="space-y-10 max-w-4xl">
-
-      <motion.div {...fadeUp(0)}>
-        <Link
-          href={`/merchant/projects/${id}`}
-          className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors duration-150"
-        >
-          <ArrowLeft className="w-3 h-3" />
-          返回商案
-        </Link>
-      </motion.div>
 
       <motion.div {...fadeUp(0.05)}>
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">分析客戶</p>

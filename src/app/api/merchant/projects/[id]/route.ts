@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import {
   createDefaultPropertyModules,
+  getModuleDefinition,
   isEnglishSlug,
   parsePublishStatus,
+  PROPERTY_MODULE_REGISTRY,
   type PropertyContentItem,
   type PropertyModule,
+  type PropertyModuleType,
 } from '@/lib/property-template'
 import { getMerchantProjectDetail, toMerchantProjectDetail } from '@/lib/server/properties'
 import { requireApiRole } from '@/lib/server/api-auth'
@@ -317,8 +320,10 @@ function sanitizeModules(modules: PropertyModule[]) {
   const pinned: PropertyModule[] = []
 
   for (const projectModule of source) {
-    const isPinned = projectModule.moduleType === 'contact' || projectModule.moduleType === 'footer'
-    const isSingleton = projectModule.moduleType !== 'image_section'
+    const moduleType = projectModule.moduleType as PropertyModuleType
+    const definition = moduleType in PROPERTY_MODULE_REGISTRY ? getModuleDefinition(moduleType) : null
+    const isPinned = definition?.pinned ?? false
+    const isSingleton = definition ? definition.singleton : projectModule.moduleType !== 'image_section'
 
     if (isSingleton) {
       if (seenSingletons.has(projectModule.moduleType)) continue

@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props) {
   if (dbProperty) {
     return {
       title: `${dbProperty.name} | PartnerLink 夥伴`,
-      description: `${dbProperty.name} - ${dbProperty.template.districtLabel}. ${dbProperty.template.overviewTitle}`,
+      description: `${dbProperty.name} - ${'districtLabel' in dbProperty.template ? dbProperty.template.districtLabel : ''}. ${dbProperty.template.overviewTitle}`,
     }
   }
 
@@ -61,8 +61,8 @@ export default async function PropertyPage({ params, searchParams }: Props) {
   const dbProperty = await getPublishedPropertyBySlug(slug)
   const property = getPropertyBySlug(slug)
 
-  if (dbProperty?.type === '建案') {
-    return <TongchuangWingPage content={dbProperty.template} referrer={ref} />
+  if (dbProperty?.type === 'property') {
+    return <TongchuangWingPage content={dbProperty.template as import('@/lib/property-template').TongchuangTemplateContent} referrer={ref} />
   }
 
   if (!property) {

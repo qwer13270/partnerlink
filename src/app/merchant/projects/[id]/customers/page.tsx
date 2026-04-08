@@ -58,7 +58,7 @@ export default async function CustomersPage({
   // Verify project belongs to this merchant
   const { data: project } = await admin
     .from('projects')
-    .select('id, name')
+    .select('id, name, type')
     .eq('id', projectId)
     .eq('merchant_user_id', user.id)
     .maybeSingle()
@@ -192,6 +192,7 @@ export default async function CustomersPage({
     <CustomersClient
       projectId={projectId}
       projectName={project.name as string}
+      projectType={project.type as string}
       customers={customers}
       activeKols={activeKols}
     />

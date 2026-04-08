@@ -12,15 +12,23 @@ import {
   Users,
   Building2,
   Palette,
+  Store,
+  ShoppingBag,
+  BookOpen,
+  Star,
+  Camera,
+  HelpCircle,
+  Mail,
 } from 'lucide-react'
 import type {
   PropertyContentItem,
   PropertyModule,
   PropertyModuleType,
+  PropertyTemplateKey,
   TongchuangTemplateContent,
 } from '@/lib/property-template'
 
-export type { PropertyContentItem, PropertyModule }
+export type { PropertyContentItem, PropertyModule, PropertyTemplateKey }
 
 // ── Domain types ──────────────────────────────────────────────────────────────
 
@@ -37,9 +45,10 @@ export type ProjectImage = {
 export type ProjectDetail = {
   id: string
   slug: string
+  templateKey: PropertyTemplateKey
   name: string
   publishStatus: 'draft' | 'published'
-  collabDescription: string
+  collabDescription: string | null
   subtitle: string
   districtLabel: string
   completionBadge: string
@@ -105,6 +114,15 @@ export const MODULE_META: Record<PropertyModuleType, ModuleMeta> = {
   team:            { label: '團隊介紹', desc: '4–5 位核心團隊成員介紹',     Icon: Users          },
   indoor_commons:  { label: '室內公社', desc: '建築內部設施照片集',           Icon: Building2      },
   color_theme:     { label: '頁面顏色', desc: '選擇整體色彩風格',             Icon: Palette        },
+  // 商案 modules
+  shop_hero:     { label: '店頭主視覺', desc: '品牌名稱、標語與主圖',           Icon: Store       },
+  shop_products: { label: '商品列表',   desc: '商品名稱、價格與購買連結',         Icon: ShoppingBag },
+  shop_about:    { label: '品牌故事',   desc: '品牌介紹與理念文案',               Icon: BookOpen    },
+  shop_features: { label: '品牌特色',   desc: '特色賣點條列',                     Icon: Star        },
+  shop_gallery:  { label: '相簿',       desc: '品牌或商品照片集',                 Icon: Camera      },
+  shop_faq:      { label: '常見問題',   desc: '常見 Q&A 折疊清單',               Icon: HelpCircle  },
+  shop_contact:  { label: '聯絡資訊',   desc: '聯絡方式與社群連結',               Icon: Mail        },
+  shop_footer:   { label: '頁尾',       desc: '頁尾與版權聲明',                   Icon: PanelBottom },
 }
 
 // ── Image slot labels (used in alt text and edit UI) ─────────────────────────

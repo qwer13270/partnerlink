@@ -164,12 +164,25 @@ function PendingCard({
             )}
           </div>
         ) : (
-          req.commission_rate != null && (
-            <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-stone-100 border border-foreground/[0.07]">
-              <span className="text-[0.65rem] uppercase tracking-[0.35em] text-muted-foreground">佣金比例</span>
-              <span className="font-serif text-sm text-foreground">{req.commission_rate}%</span>
-            </div>
-          )
+          <div className="mb-3 space-y-2">
+            {req.commission_rate != null && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-stone-100 border border-foreground/[0.07]">
+                <span className="text-[0.65rem] uppercase tracking-[0.35em] text-muted-foreground">佣金比例</span>
+                <span className="font-serif text-sm text-foreground">{req.commission_rate}%</span>
+              </div>
+            )}
+            {req.collab_description && (
+              <div className="rounded-lg border border-foreground/[0.08] bg-stone-100/80 overflow-hidden">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-foreground/[0.06]">
+                  <div className="h-2.5 w-px rounded-full bg-amber-400" />
+                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-muted-foreground">合作說明</span>
+                </div>
+                <p className="px-3 py-2.5 text-xs text-foreground/80 leading-relaxed">
+                  {req.collab_description}
+                </p>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Message */}

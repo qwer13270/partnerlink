@@ -16,8 +16,6 @@ type CreateKolApplicationBody = {
   contentType?: unknown
   bio?: unknown
   city?: unknown
-  avgViews?: unknown
-  engagementRate?: unknown
   photos?: unknown
   videos?: unknown
 }
@@ -83,8 +81,6 @@ export async function POST(request: NextRequest) {
   const contentType = typeof body.contentType === 'string' ? body.contentType.trim() : null
   const bio = typeof body.bio === 'string' ? body.bio.trim() : ''
   const city = typeof body.city === 'string' ? body.city.trim() : null
-  const avgViews = typeof body.avgViews === 'string' ? body.avgViews.trim() : null
-  const engagementRate = typeof body.engagementRate === 'string' ? body.engagementRate.trim() : null
   const photos = toStringArray(body.photos, 6)
   const videos = toVideos(body.videos)
 
@@ -120,8 +116,6 @@ export async function POST(request: NextRequest) {
     content_type: contentType,
     bio,
     city,
-    avg_views: avgViews,
-    engagement_rate: engagementRate,
     photos,
     videos,
     status: 'pending_admin_review' as const,

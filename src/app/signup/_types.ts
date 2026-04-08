@@ -12,6 +12,9 @@ export type KolSignupDraft = {
   bio: string
 }
 
+import type { MerchantType } from '@/lib/merchant-application'
+export type { MerchantType }
+
 export type MerchantSignupDraft = {
   companyName: string
   contactName: string
@@ -20,4 +23,5 @@ export type MerchantSignupDraft = {
   password: string
   city: string
   projectCount: string
+  merchantType: MerchantType
 }

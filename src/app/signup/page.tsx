@@ -9,12 +9,13 @@ import { X } from 'lucide-react'
 import { resolveRoleHomePath } from '@/lib/auth'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 import { LEFT_CONTENT } from './_constants'
-import type { Role, Step, KolSignupDraft, MerchantSignupDraft } from './_types'
+import type { Role, Step, KolSignupDraft, MerchantSignupDraft, MerchantType } from './_types'
 import { StepDots }     from './_components/StepDots'
 import { RoleStep }     from './_components/RoleStep'
 import { KolForm }      from './_components/KolForm'
 import { KolPlatformAccountsStep } from './_components/KolPlatformAccountsStep'
 import { MerchantForm } from './_components/MerchantForm'
+import { MerchantTypeStep } from './_components/MerchantTypeStep'
 
 
 export default function OnboardingPage() {
@@ -22,11 +23,12 @@ export default function OnboardingPage() {
   const t = strings.signup
   const [step, setStep] = useState<Step>(1)
   const [role, setRole] = useState<Role>(null)
+  const [merchantType, setMerchantType] = useState<MerchantType | null>(null)
   const [kolData, setKolData] = useState<KolSignupDraft | null>(null)
   const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const totalSteps = role === 'kol' ? 3 : 2
+  const totalSteps = 3
 
   const selectRole = (r: Role) => {
     setSubmitError('')
@@ -40,8 +42,14 @@ export default function OnboardingPage() {
       setStep(2)
     } else {
       setRole(null)
+      setMerchantType(null)
       setStep(1)
     }
+  }
+
+  const handleMerchantTypeSelect = (type: MerchantType) => {
+    setMerchantType(type)
+    setStep(3)
   }
 
   const handleKolNext = (data: KolSignupDraft) => {
@@ -107,6 +115,7 @@ export default function OnboardingPage() {
             phone: merchantData.phone,
             city: merchantData.city,
             projectCount: merchantData.projectCount,
+            merchantType: merchantData.merchantType,
           }),
         })
         if (!preconfirmRes.ok) {
@@ -299,7 +308,16 @@ export default function OnboardingPage() {
                 />
               )}
               {step === 2 && role === 'merchant' && (
-                <MerchantForm onBack={goBack} onSubmit={handleMerchantSubmit} error={submitError} submitting={submitting} />
+                <MerchantTypeStep onBack={goBack} onSelect={handleMerchantTypeSelect} />
+              )}
+              {step === 3 && role === 'merchant' && merchantType && (
+                <MerchantForm
+                  onBack={goBack}
+                  onSubmit={handleMerchantSubmit}
+                  error={submitError}
+                  submitting={submitting}
+                  merchantType={merchantType}
+                />
               )}
             </AnimatePresence>
           </div>

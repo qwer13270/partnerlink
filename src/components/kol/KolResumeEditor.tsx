@@ -594,23 +594,17 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
   // ── Profile photo state ──────────────────────────────────────────────────
   const [photoUrl,     setPhotoUrl]     = useState<string | null>(resume.profilePhotoUrl ?? null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
-  const [photoFile,    setPhotoFile]    = useState<File | null>(null)
   const [photoSaving,  setPhotoSaving]  = useState(false)
   const [photoSuccess, setPhotoSuccess] = useState(false)
   const [photoError,   setPhotoError]   = useState('')
   const photoInputRef = useRef<HTMLInputElement>(null)
 
-  const handlePhotoChange = (file: File) => {
-    setPhotoFile(file)
-    setPhotoPreview(URL.createObjectURL(file))
+  const handlePhotoChange = async (file: File) => {
+    const preview = URL.createObjectURL(file)
+    setPhotoPreview(preview)
     setPhotoError('')
     setPhotoSuccess(false)
-  }
-
-  const handlePhotoSave = async () => {
-    if (!photoFile) return
     setPhotoSaving(true)
-    setPhotoError('')
     try {
       const profileRes  = await fetch('/api/kol/profile')
       const profileData = (await profileRes.json().catch(() => null)) as { profile?: { bio?: string } } | null
@@ -618,7 +612,7 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
 
       const formData = new FormData()
       formData.append('bio', currentBio)
-      formData.append('profilePhoto', photoFile)
+      formData.append('profilePhoto', file)
 
       const res     = await fetch('/api/kol/profile', { method: 'PUT', body: formData })
       const payload = (await res.json().catch(() => null)) as { profile?: { profilePhotoUrl?: string | null }; error?: string } | null
@@ -628,7 +622,6 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
       const newUrl = payload?.profile?.profilePhotoUrl ?? null
       setPhotoUrl(newUrl)
       setPhotoPreview(null)
-      setPhotoFile(null)
       setPhotoSuccess(true)
       window.dispatchEvent(new CustomEvent('profile-photo-updated', { detail: { url: newUrl } }))
       router.refresh()
@@ -883,16 +876,21 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
 
                       {/* Actions */}
                       <div className="flex-1 min-w-0 space-y-2">
-                        <label className="group flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-foreground/20 px-3 py-2.5 transition-all hover:border-foreground/40 hover:bg-foreground/[0.02]">
-                          <Camera className="h-3.5 w-3.5 shrink-0 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        <label className={`group flex cursor-pointer items-center gap-2 rounded-md border border-dashed px-3 py-2.5 transition-all ${photoSaving ? 'pointer-events-none border-foreground/20 opacity-60' : 'border-foreground/20 hover:border-foreground/40 hover:bg-foreground/[0.02]'}`}>
+                          {photoSaving ? (
+                            <LoaderCircle className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
+                          ) : (
+                            <Camera className="h-3.5 w-3.5 shrink-0 text-muted-foreground group-hover:text-foreground transition-colors" />
+                          )}
                           <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-                            {photoPreview ? '重新選擇' : (photoUrl ? '更換頭像' : '上傳頭像')}
+                            {photoSaving ? '上傳中…' : (photoUrl ? '更換頭像' : '上傳頭像')}
                           </span>
                           <input
                             ref={photoInputRef}
                             type="file"
                             accept="image/*"
                             className="hidden"
+                            disabled={photoSaving}
                             onChange={(e) => {
                               const f = e.target.files?.[0]
                               if (f) handlePhotoChange(f)
@@ -900,23 +898,6 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                             }}
                           />
                         </label>
-
-                        {photoPreview && (
-                          <button
-                            type="button"
-                            onClick={handlePhotoSave}
-                            disabled={photoSaving || photoSuccess}
-                            className="flex w-full items-center justify-center gap-2 rounded-md bg-foreground px-3 py-2 text-xs uppercase tracking-[0.2em] text-background transition-opacity hover:bg-foreground/85 disabled:opacity-40"
-                          >
-                            {photoSaving ? (
-                              <><LoaderCircle className="h-3 w-3 animate-spin" />上傳中…</>
-                            ) : photoSuccess ? (
-                              <><CheckCircle2 className="h-3 w-3" />已更新</>
-                            ) : (
-                              '確認上傳'
-                            )}
-                          </button>
-                        )}
 
                         {photoError && (
                           <p className="text-xs text-red-600">{photoError}</p>

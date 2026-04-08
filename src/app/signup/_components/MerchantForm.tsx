@@ -4,18 +4,20 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { slideIn, fadeUp, CITIES, PROJECT_COUNTS } from '../_constants'
-import type { MerchantSignupDraft } from '../_types'
+import type { MerchantSignupDraft, MerchantType } from '../_types'
 
 export function MerchantForm({
   onBack,
   onSubmit,
   error,
   submitting,
+  merchantType,
 }: {
   onBack: () => void
   onSubmit: (input: MerchantSignupDraft) => void
   error: string
   submitting: boolean
+  merchantType: MerchantType
 }) {
   const [showPassword, setShowPassword] = useState(false)
   const [password, setPassword] = useState('')
@@ -35,6 +37,7 @@ export function MerchantForm({
       password: String(formData.get('password') ?? ''),
       city,
       projectCount,
+      merchantType,
     })
   }
 
@@ -44,8 +47,13 @@ export function MerchantForm({
         <button onClick={onBack} className="flex items-center gap-2 text-xs text-[#6B6560] hover:text-[#1A1A1A] transition-colors mb-4">
           <span className="rotate-180 inline-block">→</span> 返回
         </button>
-        <h2 className="text-3xl font-serif text-[#1A1A1A] mb-1">建立商家帳號</h2>
-        <p className="text-sm text-[#6B6560]">填寫公司資料，審核通過即可刊登商案</p>
+        <div className="flex items-center gap-3 mb-1">
+          <h2 className="text-3xl font-serif text-[#1A1A1A]">建立商家帳號</h2>
+          <span className="text-xs uppercase tracking-widest border border-[#1A1A1A] px-2 py-0.5 text-[#1A1A1A]">
+            {merchantType}
+          </span>
+        </div>
+        <p className="text-sm text-[#6B6560]">填寫公司資料，審核通過即可刊登{merchantType}</p>
       </motion.div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -100,7 +108,7 @@ export function MerchantForm({
         {/* City + Project count */}
         <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp} className="grid grid-cols-2 gap-4">
           <div>
-            <label className="label-editorial">商案所在縣市</label>
+            <label className="label-editorial">{merchantType}所在縣市</label>
             <select
               value={city} onChange={(e) => setCity(e.target.value)}
               className="input-editorial text-sm appearance-none bg-transparent cursor-pointer"
@@ -110,7 +118,7 @@ export function MerchantForm({
             </select>
           </div>
           <div>
-            <label className="label-editorial">預計合作商案數</label>
+            <label className="label-editorial">預計{merchantType === 'property' ? '建案' : '商案'}數</label>
             <select
               value={projectCount} onChange={(e) => setProjectCount(e.target.value)}
               className="input-editorial text-sm appearance-none bg-transparent cursor-pointer"

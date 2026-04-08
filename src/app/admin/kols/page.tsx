@@ -25,12 +25,12 @@ type KolRecord = {
   content_type: string | null
   bio: string | null
   city: string | null
-  avg_views: string | null
-  engagement_rate: string | null
   profile_photo_url: string
   reviewed_at: string | null
   activeProjects: number
   archivedProjects: number
+  propertyProjects: number
+  shopProjects: number
   totalClicks: number
   totalConversions: number
 }
@@ -56,8 +56,6 @@ function KolRow({ kol, index }: { kol: KolRecord; index: number }) {
   const platformDisplay = kol.platforms.length > 0
     ? kol.platforms.join(' / ')
     : '未填寫平台'
-
-  const totalProjects = safeNum(kol.activeProjects) + safeNum(kol.archivedProjects)
 
   return (
     <motion.div
@@ -99,8 +97,12 @@ function KolRow({ kol, index }: { kol: KolRecord; index: number }) {
         {/* Inline stats */}
         <div className="hidden md:flex items-center gap-5 shrink-0 mr-2">
           <div className="text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">商案數</p>
-            <p className="text-sm font-serif mt-0.5">{totalProjects}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">建案</p>
+            <p className="text-sm font-serif mt-0.5">{safeNum(kol.propertyProjects)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">商案</p>
+            <p className="text-sm font-serif mt-0.5">{safeNum(kol.shopProjects)}</p>
           </div>
           <div className="text-center">
             <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">轉換率</p>
@@ -165,22 +167,20 @@ function KolRow({ kol, index }: { kol: KolRecord; index: number }) {
               )}
 
               {/* Stats zone */}
-              <div className={`px-6 pb-7 grid grid-cols-3 gap-3 ${(kol.bio || kol.platforms.length > 0) ? 'pt-4 border-t border-foreground/[0.05]' : 'pt-7'}`}>
+              <div className={`px-6 pb-7 grid grid-cols-4 gap-3 ${(kol.bio || kol.platforms.length > 0) ? 'pt-4 border-t border-foreground/[0.05]' : 'pt-7'}`}>
+
+                {/* 總合作建案 */}
+                <div className="rounded-lg border border-foreground/[0.08] bg-background px-4 py-3">
+                  <p className="text-[0.62rem] uppercase tracking-[0.28em] text-muted-foreground mb-3">總合作建案</p>
+                  <p className="text-2xl font-serif text-foreground/80 leading-none mb-2.5">{safeNum(kol.propertyProjects)}</p>
+                  <p className="text-[0.62rem] text-foreground/30">住宅建案</p>
+                </div>
 
                 {/* 總合作商案 */}
                 <div className="rounded-lg border border-foreground/[0.08] bg-background px-4 py-3">
                   <p className="text-[0.62rem] uppercase tracking-[0.28em] text-muted-foreground mb-3">總合作商案</p>
-                  <p className="text-2xl font-serif text-foreground/80 leading-none mb-2.5">{totalProjects}</p>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="inline-flex items-center gap-1 text-[0.67rem] font-medium px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/50">
-                      <span className="w-1 h-1 rounded-full bg-emerald-500 shrink-0" />
-                      {safeNum(kol.activeProjects)} 進行中
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[0.67rem] font-medium px-1.5 py-0.5 rounded bg-foreground/[0.03] text-foreground/40 border border-foreground/[0.07]">
-                      <span className="w-1 h-1 rounded-full bg-foreground/20 shrink-0" />
-                      {safeNum(kol.archivedProjects)} 已封存
-                    </span>
-                  </div>
+                  <p className="text-2xl font-serif text-foreground/80 leading-none mb-2.5">{safeNum(kol.shopProjects)}</p>
+                  <p className="text-[0.62rem] text-foreground/30">商業案場</p>
                 </div>
 
                 {/* 粉絲人數 */}

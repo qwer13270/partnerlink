@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   type ProfileRow = {
     id: string; user_id: string; company_name: string
     contact_name: string | null; phone: string | null; city: string | null
-    status: string; created_at: string
+    status: string; created_at: string; merchant_type: string | null
   }
   type PropertyRow = {
     id: string; merchant_user_id: string; name: string; slug: string
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   const [{ data: profiles }, { data: allProps }] = await Promise.all([
     admin
       .from('merchant_profiles')
-      .select('id,user_id,company_name,contact_name,phone,city,status,created_at')
+      .select('id,user_id,company_name,contact_name,phone,city,status,created_at,merchant_type')
       .order('created_at', { ascending: false }),
     admin
       .from('projects')
@@ -98,6 +98,7 @@ export async function GET(request: NextRequest) {
       city:            m.city,
       status:          m.status,
       createdAt:       m.created_at,
+      merchantType:    m.merchant_type,
       activeProjects:  mProps.filter((p) => !p.is_archived).length,
       archivedProjects: mProps.filter((p) => p.is_archived).length,
       totalDealValue:  merchantDealTotal(m.user_id),

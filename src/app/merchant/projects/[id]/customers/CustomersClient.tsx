@@ -4,12 +4,13 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  ArrowLeft, CheckCircle2, X, ChevronDown,
+  CheckCircle2, X, ChevronDown,
   Users, BadgeCheck, TrendingUp, Link2,
   Phone, Mail, MessageSquare, CircleDot, DoorOpen,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Customer, ActiveKol } from './page'
+import { typeLabel } from '@/lib/merchant-application'
 
 // ── Animation ──────────────────────────────────────────────────────────────
 const fadeUp = (delay = 0) => ({
@@ -406,11 +407,13 @@ function ConfirmDealModal({
 export default function CustomersClient({
   projectId,
   projectName,
+  projectType,
   customers: initialCustomers,
   activeKols,
 }: {
   projectId: string
   projectName: string
+  projectType: string
   customers: Customer[]
   activeKols: ActiveKol[]
 }) {
@@ -459,17 +462,6 @@ export default function CustomersClient({
 
   return (
     <div className="space-y-8 max-w-4xl">
-
-      {/* ── Back ── */}
-      <motion.div {...fadeUp(0)}>
-        <Link
-          href={`/merchant/projects/${projectId}`}
-          className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors duration-150"
-        >
-          <ArrowLeft className="w-3 h-3" />
-          返回商案
-        </Link>
-      </motion.div>
 
       {/* ── Header ── */}
       <motion.div {...fadeUp(0.05)}>

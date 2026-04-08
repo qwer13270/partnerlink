@@ -7,6 +7,9 @@ import { Plus, X, ArrowUpRight, Trash2, Archive } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { pinyin } from 'pinyin-pro'
+import type { MerchantType } from '@/lib/merchant-application'
+import { typeLabel } from '@/lib/merchant-application'
+import { useMerchantType } from '@/hooks/useMerchantType'
 
 // ── Types ───────────────────────────────────────────────────────────────────
 type ProjectSummary = {
@@ -60,16 +63,9 @@ function clientSlugify(value: string) {
 }
 
 // ── Create modal ─────────────────────────────────────────────────────────────
-type TemplateKey = '建案' | '商案'
-type SlugStatus  = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
+type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
 
-const TEMPLATES: { key: TemplateKey; label: string; sub: string; num: string }[] = [
-  { key: '建案', label: '建案模板', sub: '住宅 · 建案', num: '01' },
-  { key: '商案', label: '商案模板', sub: '商業 · 地產', num: '02' },
-]
-
-function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
-  const [template, setTemplate]     = useState<TemplateKey>('建案')
+function CreateModal({ onClose, onCreated, merchantType }: { onClose: () => void; onCreated: (id: string) => void; merchantType: MerchantType }) {
   const [name, setName]             = useState('')
   const [slug, setSlug]             = useState('')
   const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle')
@@ -100,12 +96,12 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
     setCreating(true)
     const r = await fetch('/api/merchant/projects', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name.trim(), slug, type: template }),
+      body: JSON.stringify({ name: name.trim(), slug, type: merchantType }),
     })
     const d = await r.json() as { project?: { id: string }; error?: string }
     setCreating(false)
     if (!r.ok || !d.project?.id) { if (r.status === 409) { setSlugStatus('taken'); return }; toast.error(d.error ?? '建立失敗'); return }
-    toast.success('已建立新商案')
+    toast.success(`已建立新${typeLabel(merchantType ?? 'shop')}`)
     onCreated(d.project.id)
   }
 
@@ -128,7 +124,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
           <div className="flex items-start justify-between px-8 pt-7 pb-5 border-b border-foreground/10">
             <div>
               <p className="text-[0.6rem] font-mono uppercase tracking-[0.5em] text-muted-foreground/60 mb-1">新增</p>
-              <h2 className="text-xl font-serif font-light">建立商案</h2>
+              <h2 className="text-xl font-serif font-light">建立{typeLabel(merchantType ?? 'shop')}</h2>
             </div>
             <button type="button" onClick={onClose} className="mt-1 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-black/[0.06] transition-all duration-150">
               <X className="h-4 w-4" />
@@ -136,36 +132,10 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
           </div>
 
           <div className="px-8 py-6 space-y-7">
-            {/* Template */}
-            <div>
-              <p className="text-[0.6rem] font-mono uppercase tracking-[0.5em] text-muted-foreground/60 mb-3">選擇模板</p>
-              <div className="grid grid-cols-2 gap-3">
-                {TEMPLATES.map(opt => {
-                  const sel = template === opt.key
-                  return (
-                    <button key={opt.key} type="button" onClick={() => setTemplate(opt.key)}
-                      className={`flex flex-col justify-between p-5 h-44 rounded-xl border text-left transition-all duration-150 ${
-                        sel ? 'bg-foreground text-background border-foreground' : 'bg-linen border-foreground/[0.08] hover:border-foreground/30 hover:shadow-sm'
-                      }`}>
-                      <span className={`font-mono text-[0.65rem] tracking-[0.3em] self-end ${sel ? 'text-background/35' : 'text-muted-foreground/40'}`}>{opt.num}</span>
-                      {opt.key === '建案'
-                        ? <ResidentialIcon className={`h-10 w-10 ${sel ? 'text-background' : 'text-foreground/55'}`} />
-                        : <CommercialIcon  className={`h-10 w-10 ${sel ? 'text-background' : 'text-foreground/55'}`} />
-                      }
-                      <div>
-                        <p className="font-serif text-[0.95rem] leading-none mb-1.5">{opt.label}</p>
-                        <p className={`text-[0.65rem] font-mono uppercase tracking-[0.2em] ${sel ? 'text-background/50' : 'text-muted-foreground'}`}>{opt.sub}</p>
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
             {/* Name */}
             <div>
-              <label className="block text-[0.6rem] font-mono uppercase tracking-[0.5em] text-muted-foreground/60 mb-2">商案名稱</label>
-              <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="例：信義苑 A 棟"
+              <label className="block text-[0.6rem] font-mono uppercase tracking-[0.5em] text-muted-foreground/60 mb-2">{typeLabel(merchantType ?? 'shop')}名稱</label>
+              <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder={merchantType === 'shop' ? '例：信義路旗艦店' : '例：信義苑 A 棟'}
                 className="w-full rounded-lg border border-foreground/[0.12] bg-linen px-4 py-3 text-sm font-serif placeholder:text-muted-foreground/30 focus:border-foreground/40 focus:outline-none transition-colors" />
             </div>
 
@@ -175,7 +145,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
               <div className={`flex rounded-lg border overflow-hidden transition-colors ${
                 slugStatus === 'available' ? 'border-emerald-400/60' : slugStatus === 'taken' || slugStatus === 'invalid' ? 'border-red-400/50' : 'border-foreground/[0.12] focus-within:border-foreground/40'
               }`}>
-                <span className="flex items-center bg-foreground/[0.03] border-r border-foreground/10 px-3 text-[0.7rem] font-mono text-muted-foreground/50 whitespace-nowrap select-none">/properties/</span>
+                <span className="flex items-center bg-foreground/[0.03] border-r border-foreground/10 px-3 text-[0.7rem] font-mono text-muted-foreground/50 whitespace-nowrap select-none">{merchantType === 'shop' ? '/shops/' : '/properties/'}</span>
                 <input type="text" value={slug} onChange={e => { slugTouched.current = true; setSlug(e.target.value) }}
                   placeholder="project-slug" spellCheck={false}
                   className="flex-1 min-w-0 bg-linen px-3 py-3 text-sm font-mono placeholder:text-muted-foreground/30 focus:outline-none" />
@@ -200,7 +170,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
             </button>
             <button type="button" onClick={handleSubmit} disabled={!canSubmit}
               className="rounded-lg bg-foreground text-background font-medium text-[0.78rem] px-5 py-2.5 hover:bg-foreground/88 active:scale-[0.97] transition-all duration-150 disabled:opacity-25 disabled:cursor-not-allowed">
-              {creating ? '建立中…' : '建立商案'}
+              {creating ? '建立中…' : `建立${typeLabel(merchantType ?? 'shop')}`}
             </button>
           </div>
         </motion.div>
@@ -210,7 +180,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
 }
 
 // ── Empty state ───────────────────────────────────────────────────────────────
-function EmptyState({ onNew }: { onNew: () => void }) {
+function EmptyState({ onNew, merchantType }: { onNew: () => void; merchantType: MerchantType }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -219,24 +189,26 @@ function EmptyState({ onNew }: { onNew: () => void }) {
       className="flex flex-col items-center justify-center py-24 text-center"
     >
       <div className="flex items-end gap-10 mb-12 opacity-[0.15]">
-        <ResidentialIcon className="h-28 w-28 text-foreground" />
-        <CommercialIcon  className="h-24 w-24 text-foreground" />
+        {merchantType === 'property'
+          ? <ResidentialIcon className="h-28 w-28 text-foreground" />
+          : <CommercialIcon  className="h-28 w-28 text-foreground" />
+        }
       </div>
       <p className="text-[0.62rem] font-mono uppercase tracking-[0.55em] text-muted-foreground/40 mb-4">
         GET STARTED
       </p>
       <h2 className="text-2xl font-serif font-light text-foreground mb-3">
-        建立您的第一個商案
+        建立您的第一個{typeLabel(merchantType ?? 'shop')}
       </h2>
       <p className="text-sm text-muted-foreground/60 mb-10 max-w-xs leading-relaxed">
-        選擇建案或商案模板，開始行銷您的物件、連結 KOL，追蹤客戶詢問。
+        開始行銷您的物件、連結 KOL，追蹤客戶詢問。
       </p>
       <button
         onClick={onNew}
         className="rounded-lg bg-foreground text-background font-medium text-[0.78rem] px-5 py-2.5 inline-flex items-center gap-2 hover:bg-foreground/88 active:scale-[0.97] transition-all duration-150"
       >
         <Plus className="h-3.5 w-3.5" />
-        建立商案
+        建立{typeLabel(merchantType ?? 'shop')}
       </button>
     </motion.div>
   )
@@ -244,7 +216,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
 
 // ── Project card ───────────────────────────────────────────────────────────────
 function ProjectCard({ project, index, onDelete }: { project: ProjectSummary; index: number; onDelete: (p: ProjectSummary) => void }) {
-  const isResidential = project.type === '建案'
+  const isResidential = project.type === 'property'
   const updatedDate   = new Date(project.updatedAt).toLocaleDateString('zh-TW', { month: 'long', day: 'numeric' })
   const published     = project.publishStatus === 'published'
 
@@ -299,7 +271,7 @@ function ProjectCard({ project, index, onDelete }: { project: ProjectSummary; in
       <button
         onClick={(e) => { e.preventDefault(); onDelete(project) }}
         className="absolute top-3 right-3 p-1.5 rounded-lg text-muted-foreground/30 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover/card:opacity-100 transition-all duration-150 z-10"
-        aria-label="刪除商案"
+        aria-label={`刪除${typeLabel(project.type)}`}
       >
         <Trash2 className="h-3.5 w-3.5" />
       </button>
@@ -341,7 +313,7 @@ function DeleteModal({ project, onClose, onDeleted }: { project: ProjectSummary;
               <Trash2 className="h-4 w-4 text-red-500" />
             </div>
             <div>
-              <p className="text-sm font-medium">刪除商案</p>
+              <p className="text-sm font-medium">刪除{typeLabel(project.type)}</p>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
                 確定要刪除「{project.name}」？媒體檔案將刪除，所有客戶與佣金紀錄將保留。
               </p>
@@ -373,7 +345,7 @@ function DeleteModal({ project, onClose, onDeleted }: { project: ProjectSummary;
 
 // ── Archived project card ─────────────────────────────────────────────────────
 function ArchivedProjectCard({ project, index }: { project: ArchivedProjectSummary; index: number }) {
-  const isResidential = project.type === '建案'
+  const isResidential = project.type === 'property'
   const archivedDate  = new Date(project.archivedAt).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
@@ -424,7 +396,7 @@ function ArchivedProjectCard({ project, index }: { project: ArchivedProjectSumma
 }
 
 // ── Archived empty state ──────────────────────────────────────────────────────
-function ArchivedEmptyState() {
+function ArchivedEmptyState({ merchantType }: { merchantType: MerchantType }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -439,10 +411,10 @@ function ArchivedEmptyState() {
         ARCHIVE
       </p>
       <h2 className="text-xl font-serif font-light text-foreground mb-3">
-        沒有已封存的商案
+        沒有已封存的{typeLabel(merchantType ?? 'shop')}
       </h2>
       <p className="text-sm text-muted-foreground/50 max-w-xs leading-relaxed">
-        封存的商案會保留所有客戶與佣金紀錄，並顯示於此處。
+        封存的{typeLabel(merchantType ?? 'shop')}會保留所有客戶與佣金紀錄，並顯示於此處。
       </p>
     </motion.div>
   )
@@ -474,6 +446,8 @@ function CardSkeleton({ index }: { index: number }) {
 export default function MerchantProjectsPage() {
   const router = useRouter()
   const [tab, setTab] = useState<'active' | 'archived'>('active')
+
+  const merchantType = useMerchantType()
 
   const [projects, setProjects]             = useState<ProjectSummary[]>([])
   const [loadingActive, setLoadingActive]   = useState(true)
@@ -540,7 +514,7 @@ export default function MerchantProjectsPage() {
           </p>
           <div className="flex items-end justify-between gap-4">
             <h1 className="font-serif font-light" style={{ fontSize: 'clamp(28px, 4vw, 38px)', lineHeight: 1.1 }}>
-              商案管理
+              {typeLabel(merchantType ?? 'shop')}管理
             </h1>
             {tab === 'active' && (
               <button
@@ -548,7 +522,7 @@ export default function MerchantProjectsPage() {
                 className="rounded-lg bg-foreground text-background font-medium text-[0.78rem] px-4 py-2.5 inline-flex items-center gap-2 hover:bg-foreground/88 active:scale-[0.97] transition-all duration-150 shrink-0 mb-0.5"
               >
                 <Plus className="h-3.5 w-3.5" />
-                新增商案
+                新增{typeLabel(merchantType ?? 'shop')}
               </button>
             )}
           </div>
@@ -599,7 +573,7 @@ export default function MerchantProjectsPage() {
                   {[0, 1, 2, 3].map(i => <CardSkeleton key={i} index={i} />)}
                 </div>
               ) : projects.length === 0 ? (
-                <EmptyState onNew={() => setShowModal(true)} />
+                <EmptyState onNew={() => setShowModal(true)} merchantType={merchantType ?? 'property'} />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {projects.map((p, i) => (
@@ -619,7 +593,7 @@ export default function MerchantProjectsPage() {
                   {[0, 1, 2].map(i => <CardSkeleton key={i} index={i} />)}
                 </div>
               ) : archived.length === 0 ? (
-                <ArchivedEmptyState />
+                <ArchivedEmptyState merchantType={merchantType ?? 'property'} />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {archived.map((p, i) => (
@@ -635,8 +609,8 @@ export default function MerchantProjectsPage() {
 
       {/* ── Modals ── */}
       <AnimatePresence>
-        {showModal && (
-          <CreateModal onClose={() => setShowModal(false)} onCreated={handleCreated} />
+        {showModal && merchantType && (
+          <CreateModal onClose={() => setShowModal(false)} onCreated={handleCreated} merchantType={merchantType} />
         )}
         {deleteTarget && (
           <DeleteModal

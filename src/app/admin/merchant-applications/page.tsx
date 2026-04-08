@@ -14,6 +14,11 @@ const fadeUp = {
 
 type ReviewStatus = 'pending_admin_review' | 'denied'
 
+const MERCHANT_TYPE_LABEL: Record<string, string> = {
+  property: '地產',
+  shop:     '商店',
+}
+
 type Application = {
   id: string
   email: string
@@ -25,6 +30,7 @@ type Application = {
   appliedDate: string
   reviewedAt: string
   rejectionReason: string
+  merchantType: string | null
 }
 
 type ApiApplication = {
@@ -40,6 +46,7 @@ type ApiApplication = {
   reviewed_at: string | null
   rejection_reason: string | null
   status: ReviewStatus
+  merchant_type: string | null
 }
 
 function formatDate(value: string) {
@@ -58,6 +65,7 @@ function toViewModel(row: ApiApplication): Application {
     appliedDate:     row.submitted_at ? row.submitted_at.slice(0, 10) : '',
     reviewedAt:      row.reviewed_at  ? row.reviewed_at.slice(0, 10)  : '',
     rejectionReason: row.rejection_reason || '',
+    merchantType:    row.merchant_type ?? null,
   }
 }
 
@@ -254,7 +262,18 @@ export default function AdminMerchantApplicationsPage() {
                             {app.company.slice(0, 1)}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <p className={`truncate text-sm ${isActive ? 'text-background' : 'text-foreground'}`}>{app.company}</p>
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <p className={`truncate text-sm ${isActive ? 'text-background' : 'text-foreground'}`}>{app.company}</p>
+                              {app.merchantType && (
+                                <span className={`shrink-0 text-[0.6rem] tracking-[0.2em] border px-1 py-px ${
+                                  isActive
+                                    ? 'border-background/20 text-background/50'
+                                    : 'border-foreground/10 bg-foreground/[0.04] text-foreground/40'
+                                }`}>
+                                  {MERCHANT_TYPE_LABEL[app.merchantType] ?? app.merchantType}
+                                </span>
+                              )}
+                            </div>
                             <p className={`mt-0.5 truncate text-xs ${isActive ? 'text-background/55' : 'text-muted-foreground'}`}>
                               {app.contact} · {app.city}
                             </p>
@@ -287,7 +306,14 @@ export default function AdminMerchantApplicationsPage() {
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div>
-                              <h2 className="text-xl font-serif">{active.company}</h2>
+                              <div className="flex items-center gap-2">
+                                <h2 className="text-xl font-serif">{active.company}</h2>
+                                {active.merchantType && (
+                                  <span className="text-[0.67rem] tracking-[0.2em] border border-foreground/10 bg-foreground/[0.04] text-foreground/50 px-1.5 py-px">
+                                    {MERCHANT_TYPE_LABEL[active.merchantType] ?? active.merchantType}
+                                  </span>
+                                )}
+                              </div>
                               <p className="mt-0.5 text-xs text-muted-foreground">{active.contact}</p>
                             </div>
                             <span className="text-[0.72rem] font-medium px-2 py-0.5 rounded border bg-zinc-100 text-zinc-500 border-zinc-200/60 shrink-0">

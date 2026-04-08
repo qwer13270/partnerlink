@@ -10,6 +10,7 @@ type CreateMerchantApplicationPreconfirmBody = {
   phone?: unknown
   city?: unknown
   projectCount?: unknown
+  merchantType?: unknown
 }
 
 export async function POST(request: NextRequest) {
@@ -77,6 +78,9 @@ export async function POST(request: NextRequest) {
   if (!normalized.companyName || !normalized.contactName || !normalized.phone) {
     return NextResponse.json({ error: 'Missing required merchant application fields.' }, { status: 400 })
   }
+  if (!normalized.merchantType) {
+    return NextResponse.json({ error: 'Missing merchant type (property or shop).' }, { status: 400 })
+  }
 
   const payload = {
     user_id: authUser.id,
@@ -86,6 +90,7 @@ export async function POST(request: NextRequest) {
     phone: normalized.phone,
     city: normalized.city,
     project_count: normalized.projectCount,
+    merchant_type: normalized.merchantType,
     status: 'pending_email_confirmation' as const,
     submitted_at: new Date().toISOString(),
   }

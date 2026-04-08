@@ -12,8 +12,6 @@ export type NormalizedKolApplicationInput = {
   contentType: string | null
   bio: string
   city: string | null
-  avgViews: string | null
-  engagementRate: string | null
   photos: string[]
   videos: ApplicationVideo[]
 }
@@ -78,8 +76,6 @@ export function normalizeKolApplicationInput(body: Record<string, unknown>) {
     contentType: toOptionalString(body.contentType),
     bio: toTrimmedString(body.bio),
     city: toOptionalString(body.city),
-    avgViews: toOptionalString(body.avgViews),
-    engagementRate: toOptionalString(body.engagementRate),
     photos: toStringArray(body.photos, 6),
     videos: toVideos(body.videos),
   } satisfies NormalizedKolApplicationInput

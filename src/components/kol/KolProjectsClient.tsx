@@ -26,15 +26,15 @@ function collabTypeLabel(type: CollabSummary['collaboration_type']) {
 }
 
 // ── Project type icon ─────────────────────────────────────────────────────────
-function ProjectTypeIcon({ type, className }: { type: '建案' | '商案'; className?: string }) {
-  return type === '建案'
+function ProjectTypeIcon({ type, className }: { type: 'property' | 'shop'; className?: string }) {
+  return type === 'property'
     ? <Building2 className={className} />
     : <Store     className={className} />
 }
 
 // ── Collaboration card ────────────────────────────────────────────────────────
 function CollabCard({ collab, index }: { collab: CollabSummary; index: number }) {
-  const is建案   = collab.project_type === '建案'
+  const is建案   = collab.project_type === 'property'
   const isActive = collab.collab_status === 'active'
 
   return (
@@ -187,12 +187,57 @@ interface Props {
   collaborations: CollabSummary[]
 }
 
-export default function KolProjectsClient({ collaborations }: Props) {
-  const [tab, setTab] = useState<'active' | 'ended'>('active')
+type TypeFilter  = 'all' | 'property' | 'shop'
+type StatusFilter = 'active' | 'ended'
 
-  const active = collaborations.filter(c => c.collab_status === 'active')
-  const ended  = collaborations.filter(c => c.collab_status === 'ended')
-  const shown  = tab === 'active' ? active : ended
+// ── Type filter pill ──────────────────────────────────────────────────────────
+function TypePill({
+  value, active, count, onClick,
+}: {
+  value: TypeFilter
+  active: boolean
+  count: number
+  onClick: () => void
+}) {
+  const cfg = {
+    all:      { label: '全部',   accent: active ? 'bg-foreground text-background' : 'text-muted-foreground/50 hover:text-foreground/70 hover:bg-foreground/[0.05]' },
+    property: { label: '建案',   accent: active ? 'bg-stone-600 text-white border-stone-600'  : 'text-stone-500/70 border-stone-200 hover:border-stone-300 hover:text-stone-600 hover:bg-stone-50/60' },
+    shop:     { label: '商案',   accent: active ? 'bg-violet-600 text-white border-violet-600' : 'text-violet-500/70 border-violet-200 hover:border-violet-300 hover:text-violet-600 hover:bg-violet-50/60' },
+  }
+  const { label, accent } = cfg[value]
+
+  return (
+    <button
+      onClick={onClick}
+      className={`relative px-4 py-1.5 rounded-lg text-[0.72rem] font-mono tracking-[0.08em] border transition-all duration-200 ${
+        value === 'all' ? 'border-transparent' : 'border'
+      } ${accent}`}
+    >
+      {label}
+      {count > 0 && (
+        <span className={`ml-1.5 text-[0.65rem] font-mono ${active ? 'opacity-60' : 'opacity-40'}`}>
+          {count}
+        </span>
+      )}
+    </button>
+  )
+}
+
+export default function KolProjectsClient({ collaborations }: Props) {
+  const [statusTab, setStatusTab] = useState<StatusFilter>('active')
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
+
+  const byType = (list: CollabSummary[]) =>
+    typeFilter === 'all' ? list : list.filter(c => c.project_type === typeFilter)
+
+  const active  = collaborations.filter(c => c.collab_status === 'active')
+  const ended   = collaborations.filter(c => c.collab_status === 'ended')
+  const base    = statusTab === 'active' ? active : ended
+  const shown   = byType(base)
+
+  const countAll      = base.length
+  const countProperty = base.filter(c => c.project_type === 'property').length
+  const countShop     = base.filter(c => c.project_type === 'shop').length
 
   return (
     <div className="space-y-10">
@@ -213,9 +258,9 @@ export default function KolProjectsClient({ collaborations }: Props) {
           className="grid grid-cols-3 gap-3"
         >
           {[
-            { label: '進行中',   value: String(active.length),                                                                accent: 'text-emerald-700' },
-            { label: '建案合作', value: String(collaborations.filter(c => c.project_type === '建案').length),                 accent: 'text-foreground'  },
-            { label: '商案合作', value: String(collaborations.filter(c => c.project_type === '商案').length),                 accent: 'text-violet-700'  },
+            { label: '進行中',   value: String(active.length),                                                   accent: 'text-emerald-700' },
+            { label: '建案合作', value: String(collaborations.filter(c => c.project_type === 'property').length), accent: 'text-foreground'  },
+            { label: '商案合作', value: String(collaborations.filter(c => c.project_type === 'shop').length),     accent: 'text-violet-700'  },
           ].map(s => (
             <div key={s.label} className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm px-5 py-5 text-center">
               <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-2">{s.label}</p>
@@ -228,34 +273,44 @@ export default function KolProjectsClient({ collaborations }: Props) {
       {/* Empty */}
       {collaborations.length === 0 && <EmptyState />}
 
-      {/* Tab switcher */}
+      {/* Filters row */}
       {collaborations.length > 0 && (
         <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp}
-          className="flex items-center gap-1 w-fit"
+          className="flex items-center justify-between gap-4 flex-wrap"
         >
-          {(['active', 'ended'] as const).map(t => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`relative px-4 py-1.5 rounded-lg text-[0.72rem] font-mono tracking-[0.08em] transition-all duration-200 ${
-                tab === t
-                  ? 'bg-foreground text-background'
-                  : 'text-muted-foreground/50 hover:text-foreground/70 hover:bg-foreground/[0.05]'
-              }`}
-            >
-              {t === 'active' ? '進行中' : '已結束'}
-              {t === 'active' && active.length > 0 && (
-                <span className={`ml-1.5 text-[0.65rem] font-mono ${tab === 'active' ? 'text-background/50' : 'text-muted-foreground/35'}`}>
-                  {active.length}
-                </span>
-              )}
-              {t === 'ended' && ended.length > 0 && (
-                <span className={`ml-1.5 text-[0.65rem] font-mono ${tab === 'ended' ? 'text-background/50' : 'text-muted-foreground/35'}`}>
-                  {ended.length}
-                </span>
-              )}
-            </button>
-          ))}
+          {/* Status tabs (left) */}
+          <div className="flex items-center gap-1">
+            {(['active', 'ended'] as const).map(t => (
+              <button
+                key={t}
+                onClick={() => setStatusTab(t)}
+                className={`relative px-4 py-1.5 rounded-lg text-[0.72rem] font-mono tracking-[0.08em] transition-all duration-200 ${
+                  statusTab === t
+                    ? 'bg-foreground text-background'
+                    : 'text-muted-foreground/50 hover:text-foreground/70 hover:bg-foreground/[0.05]'
+                }`}
+              >
+                {t === 'active' ? '進行中' : '已結束'}
+                {t === 'active' && active.length > 0 && (
+                  <span className={`ml-1.5 text-[0.65rem] font-mono ${statusTab === 'active' ? 'text-background/50' : 'text-muted-foreground/35'}`}>
+                    {active.length}
+                  </span>
+                )}
+                {t === 'ended' && ended.length > 0 && (
+                  <span className={`ml-1.5 text-[0.65rem] font-mono ${statusTab === 'ended' ? 'text-background/50' : 'text-muted-foreground/35'}`}>
+                    {ended.length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Type filter pills (right) */}
+          <div className="flex items-center gap-1.5">
+            <TypePill value="all"      active={typeFilter === 'all'}      count={countAll}      onClick={() => setTypeFilter('all')} />
+            <TypePill value="property" active={typeFilter === 'property'} count={countProperty} onClick={() => setTypeFilter('property')} />
+            <TypePill value="shop"     active={typeFilter === 'shop'}     count={countShop}     onClick={() => setTypeFilter('shop')} />
+          </div>
         </motion.div>
       )}
 
@@ -263,7 +318,7 @@ export default function KolProjectsClient({ collaborations }: Props) {
       {collaborations.length > 0 && (
         <AnimatePresence mode="wait">
           <motion.div
-            key={tab}
+            key={`${statusTab}-${typeFilter}`}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
           >
@@ -275,7 +330,10 @@ export default function KolProjectsClient({ collaborations }: Props) {
               </div>
             ) : (
               <p className="text-sm text-muted-foreground/50 py-12 text-center font-mono tracking-[0.1em]">
-                {tab === 'active' ? '目前沒有進行中的合作' : '目前沒有已結束的合作'}
+                {typeFilter !== 'all'
+                  ? `此分類目前沒有${statusTab === 'active' ? '進行中' : '已結束'}的合作`
+                  : statusTab === 'active' ? '目前沒有進行中的合作' : '目前沒有已結束的合作'
+                }
               </p>
             )}
           </motion.div>

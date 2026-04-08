@@ -2,14 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import TongchuangWingPage from '@/components/property/TongchuangWingPage'
-import type { TongchuangTemplateContent } from '@/lib/property-template'
+import ShangAnPage from '@/components/property/ShangAnPage'
+import type { TongchuangTemplateContent, ShangAnTemplateContent } from '@/lib/property-template'
+
+type TemplateContent = TongchuangTemplateContent | ShangAnTemplateContent
 
 type IncomingMessage =
-  | { type: 'update'; content: TongchuangTemplateContent; selectedModuleId: string | null }
+  | { type: 'update'; content: TemplateContent; selectedModuleId: string | null }
   | { type: 'scroll'; moduleId: string }
 
 export default function ProjectFramePage() {
-  const [content, setContent]               = useState<TongchuangTemplateContent | null>(null)
+  const [content, setContent] = useState<TemplateContent | null>(null)
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -33,20 +36,23 @@ export default function ProjectFramePage() {
     return () => window.removeEventListener('message', handler)
   }, [])
 
+  const editorProps = {
+    isEditing: true,
+    selectedModuleId,
+    onModuleSelect: (moduleId: string) => {
+      window.parent.postMessage({ type: 'select', moduleId }, '*')
+    },
+  }
+
   return (
     // fixed inset-0 escapes the merchant layout wrapper
     <div className="fixed inset-0 z-[100] overflow-y-auto bg-[#0D0D0E]">
       {content ? (
-        <TongchuangWingPage
-          content={content}
-          editor={{
-            isEditing: true,
-            selectedModuleId,
-            onModuleSelect: (moduleId) => {
-              window.parent.postMessage({ type: 'select', moduleId }, '*')
-            },
-          }}
-        />
+        content.templateKey === 'shop' ? (
+          <ShangAnPage content={content} editor={editorProps} />
+        ) : (
+          <TongchuangWingPage content={content} editor={editorProps} />
+        )
       ) : (
         <div className="min-h-screen bg-[#0D0D0E]" />
       )}
