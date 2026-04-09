@@ -25,9 +25,11 @@ export async function PATCH(
     customer_id?:  string
     deal_value?:   number
     kol_user_id?:  string  // optional, for direct inquiries
+    room_type?:    string
+    room_number?:  string
   }
 
-  const { source, customer_id, deal_value, kol_user_id } = body
+  const { source, customer_id, deal_value, kol_user_id, room_type, room_number } = body
 
   if (!source || (source !== 'attributed' && source !== 'direct'))
     return NextResponse.json({ error: 'source must be attributed or direct.' }, { status: 400 })
@@ -67,7 +69,7 @@ export async function PATCH(
     // Mark the inquiry row as a confirmed deal
     const { error } = await admin
       .from('referral_conversions')
-      .update({ deal_value, deal_confirmed_at: now })
+      .update({ deal_value, deal_confirmed_at: now, room_type: room_type ?? null, room_number: room_number ?? null })
       .eq('id', customer_id)
 
     if (error) {
@@ -81,6 +83,8 @@ export async function PATCH(
       conversion_type:   'deal',
       deal_value,
       deal_confirmed_at: now,
+      room_type:         room_type ?? null,
+      room_number:       room_number ?? null,
     })
 
     // Notify the KOL (best-effort)
@@ -112,6 +116,8 @@ export async function PATCH(
         deal_value,
         deal_confirmed_at:  now,
         kol_credit_user_id: kol_user_id ?? null,
+        room_type:          room_type ?? null,
+        room_number:        room_number ?? null,
       })
       .eq('id', customer_id)
 
@@ -135,6 +141,8 @@ export async function PATCH(
           conversion_type:  'deal',
           deal_value,
           deal_confirmed_at: now,
+          room_type:         room_type ?? null,
+          room_number:       room_number ?? null,
         })
         // Notify the credited KOL
         await admin.from('notifications').insert({

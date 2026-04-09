@@ -22,6 +22,7 @@ import {
   type TongchuangTemplateContent,
 } from '@/lib/property-template'
 import { IMAGE_SLOT_LABELS, type ProjectDetail, type ProjectImage } from './_types'
+import type { AiExtractResult } from '@/app/api/merchant/projects/ai-extract/route'
 
 // ── Public hook interface ─────────────────────────────────────────────────────
 
@@ -361,6 +362,53 @@ export function useEditor(id: string) {
     })
   }
 
+  function applyAiExtract(data: AiExtractResult) {
+    setDraftProject((p) => {
+      if (!p) return p
+
+      // ── Scalar project fields ─────────────────────────────────────────────
+      const scalarUpdates: Partial<ProjectDetail> = {}
+      if (data.name)             scalarUpdates.name             = data.name
+      if (data.subtitle)         scalarUpdates.subtitle         = data.subtitle
+      if (data.districtLabel)    scalarUpdates.districtLabel    = data.districtLabel
+      if (data.completionBadge)  scalarUpdates.completionBadge  = data.completionBadge
+      if (data.overviewTitle)    scalarUpdates.overviewTitle    = data.overviewTitle
+      if (data.overviewBody)     scalarUpdates.overviewBody     = data.overviewBody
+      if (data.featuresTitle)    scalarUpdates.featuresTitle    = data.featuresTitle
+      if (data.salesPhone)       scalarUpdates.salesPhone       = data.salesPhone
+      if (data.contactBody)      scalarUpdates.contactBody      = data.contactBody
+
+      // ── Content items ─────────────────────────────────────────────────────
+      const contentItems = p.contentItems.map((item) => ({ ...item }))
+
+      function applyGroup<T extends { title?: string; body?: string; meta?: string; accent?: string; state?: string }>(
+        groupKey: string,
+        incoming: T[] | undefined,
+      ) {
+        if (!incoming?.length) return
+        const groupItems = contentItems.filter((it) => it.groupKey === groupKey)
+        incoming.forEach((src, i) => {
+          if (i < groupItems.length) {
+            const ci = groupItems[i]
+            const idx = contentItems.indexOf(ci)
+            if (src.title !== undefined) contentItems[idx] = { ...contentItems[idx], title: src.title }
+            if (src.body  !== undefined) contentItems[idx] = { ...contentItems[idx], body:  src.body  }
+            if (src.meta  !== undefined) contentItems[idx] = { ...contentItems[idx], meta:  src.meta  }
+            if (src.state !== undefined) contentItems[idx] = { ...contentItems[idx], state: src.state as 'completed' | 'current' | 'upcoming' }
+          }
+        })
+      }
+
+      applyGroup('identity_specs',  data.identitySpecs)
+      applyGroup('intro_specs',     data.introSpecs)
+      applyGroup('feature_cards',   data.featureCards)
+      applyGroup('timeline_items',  data.timelineItems)
+      applyGroup('location_points', data.locationPoints)
+
+      return { ...p, ...scalarUpdates, contentItems }
+    })
+  }
+
   function setFontTheme(key: PropertyFontKey) {
     setDraftProject((p) => {
       if (!p) return p
@@ -425,6 +473,7 @@ export function useEditor(id: string) {
     selectModule,
     setColorTheme,
     setFontTheme,
+    applyAiExtract,
   }
 }
 

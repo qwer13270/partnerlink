@@ -45,18 +45,31 @@ export async function GET(request: NextRequest) {
 
   const [projectsResult, kolsResult, shipmentsResult, itemsResult] = await Promise.all([
     admin.from('projects').select('id, name').in('id', projectIds),
-    admin.from('kol_applications').select('user_id, full_name, platforms, follower_range, profile_photo_url').in('user_id', kolUserIds),
+    admin.from('kol_applications').select('user_id, full_name, platforms, follower_range, profile_photo_path').in('user_id', kolUserIds),
     admin.from('mutual_benefit_shipments').select('collaboration_id, carrier, tracking_number, shipped_at, received_at').in('collaboration_id', collabIds),
     admin.from('mutual_benefit_items').select('collaboration_request_id, item_name, quantity, estimated_value, notes').in('collaboration_request_id', requestIds),
   ])
 
   const projectById = new Map((projectsResult.data ?? []).map((p) => [p.id as string, p]))
+
+  // Sign KOL profile photo paths
+  const kolRows = kolsResult.data ?? []
+  const photoPaths = kolRows.map((k) => k.profile_photo_path as string | null).filter((p): p is string => !!p)
+  const signedPhotoMap = new Map<string, string>()
+  if (photoPaths.length > 0) {
+    const { data: signed } = await admin.storage.from('kol-media').createSignedUrls(photoPaths, 3600)
+    signed?.forEach((item, i) => {
+      if (item?.signedUrl) signedPhotoMap.set(photoPaths[i], item.signedUrl)
+    })
+  }
+
   const kolByUserId = new Map(
-    (kolsResult.data ?? []).map((k) => {
+    kolRows.map((k) => {
       const platforms = Array.isArray(k.platforms)
         ? (k.platforms as string[]).filter((s) => typeof s === 'string').join(' / ')
         : ''
-      return [k.user_id as string, { full_name: k.full_name as string, platform: platforms, follower_range: k.follower_range as string | null, profile_photo_url: k.profile_photo_url as string | null }]
+      const path = k.profile_photo_path as string | null
+      return [k.user_id as string, { full_name: k.full_name as string, platform: platforms, follower_range: k.follower_range as string | null, profile_photo_url: path ? (signedPhotoMap.get(path) ?? null) : null }]
     }),
   )
   const shipmentByCollabId = new Map((shipmentsResult.data ?? []).map((s) => [s.collaboration_id as string, s]))
