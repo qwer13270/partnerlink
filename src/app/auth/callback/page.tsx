@@ -26,8 +26,17 @@ export default function AuthCallbackPage() {
     const accessToken = hash.get('access_token')
     const refreshToken = hash.get('refresh_token') ?? ''
 
-    const finish = (email: string) =>
+    const next = params.get('next')
+    const tokenType = hash.get('type') ?? params.get('type')
+    const isRecovery = tokenType === 'recovery'
+
+    const finish = (email: string) => {
+      if (isRecovery || next === '/auth/reset-password') {
+        router.replace('/auth/reset-password')
+        return
+      }
       router.replace(`/auth/confirmed${email ? `?email=${encodeURIComponent(email)}` : ''}`)
+    }
 
     if (accessToken) {
       // Implicit flow — token arrives in the hash fragment (never sent to server)

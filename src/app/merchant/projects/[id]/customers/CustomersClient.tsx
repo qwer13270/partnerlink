@@ -1,16 +1,15 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   CheckCircle2, X, ChevronDown,
   Users, BadgeCheck, TrendingUp, Link2,
   Phone, Mail, MessageSquare, CircleDot, DoorOpen,
+  BedDouble, Hash, CalendarCheck2,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Customer, ActiveKol } from './page'
-import { typeLabel } from '@/lib/merchant-application'
 
 // ── Animation ──────────────────────────────────────────────────────────────
 const fadeUp = (delay = 0) => ({
@@ -82,16 +81,23 @@ function SourceBadge({ customer }: { customer: Customer }) {
 }
 
 // ── Status badge ───────────────────────────────────────────────────────────
-function StatusBadge({ customer }: { customer: Customer }) {
+function StatusBadge({
+  customer,
+  onViewDeal,
+}: {
+  customer: Customer
+  onViewDeal: () => void
+}) {
   if (customer.dealConfirmedAt && customer.dealValue) {
     return (
-      <span
-        className="inline-flex items-center gap-1 text-[0.67rem] font-medium px-2 py-0.5 rounded border"
+      <button
+        onClick={(e) => { e.stopPropagation(); onViewDeal() }}
+        className="inline-flex items-center gap-1 text-[0.67rem] font-medium px-2 py-0.5 rounded border cursor-pointer hover:opacity-80 active:scale-[0.97] transition-all duration-150"
         style={{ background: 'rgba(74,158,110,0.09)', borderColor: 'rgba(74,158,110,0.25)', color: '#3a8a5e' }}
       >
         <CheckCircle2 className="h-2.5 w-2.5" />
-        已成交 {formatDealValue(customer.dealValue)}
-      </span>
+        已成交
+      </button>
     )
   }
   if (customer.visitedAt) {
@@ -113,17 +119,124 @@ function StatusBadge({ customer }: { customer: Customer }) {
   )
 }
 
+// ── Deal detail modal ──────────────────────────────────────────────────────
+function DealDetailModal({
+  customer,
+  onClose,
+}: {
+  customer: Customer
+  onClose: () => void
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 10 }}
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-sm rounded-xl border border-foreground/[0.1] bg-background shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Emerald header band */}
+        <div
+          className="px-6 py-5"
+          style={{ background: 'linear-gradient(135deg, rgba(74,158,110,0.12) 0%, rgba(74,158,110,0.05) 100%)', borderBottom: '1px solid rgba(74,158,110,0.15)' }}
+        >
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[0.6rem] uppercase tracking-[0.4em] text-emerald-700/70 mb-1">成交明細</p>
+              <h2 className="text-lg font-serif text-foreground">{customer.name ?? '客戶'}</h2>
+              {customer.kolName && (
+                <p className="text-[0.7rem] text-muted-foreground/60 mt-0.5">
+                  來源：{customer.kolName}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              className="flex items-center justify-center h-7 w-7 rounded-lg bg-black/[0.05] hover:bg-black/[0.09] transition-colors"
+            >
+              <X className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+          </div>
+        </div>
+
+        {/* Detail rows */}
+        <div className="px-6 py-5 space-y-4">
+          {/* Deal value — prominent */}
+          <div
+            className="flex items-center justify-between rounded-lg px-4 py-3"
+            style={{ background: 'rgba(74,158,110,0.07)', border: '1px solid rgba(74,158,110,0.18)' }}
+          >
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              <span className="text-[0.7rem] uppercase tracking-[0.25em] text-emerald-700/80">成交金額</span>
+            </div>
+            <span className="text-base font-semibold font-serif text-emerald-700">
+              {formatDealValue(customer.dealValue!)}
+            </span>
+          </div>
+
+          {/* Room type + room number */}
+          <div className="grid grid-cols-2 gap-3">
+            <div
+              className="rounded-lg px-4 py-3"
+              style={{ background: 'rgba(26,26,26,0.03)', border: '1px solid rgba(26,26,26,0.07)' }}
+            >
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <BedDouble className="h-3 w-3 text-muted-foreground/50" />
+                <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground/50">房型</p>
+              </div>
+              <p className="text-sm font-medium">
+                {customer.roomType ?? <span className="text-muted-foreground/40 font-normal">—</span>}
+              </p>
+            </div>
+            <div
+              className="rounded-lg px-4 py-3"
+              style={{ background: 'rgba(26,26,26,0.03)', border: '1px solid rgba(26,26,26,0.07)' }}
+            >
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Hash className="h-3 w-3 text-muted-foreground/50" />
+                <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground/50">房號</p>
+              </div>
+              <p className="text-sm font-medium">
+                {customer.roomNumber ?? <span className="text-muted-foreground/40 font-normal">—</span>}
+              </p>
+            </div>
+          </div>
+
+          {/* Confirmed date */}
+          {customer.dealConfirmedAt && (
+            <div className="flex items-center gap-2">
+              <CalendarCheck2 className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+              <p className="text-[0.7rem] text-muted-foreground/50">
+                成交時間：{formatDate(customer.dealConfirmedAt)}
+              </p>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 // ── Customer row ───────────────────────────────────────────────────────────
 function CustomerRow({
   customer,
   index,
   onMarkVisited,
   onConfirmDeal,
+  onViewDeal,
 }: {
   customer: Customer
   index: number
   onMarkVisited: (c: Customer) => void
   onConfirmDeal: (c: Customer) => void
+  onViewDeal: (c: Customer) => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const isDeal    = !!customer.dealConfirmedAt
@@ -157,7 +270,7 @@ function CustomerRow({
 
         {/* Status */}
         <div className="shrink-0">
-          <StatusBadge customer={customer} />
+          <StatusBadge customer={customer} onViewDeal={() => onViewDeal(customer)} />
         </div>
 
         {/* Actions */}
@@ -256,9 +369,11 @@ function ConfirmDealModal({
   activeKols: ActiveKol[]
   projectId: string
   onClose: () => void
-  onConfirmed: (customerId: string, dealValue: number, kolUserId?: string) => void
+  onConfirmed: (customerId: string, dealValue: number, roomType: string | null, roomNumber: string | null, kolUserId?: string) => void
 }) {
   const [dealValue, setDealValue] = useState('')
+  const [roomType, setRoomType] = useState('')
+  const [roomNumber, setRoomNumber] = useState('')
   const [selectedKolId, setSelectedKolId] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
@@ -279,6 +394,8 @@ function ConfirmDealModal({
             source:       customer.source,
             customer_id:  customer.id,
             deal_value:   value,
+            room_type:    roomType.trim() || undefined,
+            room_number:  roomNumber.trim() || undefined,
             kol_user_id:  isDirect && selectedKolId ? selectedKolId : undefined,
           }),
         },
@@ -288,7 +405,13 @@ function ConfirmDealModal({
         throw new Error(payload?.error ?? '確認失敗')
       }
       toast.success(`${customer.name ?? '客戶'} 成交紀錄已儲存`)
-      onConfirmed(customer.id, value, isDirect ? selectedKolId || undefined : undefined)
+      onConfirmed(
+        customer.id,
+        value,
+        roomType.trim() || null,
+        roomNumber.trim() || null,
+        isDirect ? selectedKolId || undefined : undefined,
+      )
       onClose()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '確認失敗，請稍後再試。')
@@ -351,6 +474,40 @@ function ConfirmDealModal({
           </div>
         </div>
 
+        {/* Room type + room number */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">
+              房型
+            </label>
+            <div className="relative">
+              <BedDouble className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/40" />
+              <input
+                type="text"
+                value={roomType}
+                onChange={(e) => setRoomType(e.target.value)}
+                placeholder="例：三房兩廳"
+                className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pl-9 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/40"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">
+              房號
+            </label>
+            <div className="relative">
+              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/40" />
+              <input
+                type="text"
+                value={roomNumber}
+                onChange={(e) => setRoomNumber(e.target.value)}
+                placeholder="例：12F-A"
+                className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pl-9 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/40"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* KOL picker — only for direct inquiries with active KOLs */}
         {isDirect && activeKols.length > 0 && (
           <div className="mb-6">
@@ -407,7 +564,6 @@ function ConfirmDealModal({
 export default function CustomersClient({
   projectId,
   projectName,
-  projectType,
   customers: initialCustomers,
   activeKols,
 }: {
@@ -419,6 +575,7 @@ export default function CustomersClient({
 }) {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers)
   const [confirmTarget, setConfirmTarget] = useState<Customer | null>(null)
+  const [dealDetailTarget, setDealDetailTarget] = useState<Customer | null>(null)
 
   // ── Stats ────────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -450,11 +607,11 @@ export default function CustomersClient({
     }
   }
 
-  function handleConfirmed(customerId: string, dealValue: number) {
+  function handleConfirmed(customerId: string, dealValue: number, roomType: string | null, roomNumber: string | null) {
     setCustomers((prev) =>
       prev.map((c) =>
         c.id === customerId
-          ? { ...c, dealValue, dealConfirmedAt: new Date().toISOString() }
+          ? { ...c, dealValue, dealConfirmedAt: new Date().toISOString(), roomType, roomNumber }
           : c,
       ),
     )
@@ -544,6 +701,7 @@ export default function CustomersClient({
                 index={i}
                 onMarkVisited={handleMarkVisited}
                 onConfirmDeal={setConfirmTarget}
+                onViewDeal={setDealDetailTarget}
               />
             ))
           )}
@@ -556,7 +714,7 @@ export default function CustomersClient({
           <div className="flex items-center gap-1.5">
             <TrendingUp className="h-3 w-3 text-muted-foreground/40" />
             <span className="text-[0.68rem] uppercase tracking-[0.2em] text-muted-foreground/50">
-              點擊列展開客戶詳細資訊
+              點擊列展開客戶詳細資訊 · 點擊已成交查看成交明細
             </span>
           </div>
         </motion.div>
@@ -571,6 +729,16 @@ export default function CustomersClient({
             projectId={projectId}
             onClose={() => setConfirmTarget(null)}
             onConfirmed={handleConfirmed}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Deal detail modal ── */}
+      <AnimatePresence>
+        {dealDetailTarget && (
+          <DealDetailModal
+            customer={dealDetailTarget}
+            onClose={() => setDealDetailTarget(null)}
           />
         )}
       </AnimatePresence>

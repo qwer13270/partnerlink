@@ -27,8 +27,9 @@ const MANAGE: NavItem[] = [
 ]
 
 const ANALYSE: NavItem[] = [
-  { seg: 'audience',  label: '受眾輪廓分析', Icon: BrainCircuit },
-  { seg: 'analytics', label: '地區房市行情', Icon: BarChart3    },
+  { seg: 'audience',          label: '受眾輪廓分析', Icon: BrainCircuit },
+  { seg: 'customer-insights', label: '歷史客群分析', Icon: Users        },
+  { seg: 'analytics',         label: '地區房市行情', Icon: BarChart3    },
 ]
 
 // ── Helpers ──────────────────────────────────────────────────────────────────

@@ -14,6 +14,8 @@ export type DealEntry = {
   dealValueWan:   number
   commissionRate: number
   commissionWan:  number
+  roomType:       string | null
+  roomNumber:     string | null
 }
 
 export type MutualBenefitItem = {
@@ -125,7 +127,7 @@ export default async function KolProjectDetailPage({
       : Promise.resolve({ data: [] }),
     link
       ? admin.from('referral_conversions')
-          .select('id, conversion_type, visited_at, deal_value, deal_confirmed_at, converted_at')
+          .select('id, conversion_type, visited_at, deal_value, deal_confirmed_at, converted_at, room_type, room_number')
           .eq('referral_link_id', link.id as string)
       : Promise.resolve({ data: [] }),
   ])
@@ -161,6 +163,8 @@ export default async function KolProjectDetailPage({
             dealValueWan:   val,
             commissionRate: rate,
             commissionWan:  commWan,
+            roomType:       (d.room_type as string | null) ?? null,
+            roomNumber:     (d.room_number as string | null) ?? null,
           }
         })
     }

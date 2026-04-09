@@ -489,7 +489,7 @@ export default function MerchantProjectsPage() {
 
   function handleCreated(id: string) {
     setShowModal(false)
-    startTransition(() => router.push(`/merchant/projects/${id}/edit`))
+    startTransition(() => router.push(`/merchant/projects/${id}/edit?new=1`))
   }
 
   function handleDeleted(id: string) {

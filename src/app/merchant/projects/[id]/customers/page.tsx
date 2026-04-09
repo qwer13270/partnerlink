@@ -19,6 +19,8 @@ export type Customer = {
   visitedAt: string | null
   dealValue: number | null
   dealConfirmedAt: string | null
+  roomType: string | null
+  roomNumber: string | null
 }
 
 export type ActiveKol = {
@@ -108,12 +110,14 @@ export default async function CustomersPage({
     deal_confirmed_at: string | null
     converted_at: string
     referral_link_id: string
+    room_type: string | null
+    room_number: string | null
   }
   let convRows: ConvRow[] = []
   if (linkIds.length > 0) {
     const { data } = await admin
       .from('referral_conversions')
-      .select('id, name, phone, email, message, visited_at, deal_value, deal_confirmed_at, converted_at, referral_link_id')
+      .select('id, name, phone, email, message, visited_at, deal_value, deal_confirmed_at, converted_at, referral_link_id, room_type, room_number')
       .eq('conversion_type', 'inquiry')
       .in('referral_link_id', linkIds)
       .order('converted_at', { ascending: false })
@@ -123,7 +127,7 @@ export default async function CustomersPage({
   // ── Fetch direct inquiries ────────────────────────────────────────────────
   const { data: directRows } = await admin
     .from('property_inquiries')
-    .select('id, name, phone, email, message, submitted_at, visited_at, deal_value, deal_confirmed_at')
+    .select('id, name, phone, email, message, submitted_at, visited_at, deal_value, deal_confirmed_at, room_type, room_number')
     .eq('property_id', projectId)
     .order('submitted_at', { ascending: false })
 
@@ -152,6 +156,8 @@ export default async function CustomersPage({
       visitedAt:       r.visited_at,
       dealValue:       r.deal_value,
       dealConfirmedAt: r.deal_confirmed_at,
+      roomType:        r.room_type,
+      roomNumber:      r.room_number,
     }
   })
 
@@ -165,6 +171,8 @@ export default async function CustomersPage({
     visited_at: string | null
     deal_value: number | null
     deal_confirmed_at: string | null
+    room_type: string | null
+    room_number: string | null
   }
 
   const direct: Customer[] = (directRows as DirectRow[] | null ?? []).map((r) => ({
@@ -181,6 +189,8 @@ export default async function CustomersPage({
     visitedAt:       r.visited_at,
     dealValue:       r.deal_value,
     dealConfirmedAt: r.deal_confirmed_at,
+    roomType:        r.room_type,
+    roomNumber:      r.room_number,
   }))
 
   // Sort unified list by submittedAt desc

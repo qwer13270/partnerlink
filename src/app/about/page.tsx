@@ -20,7 +20,7 @@ const reveal = {
 const STATS = [
   { num: '2023', label: '成立年份' },
   { num: '120+', label: '合作 KOL' },
-  { num: '18+',  label: '精選商案' },
+  { num: '18+',  label: '合作商家' },
   { num: '18.4%', label: '平均轉換率' },
 ]
 
@@ -28,51 +28,51 @@ const VALUES = [
   {
     num: '01',
     title: '透明為本',
-    desc: '每一次點擊、每一筆預約、每一組成交，全程追蹤記錄於儀表板。數據真實不造假，合作才能長久。',
+    desc: '每一次點擊、每一筆導流、每一組成交，全程追蹤記錄於儀表板。數據真實不造假，商家與 KOL 的合作才能長久穩健。',
   },
   {
     num: '02',
     title: '成效優先',
-    desc: '我們不收預付廣告費，只在成交後收取佣金。PartnerLink 的利益與你的成效完全一致，我們一起贏。',
+    desc: '我們不收預付廣告費，只在成交後收取佣金。PartnerLink 的利益與你的成效完全一致，商家零風險，KOL 推廣有保障。',
   },
   {
     num: '03',
     title: '精準媒合',
-    desc: '不廣撒網，而是精準連結。我們為每個商案找到最契合的 KOL 聲音，讓每一次合作都物超所值。',
+    desc: '不廣撒網，而是精準連結。我們為每個商案找到最契合的 KOL 聲音，讓品牌訊息真實觸達目標受眾，每次合作都物超所值。',
   },
 ]
 
 const TIMELINE = [
-  { year: '2023 Q1', event: '創立 PartnerLink，完成種子輪融資' },
-  { year: '2023 Q3', event: '上線首批 20 位合作 KOL，媒合第一筆成交' },
-  { year: '2024 Q1', event: '平台累積破百位 KOL，擴展至桃園、台中市場' },
-  { year: '2024 Q3', event: '推出即時儀表板，數據追蹤精度提升至分鐘級' },
-  { year: '2025',    event: '持續擴展全台版圖，目標覆蓋六都主要建案市場' },
+  { year: '2023 Q1', event: '創立 PartnerLink，完成種子輪融資，確立 KOL × 商家聯盟模式' },
+  { year: '2023 Q3', event: '上線首批 20 位合作 KOL，媒合第一筆品牌商案成交' },
+  { year: '2024 Q1', event: '平台累積破百位 KOL，擴展至美妝、生活、3C 等多元品類' },
+  { year: '2024 Q3', event: '推出即時儀表板，數據追蹤精度提升至分鐘級，佣金自動結算' },
+  { year: '2025',    event: '持續擴大合作商家規模，目標覆蓋全台各類消費品牌市場' },
 ]
 
 const TEAM = [
   {
     name: '陳建宏',
     role: '共同創辦人 & CEO',
-    bio: '前信義房屋數位長，深耕台灣不動產市場逾十年，主導多項數位轉型計畫。',
+    bio: '前電商平台數位長，深耕台灣品牌行銷市場逾十年，主導多項 KOL 合作與數位轉型計畫。',
     initial: '陳',
   },
   {
     name: '林佩儀',
     role: '共同創辦人 & CPO',
-    bio: '前 Line 台灣產品總監，致力打造直覺易用的平台體驗，深信好設計能改變行為。',
+    bio: '前 Line 台灣產品總監，致力打造直覺易用的平台體驗，深信好設計能改變商家與 KOL 的合作行為。',
     initial: '林',
   },
   {
     name: '王志明',
     role: 'CTO',
-    bio: '前 91APP 技術架構師，主導平台追蹤系統與數據基礎設施，確保每筆數據精準可靠。',
+    bio: '前 91APP 技術架構師，主導平台追蹤系統與數據基礎設施，確保每筆轉換數據精準可靠。',
     initial: '王',
   },
   {
     name: '張雅婷',
     role: 'KOL 生態總監',
-    bio: '深耕社群媒體行銷八年，建立並維護台灣最活躍的 KOL 不動產合作網絡。',
+    bio: '深耕社群媒體行銷八年，建立並維護台灣最活躍的 KOL 品牌合作網絡，橫跨美妝、生活、科技等多元領域。',
     initial: '張',
   },
 ]
@@ -101,7 +101,7 @@ export default function AboutPage() {
             className="font-serif text-5xl md:text-6xl lg:text-[4.5rem] font-light leading-[1.1] mb-6"
           >
             重新定義<br />
-            台灣房市的<br />
+            品牌與 KOL 的<br />
             <span style={{ color: '#b8936a' }}>合作方式</span>
           </motion.h1>
 
@@ -111,7 +111,7 @@ export default function AboutPage() {
           >
             PartnerLink 誕生於一個簡單的信念：<br />
             行銷費用應該只在帶來真實成效時才被支付。<br />
-            我們連結台灣最具影響力的 KOL 與優質建案，<br />
+            我們連結台灣最具影響力的 KOL 與優質商家，<br />
             讓每一分預算都花在刀口上。
           </motion.p>
 
@@ -160,7 +160,7 @@ export default function AboutPage() {
               &ldquo;
             </div>
             <p className="font-serif text-xl font-light italic leading-relaxed mb-8" style={{ color: '#e8e0d8' }}>
-              房市行銷不該是賭注。<br />
+              品牌行銷不該是賭注。<br />
               每一分預算，<br />
               都應該帶來<br />
               可量化的回報。
@@ -202,10 +202,10 @@ export default function AboutPage() {
               </motion.h2>
 
               {[
-                '2023 年初，我們在與多位建商朋友的對話中，反覆聽到同一個痛點：數位廣告費用不斷攀升，但轉換率始終低迷，預算幾乎是在「賭博」。',
-                '與此同時，我們也觀察到一個現象——台灣有一群具有真實影響力的 KOL，他們的粉絲信任度遠高於任何廣告版位，卻沒有一個平台能有效媒合他們與不動產建商合作。',
-                '於是 PartnerLink 誕生了。我們建立一套完整的追蹤機制，讓每一次推薦、每一筆點擊、每一組預約都清晰可查。商家只在成交後付費，KOL 的每一次推廣都能帶來透明的佣金回報。',
-                '這不只是一個媒合平台，而是一種新的合作哲學：讓所有參與方的利益真正一致，讓台灣的房市行銷更誠信、更有效率。',
+                '2023 年初，我們在與多位品牌商家的對話中，反覆聽到同一個痛點：數位廣告費用不斷攀升，轉換率卻始終低迷，預算幾乎是在「賭博」。商家花大錢買版位，卻換不來真實的購買意願。',
+                '與此同時，我們也觀察到一個現象——台灣有一群具有真實影響力的 KOL，他們的粉絲信任度遠高於任何廣告版位，卻沒有一個平台能有效媒合他們與品牌商家系統性地合作。',
+                '於是 PartnerLink 誕生了。我們建立一套完整的追蹤機制，讓每一次推薦、每一筆點擊、每一組成交都清晰可查。商家只在成交後付費，KOL 的每一次推廣都能帶來透明的佣金回報。',
+                '這不只是一個媒合平台，而是一種新的合作哲學：讓商家、KOL 與消費者的利益真正一致，讓台灣的品牌行銷更誠信、更有效率。',
               ].map((text, i) => (
                 <motion.p
                   key={i}
@@ -404,7 +404,7 @@ export default function AboutPage() {
                   用影響力<br />創造真實收益
                 </h3>
                 <p className="text-sm text-muted-foreground leading-loose mb-8">
-                  加入台灣最大的不動產 KOL 合作網絡。每次推薦帶來透明可追蹤的佣金，讓創作力直接轉化為收入。
+                  加入 PartnerLink，與台灣各類優質品牌商家合作。每次推薦帶來透明可追蹤的佣金，讓創作力直接轉化為收入。
                 </p>
                 <div className="flex items-center gap-2 text-xs tracking-wide text-muted-foreground transition-colors duration-200 group-hover:text-foreground">
                   <span>了解 KOL 方案</span>
@@ -431,7 +431,7 @@ export default function AboutPage() {
                   讓頂級 KOL<br />成為銷售引擎
                 </h3>
                 <p className="text-sm leading-loose mb-8" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  刊登商案，PartnerLink 為你媒合最適合的 KOL。成交後才付佣金，零風險啟動精準行銷。
+                  刊登商案，PartnerLink 為你媒合最適合的 KOL。成交後才付佣金，零風險啟動精準的品牌聯盟行銷。
                 </p>
                 <div
                   className="flex items-center gap-2 text-xs tracking-wide transition-colors duration-200"

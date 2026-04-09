@@ -45,7 +45,13 @@ export default function LoginContent() {
     })
 
     if (signInError || !data.user) {
-      setError(signInError?.message ?? '電子郵件或密碼錯誤，請再試一次。')
+      const msg = signInError?.message ?? ''
+      const translated =
+        msg.toLowerCase().includes('invalid login credentials') ||
+        msg.toLowerCase().includes('invalid email or password')
+          ? '電子郵件或密碼錯誤，請再試一次。'
+          : msg || '電子郵件或密碼錯誤，請再試一次。'
+      setError(translated)
       setIsSubmitting(false)
       return
     }
@@ -282,7 +288,15 @@ export default function LoginContent() {
 
               {/* password */}
               <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp}>
-                <label className="label-editorial" htmlFor="password">{t.password}</label>
+                <div className="flex items-center justify-between mb-0">
+                  <label className="label-editorial" htmlFor="password">{t.password}</label>
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-[0.65rem] uppercase tracking-[0.2em] text-[#8A837B] hover:text-[#1A1A1A] transition-colors duration-200"
+                  >
+                    忘記密碼？
+                  </Link>
+                </div>
                 <div className="relative">
                   <input
                     id="password"

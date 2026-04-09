@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, Copy, Check, BadgeDollarSign,
   ChevronDown, ChevronRight, Package, Truck, CheckCircle2,
-  Clock, ExternalLink, Building2, Store,
+  Clock, ExternalLink, Building2, Store, BedDouble, Hash,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { CollabDetail, DealEntry, MutualBenefitItem, Shipment } from '@/app/kol/projects/[id]/page'
@@ -195,25 +195,61 @@ function DealSection({ entries }: { entries: DealEntry[] }) {
           >
             <div className="divide-y divide-foreground/[0.05] bg-foreground/[0.015]">
               {entries.map(entry => (
-                <div key={entry.id} className="px-5 py-4">
-                  <div className="flex items-center justify-between mb-3">
+                <div key={entry.id} className="px-5 py-4 space-y-3">
+                  {/* Row header: date + status */}
+                  <div className="flex items-center justify-between">
                     <p className="text-[0.7rem] text-muted-foreground font-mono">{formatDate(entry.date)}</p>
                     <span className="text-[0.62rem] font-medium px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200/60">
                       已確認
                     </span>
                   </div>
+
+                  {/* Financial stats grid */}
                   <div className="grid grid-cols-3 gap-2">
                     {[
                       { label: '成交金額', value: `${entry.dealValueWan.toLocaleString()} 萬` },
                       { label: '佣金比率', value: `${entry.commissionRate}%` },
-                      { label: '佣金金額', value: `${entry.commissionWan.toFixed(2)} 萬` },
+                      { label: '佣金金額', value: `${entry.commissionWan.toFixed(2)} 萬`, accent: true },
                     ].map(s => (
-                      <div key={s.label} className="border border-foreground/10 px-2.5 py-2 text-center bg-background">
+                      <div
+                        key={s.label}
+                        className="border px-2.5 py-2 text-center bg-background"
+                        style={{
+                          borderColor: s.accent ? 'rgba(74,158,110,0.25)' : 'rgba(26,26,26,0.1)',
+                          background: s.accent ? 'rgba(74,158,110,0.04)' : undefined,
+                        }}
+                      >
                         <p className="text-[0.58rem] uppercase tracking-widest text-muted-foreground">{s.label}</p>
-                        <p className="text-sm font-serif mt-1">{s.value}</p>
+                        <p className={`text-sm font-serif mt-1 ${s.accent ? 'text-emerald-700' : ''}`}>{s.value}</p>
                       </div>
                     ))}
                   </div>
+
+                  {/* Room details — only rendered when at least one field is set */}
+                  {(entry.roomType || entry.roomNumber) && (
+                    <div
+                      className="flex items-center gap-4 rounded px-3 py-2"
+                      style={{ background: 'rgba(26,26,26,0.025)', border: '1px dashed rgba(26,26,26,0.1)' }}
+                    >
+                      {entry.roomType && (
+                        <div className="flex items-center gap-1.5">
+                          <BedDouble className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+                          <span className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground/50 mr-1">房型</span>
+                          <span className="text-xs font-medium text-foreground/75">{entry.roomType}</span>
+                        </div>
+                      )}
+                      {entry.roomType && entry.roomNumber && (
+                        <span className="text-muted-foreground/20 text-xs">·</span>
+                      )}
+                      {entry.roomNumber && (
+                        <div className="flex items-center gap-1.5">
+                          <Hash className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+                          <span className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground/50 mr-1">房號</span>
+                          <span className="text-xs font-medium text-foreground/75 font-mono">{entry.roomNumber}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

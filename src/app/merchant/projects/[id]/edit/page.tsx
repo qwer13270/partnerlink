@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'next/navigation'
-import { ArrowLeft, Eye, EyeOff, Monitor, Save, Smartphone, Trash2 } from 'lucide-react'
+import { useParams, useSearchParams } from 'next/navigation'
+import { ArrowLeft, Eye, EyeOff, Monitor, Save, Smartphone, Sparkles, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence, Reorder } from 'framer-motion'
 import { useEditor }         from './_use-editor'
 import { SectionPanel }      from './_panels'
@@ -12,6 +12,7 @@ import { MODULE_META } from './_types'
 import { typeLabel } from '@/lib/merchant-application'
 import { ThemePicker, FontPicker } from './_theme-font-picker'
 import { ModulePicker } from './_module-picker'
+import { AiImportPanel, AiImportBanner } from './_ai-import'
 import {
   Dialog,
   DialogContent,
@@ -22,8 +23,10 @@ import {
 } from '@/components/ui/dialog'
 
 export default function EditProjectPage() {
-  const { id } = useParams<{ id: string }>()
-  const editor  = useEditor(id)
+  const { id }          = useParams<{ id: string }>()
+  const searchParams    = useSearchParams()
+  const isNewProject    = searchParams.get('new') === '1'
+  const editor          = useEditor(id)
 
   const {
     draftProject, liveTemplate, selectedModule,
@@ -38,7 +41,20 @@ export default function EditProjectPage() {
     addModule, removeModule, selectModule,
     handleImageUpload, handleImageDelete,
     currentTheme, currentFont, setColorTheme, setFontTheme,
+    applyAiExtract,
   } = editor
+
+  const AI_USED_KEY = `ai-import-used-${id}`
+  const [aiImportUsed,  setAiImportUsed]  = useState(() => typeof window !== 'undefined' && !!localStorage.getItem(`ai-import-used-${id}`))
+  const [showAiBanner,  setShowAiBanner]  = useState(isNewProject && !aiImportUsed)
+  const [aiPanelOpen,   setAiPanelOpen]   = useState(false)
+
+  function markAiImportUsed() {
+    localStorage.setItem(AI_USED_KEY, '1')
+    setAiImportUsed(true)
+    setShowAiBanner(false)
+    setAiPanelOpen(false)
+  }
 
   const existingModuleTypes = useMemo(
     () => new Set(draftProject?.modules.map((m) => m.moduleType) ?? []),
@@ -225,8 +241,25 @@ export default function EditProjectPage() {
         <aside className="relative flex min-h-0 flex-col overflow-hidden border-r border-foreground/10 bg-background">
           <AnimatePresence mode="wait" initial={false}>
 
+            {/* AI Import panel */}
+            {aiPanelOpen && (
+              <motion.div
+                key="ai"
+                initial={{ x: '100%', opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: '100%', opacity: 0 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                className="flex min-h-0 flex-1 flex-col"
+              >
+                <AiImportPanel
+                  onApply={(data) => { applyAiExtract(data); markAiImportUsed() }}
+                  onClose={() => setAiPanelOpen(false)}
+                />
+              </motion.div>
+            )}
+
             {/* List / Theme views — share the same slide-in panel */}
-            {(sidebarView === 'list' || sidebarView === 'theme' || sidebarView === 'font') && (
+            {!aiPanelOpen && (sidebarView === 'list' || sidebarView === 'theme' || sidebarView === 'font') && (
               <motion.div
                 key="list"
                 initial={{ x: '-100%', opacity: 0 }}
@@ -273,7 +306,52 @@ export default function EditProjectPage() {
                       transition={{ duration: 0.15 }}
                       className="flex min-h-0 flex-1 flex-col"
                     >
-                      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
+                      <div className="min-h-0 flex-1 overflow-y-auto">
+                        {/* AI import area — only for property type */}
+                        {draftProject?.templateKey === 'property' && (
+                          <AnimatePresence mode="wait" initial={false}>
+                            {aiImportUsed ? (
+                              /* ── Used state ── */
+                              <motion.div
+                                key="used"
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                                className="mx-3 mt-3 mb-2"
+                              >
+                                <div className="flex items-center gap-2 rounded-lg border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2">
+                                  <Sparkles className="h-3 w-3 shrink-0 text-muted-foreground/25" />
+                                  <span className="flex-1 text-[0.68rem] uppercase tracking-[0.25em] text-muted-foreground/35">AI 已匯入</span>
+                                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/60 shrink-0" />
+                                </div>
+                              </motion.div>
+                            ) : showAiBanner ? (
+                              /* ── First-visit banner ── */
+                              <motion.div key="banner" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                <AiImportBanner
+                                  onOpen={() => setAiPanelOpen(true)}
+                                  onDismiss={() => setShowAiBanner(false)}
+                                />
+                              </motion.div>
+                            ) : (
+                              /* ── Compact button ── */
+                              <motion.div
+                                key="button"
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                                className="mx-3 mt-3 mb-2"
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => setAiPanelOpen(true)}
+                                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#C9A96E]/30 bg-[#C9A96E]/[0.05] px-3 py-2 text-[0.72rem] uppercase tracking-[0.25em] text-[#8b6d3d] transition-all hover:bg-[#C9A96E]/[0.10] hover:border-[#C9A96E]/50"
+                                >
+                                  <Sparkles className="h-3 w-3" />
+                                  AI 匯入
+                                </button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        )}
+
+                        <div className="px-3 py-3">
                         {(() => {
                           // color_theme is managed via the 顏色 / 字型 tabs — hide it from the drag list.
                           // Reorder.Group requires values to exactly match rendered items, so we
@@ -323,6 +401,7 @@ export default function EditProjectPage() {
                             </div>
                           </div>
                         )}
+                        </div>{/* end px-3 py-3 */}
                       </div>
 
                       <ModulePicker
