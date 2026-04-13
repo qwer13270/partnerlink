@@ -126,13 +126,13 @@ export default async function MerchantHomePage() {
     linkIds.length > 0
       ? admin
           .from('referral_conversions')
-          .select('id, referral_link_id, name, conversion_type, visited_at, deal_value, deal_confirmed_at, converted_at')
+          .select('id, referral_link_id, name, conversion_type, status, deal_value, deal_confirmed_at, converted_at')
           .in('referral_link_id', linkIds)
           .order('converted_at', { ascending: false })
       : Promise.resolve({ data: [] }),
     admin
       .from('property_inquiries')
-      .select('id, property_id, name, submitted_at, visited_at, deal_confirmed_at')
+      .select('id, property_id, name, submitted_at, status, deal_confirmed_at')
       .in('property_id', projectIds)
       .order('submitted_at', { ascending: false }),
     kolUserIds.length > 0
@@ -152,31 +152,27 @@ export default async function MerchantHomePage() {
   // ── Compute stats ─────────────────────────────────────────────────────────
   const allConvs = (convR.data ?? []) as {
     id: string; referral_link_id: string; name: string | null
-    conversion_type: string; visited_at: string | null
+    conversion_type: string; status: string
     deal_value: number | null; deal_confirmed_at: string | null; converted_at: string
   }[]
 
   const allInquiries = (inquiryR.data ?? []) as {
     id: string; property_id: string; name: string | null
-    submitted_at: string; visited_at: string | null; deal_confirmed_at: string | null
+    submitted_at: string; status: string; deal_confirmed_at: string | null
   }[]
 
   const monthDeals = allConvs.filter(
     r => r.conversion_type === 'deal' && r.converted_at >= monthStart,
   ).length
 
-  const monthVisitsConv = allConvs.filter(
-    r => r.conversion_type === 'inquiry' && r.visited_at && r.visited_at >= monthStart,
-  ).length
-
-  const monthVisitsDirect = allInquiries.filter(
-    r => r.visited_at && r.visited_at >= monthStart,
-  ).length
+  // visited_at was removed; count all customers who have reached 'visited' or 'dealt' status
+  const totalVisitsConv    = allConvs.filter(r => r.conversion_type === 'inquiry' && (r.status === 'visited' || r.status === 'dealt')).length
+  const totalVisitsDirect  = allInquiries.filter(r => r.status === 'visited' || r.status === 'dealt').length
 
   const stats: MerchantStats = {
     projectCount:   projectIds.length,
     activeKolCount: activeKolIds.length,
-    monthVisits:    monthVisitsConv + monthVisitsDirect,
+    monthVisits:    totalVisitsConv + totalVisitsDirect,
     monthDeals,
   }
 
@@ -194,7 +190,7 @@ export default async function MerchantHomePage() {
         projectName: (projectId ? projectNameById.get(projectId as string) : null) ?? '未知案場',
         kolName:     kolUserId ? (kolNameById.get(kolUserId) ?? null) : null,
         submittedAt: r.converted_at,
-        status:      r.deal_confirmed_at ? 'deal' : r.visited_at ? 'visited' : 'inquiry',
+        status:      r.deal_confirmed_at ? 'deal' : (r.status === 'visited' ? 'visited' : 'inquiry'),
       } as RecentCustomer
     })
 
@@ -204,7 +200,7 @@ export default async function MerchantHomePage() {
     projectName: projectNameById.get(r.property_id) ?? '未知案場',
     kolName:     null,
     submittedAt: r.submitted_at,
-    status:      r.deal_confirmed_at ? 'deal' : r.visited_at ? 'visited' : 'inquiry',
+    status:      r.deal_confirmed_at ? 'deal' : (r.status === 'visited' ? 'visited' : 'inquiry'),
   }))
 
   const recentCustomers = [...attributedRecent, ...directRecent]

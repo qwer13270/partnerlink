@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import TongchuangWingPage from '@/components/property/TongchuangWingPage'
+import DefaultPropertyPage from '@/components/property/DefaultPropertyPage'
 import ShangAnPage from '@/components/property/ShangAnPage'
 import type { TongchuangTemplateContent, ShangAnTemplateContent } from '@/lib/property-template'
 
@@ -51,7 +51,7 @@ export default function ProjectFramePage() {
         content.templateKey === 'shop' ? (
           <ShangAnPage content={content} editor={editorProps} />
         ) : (
-          <TongchuangWingPage content={content} editor={editorProps} />
+          <DefaultPropertyPage content={content} editor={editorProps} />
         )
       ) : (
         <div className="min-h-screen bg-[#0D0D0E]" />

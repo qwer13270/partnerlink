@@ -8,7 +8,7 @@ import {
   NearbyAmenities,
   ConstructionTimeline,
   BookTourCTA,
-  TongchuangWingPage,
+  DefaultPropertyPage,
 } from '@/components/property'
 import { buildDefaultProjectContentPreview } from '@/lib/property-template'
 import { getPublishedPropertyBySlug } from '@/lib/server/properties'
@@ -62,7 +62,7 @@ export default async function PropertyPage({ params, searchParams }: Props) {
   const property = getPropertyBySlug(slug)
 
   if (dbProperty?.type === 'property') {
-    return <TongchuangWingPage content={dbProperty.template as import('@/lib/property-template').TongchuangTemplateContent} referrer={ref} />
+    return <DefaultPropertyPage content={dbProperty.template as import('@/lib/property-template').TongchuangTemplateContent} referrer={ref} />
   }
 
   if (!property) {
@@ -70,7 +70,7 @@ export default async function PropertyPage({ params, searchParams }: Props) {
   }
 
   if (property.slug === 'tongchuang-wing') {
-    return <TongchuangWingPage content={buildDefaultProjectContentPreview()} referrer={ref} />
+    return <DefaultPropertyPage content={buildDefaultProjectContentPreview()} referrer={ref} />
   }
 
   return (

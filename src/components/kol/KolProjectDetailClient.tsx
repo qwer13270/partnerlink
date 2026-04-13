@@ -385,7 +385,7 @@ export default function KolProjectDetailClient({ detail }: Props) {
   const [shipment, setShipment] = useState<Shipment | null>(detail.shipment)
 
   const is建案      = detail.project_type === 'property'
-  const isActive    = detail.collab_status === 'active'
+  const isActive    = detail.collab_status === 'active' && !detail.project_archived
 const totalCommWan  = detail.deal_entries.reduce((s, e) => s + e.commissionWan, 0)
 
   function collabTypeLabel() {

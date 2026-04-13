@@ -9,10 +9,9 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = [
-    { label: "所有商案", href: "/properties" },
-    { label: "KOL 合作", href: "#" },
-    { label: "商家合作", href: "#" },
+    { label: "首頁", href: "/" },
     { label: "關於我們", href: "#" },
+    { label: "成為KOL", href: "#" },
   ];
 
   return (
@@ -46,7 +45,7 @@ export default function Footer() {
             className="md:col-span-3"
           >
             <h4 className="text-xs uppercase tracking-widest text-muted-foreground mb-6">
-              導航
+              連結
             </h4>
             <ul className="space-y-4">
               {footerLinks.map((link) => (

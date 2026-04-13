@@ -35,7 +35,7 @@ function ProjectTypeIcon({ type, className }: { type: 'property' | 'shop'; class
 // ── Collaboration card ────────────────────────────────────────────────────────
 function CollabCard({ collab, index }: { collab: CollabSummary; index: number }) {
   const is建案   = collab.project_type === 'property'
-  const isActive = collab.collab_status === 'active'
+  const isActive = collab.collab_status === 'active' && !collab.project_archived
 
   return (
     <motion.div
@@ -104,7 +104,7 @@ function CollabCard({ collab, index }: { collab: CollabSummary; index: number })
                     ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                     : 'border-zinc-200 bg-zinc-50 text-zinc-500'
                 }`}>
-                  {isActive ? '進行中' : '已結束'}
+                  {isActive ? '進行中' : '已封存'}
                 </span>
                 <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors" />
               </div>
@@ -188,7 +188,7 @@ interface Props {
 }
 
 type TypeFilter  = 'all' | 'property' | 'shop'
-type StatusFilter = 'active' | 'ended'
+type StatusFilter = 'active' | 'archived'
 
 // ── Type filter pill ──────────────────────────────────────────────────────────
 function TypePill({
@@ -230,9 +230,9 @@ export default function KolProjectsClient({ collaborations }: Props) {
   const byType = (list: CollabSummary[]) =>
     typeFilter === 'all' ? list : list.filter(c => c.project_type === typeFilter)
 
-  const active  = collaborations.filter(c => c.collab_status === 'active')
-  const ended   = collaborations.filter(c => c.collab_status === 'ended')
-  const base    = statusTab === 'active' ? active : ended
+  const active   = collaborations.filter(c => c.collab_status === 'active' && !c.project_archived)
+  const archived = collaborations.filter(c => c.project_archived)
+  const base     = statusTab === 'active' ? active : archived
   const shown   = byType(base)
 
   const countAll      = base.length
@@ -258,7 +258,7 @@ export default function KolProjectsClient({ collaborations }: Props) {
           className="grid grid-cols-3 gap-3"
         >
           {[
-            { label: '進行中',   value: String(active.length),                                                   accent: 'text-emerald-700' },
+            { label: '進行中',   value: String(active.length),                                                    accent: 'text-emerald-700' },
             { label: '建案合作', value: String(collaborations.filter(c => c.project_type === 'property').length), accent: 'text-foreground'  },
             { label: '商案合作', value: String(collaborations.filter(c => c.project_type === 'shop').length),     accent: 'text-violet-700'  },
           ].map(s => (
@@ -280,7 +280,7 @@ export default function KolProjectsClient({ collaborations }: Props) {
         >
           {/* Status tabs (left) */}
           <div className="flex items-center gap-1">
-            {(['active', 'ended'] as const).map(t => (
+            {(['active', 'archived'] as const).map(t => (
               <button
                 key={t}
                 onClick={() => setStatusTab(t)}
@@ -290,15 +290,15 @@ export default function KolProjectsClient({ collaborations }: Props) {
                     : 'text-muted-foreground/50 hover:text-foreground/70 hover:bg-foreground/[0.05]'
                 }`}
               >
-                {t === 'active' ? '進行中' : '已結束'}
+                {t === 'active' ? '進行中' : '已封存'}
                 {t === 'active' && active.length > 0 && (
                   <span className={`ml-1.5 text-[0.65rem] font-mono ${statusTab === 'active' ? 'text-background/50' : 'text-muted-foreground/35'}`}>
                     {active.length}
                   </span>
                 )}
-                {t === 'ended' && ended.length > 0 && (
-                  <span className={`ml-1.5 text-[0.65rem] font-mono ${statusTab === 'ended' ? 'text-background/50' : 'text-muted-foreground/35'}`}>
-                    {ended.length}
+                {t === 'archived' && archived.length > 0 && (
+                  <span className={`ml-1.5 text-[0.65rem] font-mono ${statusTab === 'archived' ? 'text-background/50' : 'text-muted-foreground/35'}`}>
+                    {archived.length}
                   </span>
                 )}
               </button>
@@ -331,8 +331,8 @@ export default function KolProjectsClient({ collaborations }: Props) {
             ) : (
               <p className="text-sm text-muted-foreground/50 py-12 text-center font-mono tracking-[0.1em]">
                 {typeFilter !== 'all'
-                  ? `此分類目前沒有${statusTab === 'active' ? '進行中' : '已結束'}的合作`
-                  : statusTab === 'active' ? '目前沒有進行中的合作' : '目前沒有已結束的合作'
+                  ? `此分類目前沒有${statusTab === 'active' ? '進行中' : '已封存'}的合作`
+                  : statusTab === 'active' ? '目前沒有進行中的合作' : '目前沒有已封存的合作'
                 }
               </p>
             )}

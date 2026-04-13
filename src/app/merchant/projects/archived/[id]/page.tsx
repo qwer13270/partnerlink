@@ -102,7 +102,7 @@ export default async function ArchivedProjectDetailPage({
   type ConvRow = {
     id: string
     name: string | null
-    visited_at: string | null
+    status: string
     deal_value: number | null
     deal_confirmed_at: string | null
     referral_link_id: string
@@ -111,7 +111,7 @@ export default async function ArchivedProjectDetailPage({
   if (linkIds.length > 0) {
     const { data } = await admin
       .from('referral_conversions')
-      .select('id, name, visited_at, deal_value, deal_confirmed_at, referral_link_id')
+      .select('id, name, status, deal_value, deal_confirmed_at, referral_link_id')
       .eq('conversion_type', 'inquiry')
       .in('referral_link_id', linkIds)
     convRows = (data as ConvRow[] | null) ?? []
@@ -121,25 +121,25 @@ export default async function ArchivedProjectDetailPage({
   type DirectRow = {
     id: string
     name: string | null
-    visited_at: string | null
+    status: string
     deal_value: number | null
     deal_confirmed_at: string | null
   }
   const { data: directRows } = await admin
     .from('property_inquiries')
-    .select('id, name, visited_at, deal_value, deal_confirmed_at')
+    .select('id, name, status, deal_value, deal_confirmed_at')
     .eq('property_id', projectId)
 
   const directList = (directRows as DirectRow[] | null) ?? []
 
   // Build unified stats
   const allRows = [
-    ...convRows.map(r => ({ visited_at: r.visited_at, deal_value: r.deal_value, deal_confirmed_at: r.deal_confirmed_at })),
-    ...directList.map(r => ({ visited_at: r.visited_at, deal_value: r.deal_value, deal_confirmed_at: r.deal_confirmed_at })),
+    ...convRows.map(r => ({ status: r.status, deal_value: r.deal_value, deal_confirmed_at: r.deal_confirmed_at })),
+    ...directList.map(r => ({ status: r.status, deal_value: r.deal_value, deal_confirmed_at: r.deal_confirmed_at })),
   ]
 
   const totalInquiries  = allRows.length
-  const totalVisited    = allRows.filter(r => r.visited_at).length
+  const totalVisited    = allRows.filter(r => r.status === 'visited' || r.status === 'dealt').length
   const totalDeals      = allRows.filter(r => r.deal_confirmed_at).length
   const totalDealValue  = allRows.reduce((s, r) => s + (r.deal_value ?? 0), 0)
 

@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { requireApiRole } from '@/lib/server/api-auth'
 
-// ── PATCH /api/merchant/projects/:id/customers/mark-visited ──────────────────
-// Sets status = 'visited' for a customer (attributed or direct inquiry).
+// ── PATCH /api/merchant/projects/:id/customers/mark-not-interested ───────────
+// Marks a customer as not_interested, saving their current status so it can
+// be restored exactly on revert.
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -16,9 +17,10 @@ export async function PATCH(
   const body = await request.json().catch(() => ({})) as {
     source?:      'attributed' | 'direct'
     customer_id?: string
+    revert?:      boolean
   }
 
-  const { source, customer_id } = body
+  const { source, customer_id, revert = false } = body
 
   if (!source || (source !== 'attributed' && source !== 'direct'))
     return NextResponse.json({ error: 'source must be attributed or direct.' }, { status: 400 })
@@ -29,7 +31,7 @@ export async function PATCH(
 
   const { data: project } = await admin
     .from('projects')
-    .select('id, name')
+    .select('id')
     .eq('id', projectId)
     .eq('merchant_user_id', auth.user.id)
     .maybeSingle()
@@ -37,12 +39,10 @@ export async function PATCH(
   if (!project)
     return NextResponse.json({ error: 'Project not found.' }, { status: 404 })
 
-  const projectName = project.name as string
-
   if (source === 'attributed') {
     const { data: conv } = await admin
       .from('referral_conversions')
-      .select('id, referral_link_id, referral_links!inner(project_id, kol_user_id)')
+      .select('id, status, previous_status, referral_links!inner(project_id)')
       .eq('id', customer_id)
       .eq('referral_links.project_id', projectId)
       .maybeSingle()
@@ -50,30 +50,25 @@ export async function PATCH(
     if (!conv)
       return NextResponse.json({ error: '找不到此詢問紀錄。' }, { status: 404 })
 
+    const update = revert
+      ? { status: (conv.previous_status ?? 'inquiring') as string, previous_status: null }
+      : { status: 'not_interested', previous_status: conv.status as string }
+
     const { error } = await admin
       .from('referral_conversions')
-      .update({ status: 'visited' })
+      .update(update)
       .eq('id', customer_id)
 
     if (error) {
-      console.error('[mark-visited] attributed update:', error.message)
+      console.error('[mark-not-interested] attributed update:', error.message)
       return NextResponse.json({ error: '更新失敗。' }, { status: 500 })
     }
 
-    const refLink = conv.referral_links as unknown as { kol_user_id?: string } | null
-    const kolUserId = refLink?.kol_user_id ?? null
-    if (kolUserId) {
-      await admin.from('notifications').insert({
-        user_id: kolUserId,
-        type:    'visited',
-        title:   `「${projectName}」的客戶已看房，推廣效果顯現！`,
-        href:    '/kol/projects',
-      })
-    }
+    return NextResponse.json({ ok: true, restoredStatus: revert ? (conv.previous_status ?? 'inquiring') : null })
   } else {
     const { data: inquiry } = await admin
       .from('property_inquiries')
-      .select('id')
+      .select('id, status, previous_status')
       .eq('id', customer_id)
       .eq('property_id', projectId)
       .maybeSingle()
@@ -81,16 +76,20 @@ export async function PATCH(
     if (!inquiry)
       return NextResponse.json({ error: '找不到此詢問紀錄。' }, { status: 404 })
 
+    const update = revert
+      ? { status: (inquiry.previous_status ?? 'inquiring') as string, previous_status: null }
+      : { status: 'not_interested', previous_status: inquiry.status as string }
+
     const { error } = await admin
       .from('property_inquiries')
-      .update({ status: 'visited' })
+      .update(update)
       .eq('id', customer_id)
 
     if (error) {
-      console.error('[mark-visited] direct update:', error.message)
+      console.error('[mark-not-interested] direct update:', error.message)
       return NextResponse.json({ error: '更新失敗。' }, { status: 500 })
     }
-  }
 
-  return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, restoredStatus: revert ? (inquiry.previous_status ?? 'inquiring') : null })
+  }
 }

@@ -28,7 +28,7 @@ const PropertyMap = dynamic(() => import("./PropertyMap"), {
   ),
 });
 
-interface TongchuangWingPageProps {
+interface DefaultPropertyPageProps {
   content: TongchuangTemplateContent;
   referrer?: string | null;
   editor?: {
@@ -52,11 +52,11 @@ const fadeIn = (delay = 0) => ({
   transition: { duration: 1.4, delay, ease: "easeOut" as const },
 });
 
-export default function TongchuangWingPage({
+export default function DefaultPropertyPage({
   content,
   referrer,
   editor,
-}: TongchuangWingPageProps) {
+}: DefaultPropertyPageProps) {
   const [submitted, setSubmitted] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<
     TongchuangTemplateContent["timelineItems"][number] | null
@@ -526,7 +526,7 @@ function renderModule({
                 className="[font-family:var(--font-serif-tc)] mb-10 font-light leading-[1.3] text-[var(--p-text)]"
                 style={{ fontSize: "clamp(24px, 3.5vw, 44px)" }}
               >
-                {content.locationTitle}
+                {content.districtLabel}
               </h2>
 
               <div className="flex flex-col">
@@ -566,13 +566,6 @@ function renderModule({
       return (
         <>
           <section className="relative overflow-hidden bg-[var(--p-bg)] px-6 py-20 md:px-14 md:py-28" id="contact">
-            <div
-              className="pointer-events-none absolute right-[-2%] top-1/2 hidden -translate-y-1/2 whitespace-pre font-serif text-[var(--p-accent)]/[0.025] select-none lg:block"
-              style={{ fontSize: 190 }}
-            >
-              {"PHOENIX\nONE"}
-            </div>
-
             <motion.div {...reveal(0)} className="relative z-10 max-w-[600px]">
               <SectionLabel>預約賞屋</SectionLabel>
               <h2
@@ -1168,7 +1161,7 @@ function EditableModule({
   module,
   children,
 }: {
-  editor?: TongchuangWingPageProps["editor"];
+  editor?: DefaultPropertyPageProps["editor"];
   module: TongchuangTemplateModule;
   children: ReactNode;
 }) {

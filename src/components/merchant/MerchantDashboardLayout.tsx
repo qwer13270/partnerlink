@@ -15,7 +15,7 @@ import { useMerchantType } from '@/hooks/useMerchantType'
 import { typeLabel } from '@/lib/merchant-application'
 
 // ── Sub-nav definitions ──────────────────────────────────────────────────────
-type NavItem = { seg: string; label: string; Icon: React.ElementType }
+type NavItem = { seg: string; label: string; Icon: React.ElementType; disabled?: boolean }
 
 const MANAGE: NavItem[] = [
   { seg: 'customers',     label: '客戶名單', Icon: Users       },
@@ -27,8 +27,8 @@ const MANAGE: NavItem[] = [
 ]
 
 const ANALYSE: NavItem[] = [
-  { seg: 'audience',          label: '受眾輪廓分析', Icon: BrainCircuit },
-  { seg: 'customer-insights', label: '歷史客群分析', Icon: Users        },
+  { seg: 'audience',          label: '受眾輪廓分析', Icon: BrainCircuit, disabled: true },
+  { seg: 'customer-insights', label: '歷史客群分析', Icon: Users,        disabled: true },
   { seg: 'analytics',         label: '地區房市行情', Icon: BarChart3    },
 ]
 
@@ -160,9 +160,23 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                 <div className="space-y-1 px-6 py-2">
                   {[1,2].map(i => <div key={i} className="h-3 rounded bg-foreground/[0.06] animate-pulse" style={{ width: `${60 + i * 10}%` }} />)}
                 </div>
-              ) : visibleAnalyse.map(({ seg, label, Icon }) => {
+              ) : visibleAnalyse.map(({ seg, label, Icon, disabled }) => {
                 const href   = `/merchant/projects/${projectId}/${seg}`
                 const active = pathname.startsWith(href)
+                if (disabled) {
+                  return (
+                    <div
+                      key={seg}
+                      className="sidebar-link opacity-40 cursor-not-allowed select-none"
+                    >
+                      <Icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                      <span className="text-sm flex-1">{label}</span>
+                      <span className="text-[0.55rem] tracking-[1px] uppercase text-muted-foreground border border-muted-foreground/30 px-1.5 py-0.5 leading-none">
+                        開發中
+                      </span>
+                    </div>
+                  )
+                }
                 return (
                   <Link
                     key={seg}

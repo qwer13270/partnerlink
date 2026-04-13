@@ -219,7 +219,6 @@ function HeaderBell({ role }: { role: NotifRole }) {
 
 const NAV_LINKS = [
   { label: "關於我們", href: "/about" },
-  { label: "合作商案", href: "/properties" },
   { label: "成為 KOL", href: "/join/kol" },
 ];
 
@@ -368,10 +367,10 @@ export default function Header() {
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
               <Link href="/" className="flex items-center gap-2 shrink-0 group">
-                <span className="font-serif text-[15px] font-normal tracking-tight group-hover:opacity-70 transition-opacity duration-200">
+                <span className="font-serif text-[17px] font-normal tracking-tight group-hover:opacity-70 transition-opacity duration-200">
                   PartnerLink
                 </span>
-                <span className="text-[9px] tracking-[0.22em] text-muted-foreground uppercase mt-0.5">
+                <span className="text-[11px] tracking-[0.22em] text-muted-foreground uppercase mt-0.5">
                   夥伴
                 </span>
               </Link>
@@ -383,7 +382,7 @@ export default function Header() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="relative text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors duration-200 group py-1"
+                      className="relative text-[13px] uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground transition-colors duration-200 group py-1"
                     >
                       {item.label}
                       <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground group-hover:w-full transition-all duration-300 ease-out" />
@@ -398,7 +397,7 @@ export default function Header() {
                   <>
                     {/* Role pill */}
                     {role && (
-                      <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground border border-border px-2.5 py-1 leading-none">
+                      <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground border border-border px-2.5 py-1 leading-none">
                         {roleLabel}
                       </span>
                     )}
@@ -407,7 +406,7 @@ export default function Header() {
                     {dashboardHref && (
                       <Link
                         href={dashboardHref}
-                        className="flex items-center gap-1 text-[11px] uppercase tracking-[0.15em] text-foreground hover:text-muted-foreground transition-colors duration-200"
+                        className="flex items-center gap-1 text-[13px] uppercase tracking-[0.12em] text-foreground hover:text-muted-foreground transition-colors duration-200"
                       >
                         {dashboardLabel}
                         <ArrowUpRight className="w-3 h-3" />
@@ -451,7 +450,7 @@ export default function Header() {
                                 {displayName}
                               </p>
                               {role && (
-                                <p className="text-[10px] text-muted-foreground mt-1.5 uppercase tracking-[0.15em]">
+                                <p className="text-[11px] text-muted-foreground mt-1.5 uppercase tracking-[0.12em]">
                                   {roleLabel}
                                 </p>
                               )}
@@ -462,7 +461,7 @@ export default function Header() {
                                   setUserMenuOpen(false);
                                   setProfileModalOpen(true);
                                 }}
-                                className="flex items-center justify-between w-full px-4 py-3 text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150"
+                                className="flex items-center justify-between w-full px-4 py-3 text-[13px] uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150"
                               >
                                 <span>編輯頭像</span>
                                 <ArrowUpRight className="w-3 h-3" />
@@ -484,7 +483,7 @@ export default function Header() {
                   <>
                     <Link
                       href="/login"
-                      className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors duration-200"
+                      className="text-[13px] uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground transition-colors duration-200"
                     >
                       登入
                     </Link>
@@ -492,7 +491,7 @@ export default function Header() {
                     <Button
                       asChild
                       size="sm"
-                      className="rounded-none text-[11px] uppercase tracking-[0.15em] bg-foreground text-background hover:bg-foreground/85 h-8 px-4"
+                      className="rounded-none text-[13px] uppercase tracking-[0.12em] bg-foreground text-background hover:bg-foreground/85 h-8 px-4"
                     >
                       <Link href="/signup">立即加入</Link>
                     </Button>
@@ -590,7 +589,7 @@ export default function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                       className="flex items-center justify-between py-4 border-b border-border/60 text-foreground hover:text-muted-foreground transition-colors duration-200"
                     >
-                      <span className="text-[12px] uppercase tracking-[0.14em]">
+                      <span className="text-[13px] uppercase tracking-[0.12em]">
                         {item.label}
                       </span>
                       <ArrowUpRight className="h-3.5 w-3.5 shrink-0" />
@@ -604,7 +603,7 @@ export default function Header() {
                 {isLoggedIn ? (
                   <button
                     onClick={handleLogout}
-                    className="flex items-center justify-between w-full text-[12px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    className="flex items-center justify-between w-full text-[13px] uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground transition-colors duration-200"
                   >
                     <span>登出</span>
                     <ArrowUpRight className="h-3.5 w-3.5" />
@@ -613,7 +612,7 @@ export default function Header() {
                   <Link
                     href="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between w-full text-[12px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    className="flex items-center justify-between w-full text-[13px] uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground transition-colors duration-200"
                   >
                     <span>登入</span>
                     <ArrowUpRight className="h-3.5 w-3.5" />

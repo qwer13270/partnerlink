@@ -5,6 +5,8 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getSupabaseUrl, getSupabasePublishableKey } from '@/lib/supabase/env'
 import CustomersClient from './CustomersClient'
 
+export type CustomerStatus = 'inquiring' | 'visited' | 'not_interested' | 'dealt'
+
 export type Customer = {
   id: string
   source: 'attributed' | 'direct'
@@ -16,7 +18,8 @@ export type Customer = {
   kolName: string | null
   kolUserId: string | null
   referralLinkId: string | null
-  visitedAt: string | null
+  status: CustomerStatus
+  previousStatus: CustomerStatus | null
   dealValue: number | null
   dealConfirmedAt: string | null
   roomType: string | null
@@ -68,8 +71,6 @@ export default async function CustomersPage({
   if (!project) redirect('/merchant/projects')
 
   // ── Fetch all referral links for this project (active + inactive) ─────────
-  // Done first so we can filter conversions by link ID — avoids relying on
-  // Supabase embedded-join format which can silently return null for kol_user_id.
   const { data: allRefLinks } = await admin
     .from('referral_links')
     .select('id, kol_user_id, is_active')
@@ -98,14 +99,15 @@ export default async function CustomersPage({
     }
   }
 
-  // ── Fetch attributed inquiries via link IDs (no embedded join) ─────────────
+  // ── Fetch attributed inquiries ────────────────────────────────────────────
   type ConvRow = {
     id: string
     name: string | null
     phone: string | null
     email: string | null
     message: string | null
-    visited_at: string | null
+    status: CustomerStatus
+    previous_status: CustomerStatus | null
     deal_value: number | null
     deal_confirmed_at: string | null
     converted_at: string
@@ -117,7 +119,7 @@ export default async function CustomersPage({
   if (linkIds.length > 0) {
     const { data } = await admin
       .from('referral_conversions')
-      .select('id, name, phone, email, message, visited_at, deal_value, deal_confirmed_at, converted_at, referral_link_id, room_type, room_number')
+      .select('id, name, phone, email, message, status, previous_status, deal_value, deal_confirmed_at, converted_at, referral_link_id, room_type, room_number')
       .eq('conversion_type', 'inquiry')
       .in('referral_link_id', linkIds)
       .order('converted_at', { ascending: false })
@@ -127,7 +129,7 @@ export default async function CustomersPage({
   // ── Fetch direct inquiries ────────────────────────────────────────────────
   const { data: directRows } = await admin
     .from('property_inquiries')
-    .select('id, name, phone, email, message, submitted_at, visited_at, deal_value, deal_confirmed_at, room_type, room_number')
+    .select('id, name, phone, email, message, submitted_at, status, previous_status, deal_value, deal_confirmed_at, room_type, room_number')
     .eq('property_id', projectId)
     .order('submitted_at', { ascending: false })
 
@@ -153,7 +155,8 @@ export default async function CustomersPage({
       kolName:         kolUserId ? (kolMap[kolUserId] ?? null) : null,
       kolUserId,
       referralLinkId:  r.referral_link_id,
-      visitedAt:       r.visited_at,
+      status:          r.status ?? 'inquiring',
+      previousStatus:  r.previous_status ?? null,
       dealValue:       r.deal_value,
       dealConfirmedAt: r.deal_confirmed_at,
       roomType:        r.room_type,
@@ -168,7 +171,8 @@ export default async function CustomersPage({
     email: string | null
     message: string | null
     submitted_at: string
-    visited_at: string | null
+    status: CustomerStatus
+    previous_status: CustomerStatus | null
     deal_value: number | null
     deal_confirmed_at: string | null
     room_type: string | null
@@ -186,7 +190,8 @@ export default async function CustomersPage({
     kolName:         null,
     kolUserId:       null,
     referralLinkId:  null,
-    visitedAt:       r.visited_at,
+    status:          r.status ?? 'inquiring',
+    previousStatus:  r.previous_status ?? null,
     dealValue:       r.deal_value,
     dealConfirmedAt: r.deal_confirmed_at,
     roomType:        r.room_type,

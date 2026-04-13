@@ -9,7 +9,7 @@ import {
   BedDouble, Hash, CalendarCheck2,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import type { Customer, ActiveKol } from './page'
+import type { Customer, ActiveKol, CustomerStatus } from './page'
 
 // ── Animation ──────────────────────────────────────────────────────────────
 const fadeUp = (delay = 0) => ({
@@ -17,6 +17,17 @@ const fadeUp = (delay = 0) => ({
   animate:    { opacity: 1, y: 0 },
   transition: { duration: 0.45, delay, ease: [0.22, 1, 0.36, 1] as const },
 })
+
+// ── Filter config ──────────────────────────────────────────────────────────
+type TabKey = 'all' | 'inquiring' | 'visited' | 'dealt' | 'not_interested'
+
+const TABS: { key: TabKey; label: string }[] = [
+  { key: 'all',           label: '全部'     },
+  { key: 'inquiring',     label: '詢問中'   },
+  { key: 'visited',       label: '已看房'   },
+  { key: 'dealt',         label: '確認成交' },
+  { key: 'not_interested', label: '不感興趣' },
+]
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function formatDate(iso: string) {
@@ -33,10 +44,7 @@ function formatDealValue(v: number) {
 function StatCard({
   label, value, sub, accent = false,
 }: {
-  label: string
-  value: string
-  sub?: string
-  accent?: boolean
+  label: string; value: string; sub?: string; accent?: boolean
 }) {
   return (
     <div
@@ -59,11 +67,7 @@ function SourceBadge({ customer }: { customer: Customer }) {
     return (
       <span
         className="inline-flex items-center gap-1 text-[0.67rem] font-medium px-2 py-0.5 rounded border"
-        style={{
-          background: 'rgba(196,145,58,0.08)',
-          borderColor: 'rgba(196,145,58,0.25)',
-          color: '#b8822e',
-        }}
+        style={{ background: 'rgba(196,145,58,0.08)', borderColor: 'rgba(196,145,58,0.25)', color: '#b8822e' }}
       >
         <Link2 className="h-2.5 w-2.5" />
         {customer.kolName ?? 'KOL 引薦'}
@@ -71,9 +75,7 @@ function SourceBadge({ customer }: { customer: Customer }) {
     )
   }
   return (
-    <span
-      className="inline-flex items-center gap-1 text-[0.67rem] text-muted-foreground/70 px-2 py-0.5 rounded border border-foreground/[0.08]"
-    >
+    <span className="inline-flex items-center gap-1 text-[0.67rem] text-muted-foreground/70 px-2 py-0.5 rounded border border-foreground/[0.08]">
       <CircleDot className="h-2.5 w-2.5" />
       直接詢問
     </span>
@@ -81,52 +83,48 @@ function SourceBadge({ customer }: { customer: Customer }) {
 }
 
 // ── Status badge ───────────────────────────────────────────────────────────
-function StatusBadge({
-  customer,
-  onViewDeal,
-}: {
-  customer: Customer
-  onViewDeal: () => void
-}) {
-  if (customer.dealConfirmedAt && customer.dealValue) {
-    return (
-      <button
-        onClick={(e) => { e.stopPropagation(); onViewDeal() }}
-        className="inline-flex items-center gap-1 text-[0.67rem] font-medium px-2 py-0.5 rounded border cursor-pointer hover:opacity-80 active:scale-[0.97] transition-all duration-150"
-        style={{ background: 'rgba(74,158,110,0.09)', borderColor: 'rgba(74,158,110,0.25)', color: '#3a8a5e' }}
-      >
-        <CheckCircle2 className="h-2.5 w-2.5" />
-        已成交
-      </button>
-    )
+function StatusBadge({ customer, onViewDeal }: { customer: Customer; onViewDeal: () => void }) {
+  switch (customer.status) {
+    case 'dealt':
+      return (
+        <button
+          onClick={(e) => { e.stopPropagation(); onViewDeal() }}
+          className="inline-flex items-center gap-1 text-[0.67rem] font-medium px-2 py-0.5 rounded border cursor-pointer hover:opacity-80 active:scale-[0.97] transition-all duration-150"
+          style={{ background: 'rgba(74,158,110,0.09)', borderColor: 'rgba(74,158,110,0.25)', color: '#3a8a5e' }}
+        >
+          <CheckCircle2 className="h-2.5 w-2.5" />
+          已成交
+        </button>
+      )
+    case 'visited':
+      return (
+        <span
+          className="inline-flex items-center gap-1 text-[0.67rem] font-medium px-2 py-0.5 rounded border"
+          style={{ background: 'rgba(59,130,246,0.08)', borderColor: 'rgba(59,130,246,0.25)', color: '#2563eb' }}
+        >
+          <DoorOpen className="h-2.5 w-2.5" />
+          已看房
+        </span>
+      )
+    case 'not_interested':
+      return (
+        <span className="inline-flex items-center gap-1 text-[0.67rem] text-muted-foreground/45 px-2 py-0.5 rounded border border-foreground/[0.07]">
+          <span className="text-[0.6rem] leading-none">—</span>
+          不感興趣
+        </span>
+      )
+    default:
+      return (
+        <span className="inline-flex items-center gap-1 text-[0.67rem] text-muted-foreground/60 px-2 py-0.5 rounded border border-foreground/[0.07]">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+          詢問中
+        </span>
+      )
   }
-  if (customer.visitedAt) {
-    return (
-      <span
-        className="inline-flex items-center gap-1 text-[0.67rem] font-medium px-2 py-0.5 rounded border"
-        style={{ background: 'rgba(59,130,246,0.08)', borderColor: 'rgba(59,130,246,0.25)', color: '#2563eb' }}
-      >
-        <DoorOpen className="h-2.5 w-2.5" />
-        已看房
-      </span>
-    )
-  }
-  return (
-    <span className="inline-flex items-center gap-1 text-[0.67rem] text-muted-foreground/60 px-2 py-0.5 rounded border border-foreground/[0.07]">
-      <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-      詢問中
-    </span>
-  )
 }
 
 // ── Deal detail modal ──────────────────────────────────────────────────────
-function DealDetailModal({
-  customer,
-  onClose,
-}: {
-  customer: Customer
-  onClose: () => void
-}) {
+function DealDetailModal({ customer, onClose }: { customer: Customer; onClose: () => void }) {
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -141,7 +139,6 @@ function DealDetailModal({
         className="w-full max-w-sm rounded-xl border border-foreground/[0.1] bg-background shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Emerald header band */}
         <div
           className="px-6 py-5"
           style={{ background: 'linear-gradient(135deg, rgba(74,158,110,0.12) 0%, rgba(74,158,110,0.05) 100%)', borderBottom: '1px solid rgba(74,158,110,0.15)' }}
@@ -150,24 +147,14 @@ function DealDetailModal({
             <div>
               <p className="text-[0.6rem] uppercase tracking-[0.4em] text-emerald-700/70 mb-1">成交明細</p>
               <h2 className="text-lg font-serif text-foreground">{customer.name ?? '客戶'}</h2>
-              {customer.kolName && (
-                <p className="text-[0.7rem] text-muted-foreground/60 mt-0.5">
-                  來源：{customer.kolName}
-                </p>
-              )}
+              {customer.kolName && <p className="text-[0.7rem] text-muted-foreground/60 mt-0.5">來源：{customer.kolName}</p>}
             </div>
-            <button
-              onClick={onClose}
-              className="flex items-center justify-center h-7 w-7 rounded-lg bg-black/[0.05] hover:bg-black/[0.09] transition-colors"
-            >
+            <button onClick={onClose} className="flex items-center justify-center h-7 w-7 rounded-lg bg-black/[0.05] hover:bg-black/[0.09] transition-colors">
               <X className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
           </div>
         </div>
-
-        {/* Detail rows */}
         <div className="px-6 py-5 space-y-4">
-          {/* Deal value — prominent */}
           <div
             className="flex items-center justify-between rounded-lg px-4 py-3"
             style={{ background: 'rgba(74,158,110,0.07)', border: '1px solid rgba(74,158,110,0.18)' }}
@@ -176,46 +163,28 @@ function DealDetailModal({
               <CheckCircle2 className="h-4 w-4 text-emerald-600" />
               <span className="text-[0.7rem] uppercase tracking-[0.25em] text-emerald-700/80">成交金額</span>
             </div>
-            <span className="text-base font-semibold font-serif text-emerald-700">
-              {formatDealValue(customer.dealValue!)}
-            </span>
+            <span className="text-base font-semibold font-serif text-emerald-700">{formatDealValue(customer.dealValue!)}</span>
           </div>
-
-          {/* Room type + room number */}
           <div className="grid grid-cols-2 gap-3">
-            <div
-              className="rounded-lg px-4 py-3"
-              style={{ background: 'rgba(26,26,26,0.03)', border: '1px solid rgba(26,26,26,0.07)' }}
-            >
+            <div className="rounded-lg px-4 py-3" style={{ background: 'rgba(26,26,26,0.03)', border: '1px solid rgba(26,26,26,0.07)' }}>
               <div className="flex items-center gap-1.5 mb-1.5">
                 <BedDouble className="h-3 w-3 text-muted-foreground/50" />
                 <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground/50">房型</p>
               </div>
-              <p className="text-sm font-medium">
-                {customer.roomType ?? <span className="text-muted-foreground/40 font-normal">—</span>}
-              </p>
+              <p className="text-sm font-medium">{customer.roomType ?? <span className="text-muted-foreground/40 font-normal">—</span>}</p>
             </div>
-            <div
-              className="rounded-lg px-4 py-3"
-              style={{ background: 'rgba(26,26,26,0.03)', border: '1px solid rgba(26,26,26,0.07)' }}
-            >
+            <div className="rounded-lg px-4 py-3" style={{ background: 'rgba(26,26,26,0.03)', border: '1px solid rgba(26,26,26,0.07)' }}>
               <div className="flex items-center gap-1.5 mb-1.5">
                 <Hash className="h-3 w-3 text-muted-foreground/50" />
                 <p className="text-[0.62rem] uppercase tracking-[0.25em] text-muted-foreground/50">房號</p>
               </div>
-              <p className="text-sm font-medium">
-                {customer.roomNumber ?? <span className="text-muted-foreground/40 font-normal">—</span>}
-              </p>
+              <p className="text-sm font-medium">{customer.roomNumber ?? <span className="text-muted-foreground/40 font-normal">—</span>}</p>
             </div>
           </div>
-
-          {/* Confirmed date */}
           {customer.dealConfirmedAt && (
             <div className="flex items-center gap-2">
               <CalendarCheck2 className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
-              <p className="text-[0.7rem] text-muted-foreground/50">
-                成交時間：{formatDate(customer.dealConfirmedAt)}
-              </p>
+              <p className="text-[0.7rem] text-muted-foreground/50">成交時間：{formatDate(customer.dealConfirmedAt)}</p>
             </div>
           )}
         </div>
@@ -226,56 +195,50 @@ function DealDetailModal({
 
 // ── Customer row ───────────────────────────────────────────────────────────
 function CustomerRow({
-  customer,
-  index,
-  onMarkVisited,
-  onConfirmDeal,
-  onViewDeal,
+  customer, index, onMarkVisited, onConfirmDeal, onViewDeal, onMarkNotInterested,
 }: {
   customer: Customer
   index: number
   onMarkVisited: (c: Customer) => void
   onConfirmDeal: (c: Customer) => void
   onViewDeal: (c: Customer) => void
+  onMarkNotInterested: (c: Customer, revert: boolean) => void
 }) {
   const [expanded, setExpanded] = useState(false)
-  const isDeal    = !!customer.dealConfirmedAt
-  const isVisited = !!customer.visitedAt
+  const { status } = customer
 
-  const rowBg = isDeal ? 'bg-emerald-50/30' : isVisited ? 'bg-blue-50/20' : ''
+  const rowBg =
+    status === 'dealt'          ? 'bg-emerald-50/30' :
+    status === 'visited'        ? 'bg-blue-50/20'    :
+    status === 'not_interested' ? 'bg-foreground/[0.018]' : ''
 
   return (
     <motion.div
-      custom={index}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+      exit={{ opacity: 0, y: -4 }}
+      transition={{ duration: 0.3, delay: index * 0.03, ease: [0.22, 1, 0.36, 1] }}
       className={`border-b border-foreground/[0.07] last:border-b-0 ${rowBg}`}
     >
-      {/* Main row */}
       <div className="px-5 py-4 flex items-center gap-4">
-        {/* Index */}
-        <span className="text-[0.65rem] font-mono text-muted-foreground/40 w-5 shrink-0 text-right">
-          {index + 1}
-        </span>
+        <span className="text-[0.65rem] font-mono text-muted-foreground/40 w-5 shrink-0 text-right">{index + 1}</span>
 
-        {/* Name + source */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-sm font-medium">{customer.name ?? '—'}</p>
+            <p className={`text-sm font-medium ${status === 'not_interested' ? 'text-muted-foreground/50' : ''}`}>
+              {customer.name ?? '—'}
+            </p>
             <SourceBadge customer={customer} />
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">{formatDate(customer.submittedAt)}</p>
         </div>
 
-        {/* Status */}
         <div className="shrink-0">
           <StatusBadge customer={customer} onViewDeal={() => onViewDeal(customer)} />
         </div>
 
-        {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">
-          {!isDeal && !isVisited && (
+          {status === 'inquiring' && (
             <button
               onClick={() => onMarkVisited(customer)}
               className="flex items-center gap-1.5 text-[0.75rem] font-medium px-3 py-1.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600 active:scale-[0.97] transition-all duration-150"
@@ -284,7 +247,7 @@ function CustomerRow({
               已看房
             </button>
           )}
-          {!isDeal && isVisited && (
+          {status === 'visited' && (
             <button
               onClick={() => onConfirmDeal(customer)}
               className="flex items-center gap-1.5 text-[0.75rem] font-medium px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 active:scale-[0.97] transition-all duration-150"
@@ -293,6 +256,30 @@ function CustomerRow({
               確認成交
             </button>
           )}
+
+          {/* Not interested / undo */}
+          {status !== 'dealt' && (
+            status === 'not_interested' ? (
+              <motion.button
+                onClick={() => onMarkNotInterested(customer, true)}
+                whileTap={{ scale: 0.97 }}
+                className="text-[0.7rem] text-muted-foreground/50 hover:text-foreground/70 px-2.5 py-1 transition-colors duration-150"
+                style={{ border: '1px solid rgba(26,26,26,0.15)', borderRadius: 2 }}
+              >
+                撤銷
+              </motion.button>
+            ) : (
+              <motion.button
+                onClick={() => onMarkNotInterested(customer, false)}
+                whileTap={{ scale: 0.97 }}
+                className="text-[0.7rem] text-muted-foreground/35 hover:text-muted-foreground/65 px-2.5 py-1 transition-colors duration-150"
+                style={{ border: '1px dashed rgba(26,26,26,0.18)', borderRadius: 2 }}
+              >
+                不感興趣
+              </motion.button>
+            )
+          )}
+
           <button
             onClick={() => setExpanded((e) => !e)}
             className="flex items-center justify-center h-7 w-7 rounded-lg bg-black/[0.05] hover:bg-black/[0.09] active:scale-[0.97] transition-all duration-150"
@@ -305,7 +292,6 @@ function CustomerRow({
         </div>
       </div>
 
-      {/* Expanded details */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -359,17 +345,13 @@ function CustomerRow({
 
 // ── Confirm deal modal ─────────────────────────────────────────────────────
 function ConfirmDealModal({
-  customer,
-  activeKols,
-  projectId,
-  onClose,
-  onConfirmed,
+  customer, activeKols, projectId, onClose, onConfirmed,
 }: {
   customer: Customer
   activeKols: ActiveKol[]
   projectId: string
   onClose: () => void
-  onConfirmed: (customerId: string, dealValue: number, roomType: string | null, roomNumber: string | null, kolUserId?: string) => void
+  onConfirmed: (customerId: string, dealValue: number, roomType: string | null, roomNumber: string | null) => void
 }) {
   const [dealValue, setDealValue] = useState('')
   const [roomType, setRoomType] = useState('')
@@ -377,7 +359,7 @@ function ConfirmDealModal({
   const [selectedKolId, setSelectedKolId] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const isDirect = customer.source === 'direct'
+  const isDirect  = customer.source === 'direct'
   const canSubmit = dealValue !== '' && parseFloat(dealValue) > 0
 
   async function handleSubmit() {
@@ -385,33 +367,24 @@ function ConfirmDealModal({
     if (!value || value <= 0) return
     setSubmitting(true)
     try {
-      const res = await fetch(
-        `/api/merchant/projects/${projectId}/customers/confirm-deal`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            source:       customer.source,
-            customer_id:  customer.id,
-            deal_value:   value,
-            room_type:    roomType.trim() || undefined,
-            room_number:  roomNumber.trim() || undefined,
-            kol_user_id:  isDirect && selectedKolId ? selectedKolId : undefined,
-          }),
-        },
-      )
+      const res = await fetch(`/api/merchant/projects/${projectId}/customers/confirm-deal`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source:      customer.source,
+          customer_id: customer.id,
+          deal_value:  value,
+          room_type:   roomType.trim() || undefined,
+          room_number: roomNumber.trim() || undefined,
+          kol_user_id: isDirect && selectedKolId ? selectedKolId : undefined,
+        }),
+      })
       if (!res.ok) {
         const payload = await res.json().catch(() => null) as { error?: string } | null
         throw new Error(payload?.error ?? '確認失敗')
       }
       toast.success(`${customer.name ?? '客戶'} 成交紀錄已儲存`)
-      onConfirmed(
-        customer.id,
-        value,
-        roomType.trim() || null,
-        roomNumber.trim() || null,
-        isDirect ? selectedKolId || undefined : undefined,
-      )
+      onConfirmed(customer.id, value, roomType.trim() || null, roomNumber.trim() || null)
       onClose()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '確認失敗，請稍後再試。')
@@ -434,101 +407,58 @@ function ConfirmDealModal({
         className="w-full max-w-md rounded-xl border border-foreground/[0.1] bg-background p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
             <p className="text-[0.65rem] uppercase tracking-[0.35em] text-muted-foreground mb-1">確認成交</p>
             <h2 className="text-xl font-serif">{customer.name ?? '此客戶'}</h2>
-            {customer.kolName && (
-              <p className="text-xs text-muted-foreground mt-1">
-                來源：{customer.kolName} 推廣連結
-              </p>
-            )}
+            {customer.kolName && <p className="text-xs text-muted-foreground mt-1">來源：{customer.kolName} 推廣連結</p>}
           </div>
-          <button
-            onClick={onClose}
-            className="flex items-center justify-center h-7 w-7 rounded-lg bg-black/[0.05] hover:bg-black/[0.09] transition-colors"
-          >
+          <button onClick={onClose} className="flex items-center justify-center h-7 w-7 rounded-lg bg-black/[0.05] hover:bg-black/[0.09] transition-colors">
             <X className="h-3.5 w-3.5 text-muted-foreground" />
           </button>
         </div>
 
-        {/* Deal value */}
         <div className="mb-4">
-          <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">
-            成交金額（萬元）
-          </label>
+          <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">成交金額（萬元）</label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/50">NT$</span>
             <input
-              type="number"
-              min="0"
-              step="1"
-              value={dealValue}
-              onChange={(e) => setDealValue(e.target.value)}
-              placeholder="0"
-              autoFocus
+              type="number" min="0" step="1" value={dealValue}
+              onChange={(e) => setDealValue(e.target.value)} placeholder="0" autoFocus
               className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pl-10 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/40"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/50">萬</span>
           </div>
         </div>
 
-        {/* Room type + room number */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
-            <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">
-              房型
-            </label>
+            <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">房型</label>
             <div className="relative">
               <BedDouble className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/40" />
-              <input
-                type="text"
-                value={roomType}
-                onChange={(e) => setRoomType(e.target.value)}
-                placeholder="例：三房兩廳"
-                className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pl-9 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/40"
-              />
+              <input type="text" value={roomType} onChange={(e) => setRoomType(e.target.value)} placeholder="例：三房兩廳"
+                className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pl-9 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/40" />
             </div>
           </div>
           <div>
-            <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">
-              房號
-            </label>
+            <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">房號</label>
             <div className="relative">
               <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/40" />
-              <input
-                type="text"
-                value={roomNumber}
-                onChange={(e) => setRoomNumber(e.target.value)}
-                placeholder="例：12F-A"
-                className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pl-9 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/40"
-              />
+              <input type="text" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} placeholder="例：12F-A"
+                className="w-full rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pl-9 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/40" />
             </div>
           </div>
         </div>
 
-        {/* KOL picker — only for direct inquiries with active KOLs */}
         {isDirect && activeKols.length > 0 && (
           <div className="mb-6">
-            <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">
-              歸因 KOL（選填）
-            </label>
-            <p className="text-[0.7rem] text-muted-foreground/60 mb-2.5">
-              若此客戶由 KOL 介紹，可將成交歸因至對應 KOL。
-            </p>
+            <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground mb-2">歸因 KOL（選填）</label>
+            <p className="text-[0.7rem] text-muted-foreground/60 mb-2.5">若此客戶由 KOL 介紹，可將成交歸因至對應 KOL。</p>
             <div className="relative">
-              <select
-                value={selectedKolId}
-                onChange={(e) => setSelectedKolId(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pr-8 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/40"
-              >
+              <select value={selectedKolId} onChange={(e) => setSelectedKolId(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-foreground/[0.12] bg-foreground/[0.02] px-3 py-2.5 pr-8 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/40">
                 <option value="">不歸因 KOL</option>
-                {activeKols.map((k) => (
-                  <option key={k.kolUserId} value={k.kolUserId}>
-                    {k.kolName}
-                  </option>
-                ))}
+                {activeKols.map((k) => <option key={k.kolUserId} value={k.kolUserId}>{k.kolName}</option>)}
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
             </div>
@@ -537,20 +467,13 @@ function ConfirmDealModal({
 
         {!isDirect && <div className="mb-6" />}
 
-        {/* Actions */}
         <div className="flex justify-end gap-2">
-          <button
-            onClick={onClose}
-            disabled={submitting}
-            className="rounded-lg bg-black/[0.06] px-4 py-2.5 text-[0.78rem] font-medium text-foreground/70 hover:bg-black/[0.10] active:scale-[0.97] transition-all duration-150 disabled:opacity-30"
-          >
+          <button onClick={onClose} disabled={submitting}
+            className="rounded-lg bg-black/[0.06] px-4 py-2.5 text-[0.78rem] font-medium text-foreground/70 hover:bg-black/[0.10] active:scale-[0.97] transition-all duration-150 disabled:opacity-30">
             取消
           </button>
-          <button
-            onClick={() => void handleSubmit()}
-            disabled={submitting || !canSubmit}
-            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2.5 text-[0.78rem] font-medium text-white hover:bg-emerald-700 active:scale-[0.97] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
+          <button onClick={() => void handleSubmit()} disabled={submitting || !canSubmit}
+            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2.5 text-[0.78rem] font-medium text-white hover:bg-emerald-700 active:scale-[0.97] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed">
             <BadgeCheck className="h-3.5 w-3.5" />
             {submitting ? '儲存中…' : '確認成交'}
           </button>
@@ -562,10 +485,7 @@ function ConfirmDealModal({
 
 // ── Main page ──────────────────────────────────────────────────────────────
 export default function CustomersClient({
-  projectId,
-  projectName,
-  customers: initialCustomers,
-  activeKols,
+  projectId, projectName, customers: initialCustomers, activeKols,
 }: {
   projectId: string
   projectName: string
@@ -574,35 +494,74 @@ export default function CustomersClient({
   activeKols: ActiveKol[]
 }) {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers)
+  const [activeTab, setActiveTab] = useState<TabKey>('all')
   const [confirmTarget, setConfirmTarget] = useState<Customer | null>(null)
   const [dealDetailTarget, setDealDetailTarget] = useState<Customer | null>(null)
 
-  // ── Stats ────────────────────────────────────────────────────────────────
-  const stats = useMemo(() => {
-    const total   = customers.length
-    const deals   = customers.filter((c) => !!c.dealConfirmedAt).length
-    const totalValue = customers
-      .filter((c) => c.dealValue != null)
-      .reduce((s, c) => s + (c.dealValue ?? 0), 0)
+  // ── Derived ──────────────────────────────────────────────────────────────
+  const { stats, counts, filtered } = useMemo(() => {
+    const byStatus = (s: CustomerStatus) => customers.filter((c) => c.status === s)
+    const dealt    = byStatus('dealt')
+    const totalValue = dealt.filter((c) => c.dealValue != null).reduce((s, c) => s + (c.dealValue ?? 0), 0)
     const attributed = customers.filter((c) => c.source === 'attributed').length
-    return { total, deals, totalValue, attributed }
-  }, [customers])
+
+    const counts: Record<TabKey, number> = {
+      all:           customers.length,
+      inquiring:     byStatus('inquiring').length,
+      visited:       byStatus('visited').length,
+      dealt:         dealt.length,
+      not_interested: byStatus('not_interested').length,
+    }
+
+    const filtered = activeTab === 'all'
+      ? customers
+      : customers.filter((c) => c.status === (activeTab as CustomerStatus))
+
+    return {
+      stats: { total: customers.length, deals: dealt.length, totalValue, attributed },
+      counts,
+      filtered,
+    }
+  }, [customers, activeTab])
+
+  // ── Optimistic status update ──────────────────────────────────────────────
+  function applyStatus(customerId: string, status: CustomerStatus, previousStatus?: CustomerStatus | null) {
+    setCustomers((prev) => prev.map((c) =>
+      c.id === customerId
+        ? { ...c, status, ...(previousStatus !== undefined ? { previousStatus } : {}) }
+        : c,
+    ))
+  }
 
   async function handleMarkVisited(customer: Customer) {
-    // Optimistic update
-    setCustomers((prev) =>
-      prev.map((c) => c.id === customer.id ? { ...c, visitedAt: new Date().toISOString() } : c),
-    )
+    applyStatus(customer.id, 'visited')
     const res = await fetch(`/api/merchant/projects/${projectId}/customers/mark-visited`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ source: customer.source, customer_id: customer.id }),
     })
     if (!res.ok) {
-      // Roll back on failure
-      setCustomers((prev) =>
-        prev.map((c) => c.id === customer.id ? { ...c, visitedAt: null } : c),
-      )
+      applyStatus(customer.id, customer.status)
+      toast.error('更新失敗，請再試一次。')
+    }
+  }
+
+  async function handleMarkNotInterested(customer: Customer, revert: boolean) {
+    // For revert: use previousStatus already on the customer object — no placeholder needed,
+    // so the count updates exactly once with the correct target status.
+    const next: CustomerStatus = revert
+      ? (customer.previousStatus ?? 'inquiring')
+      : 'not_interested'
+    // When marking: save current status as previousStatus in local state
+    // When reverting: clear previousStatus since it's been consumed
+    applyStatus(customer.id, next, revert ? null : customer.status)
+    const res = await fetch(`/api/merchant/projects/${projectId}/customers/mark-not-interested`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: customer.source, customer_id: customer.id, revert }),
+    })
+    if (!res.ok) {
+      applyStatus(customer.id, customer.status, customer.previousStatus)
       toast.error('更新失敗，請再試一次。')
     }
   }
@@ -611,7 +570,7 @@ export default function CustomersClient({
     setCustomers((prev) =>
       prev.map((c) =>
         c.id === customerId
-          ? { ...c, dealValue, dealConfirmedAt: new Date().toISOString(), roomType, roomNumber }
+          ? { ...c, status: 'dealt', dealValue, dealConfirmedAt: new Date().toISOString(), roomType, roomNumber }
           : c,
       ),
     )
@@ -635,31 +594,43 @@ export default function CustomersClient({
         className="flex border border-foreground/[0.08] bg-linen overflow-hidden"
         style={{ borderRight: 'none' }}
       >
-        <StatCard
-          label="總詢問數"
-          value={stats.total.toString()}
-          sub={`${stats.attributed} 來自 KOL`}
-        />
-        <StatCard
-          label="已成交"
-          value={stats.deals.toString()}
-          sub={stats.total > 0 ? `轉換率 ${Math.round((stats.deals / stats.total) * 100)}%` : undefined}
-          accent
-        />
-        <StatCard
-          label="成交總值"
-          value={stats.totalValue > 0 ? `${stats.totalValue.toLocaleString('zh-TW')} 萬` : '—'}
-          sub="NT$"
-        />
-        <StatCard
-          label="KOL 歸因"
-          value={stats.attributed.toString()}
-          sub={stats.total > 0 ? `佔比 ${Math.round((stats.attributed / stats.total) * 100)}%` : undefined}
-        />
+        <StatCard label="總詢問數" value={stats.total.toString()} sub={`${stats.attributed} 來自 KOL`} />
+        <StatCard label="已成交" value={stats.deals.toString()}
+          sub={stats.total > 0 ? `轉換率 ${Math.round((stats.deals / stats.total) * 100)}%` : undefined} accent />
+        <StatCard label="成交總值"
+          value={stats.totalValue > 0 ? `${stats.totalValue.toLocaleString('zh-TW')} 萬` : '—'} sub="NT$" />
+        <StatCard label="KOL 歸因" value={stats.attributed.toString()}
+          sub={stats.total > 0 ? `佔比 ${Math.round((stats.attributed / stats.total) * 100)}%` : undefined} />
       </motion.div>
 
-      {/* ── Customer table ── */}
+      {/* ── Filter chips + table ── */}
       <motion.div {...fadeUp(0.15)}>
+
+        {/* Filter chips */}
+        <div className="flex items-center gap-2 mb-4 flex-wrap">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.key
+            return (
+              <motion.button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                whileTap={{ scale: 0.97 }}
+                transition={{ duration: 0.1 }}
+                className="flex items-center gap-1.5 rounded-full text-[0.78rem] font-medium px-3.5 py-1.5 transition-all duration-150"
+                style={{
+                  background: isActive ? 'hsl(var(--foreground))' : 'rgba(0,0,0,0.06)',
+                  color:      isActive ? 'hsl(var(--background))' : 'rgba(0,0,0,0.55)',
+                }}
+              >
+                {tab.label}
+                <span className="text-[0.7rem] font-mono tabular-nums" style={{ opacity: isActive ? 0.55 : 0.45 }}>
+                  {counts[tab.key]}
+                </span>
+              </motion.button>
+            )
+          })}
+        </div>
+
         {/* Table header */}
         <div
           className="hidden sm:grid grid-cols-[2rem_1fr_auto_auto_auto] gap-4 px-5 py-2.5 border border-foreground/[0.08] border-b-0"
@@ -674,37 +645,48 @@ export default function CustomersClient({
 
         {/* Rows */}
         <div className="border border-foreground/[0.08] bg-linen overflow-hidden">
-          {customers.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center gap-4 py-20"
-            >
-              <div
-                className="flex items-center justify-center w-12 h-12"
-                style={{ border: '1.5px dashed rgba(26,26,26,0.15)' }}
+          <AnimatePresence mode="wait">
+            {filtered.length === 0 ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex flex-col items-center justify-center gap-4 py-20"
               >
-                <Users className="h-5 w-5 text-muted-foreground/30" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">尚無客戶詢問</p>
-                <p className="text-xs text-muted-foreground/50 mt-1">
-                  KOL 推廣或直接填寫預約表單後，客戶資料將顯示於此。
-                </p>
-              </div>
-            </motion.div>
-          ) : (
-            customers.map((c, i) => (
-              <CustomerRow
-                key={c.id}
-                customer={c}
-                index={i}
-                onMarkVisited={handleMarkVisited}
-                onConfirmDeal={setConfirmTarget}
-                onViewDeal={setDealDetailTarget}
-              />
-            ))
-          )}
+                <div className="flex items-center justify-center w-12 h-12" style={{ border: '1.5px dashed rgba(26,26,26,0.15)' }}>
+                  <Users className="h-5 w-5 text-muted-foreground/30" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">
+                    {activeTab === 'all' ? '尚無客戶詢問' : `目前沒有「${TABS.find(t => t.key === activeTab)!.label}」客戶`}
+                  </p>
+                  <p className="text-xs text-muted-foreground/50 mt-1">
+                    {activeTab === 'all'
+                      ? 'KOL 推廣或直接填寫預約表單後，客戶資料將顯示於此。'
+                      : '切換其他分頁查看更多客戶資料。'}
+                  </p>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.18 }}
+              >
+                {filtered.map((c, i) => (
+                  <CustomerRow
+                    key={c.id}
+                    customer={c}
+                    index={i}
+                    onMarkVisited={handleMarkVisited}
+                    onConfirmDeal={setConfirmTarget}
+                    onViewDeal={setDealDetailTarget}
+                    onMarkNotInterested={handleMarkNotInterested}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
 
@@ -720,26 +702,18 @@ export default function CustomersClient({
         </motion.div>
       )}
 
-      {/* ── Confirm deal modal ── */}
+      {/* ── Modals ── */}
       <AnimatePresence>
         {confirmTarget && (
           <ConfirmDealModal
-            customer={confirmTarget}
-            activeKols={activeKols}
-            projectId={projectId}
-            onClose={() => setConfirmTarget(null)}
-            onConfirmed={handleConfirmed}
+            customer={confirmTarget} activeKols={activeKols} projectId={projectId}
+            onClose={() => setConfirmTarget(null)} onConfirmed={handleConfirmed}
           />
         )}
       </AnimatePresence>
-
-      {/* ── Deal detail modal ── */}
       <AnimatePresence>
         {dealDetailTarget && (
-          <DealDetailModal
-            customer={dealDetailTarget}
-            onClose={() => setDealDetailTarget(null)}
-          />
+          <DealDetailModal customer={dealDetailTarget} onClose={() => setDealDetailTarget(null)} />
         )}
       </AnimatePresence>
     </div>

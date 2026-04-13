@@ -20,6 +20,8 @@ import { requireApiRole } from '@/lib/server/api-auth'
 
 type CreateProjectBody = {
   name?: string
+  subtitle?: string
+  address?: string
   slug?: string
   type?: string
 }
@@ -64,6 +66,8 @@ export async function POST(request: NextRequest) {
   const defaults = isShangAn ? getDefaultShangAnInsert() : getDefaultPropertyInsert()
   const rawName = typeof body.name === 'string' ? body.name.trim() : ''
   const name = rawName || defaults.name
+  const rawSubtitle = typeof body.subtitle === 'string' ? body.subtitle.trim() : ''
+  const rawAddress = typeof body.address === 'string' ? body.address.trim() : ''
 
   // Slug — use provided slug if valid, otherwise auto-generate
   const rawSlug = typeof body.slug === 'string' ? slugifyPropertyName(body.slug) : ''
@@ -91,15 +95,20 @@ export async function POST(request: NextRequest) {
       slug,
       publish_status: publishStatus,
       name,
-      subtitle: defaults.subtitle,
-      district_label: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).districtLabel,
+      subtitle: rawSubtitle || defaults.subtitle,
+      district_label: isShangAn ? null : (() => {
+        const fallback = (defaults as ReturnType<typeof getDefaultPropertyInsert>).districtLabel
+        if (!rawAddress) return fallback
+        const m = rawAddress.match(/^(.+?[市縣])(.+?[區鎮鄉])/)
+        return m ? m[1] + m[2] : fallback
+      })(),
       completion_badge: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).completionBadge,
       overview_title: defaults.overviewTitle,
       overview_body: defaults.overviewBody,
       features_title: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).featuresTitle,
       progress_title: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).progressTitle,
       progress_completion_text: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).progressCompletionText,
-      location_title: isShangAn ? null : (defaults as ReturnType<typeof getDefaultPropertyInsert>).locationTitle,
+      address: isShangAn ? null : (rawAddress || (defaults as ReturnType<typeof getDefaultPropertyInsert>).address),
       contact_title: defaults.contactTitle,
       contact_body: defaults.contactBody,
       sales_phone: defaults.salesPhone,
