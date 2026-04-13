@@ -528,6 +528,7 @@ export default function ProjectKolsPage() {
   const briefRef = useRef<CollabBriefHandle>(null)
 
   const [project, setProject]         = useState<ProjectInfo | null>(null)
+  const [projectLoading, setProjectLoading] = useState(true)
   const [collabDescription, setCollabDescription] = useState<string | null>(null)
   const [pageTab, setPageTab]   = useState<PageTab>('explore')
   const [statusTab, setStatusTab] = useState<StatusTab>('inviting')
@@ -564,7 +565,7 @@ export default function ProjectKolsPage() {
         setProject(payload.project ?? null)
         setCollabDescription(payload.project?.collabDescription ?? null)
       }
-      // type is already in payload.project from toMerchantProjectDetail
+      setProjectLoading(false)
     }
     void load()
   }, [id])
@@ -755,6 +756,8 @@ export default function ProjectKolsPage() {
   }
 
   // ── Render ──────────────────────────────────────────────────────────────
+  if (projectLoading) return null
+
   return (
     <div className="space-y-8">
 

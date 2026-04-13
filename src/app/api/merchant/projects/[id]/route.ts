@@ -25,7 +25,7 @@ type ProjectPatchBody = {
     featuresTitle?: string
     progressTitle?: string
     progressCompletionText?: string
-    locationTitle?: string
+    address?: string
     contactTitle?: string
     contactBody?: string
     salesPhone?: string
@@ -119,7 +119,7 @@ export async function PATCH(
         project.progressCompletionText,
         existing.progressCompletionText,
       ),
-      location_title: normalizeNullable(project.locationTitle, existing.locationTitle),
+      address: normalizeNullable(project.address, existing.address),
       contact_title: normalizeNullable(project.contactTitle, existing.contactTitle),
       contact_body: normalizeNullable(project.contactBody, existing.contactBody),
       sales_phone: normalizeNullable(project.salesPhone, existing.salesPhone),

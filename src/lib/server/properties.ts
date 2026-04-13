@@ -28,7 +28,7 @@ type PropertyRow = {
   features_title: string | null
   progress_title: string | null
   progress_completion_text: string | null
-  location_title: string | null
+  address: string | null
   contact_title: string | null
   contact_body: string | null
   sales_phone: string | null
@@ -95,7 +95,7 @@ export type MerchantProjectDetail = MerchantProjectSummary & {
   featuresTitle: string
   progressTitle: string
   progressCompletionText: string
-  locationTitle: string
+  address: string
   contactTitle: string
   contactBody: string
   salesPhone: string
@@ -411,7 +411,7 @@ export function toMerchantProjectDetail(
           featuresTitle: property.features_title,
           progressTitle: property.progress_title,
           progressCompletionText: property.progress_completion_text,
-          locationTitle: property.location_title,
+          address: property.address,
           contactTitle: property.contact_title,
           contactBody: property.contact_body,
           salesPhone: property.sales_phone,
@@ -444,7 +444,7 @@ export function toMerchantProjectDetail(
     progressTitle: property.progress_title ?? DEFAULT_PROPERTY_FIELDS.progressTitle,
     progressCompletionText:
       property.progress_completion_text ?? DEFAULT_PROPERTY_FIELDS.progressCompletionText,
-    locationTitle: property.location_title ?? DEFAULT_PROPERTY_FIELDS.locationTitle,
+    address: property.address ?? DEFAULT_PROPERTY_FIELDS.address,
     contactTitle: property.contact_title ?? (property.type === 'shop' ? DEFAULT_SHANGAN_FIELDS.contactTitle : DEFAULT_PROPERTY_FIELDS.contactTitle),
     contactBody: property.contact_body ?? (property.type === 'shop' ? DEFAULT_SHANGAN_FIELDS.contactBody : DEFAULT_PROPERTY_FIELDS.contactBody),
     salesPhone: property.sales_phone ?? DEFAULT_PROPERTY_FIELDS.salesPhone,

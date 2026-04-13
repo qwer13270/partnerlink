@@ -10,6 +10,7 @@ const TYPES: {
   icon: React.ElementType
   label: string
   desc: string
+  disabled?: boolean
 }[] = [
   {
     value: 'property',
@@ -22,6 +23,7 @@ const TYPES: {
     icon: Store,
     label: '商業案場',
     desc: '商辦、店面、商場等商業地產',
+    disabled: true,
   },
 ]
 
@@ -46,29 +48,41 @@ export function MerchantTypeStep({
       </motion.div>
 
       <div className="grid grid-cols-2 gap-4">
-        {TYPES.map(({ value, icon: Icon, label, desc }, i) => (
+        {TYPES.map(({ value, icon: Icon, label, desc, disabled }, i) => (
           <motion.button
             key={value}
             custom={i + 1}
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            onClick={() => onSelect(value)}
-            className="group text-left border border-[#E8E4DF] p-6 hover:border-[#1A1A1A] hover:bg-[#1A1A1A] transition-all duration-300"
+            onClick={() => !disabled && onSelect(value)}
+            disabled={disabled}
+            className={`relative text-left border p-6 transition-all duration-300 ${
+              disabled
+                ? 'border-[#E8E4DF] bg-[#F7F6F4] cursor-not-allowed opacity-60'
+                : 'group border-[#E8E4DF] hover:border-[#1A1A1A] hover:bg-[#1A1A1A] cursor-pointer'
+            }`}
           >
-            <div className="w-10 h-10 border border-[#E8E4DF] group-hover:border-white/20 flex items-center justify-center mb-5 transition-colors duration-300">
-              <Icon className="h-4 w-4 text-[#6B6560] group-hover:text-white transition-colors duration-300" />
+            {disabled && (
+              <span className="absolute top-3 right-3 text-[10px] tracking-[1.5px] uppercase text-[#9E9189] border border-[#D9D4CE] px-1.5 py-0.5 leading-none">
+                開發中
+              </span>
+            )}
+            <div className={`w-10 h-10 border border-[#E8E4DF] flex items-center justify-center mb-5 transition-colors duration-300 ${!disabled && 'group-hover:border-white/20'}`}>
+              <Icon className={`h-4 w-4 text-[#6B6560] transition-colors duration-300 ${!disabled && 'group-hover:text-white'}`} />
             </div>
-            <div className="text-sm font-medium text-[#1A1A1A] group-hover:text-white mb-2 transition-colors duration-300">
+            <div className={`text-sm font-medium text-[#1A1A1A] mb-2 transition-colors duration-300 ${!disabled && 'group-hover:text-white'}`}>
               {label}
             </div>
-            <div className="text-xs text-[#6B6560] group-hover:text-white/50 leading-relaxed transition-colors duration-300">
+            <div className={`text-xs text-[#6B6560] leading-relaxed transition-colors duration-300 ${!disabled && 'group-hover:text-white/50'}`}>
               {desc}
             </div>
-            <div className="mt-5 flex items-center gap-2 text-xs text-[#6B6560] group-hover:text-white/60 transition-colors duration-300">
-              選擇
-              <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
-            </div>
+            {!disabled && (
+              <div className="mt-5 flex items-center gap-2 text-xs text-[#6B6560] group-hover:text-white/60 transition-colors duration-300">
+                選擇
+                <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+              </div>
+            )}
           </motion.button>
         ))}
       </div>

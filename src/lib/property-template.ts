@@ -254,7 +254,7 @@ export const PROPERTY_MODULE_REGISTRY: Record<PropertyModuleType, PropertyModule
     label: '建案進度',
     singleton: true,
     pinned: false,
-    defaultVisible: true,
+    defaultVisible: false,
     legacySectionKey: 'progress',
   },
   location: {
@@ -427,7 +427,7 @@ export type TongchuangTemplateContent = {
   featuresTitle: string
   progressTitle: string
   progressCompletionText: string
-  locationTitle: string
+  address: string
   contactTitle: string
   contactBody: string
   salesPhone: string
@@ -496,7 +496,7 @@ type TongchuangTemplateSource = {
   featuresTitle: string | null
   progressTitle: string | null
   progressCompletionText: string | null
-  locationTitle: string | null
+  address: string | null
   contactTitle: string | null
   contactBody: string | null
   salesPhone: string | null
@@ -514,24 +514,24 @@ type TongchuangImageSource = {
 }
 
 export const DEFAULT_PROPERTY_FIELDS = {
-  name: '統創翼',
-  subtitle: 'Phoenix One',
-  districtLabel: '大安 · 忠孝新生 · Taipei',
-  completionBadge: '2026 Q1',
-  overviewTitle: '城市天際的精品美學',
+  name: '翠峰苑',
+  subtitle: 'Jade Heights',
+  districtLabel: '信義 · 台北',
+  completionBadge: '2027 Q4',
+  overviewTitle: '精心規劃的理想居所',
   overviewBody:
-    '每一個細節，都是對居住品質的極致承諾。\n鋼骨雙制震，黃金級綠建築，天際視野留白從容。',
+    '每一個細節，都是對居住品質的極致承諾。\n優質建材、智慧設計，打造屬於您的專屬天地。',
   featuresTitle: '卓越的居住體驗',
   progressTitle: '建設進程一覽',
-  progressCompletionText: '預計竣工 2026 Q1',
-  locationTitle: '台北核心黃金地段',
-  contactTitle: '開啟您的頂級居住旅程',
+  progressCompletionText: '預計竣工 2027 Q4',
+  address: '台北市某區某路 XX 號',
+  contactTitle: '開啟您的理想居住旅程',
   contactBody: '專屬顧問將於 24 小時內與您聯繫，安排私人賞屋行程。',
-  salesPhone: '02-2752-8628',
+  salesPhone: '02-0000-0000',
   footerDisclaimer:
     '本廣告圖為建築3D環境合成示意圖，實際外觀依主管機關核准圖說為準。廣告內容依相關法規規範，建案詳情請洽銷售人員確認。',
-  mapLat: 25.040314,
-  mapLng: 121.537053,
+  mapLat: 25.0330,
+  mapLng: 121.5654,
   mapZoom: 15,
 } as const
 
@@ -556,58 +556,53 @@ export const DEFAULT_HERO_SLIDES: HeroSlide[] = [
   {
     slideKey: 'hero_1',
     sortOrder: 0,
-    desktop: { url: '/images/properties/tongchuang-wing/1.jpg', alt: '統創翼首屏建築形象' },
-    mobile: { url: '/images/properties/tongchuang-wing/3.jpg', alt: '統創翼首屏建築形象' },
+    desktop: { url: '/images/placeholders/exterior/exterior-1.webp', alt: '建築首屏形象' },
+    mobile: { url: '/images/placeholders/exterior/exterior-1.webp', alt: '建築首屏形象' },
   },
   {
     slideKey: 'hero_2',
     sortOrder: 1,
-    desktop: { url: '/images/properties/tongchuang-wing/2.jpg', alt: '統創翼建築外觀' },
-    mobile: { url: '/images/properties/tongchuang-wing/4.jpg', alt: '統創翼建築外觀' },
+    desktop: { url: '/images/placeholders/exterior/exterior-2.webp', alt: '建築外觀' },
+    mobile: { url: '/images/placeholders/exterior/exterior-2.webp', alt: '建築外觀' },
   },
 ]
 
 export const DEFAULT_PROPERTY_CONTENT_ITEMS: PropertyContentItem[] = [
-  { groupKey: 'identity_specs', itemKey: 'address', title: '地段', body: '濟南路三段 67 號', meta: null, accent: null, state: null, sortOrder: 0 },
-  { groupKey: 'identity_specs', itemKey: 'product', title: '產品', body: '35–58 坪 · 2–3 房', meta: null, accent: null, state: null, sortOrder: 1 },
-  { groupKey: 'identity_specs', itemKey: 'structure', title: '結構', body: 'SC 鋼骨雙制震', meta: null, accent: null, state: null, sortOrder: 2 },
-  { groupKey: 'identity_specs', itemKey: 'hotline', title: '專線', body: '02-2752-8628', meta: null, accent: null, state: null, sortOrder: 3 },
-  { groupKey: 'intro_specs', itemKey: 'size-plan', title: '坪數規劃', body: '30 · 42 · 50 坪', meta: null, accent: null, state: null, sortOrder: 0 },
-  { groupKey: 'intro_specs', itemKey: 'layout', title: '房型配置', body: '精奢 2–3 房', meta: null, accent: null, state: null, sortOrder: 1 },
-  { groupKey: 'intro_specs', itemKey: 'structure', title: '抗震結構', body: 'SC 鋼骨雙制震', meta: null, accent: null, state: null, sortOrder: 2 },
-  { groupKey: 'intro_specs', itemKey: 'floors', title: '樓層', body: '地上 22 層', meta: null, accent: null, state: null, sortOrder: 3 },
-  { groupKey: 'intro_specs', itemKey: 'green-building', title: '綠建築', body: '黃金級目標', meta: null, accent: null, state: null, sortOrder: 4 },
-  { groupKey: 'intro_specs', itemKey: 'sales-center', title: '接待中心', body: '市民大道三段 198 號 7F', meta: null, accent: null, state: null, sortOrder: 5 },
-  { groupKey: 'feature_cards', itemKey: 'feature-1', title: 'SC 鋼骨雙制震', body: '頂級鋼骨結構搭配雙重制震系統，給您和家人最安心的保障。', meta: null, accent: '01', state: null, sortOrder: 0 },
-  { groupKey: 'feature_cards', itemKey: 'feature-2', title: '忠孝新生捷運', body: '步行即達，板南線與新店線交會，串聯台北全域。', meta: null, accent: '02', state: null, sortOrder: 1 },
-  { groupKey: 'feature_cards', itemKey: 'feature-3', title: '城市天際視野', body: '對望空總綠地，台北盆地全景盡收眼底，留白而從容。', meta: null, accent: '03', state: null, sortOrder: 2 },
-  { groupKey: 'timeline_items', itemKey: 'timeline_1', title: '建照取得', body: '建造執照核發，正式取得合法建築許可。', meta: '2022 Q4', accent: null, state: 'completed', sortOrder: 0 },
-  { groupKey: 'timeline_items', itemKey: 'timeline_2', title: '動工開工', body: '開工典禮暨地基開挖作業啟動。', meta: '2023 Q2', accent: null, state: 'completed', sortOrder: 1 },
-  { groupKey: 'timeline_items', itemKey: 'timeline_3', title: '基礎工程', body: '樁基礎與地下室結構完工，驗收通過。', meta: '2023 Q4', accent: null, state: 'completed', sortOrder: 2 },
-  { groupKey: 'timeline_items', itemKey: 'timeline_4', title: '結構體工程', body: 'SC 鋼骨主結構持續施工中，目前進度約 60%。', meta: '2024 Q3', accent: null, state: 'current', sortOrder: 3 },
-  { groupKey: 'timeline_items', itemKey: 'timeline_5', title: '室內裝修', body: '精裝修工程預計 2025 Q3 啟動。', meta: '2025 Q3', accent: null, state: 'upcoming', sortOrder: 4 },
-  { groupKey: 'timeline_items', itemKey: 'timeline_6', title: '驗收交屋', body: '全棟驗收完成，預計 2026 Q1 正式交屋。', meta: '2026 Q1', accent: null, state: 'upcoming', sortOrder: 5 },
-  { groupKey: 'location_points', itemKey: 'location-1', title: '忠孝新生站（板南線）', body: '3 分鐘步行', meta: null, accent: '#0070BD', state: null, sortOrder: 0 },
-  { groupKey: 'location_points', itemKey: 'location-2', title: '忠孝新生站（新店線）', body: '3 分鐘步行', meta: null, accent: '#EF4723', state: null, sortOrder: 1 },
-  { groupKey: 'location_points', itemKey: 'location-3', title: '帝寶商圈', body: '5 分鐘', meta: null, accent: '#C9A96E', state: null, sortOrder: 2 },
-  { groupKey: 'location_points', itemKey: 'location-4', title: '元利One Park', body: '10 分鐘', meta: null, accent: '#4A7C8E', state: null, sortOrder: 3 },
-  { groupKey: 'location_points', itemKey: 'location-5', title: '台北大安森林公園', body: '8 分鐘', meta: null, accent: '#6A8A60', state: null, sortOrder: 4 },
-  { groupKey: 'floor_plan_units', itemKey: 'unit_a', title: 'A 型', body: '2 房 2 廳', meta: '22 坪', accent: 'NT$1,680 萬', state: null, sortOrder: 0 },
-  { groupKey: 'floor_plan_units', itemKey: 'unit_b', title: 'B 型', body: '3 房 2 廳', meta: '30 坪', accent: 'NT$2,280 萬', state: null, sortOrder: 1 },
-  { groupKey: 'floor_plan_units', itemKey: 'unit_c', title: 'C 型', body: '3 房 2 廳 2 衛', meta: '38 坪', accent: 'NT$2,880 萬', state: null, sortOrder: 2 },
-  { groupKey: 'floor_plan_units', itemKey: 'unit_d', title: 'D 型', body: '4 房 2 廳 2 衛', meta: '48 坪', accent: 'NT$3,680 萬', state: null, sortOrder: 3 },
-  { groupKey: 'team_members', itemKey: 'member_1', title: '陳志豪', body: '從業逾二十年，深耕北市精品住宅市場，主導逾 30 個指標性建案。', meta: '執行總監', accent: null, state: null, sortOrder: 0 },
-  { groupKey: 'team_members', itemKey: 'member_2', title: '林雅涵', body: '專精室內設計整合與建材選配，打造細節卓越的居住空間。', meta: '設計總監', accent: null, state: null, sortOrder: 1 },
-  { groupKey: 'team_members', itemKey: 'member_3', title: '王建明', body: '結構工程師出身，主導鋼骨制震工法導入，安全品質零妥協。', meta: '工程副總', accent: null, state: null, sortOrder: 2 },
-  { groupKey: 'team_members', itemKey: 'member_4', title: '吳佩芸', body: '負責買方關係與交屋服務，以同理心陪伴每位客戶完成置產旅程。', meta: '客戶關係總監', accent: null, state: null, sortOrder: 3 },
-  { groupKey: 'team_members', itemKey: 'member_5', title: '蔡冠宇', body: '法務與合規專家，確保每筆交易符合最高法律標準，保障買方權益。', meta: '法務長', accent: null, state: null, sortOrder: 4 },
+  { groupKey: 'identity_specs', itemKey: 'address', title: '地段', body: '某市某區 · 精華地帶', meta: null, accent: null, state: null, sortOrder: 0 },
+  { groupKey: 'identity_specs', itemKey: 'product', title: '產品', body: '30–55 坪 · 2–3 房', meta: null, accent: null, state: null, sortOrder: 1 },
+  { groupKey: 'identity_specs', itemKey: 'structure', title: '結構', body: 'RC 鋼筋混凝土', meta: null, accent: null, state: null, sortOrder: 2 },
+  { groupKey: 'identity_specs', itemKey: 'hotline', title: '專線', body: '02-0000-0000', meta: null, accent: null, state: null, sortOrder: 3 },
+  { groupKey: 'intro_specs', itemKey: 'size-plan', title: '坪數規劃', body: '30 · 42 · 55 坪', meta: null, accent: null, state: null, sortOrder: 0 },
+  { groupKey: 'intro_specs', itemKey: 'layout', title: '房型配置', body: '2–3 房', meta: null, accent: null, state: null, sortOrder: 1 },
+  { groupKey: 'intro_specs', itemKey: 'structure', title: '抗震結構', body: 'RC 耐震設計', meta: null, accent: null, state: null, sortOrder: 2 },
+  { groupKey: 'intro_specs', itemKey: 'floors', title: '樓層', body: '地上 XX 層', meta: null, accent: null, state: null, sortOrder: 3 },
+  { groupKey: 'intro_specs', itemKey: 'green-building', title: '綠建築', body: '銅級目標', meta: null, accent: null, state: null, sortOrder: 4 },
+  { groupKey: 'intro_specs', itemKey: 'sales-center', title: '接待中心', body: '請填入接待中心地址', meta: null, accent: null, state: null, sortOrder: 5 },
+  { groupKey: 'feature_cards', itemKey: 'feature-1', title: '優質抗震結構', body: '採用高規格耐震設計，給您和家人最安心的保障。', meta: null, accent: '01', state: null, sortOrder: 0 },
+  { groupKey: 'feature_cards', itemKey: 'feature-2', title: '交通樞紐核心', body: '緊鄰大眾運輸，串聯城市各大生活圈。', meta: null, accent: '02', state: null, sortOrder: 1 },
+  { groupKey: 'feature_cards', itemKey: 'feature-3', title: '開闊採光視野', body: '坐擁城市景觀，寬敞採光，打造舒適生活空間。', meta: null, accent: '03', state: null, sortOrder: 2 },
+  { groupKey: 'timeline_items', itemKey: 'timeline_1', title: '建照取得', body: '建造執照核發，正式取得合法建築許可。', meta: '20XX Q1', accent: null, state: 'completed', sortOrder: 0 },
+  { groupKey: 'timeline_items', itemKey: 'timeline_2', title: '動工開工', body: '開工典禮暨地基開挖作業啟動。', meta: '20XX Q2', accent: null, state: 'completed', sortOrder: 1 },
+  { groupKey: 'timeline_items', itemKey: 'timeline_3', title: '基礎工程', body: '樁基礎與地下室結構完工，驗收通過。', meta: '20XX Q4', accent: null, state: 'completed', sortOrder: 2 },
+  { groupKey: 'timeline_items', itemKey: 'timeline_4', title: '結構體工程', body: '主結構持續施工中。', meta: '20XX Q3', accent: null, state: 'current', sortOrder: 3 },
+  { groupKey: 'timeline_items', itemKey: 'timeline_5', title: '室內裝修', body: '精裝修工程預計啟動。', meta: '20XX Q3', accent: null, state: 'upcoming', sortOrder: 4 },
+  { groupKey: 'timeline_items', itemKey: 'timeline_6', title: '驗收交屋', body: '全棟驗收完成，正式交屋。', meta: '20XX Q4', accent: null, state: 'upcoming', sortOrder: 5 },
+  { groupKey: 'location_points', itemKey: 'location-1', title: '附近捷運站', body: '步行 X 分鐘', meta: null, accent: '#0070BD', state: null, sortOrder: 0 },
+  { groupKey: 'location_points', itemKey: 'location-2', title: '生活機能商圈', body: 'X 分鐘', meta: null, accent: '#C9A96E', state: null, sortOrder: 1 },
+  { groupKey: 'location_points', itemKey: 'location-3', title: '公園綠地', body: 'X 分鐘', meta: null, accent: '#6A8A60', state: null, sortOrder: 2 },
+  { groupKey: 'floor_plan_units', itemKey: 'unit_a', title: 'A 型', body: '2 房 2 廳', meta: 'XX 坪', accent: '價格洽詢', state: null, sortOrder: 0 },
+  { groupKey: 'floor_plan_units', itemKey: 'unit_b', title: 'B 型', body: '3 房 2 廳', meta: 'XX 坪', accent: '價格洽詢', state: null, sortOrder: 1 },
+  { groupKey: 'floor_plan_units', itemKey: 'unit_c', title: 'C 型', body: '3 房 2 廳 2 衛', meta: 'XX 坪', accent: '價格洽詢', state: null, sortOrder: 2 },
+  { groupKey: 'team_members', itemKey: 'member_1', title: '姓名', body: '請填入團隊成員介紹。', meta: '職稱', accent: null, state: null, sortOrder: 0 },
+  { groupKey: 'team_members', itemKey: 'member_2', title: '姓名', body: '請填入團隊成員介紹。', meta: '職稱', accent: null, state: null, sortOrder: 1 },
+  { groupKey: 'team_members', itemKey: 'member_3', title: '姓名', body: '請填入團隊成員介紹。', meta: '職稱', accent: null, state: null, sortOrder: 2 },
+  { groupKey: 'team_members', itemKey: 'member_4', title: '姓名', body: '請填入團隊成員介紹。', meta: '職稱', accent: null, state: null, sortOrder: 3 },
 ]
 
 const DEFAULT_MODULE_ORDER: PropertyModuleType[] = [
   'intro_identity',
   'intro_specs',
   'features',
-  'progress',
   'location',
   'contact',
   'footer',
@@ -842,7 +837,7 @@ export function buildTongchuangTemplateContent(
     progressTitle: property.progressTitle ?? DEFAULT_PROPERTY_FIELDS.progressTitle,
     progressCompletionText:
       property.progressCompletionText ?? DEFAULT_PROPERTY_FIELDS.progressCompletionText,
-    locationTitle: property.locationTitle ?? DEFAULT_PROPERTY_FIELDS.locationTitle,
+    address: property.address ?? DEFAULT_PROPERTY_FIELDS.address,
     contactTitle: property.contactTitle ?? DEFAULT_PROPERTY_FIELDS.contactTitle,
     contactBody: property.contactBody ?? DEFAULT_PROPERTY_FIELDS.contactBody,
     salesPhone: property.salesPhone ?? DEFAULT_PROPERTY_FIELDS.salesPhone,
@@ -994,7 +989,7 @@ export function buildDefaultProjectContentPreview() {
       featuresTitle: DEFAULT_PROPERTY_FIELDS.featuresTitle,
       progressTitle: DEFAULT_PROPERTY_FIELDS.progressTitle,
       progressCompletionText: DEFAULT_PROPERTY_FIELDS.progressCompletionText,
-      locationTitle: DEFAULT_PROPERTY_FIELDS.locationTitle,
+      address: DEFAULT_PROPERTY_FIELDS.address,
       contactTitle: DEFAULT_PROPERTY_FIELDS.contactTitle,
       contactBody: DEFAULT_PROPERTY_FIELDS.contactBody,
       salesPhone: DEFAULT_PROPERTY_FIELDS.salesPhone,

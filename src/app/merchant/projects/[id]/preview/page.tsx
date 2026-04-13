@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation'
 import { typeLabel } from '@/lib/merchant-application'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
-import TongchuangWingPage from '@/components/property/TongchuangWingPage'
+import DefaultPropertyPage from '@/components/property/DefaultPropertyPage'
 import ShangAnPage from '@/components/property/ShangAnPage'
 import type { TongchuangTemplateContent, ShangAnTemplateContent } from '@/lib/property-template'
 
@@ -114,7 +114,7 @@ export default function MerchantProjectPreviewPage() {
         {isShangAn ? (
           <ShangAnPage content={project.template as ShangAnTemplateContent} />
         ) : (
-          <TongchuangWingPage content={project.template as TongchuangTemplateContent} />
+          <DefaultPropertyPage content={project.template as TongchuangTemplateContent} />
         )}
       </div>
     </div>

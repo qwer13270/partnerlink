@@ -13,7 +13,8 @@ export type CollabSummary = {
   project_type:       'property' | 'shop'
   collab_description: string | null
   collaboration_type: 'commission' | 'reciprocal' | 'sponsored'
-  collab_status:      'active' | 'ended'
+  collab_status:      'active'
+  project_archived:   boolean
   commission_rate:    number | null
   sponsorship_bonus:  number | null
   referral_short_code: string | null
@@ -68,7 +69,7 @@ export default async function KolProjectsPage() {
   // 2. Parallel enrichment
   const [projectsR, requestsR, linksR, itemsR, shipmentsR] = await Promise.all([
     admin.from('projects')
-      .select('id, name, type, collab_description')
+      .select('id, name, type, collab_description, is_archived')
       .in('id', projectIds),
     requestIds.length > 0
       ? admin.from('collaboration_requests')
@@ -138,20 +139,22 @@ export default async function KolProjectsPage() {
     (shipmentsR.data ?? []).map(s => [s.collaboration_id as string, s.received_at as string | null])
   )
 
-  // 5. Assemble
-  const collaborations: CollabSummary[] = rows.map(c => {
+  // 5. Assemble — skip collaborations whose project has been deleted
+  const collaborations: CollabSummary[] = rows.flatMap(c => {
     const project  = projectById.get(c.project_id as string)
+    if (!project) return []
     const rlId     = rlIdByCollabId.get(c.id as string)
     const link     = linkShortCodes.get(c.id as string)
 
     return {
       collaboration_id:    c.id as string,
       project_id:          c.project_id as string,
-      project_name:        project?.name ?? '未知商案',
-      project_type:        (project?.type ?? '建案') as 'property' | 'shop',
-      collab_description:  project?.collab_description ?? null,
+      project_name:        project.name,
+      project_type:        project.type as 'property' | 'shop',
+      collab_description:  project.collab_description ?? null,
       collaboration_type:  c.collaboration_type as 'commission' | 'reciprocal' | 'sponsored',
-      collab_status:       c.status as 'active' | 'ended',
+      collab_status:       'active' as const,
+      project_archived:    !!(project.is_archived),
       commission_rate:     commRateByRequestId.get(c.request_id as string) ?? null,
       sponsorship_bonus:   c.sponsorship_bonus as number | null,
       referral_short_code: link?.short_code ?? null,

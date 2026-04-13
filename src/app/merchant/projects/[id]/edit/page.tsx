@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
-import { ArrowLeft, Eye, EyeOff, Monitor, Save, Smartphone, Sparkles, Trash2 } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Eye, EyeOff, MapPin, Monitor, Save, Smartphone, Sparkles, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence, Reorder } from 'framer-motion'
 import { useEditor }         from './_use-editor'
 import { SectionPanel }      from './_panels'
@@ -259,7 +259,7 @@ export default function EditProjectPage() {
             )}
 
             {/* List / Theme views — share the same slide-in panel */}
-            {!aiPanelOpen && (sidebarView === 'list' || sidebarView === 'theme' || sidebarView === 'font') && (
+            {!aiPanelOpen && (sidebarView === 'list' || sidebarView === 'theme' || sidebarView === 'font' || sidebarView === 'info') && (
               <motion.div
                 key="list"
                 initial={{ x: '-100%', opacity: 0 }}
@@ -271,7 +271,7 @@ export default function EditProjectPage() {
                 {/* Tab header */}
                 <div className="shrink-0 border-b border-foreground/[0.07] px-5 pt-4">
                   <div className="flex items-center">
-                    {([['list', '模塊'], ['theme', '顏色'], ['font', '字型']] as const).map(([view, label]) => {
+                    {([['info', '基本資料'], ['list', '模塊'], ['theme', '顏色'], ['font', '字型']] as const).map(([view, label]) => {
                       const active = sidebarView === view
                       return (
                         <button
@@ -307,48 +307,17 @@ export default function EditProjectPage() {
                       className="flex min-h-0 flex-1 flex-col"
                     >
                       <div className="min-h-0 flex-1 overflow-y-auto">
-                        {/* AI import area — only for property type */}
+                        {/* AI import area — only for property type (disabled: under development) */}
                         {draftProject?.templateKey === 'property' && (
-                          <AnimatePresence mode="wait" initial={false}>
-                            {aiImportUsed ? (
-                              /* ── Used state ── */
-                              <motion.div
-                                key="used"
-                                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                                className="mx-3 mt-3 mb-2"
-                              >
-                                <div className="flex items-center gap-2 rounded-lg border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2">
-                                  <Sparkles className="h-3 w-3 shrink-0 text-muted-foreground/25" />
-                                  <span className="flex-1 text-[0.68rem] uppercase tracking-[0.25em] text-muted-foreground/35">AI 已匯入</span>
-                                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/60 shrink-0" />
-                                </div>
-                              </motion.div>
-                            ) : showAiBanner ? (
-                              /* ── First-visit banner ── */
-                              <motion.div key="banner" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                <AiImportBanner
-                                  onOpen={() => setAiPanelOpen(true)}
-                                  onDismiss={() => setShowAiBanner(false)}
-                                />
-                              </motion.div>
-                            ) : (
-                              /* ── Compact button ── */
-                              <motion.div
-                                key="button"
-                                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                                className="mx-3 mt-3 mb-2"
-                              >
-                                <button
-                                  type="button"
-                                  onClick={() => setAiPanelOpen(true)}
-                                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#C9A96E]/30 bg-[#C9A96E]/[0.05] px-3 py-2 text-[0.72rem] uppercase tracking-[0.25em] text-[#8b6d3d] transition-all hover:bg-[#C9A96E]/[0.10] hover:border-[#C9A96E]/50"
-                                >
-                                  <Sparkles className="h-3 w-3" />
-                                  AI 匯入
-                                </button>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
+                          <div className="mx-3 mt-3 mb-2">
+                            <div className="flex items-center gap-2 rounded-lg border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2 opacity-40 cursor-not-allowed select-none">
+                              <Sparkles className="h-3 w-3 shrink-0 text-muted-foreground/40" />
+                              <span className="flex-1 text-[0.68rem] uppercase tracking-[0.25em] text-muted-foreground/50">AI 匯入</span>
+                              <span className="text-[0.55rem] tracking-[1px] uppercase text-muted-foreground/60 border border-muted-foreground/25 px-1.5 py-0.5 leading-none">
+                                開發中
+                              </span>
+                            </div>
+                          </div>
                         )}
 
                         <div className="px-3 py-3">
@@ -435,6 +404,122 @@ export default function EditProjectPage() {
                       className="flex min-h-0 flex-1 flex-col overflow-hidden"
                     >
                       <FontPicker currentFont={currentFont} onSelect={setFontTheme} />
+                    </motion.div>
+                  )}
+
+                  {sidebarView === 'info' && (
+                    <motion.div
+                      key="info"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.15 }}
+                      className="flex min-h-0 flex-1 flex-col overflow-y-auto"
+                    >
+                      <div className="px-5 py-6 space-y-7">
+
+                        {/* ── Identity block ───────────────────────── */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-4">
+                            <span className="text-[0.6rem] font-mono uppercase tracking-[0.3em] text-muted-foreground/40">識別</span>
+                            <div className="flex-1 h-px bg-foreground/[0.06]" />
+                          </div>
+
+                          {/* Name pair — visually grouped */}
+                          <div className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] overflow-hidden focus-within:border-foreground/20 transition-colors duration-200">
+                            {/* Chinese name */}
+                            <div className="px-3.5 pt-3 pb-2 border-b border-foreground/[0.06]">
+                              <p className="text-[0.58rem] font-mono uppercase tracking-[0.3em] text-foreground/50 mb-1.5">案名</p>
+                              <input
+                                type="text"
+                                value={draftProject.name ?? ''}
+                                onChange={(e) => updateProjectField('name', e.target.value)}
+                                className="w-full bg-transparent text-[0.92rem] font-medium text-foreground outline-none placeholder:text-muted-foreground/20"
+                                placeholder="翠峰苑"
+                              />
+                            </div>
+                            {/* English name */}
+                            <div className="px-3.5 pt-2.5 pb-3">
+                              <p className="text-[0.58rem] font-mono uppercase tracking-[0.3em] text-foreground/50 mb-1.5">English</p>
+                              <input
+                                type="text"
+                                value={draftProject.subtitle ?? ''}
+                                onChange={(e) => updateProjectField('subtitle', e.target.value)}
+                                className="w-full bg-transparent text-[0.82rem] italic text-muted-foreground outline-none placeholder:text-muted-foreground/20 tracking-wide"
+                                placeholder="Jade Heights"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* ── Location block ───────────────────────── */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-4">
+                            <span className="text-[0.6rem] font-mono uppercase tracking-[0.3em] text-muted-foreground/40">位置</span>
+                            <div className="flex-1 h-px bg-foreground/[0.06]" />
+                          </div>
+
+                          {/* Address */}
+                          <div className="group rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] focus-within:border-foreground/20 transition-colors duration-200 mb-3">
+                            <div className="flex items-start gap-2.5 px-3.5 py-3">
+                              <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground/30 group-focus-within:text-muted-foreground/60 transition-colors duration-200" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[0.58rem] font-mono uppercase tracking-[0.3em] text-foreground/50 mb-1.5">地址</p>
+                                <input
+                                  type="text"
+                                  value={draftProject.address ?? ''}
+                                  onChange={(e) => {
+                                    const addr = e.target.value
+                                    updateProjectField('address', addr)
+                                    const m = addr.match(/^(.+?[市縣])(.+?[區鎮鄉])/)
+                                    if (m) updateProjectField('districtLabel', m[1] + m[2])
+                                  }}
+                                  className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/20"
+                                  placeholder="台北市信義區某路 XX 號"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Coordinates */}
+                          <div className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] overflow-hidden focus-within:border-foreground/20 transition-colors duration-200">
+                            <div className="flex items-center border-b border-foreground/[0.05] px-3.5 py-2">
+                              <span className="text-[0.58rem] font-mono uppercase tracking-[0.3em] text-foreground/50">座標</span>
+                            </div>
+                            <div className="grid grid-cols-2 divide-x divide-foreground/[0.06]">
+                              <div className="px-3.5 py-2.5">
+                                <p className="text-[0.56rem] font-mono text-foreground/50 mb-1">N ↑</p>
+                                <input
+                                  type="number"
+                                  step="0.000001"
+                                  value={String(draftProject.mapLat ?? '')}
+                                  onChange={(e) => updateProjectField('mapLat', Number(e.target.value))}
+                                  className="w-full bg-transparent text-[0.78rem] font-mono text-foreground/80 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
+                              </div>
+                              <div className="px-3.5 py-2.5">
+                                <p className="text-[0.56rem] font-mono text-foreground/50 mb-1">E →</p>
+                                <input
+                                  type="number"
+                                  step="0.000001"
+                                  value={String(draftProject.mapLng ?? '')}
+                                  onChange={(e) => updateProjectField('mapLng', Number(e.target.value))}
+                                  className="w-full bg-transparent text-[0.78rem] font-mono text-foreground/80 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Coordinates accuracy notice */}
+                          <div className="mt-2.5 flex items-start gap-2 rounded-lg border border-amber-200/60 bg-amber-50/50 px-3 py-2.5">
+                            <AlertTriangle className="mt-px h-3 w-3 shrink-0 text-amber-500/80" />
+                            <p className="text-[0.68rem] leading-relaxed text-amber-700/80">
+                              座標為系統自動推算，可能與實際位置有所偏差，建議於地圖確認後手動調整。
+                            </p>
+                          </div>
+                        </div>
+
+                      </div>
                     </motion.div>
                   )}
 

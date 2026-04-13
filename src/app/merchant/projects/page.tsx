@@ -67,6 +67,8 @@ type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
 
 function CreateModal({ onClose, onCreated, merchantType }: { onClose: () => void; onCreated: (id: string) => void; merchantType: MerchantType }) {
   const [name, setName]             = useState('')
+  const [subtitle, setSubtitle]     = useState('')
+  const [address, setAddress]       = useState('')
   const [slug, setSlug]             = useState('')
   const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle')
   const [creating, setCreating]     = useState(false)
@@ -96,7 +98,7 @@ function CreateModal({ onClose, onCreated, merchantType }: { onClose: () => void
     setCreating(true)
     const r = await fetch('/api/merchant/projects', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name.trim(), slug, type: merchantType }),
+      body: JSON.stringify({ name: name.trim(), subtitle: subtitle.trim(), address: address.trim(), slug, type: merchantType }),
     })
     const d = await r.json() as { project?: { id: string }; error?: string }
     setCreating(false)
@@ -131,17 +133,33 @@ function CreateModal({ onClose, onCreated, merchantType }: { onClose: () => void
             </button>
           </div>
 
-          <div className="px-8 py-6 space-y-7">
-            {/* Name */}
-            <div>
-              <label className="block text-[0.6rem] font-mono uppercase tracking-[0.5em] text-muted-foreground/60 mb-2">{typeLabel(merchantType ?? 'shop')}名稱</label>
-              <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder={merchantType === 'shop' ? '例：信義路旗艦店' : '例：信義苑 A 棟'}
-                className="w-full rounded-lg border border-foreground/[0.12] bg-linen px-4 py-3 text-sm font-serif placeholder:text-muted-foreground/30 focus:border-foreground/40 focus:outline-none transition-colors" />
+          <div className="px-8 py-6 space-y-5">
+            {/* Name + Subtitle row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[0.6rem] font-mono uppercase tracking-[0.5em] text-muted-foreground/60 mb-2">{typeLabel(merchantType ?? 'shop')}名稱</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder={merchantType === 'shop' ? '例：翠峰苑旗艦店' : '例：翠峰苑 A 棟'}
+                  className="w-full rounded-lg border border-foreground/[0.12] bg-linen px-3 py-2.5 text-sm font-serif placeholder:text-muted-foreground/30 focus:border-foreground/40 focus:outline-none transition-colors" />
+              </div>
+              <div>
+                <label className="block text-[0.6rem] font-mono uppercase tracking-[0.5em] text-muted-foreground/60 mb-2">英文名稱</label>
+                <input type="text" value={subtitle} onChange={e => setSubtitle(e.target.value)} placeholder="例：Jade Heights"
+                  className="w-full rounded-lg border border-foreground/[0.12] bg-linen px-3 py-2.5 text-sm placeholder:text-muted-foreground/30 focus:border-foreground/40 focus:outline-none transition-colors" />
+              </div>
             </div>
 
+            {/* Address — property only */}
+            {merchantType === 'property' && (
+              <div>
+                <label className="block text-[0.6rem] font-mono uppercase tracking-[0.5em] text-muted-foreground/60 mb-2">物件地址</label>
+                <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="例：台北市信義區某路 XX 號"
+                  className="w-full rounded-lg border border-foreground/[0.12] bg-linen px-3 py-2.5 text-sm placeholder:text-muted-foreground/30 focus:border-foreground/40 focus:outline-none transition-colors" />
+              </div>
+            )}
+
             {/* Slug */}
-            <div>
-              <label className="block text-[0.6rem] font-mono uppercase tracking-[0.5em] text-muted-foreground/60 mb-2">網址 Slug</label>
+            <div className="pt-1 border-t border-foreground/[0.06]">
+              <label className="block text-[0.6rem] font-mono uppercase tracking-[0.5em] text-muted-foreground/60 mb-2 mt-4">網址 Slug</label>
               <div className={`flex rounded-lg border overflow-hidden transition-colors ${
                 slugStatus === 'available' ? 'border-emerald-400/60' : slugStatus === 'taken' || slugStatus === 'invalid' ? 'border-red-400/50' : 'border-foreground/[0.12] focus-within:border-foreground/40'
               }`}>

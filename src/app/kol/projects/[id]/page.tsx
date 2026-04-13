@@ -39,7 +39,8 @@ export type CollabDetail = {
   project_type:        'property' | 'shop'
   collab_description:  string | null
   collaboration_type:  'commission' | 'reciprocal' | 'sponsored'
-  collab_status:       'active' | 'ended'
+  collab_status:       'active'
+  project_archived:    boolean
   commission_rate:     number | null
   sponsorship_bonus:   number | null
   referral_short_code: string | null
@@ -103,7 +104,7 @@ export default async function KolProjectDetailPage({
   // 2. Parallel: project + request (commission_rate) + referral link
   const [projectR, requestR, linkR] = await Promise.all([
     admin.from('projects')
-      .select('id, name, type, collab_description')
+      .select('id, name, type, collab_description, is_archived')
       .eq('id', projectId)
       .single(),
     admin.from('collaboration_requests')
@@ -127,7 +128,7 @@ export default async function KolProjectDetailPage({
       : Promise.resolve({ data: [] }),
     link
       ? admin.from('referral_conversions')
-          .select('id, conversion_type, visited_at, deal_value, deal_confirmed_at, converted_at, room_type, room_number')
+          .select('id, conversion_type, status, deal_value, deal_confirmed_at, converted_at, room_type, room_number')
           .eq('referral_link_id', link.id as string)
       : Promise.resolve({ data: [] }),
   ])
@@ -135,7 +136,8 @@ export default async function KolProjectDetailPage({
   const clicks    = (clickRows.data ?? []).length
   const allConvs  = conversionRows.data ?? []
   const inquiries = allConvs.filter(r => r.conversion_type === 'inquiry').length
-  const visits    = allConvs.filter(r => r.conversion_type === 'inquiry' && r.visited_at).length
+  // Count visits: inquiry rows that reached 'visited' or progressed to 'dealt'
+  const visits    = allConvs.filter(r => r.conversion_type === 'inquiry' && (r.status === 'visited' || r.status === 'dealt')).length
   const deals     = allConvs.filter(r => r.conversion_type === 'deal').length
 
   // 4. Type-conditional data
@@ -204,7 +206,8 @@ export default async function KolProjectDetailPage({
     project_type:        projectType,
     collab_description:  project?.collab_description ?? null,
     collaboration_type:  collab.collaboration_type as 'commission' | 'reciprocal' | 'sponsored',
-    collab_status:       collab.status as 'active' | 'ended',
+    collab_status:       'active' as const,
+    project_archived:    !!(project?.is_archived),
     commission_rate:     (request?.commission_rate as number | null) ?? null,
     sponsorship_bonus:   collab.sponsorship_bonus as number | null,
     referral_short_code: link?.short_code ?? null,

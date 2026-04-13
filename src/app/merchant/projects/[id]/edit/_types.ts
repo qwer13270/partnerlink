@@ -57,7 +57,7 @@ export type ProjectDetail = {
   featuresTitle: string
   progressTitle: string
   progressCompletionText: string
-  locationTitle: string
+  address: string
   contactTitle: string
   contactBody: string
   salesPhone: string

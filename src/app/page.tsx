@@ -5,7 +5,7 @@ import Link from 'next/link'
 import strings from '@/lib/strings'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowUpRight, Building2, MapPin } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 
 // Detects Supabase auth error redirects that land on the site root
 // (happens when emailRedirectTo URL is not in the Supabase allowlist or OTP expires)
@@ -72,12 +72,6 @@ const MERCHANT_FEATURES = [
   '完整後台數據與月度報表',
 ]
 
-const FEATURED_PROPERTIES = [
-  { title: '璞真建設 — 光河', location: '新北市板橋區', price: 'NT$ 1,680萬 ～ 3,200萬', rate: '3.5%', slug: 'light-river'    },
-  { title: '國泰禾',           location: '台北市信義區', price: 'NT$ 3,500萬 ～ 6,800萬', rate: '4.0%', slug: 'cathay-he'      },
-  { title: '潤泰敦峰',         location: '台北市大安區', price: 'NT$ 4,200萬 ～ 8,500萬', rate: '4.2%', slug: 'ruentex-dufeng' },
-]
-
 // ── Page ──────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const t = strings.landing
@@ -105,7 +99,7 @@ export default function HomePage() {
         {/* Eyebrow — centered with flanking lines */}
         <motion.div {...fadeUp(0.15)} className="flex items-center gap-4 mb-12">
           <div className="w-8 h-px bg-[#c4913a]/50" />
-          <span className="text-[0.62rem] tracking-[4px] uppercase text-[#c4913a]">
+          <span className="text-[0.72rem] tracking-[3px] uppercase text-[#c4913a]">
             {t.hero.badge}
           </span>
           <div className="w-8 h-px bg-[#c4913a]/50" />
@@ -132,14 +126,14 @@ export default function HomePage() {
         <motion.div {...fadeUp(0.6)} className="flex flex-wrap justify-center items-center gap-4 mb-24">
           <Link
             href="/join/kol"
-            className="group inline-flex items-center gap-2.5 text-[0.68rem] tracking-[3px] uppercase px-8 py-3.5 border border-foreground/20 text-foreground hover:border-[#c4913a] hover:text-[#c4913a] transition-colors duration-200"
+            className="group inline-flex items-center gap-2.5 text-[0.78rem] tracking-[2px] uppercase px-8 py-3.5 border border-foreground/20 text-foreground hover:border-[#c4913a] hover:text-[#c4913a] transition-colors duration-200"
           >
             {t.hero.ctaPrimary}
             <ArrowUpRight className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
           </Link>
           <Link
             href="/join/merchant"
-            className="inline-flex items-center gap-2.5 text-[0.68rem] tracking-[3px] uppercase px-8 py-3.5 text-white hover:bg-[#b8936a] transition-colors duration-200"
+            className="inline-flex items-center gap-2.5 text-[0.78rem] tracking-[2px] uppercase px-8 py-3.5 text-white hover:bg-[#b8936a] transition-colors duration-200"
             style={{ background: '#c4913a' }}
           >
             {t.hero.ctaSecondary}
@@ -162,7 +156,7 @@ export default function HomePage() {
                 {stat.value}
                 <sup className="text-sm" style={{ color: '#c4913a' }}>{stat.sup}</sup>
               </div>
-              <div className="text-[0.6rem] tracking-[2.5px] uppercase mt-2 text-muted-foreground">
+              <div className="text-[0.7rem] tracking-[2px] uppercase mt-2 text-muted-foreground">
                 {stat.label}
               </div>
             </div>
@@ -181,8 +175,8 @@ export default function HomePage() {
 
           {/* Section label */}
           <div className="flex items-center gap-3 mb-16" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '1.5rem' }}>
-            <span className="text-[0.6rem] tracking-[4px] uppercase" style={{ color: '#c4913a' }}>平台運作方式</span>
-            <span className="text-[0.6rem] tracking-[2px] uppercase ml-auto" style={{ color: '#3a332d' }}>4 個步驟</span>
+            <span className="text-[0.7rem] tracking-[3px] uppercase" style={{ color: '#c4913a' }}>平台運作方式</span>
+            <span className="text-[0.7rem] tracking-[2px] uppercase ml-auto" style={{ color: '#3a332d' }}>4 個步驟</span>
           </div>
 
           {/* Step rows */}
@@ -234,7 +228,7 @@ export default function HomePage() {
         >
           <div className="flex items-center gap-3 mb-10">
             <div className="w-5 h-px bg-[#c4913a]/40" />
-            <span className="text-[0.6rem] tracking-[4px] uppercase text-muted-foreground">
+            <span className="text-[0.7rem] tracking-[3px] uppercase text-muted-foreground">
               KOL 合作計畫
             </span>
             <div className="w-5 h-px bg-[#c4913a]/40" />
@@ -263,7 +257,7 @@ export default function HomePage() {
 
           <Link
             href="/join/kol"
-            className="group inline-flex items-center gap-2 text-[0.65rem] tracking-[2.5px] uppercase text-foreground transition-colors duration-200 hover:text-[#c4913a]"
+            className="group inline-flex items-center gap-2 text-[0.75rem] tracking-[2px] uppercase text-foreground transition-colors duration-200 hover:text-[#c4913a]"
             style={{ borderBottom: '1px solid currentColor', paddingBottom: '2px' }}
           >
             {t.cta.primary}
@@ -279,7 +273,7 @@ export default function HomePage() {
         >
           <div className="flex items-center gap-3 mb-10">
             <div className="w-5 h-px bg-[#c4913a]/40" />
-            <span className="text-[0.6rem] tracking-[4px] uppercase text-muted-foreground">
+            <span className="text-[0.7rem] tracking-[3px] uppercase text-muted-foreground">
               商家合作方案
             </span>
             <div className="w-5 h-px bg-[#c4913a]/40" />
@@ -308,7 +302,7 @@ export default function HomePage() {
 
           <Link
             href="/join/merchant"
-            className="group inline-flex items-center gap-2 text-[0.65rem] tracking-[2.5px] uppercase text-foreground transition-colors duration-200 hover:text-[#c4913a]"
+            className="group inline-flex items-center gap-2 text-[0.75rem] tracking-[2px] uppercase text-foreground transition-colors duration-200 hover:text-[#c4913a]"
             style={{ borderBottom: '1px solid currentColor', paddingBottom: '2px' }}
           >
             {t.cta.secondary}
@@ -317,104 +311,6 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════
-          FEATURED PROPERTIES — clean table rows
-      ══════════════════════════════════════════════════════ */}
-      <section className="px-10 py-24 md:px-20">
-        <div className="max-w-5xl mx-auto">
-
-          {/* Header row */}
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <p className="text-[0.6rem] tracking-[4px] uppercase text-muted-foreground mb-3">
-                {t.featured.eyebrow}
-              </p>
-              <motion.h2
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-                className="font-serif text-3xl font-light"
-              >
-                {t.featured.title}
-              </motion.h2>
-            </div>
-            <Link
-              href="/properties"
-              className="group hidden md:inline-flex items-center gap-1.5 text-[0.62rem] tracking-[2px] uppercase text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {t.featured.viewAll}
-              <ArrowUpRight className="h-3 w-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </Link>
-          </div>
-
-          {/* Column headers */}
-          <div
-            className="hidden md:grid text-[0.58rem] tracking-[2.5px] uppercase text-muted-foreground/60 pb-3 mb-1"
-            style={{
-              gridTemplateColumns: '1fr 160px 200px 90px 100px',
-              borderBottom: '1px solid hsl(var(--foreground) / 0.08)',
-            }}
-          >
-            <span>商案名稱</span>
-            <span>地點</span>
-            <span>價格區間</span>
-            <span>佣金</span>
-            <span />
-          </div>
-
-          {/* Property rows */}
-          <div className="border-b border-foreground/[0.08]">
-            {FEATURED_PROPERTIES.map((prop, i) => (
-              <motion.div
-                key={prop.slug}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={slideIn(i * 0.08)}
-                className="group flex flex-col md:grid items-center gap-3 md:gap-0 py-5 transition-colors duration-150 hover:bg-foreground/[0.02] -mx-3 px-3"
-                style={{
-                  gridTemplateColumns: '1fr 160px 200px 90px 100px',
-                  borderTop: '1px solid hsl(var(--foreground) / 0.08)',
-                }}
-              >
-                {/* Name */}
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                  <div
-                    className="w-7 h-7 flex items-center justify-center shrink-0"
-                    style={{ border: '1px solid rgba(196,145,58,0.25)' }}
-                  >
-                    <Building2 className="h-3 w-3" style={{ color: 'rgba(196,145,58,0.6)' }} />
-                  </div>
-                  <span className="text-sm font-medium">{prop.title}</span>
-                </div>
-
-                {/* Location */}
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground w-full md:w-auto">
-                  <MapPin className="h-2.5 w-2.5 shrink-0" />
-                  {prop.location}
-                </div>
-
-                {/* Price */}
-                <div className="text-sm font-light text-foreground/75 w-full md:w-auto">
-                  {prop.price}
-                </div>
-
-                {/* Rate */}
-                <div className="text-xs font-medium w-full md:w-auto" style={{ color: '#c4913a' }}>
-                  {prop.rate}
-                </div>
-
-                {/* CTA */}
-                <Link
-                  href={`/properties/${prop.slug}`}
-                  className="group/link inline-flex items-center gap-1.5 text-[0.62rem] tracking-[2px] uppercase text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-                >
-                  查看商案
-                  <ArrowUpRight className="h-3 w-3 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ══════════════════════════════════════════════════════
           FINAL CTA — dark, centered, minimal
@@ -438,7 +334,7 @@ export default function HomePage() {
             className="flex justify-center items-center gap-4 mb-8"
           >
             <div className="w-6 h-px" style={{ background: 'rgba(196,145,58,0.4)' }} />
-            <span className="text-[0.6rem] tracking-[4px] uppercase" style={{ color: '#c4913a' }}>立即開始</span>
+            <span className="text-[0.7rem] tracking-[3px] uppercase" style={{ color: '#c4913a' }}>立即開始</span>
             <div className="w-6 h-px" style={{ background: 'rgba(196,145,58,0.4)' }} />
           </motion.div>
 
@@ -467,7 +363,7 @@ export default function HomePage() {
           >
             <Link
               href="/join/kol"
-              className="inline-flex items-center gap-2 text-[0.65rem] tracking-[3px] uppercase px-8 py-3.5 text-white transition-colors duration-250"
+              className="inline-flex items-center gap-2 text-[0.75rem] tracking-[2px] uppercase px-8 py-3.5 text-white transition-colors duration-250"
               style={{ border: '1px solid rgba(255,255,255,0.2)' }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#c4913a'; (e.currentTarget as HTMLAnchorElement).style.color = '#c4913a' }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.2)'; (e.currentTarget as HTMLAnchorElement).style.color = '#fff' }}
@@ -476,7 +372,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/join/merchant"
-              className="inline-flex items-center gap-2 text-[0.65rem] tracking-[3px] uppercase px-8 py-3.5 text-white transition-colors duration-250"
+              className="inline-flex items-center gap-2 text-[0.75rem] tracking-[2px] uppercase px-8 py-3.5 text-white transition-colors duration-250"
               style={{ background: '#c4913a' }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = '#b8936a' }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = '#c4913a' }}

@@ -69,7 +69,7 @@ export async function PATCH(
     // Mark the inquiry row as a confirmed deal
     const { error } = await admin
       .from('referral_conversions')
-      .update({ deal_value, deal_confirmed_at: now, room_type: room_type ?? null, room_number: room_number ?? null })
+      .update({ status: 'dealt', deal_value, deal_confirmed_at: now, room_type: room_type ?? null, room_number: room_number ?? null })
       .eq('id', customer_id)
 
     if (error) {
@@ -113,6 +113,7 @@ export async function PATCH(
     const { error: updateError } = await admin
       .from('property_inquiries')
       .update({
+        status:             'dealt',
         deal_value,
         deal_confirmed_at:  now,
         kol_credit_user_id: kol_user_id ?? null,

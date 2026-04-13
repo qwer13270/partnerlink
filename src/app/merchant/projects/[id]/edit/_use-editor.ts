@@ -37,7 +37,7 @@ export function useEditor(id: string) {
 
   // ── UI state ───────────────────────────────────────────────────────────────
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null)
-  const [sidebarView,      setSidebarView]      = useState<'list' | 'edit' | 'theme' | 'font'>('list')
+  const [sidebarView,      setSidebarView]      = useState<'list' | 'edit' | 'theme' | 'font' | 'info'>('list')
   const [loading,          setLoading]          = useState(true)
   const [saving,           setSaving]           = useState(false)
   const [publishing,       setPublishing]       = useState(false)
@@ -492,7 +492,7 @@ function toProjectScalars(project: ProjectDetail) {
     featuresTitle:          project.featuresTitle,
     progressTitle:          project.progressTitle,
     progressCompletionText: project.progressCompletionText,
-    locationTitle:          project.locationTitle,
+    address:          project.address,
     contactTitle:           project.contactTitle,
     contactBody:            project.contactBody,
     salesPhone:             project.salesPhone,
@@ -556,7 +556,7 @@ function toLiveTemplate(project: ProjectDetail): TongchuangTemplateContent | Sha
       featuresTitle:          project.featuresTitle,
       progressTitle:          project.progressTitle,
       progressCompletionText: project.progressCompletionText,
-      locationTitle:          project.locationTitle,
+      address:          project.address,
       contactTitle:           project.contactTitle,
       contactBody:            project.contactBody,
       salesPhone:             project.salesPhone,
