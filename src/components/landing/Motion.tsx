@@ -1,5 +1,5 @@
-'use client';
 // @ts-nocheck
+'use client';
 
 import React, { useEffect, useState } from 'react';
 
@@ -9,13 +9,13 @@ import React, { useEffect, useState } from 'react';
 function MotionDiv({
   as = 'div',
   initial = {},
-  animate = null,
+  animate,
   transition = {},
   className = '',
   style = {},
   children,
   ...rest
-}) {
+}: any) {
   const Tag = as;
   const [current, setCurrent] = useState(initial);
 
