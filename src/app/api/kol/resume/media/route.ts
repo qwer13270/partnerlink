@@ -126,44 +126,118 @@ export async function POST(request: NextRequest) {
   const auth = await requireApiRole(request, ['kol'])
   if (!auth.ok) return auth.response
 
-  const formData = await request.formData().catch(() => null)
-  if (!formData) {
-    return NextResponse.json({ error: 'Invalid form data.' }, { status: 400 })
-  }
+  const body = await request.json().catch(() => null) as {
+    action?: string
+    mediaType?: string
+    sortOrder?: unknown
+    fileName?: string
+    mimeType?: string
+    fileSize?: unknown
+    path?: string
+  } | null
 
-  const mediaType = String(formData.get('mediaType') ?? '')
-  const sortOrderValue = String(formData.get('sortOrder') ?? '0')
-  const fileEntry = formData.get('file')
-
-  if (mediaType !== 'image' && mediaType !== 'video') {
-    return NextResponse.json({ error: 'Invalid mediaType.' }, { status: 400 })
-  }
-  if (!(fileEntry instanceof File)) {
-    return NextResponse.json({ error: 'Missing file.' }, { status: 400 })
-  }
-
-  const sortOrder = Number.parseInt(sortOrderValue, 10)
-  if (Number.isNaN(sortOrder) || sortOrder < 0) {
-    return NextResponse.json({ error: 'Invalid sortOrder.' }, { status: 400 })
-  }
-
-  const maxImageBytes = 10 * 1024 * 1024
-  const maxVideoBytes = 100 * 1024 * 1024
-  if (mediaType === 'image' && fileEntry.size > maxImageBytes) {
-    return NextResponse.json({ error: 'Image file too large (max 10MB).' }, { status: 400 })
-  }
-  if (mediaType === 'video' && fileEntry.size > maxVideoBytes) {
-    return NextResponse.json({ error: 'Video file too large (max 100MB).' }, { status: 400 })
+  if (!body) {
+    return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 })
   }
 
   const admin = getSupabaseAdminClient()
   const { application, error: applicationError } = await getApprovedApplication(admin, auth.user.id)
-
   if (!application) {
     return NextResponse.json({ error: applicationError }, { status: 404 })
   }
 
-  // Enforce per-type limits
+  // ── Step 2: Confirm — register DB record after direct-to-storage upload ──
+  if (body.action === 'confirm') {
+    const { path, mediaType, sortOrder: sortOrderRaw, mimeType, fileSize } = body
+
+    if (typeof path !== 'string' || !path.startsWith(`kol/${auth.user.id}/${application.id}/`)) {
+      return NextResponse.json({ error: 'Invalid path.' }, { status: 403 })
+    }
+    if (mediaType !== 'image' && mediaType !== 'video') {
+      return NextResponse.json({ error: 'Invalid mediaType.' }, { status: 400 })
+    }
+
+    const sortOrder = Number.parseInt(String(sortOrderRaw ?? '0'), 10)
+    if (Number.isNaN(sortOrder) || sortOrder < 0) {
+      return NextResponse.json({ error: 'Invalid sortOrder.' }, { status: 400 })
+    }
+
+    const bucket = 'kol-media'
+    const { data: inserted, error: insertError } = await admin
+      .from('kol_media_assets')
+      .insert({
+        application_id: application.id,
+        user_id: auth.user.id,
+        media_type: mediaType,
+        storage_bucket: bucket,
+        storage_path: path,
+        mime_type: typeof mimeType === 'string' ? mimeType || null : null,
+        file_size_bytes: typeof fileSize === 'number' ? fileSize : Number(fileSize ?? 0),
+        sort_order: sortOrder,
+        caption: '',
+      })
+      .select('id,media_type,storage_path,sort_order,mime_type,file_size_bytes,caption,created_at')
+      .single()
+
+    if (insertError || !inserted) {
+      await admin.storage.from(bucket).remove([path])
+      return NextResponse.json(
+        { error: `Failed to save media metadata: ${insertError?.message ?? 'Unknown error'}` },
+        { status: 500 },
+      )
+    }
+
+    const { data: signed, error: signError } = await admin.storage
+      .from(bucket)
+      .createSignedUrl(path, 60 * 60)
+
+    if (signError) {
+      return NextResponse.json(
+        { error: `Failed to sign uploaded media: ${signError.message}` },
+        { status: 500 },
+      )
+    }
+
+    return NextResponse.json({
+      ok: true,
+      asset: {
+        id: inserted.id,
+        mediaType: inserted.media_type,
+        url: signed.signedUrl,
+        fileName: fileLabelFromPath(inserted.storage_path),
+        sortOrder: typeof inserted.sort_order === 'number' ? inserted.sort_order : 0,
+        caption: inserted.caption ?? '',
+        fileSizeBytes: typeof inserted.file_size_bytes === 'number' ? inserted.file_size_bytes : 0,
+        createdAt: inserted.created_at ?? '',
+      },
+    })
+  }
+
+  // ── Step 1: Prepare — validate and return a signed upload URL ──
+  const { mediaType, sortOrder: sortOrderRaw, fileName, fileSize } = body
+
+  if (mediaType !== 'image' && mediaType !== 'video') {
+    return NextResponse.json({ error: 'Invalid mediaType.' }, { status: 400 })
+  }
+  if (typeof fileName !== 'string') {
+    return NextResponse.json({ error: 'Missing fileName.' }, { status: 400 })
+  }
+
+  const sortOrder = Number.parseInt(String(sortOrderRaw ?? '0'), 10)
+  if (Number.isNaN(sortOrder) || sortOrder < 0) {
+    return NextResponse.json({ error: 'Invalid sortOrder.' }, { status: 400 })
+  }
+
+  const fileSizeNum = typeof fileSize === 'number' ? fileSize : Number(fileSize ?? 0)
+  const maxImageBytes = 10 * 1024 * 1024
+  const maxVideoBytes = 100 * 1024 * 1024
+  if (mediaType === 'image' && fileSizeNum > maxImageBytes) {
+    return NextResponse.json({ error: 'Image file too large (max 10MB).' }, { status: 400 })
+  }
+  if (mediaType === 'video' && fileSizeNum > maxVideoBytes) {
+    return NextResponse.json({ error: 'Video file too large (max 100MB).' }, { status: 400 })
+  }
+
   const LIMITS = { image: 9, video: 3 } as const
   const { count, error: countError } = await admin
     .from('kol_media_assets')
@@ -176,8 +250,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to check media count.' }, { status: 500 })
   }
 
-  const limit = LIMITS[mediaType as keyof typeof LIMITS]
-  if ((count ?? 0) >= limit) {
+  if ((count ?? 0) >= LIMITS[mediaType]) {
     return NextResponse.json(
       { error: `已達上限：${mediaType === 'image' ? '照片最多 9 張' : '影片最多 3 支'}。` },
       { status: 400 },
@@ -185,76 +258,23 @@ export async function POST(request: NextRequest) {
   }
 
   const bucket = 'kol-media'
-  const extension = fileEntry.name.includes('.')
-    ? fileEntry.name.split('.').pop()?.toLowerCase() ?? ''
-    : ''
-  const safeName = sanitizeFileName(fileEntry.name || 'resume-media')
+  const extension = fileName.includes('.') ? fileName.split('.').pop()?.toLowerCase() ?? '' : ''
+  const safeName = sanitizeFileName(fileName || 'resume-media')
   const suffix = extension ? `.${extension}` : ''
   const storagePath = `kol/${auth.user.id}/${application.id}/${crypto.randomUUID()}-${safeName || 'resume-media'}${suffix}`
 
-  const { error: uploadError } = await admin.storage
+  const { data: signedUpload, error: signedError } = await admin.storage
     .from(bucket)
-    .upload(storagePath, fileEntry, {
-      upsert: false,
-      contentType: fileEntry.type || undefined,
-      cacheControl: '3600',
-    })
+    .createSignedUploadUrl(storagePath)
 
-  if (uploadError) {
+  if (signedError || !signedUpload) {
     return NextResponse.json(
-      { error: `Upload failed: ${uploadError.message}` },
+      { error: `Failed to create upload URL: ${signedError?.message ?? 'Unknown error'}` },
       { status: 500 },
     )
   }
 
-  const { data: inserted, error: insertError } = await admin
-    .from('kol_media_assets')
-    .insert({
-      application_id: application.id,
-      user_id: auth.user.id,
-      media_type: mediaType,
-      storage_bucket: bucket,
-      storage_path: storagePath,
-      mime_type: fileEntry.type || null,
-      file_size_bytes: fileEntry.size,
-      sort_order: sortOrder,
-      caption: '',
-    })
-    .select('id,media_type,storage_path,sort_order,mime_type,file_size_bytes,caption,created_at')
-    .single()
-
-  if (insertError || !inserted) {
-    await admin.storage.from(bucket).remove([storagePath])
-    return NextResponse.json(
-      { error: `Failed to save media metadata: ${insertError?.message ?? 'Unknown error'}` },
-      { status: 500 },
-    )
-  }
-
-  const { data: signed, error: signError } = await admin.storage
-    .from(bucket)
-    .createSignedUrl(storagePath, 60 * 60)
-
-  if (signError) {
-    return NextResponse.json(
-      { error: `Failed to sign uploaded media: ${signError.message}` },
-      { status: 500 },
-    )
-  }
-
-  return NextResponse.json({
-    ok: true,
-    asset: {
-      id: inserted.id,
-      mediaType: inserted.media_type,
-      url: signed.signedUrl,
-      fileName: fileLabelFromPath(inserted.storage_path),
-      sortOrder: typeof inserted.sort_order === 'number' ? inserted.sort_order : 0,
-      caption: inserted.caption ?? '',
-      fileSizeBytes: typeof inserted.file_size_bytes === 'number' ? inserted.file_size_bytes : 0,
-      createdAt: inserted.created_at ?? '',
-    },
-  })
+  return NextResponse.json({ ok: true, signedUrl: signedUpload.signedUrl, path: storagePath })
 }
 
 export async function PATCH(request: NextRequest) {

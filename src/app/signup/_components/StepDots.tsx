@@ -9,7 +9,11 @@ export function StepDots({ step, total = 2 }: { step: Step; total?: number }) {
         <div
           key={s}
           className={`h-1 rounded-full transition-all duration-300 ${
-            s === step ? 'w-6 bg-[#1A1A1A]' : s < step ? 'w-3 bg-[#1A1A1A]/30' : 'w-3 bg-[#E8E4DF]'
+            s === step
+              ? 'w-6 bg-white/80'
+              : s < step
+              ? 'w-3 bg-white/30'
+              : 'w-3 bg-white/15'
           }`}
         />
       ))}

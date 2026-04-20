@@ -3,7 +3,6 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-// ── Brand SVG icons ─────────────────────────────────────────────────────────
 function IgIcon({ color }: { color: string }) {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill={color} aria-hidden="true">
@@ -33,23 +32,20 @@ function ThIcon({ color }: { color: string }) {
   )
 }
 
-// ── Platform brand config ────────────────────────────────────────────────────
 type PlatformMeta = {
   color: string
-  bg: string
   Icon: (props: { color: string }) => React.ReactElement
   prefix: string
   hint: string
 }
 
 const PLATFORM_META: Record<string, PlatformMeta> = {
-  Instagram: { color: '#C13584', bg: 'rgba(193,53,132,0.05)', Icon: IgIcon, prefix: '@', hint: 'yourhandle' },
-  TikTok:    { color: '#161823', bg: 'rgba(22,24,35,0.05)',   Icon: TkIcon, prefix: '@', hint: 'yourhandle' },
-  Threads:   { color: '#101010', bg: 'rgba(0,0,0,0.04)',      Icon: ThIcon, prefix: '@', hint: 'yourhandle' },
-  Facebook:  { color: '#1877F2', bg: 'rgba(24,119,242,0.05)', Icon: FbIcon, prefix: '@', hint: 'yourpage'   },
+  Instagram: { color: '#C13584', Icon: IgIcon, prefix: '@', hint: 'yourhandle' },
+  TikTok:    { color: '#69C9D0', Icon: TkIcon, prefix: '@', hint: 'yourhandle' },
+  Threads:   { color: '#aaaaaa', Icon: ThIcon, prefix: '@', hint: 'yourhandle' },
+  Facebook:  { color: '#1877F2', Icon: FbIcon, prefix: '@', hint: 'yourpage'   },
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
 export function PlatformCard({
   platform,
   isSelected,
@@ -67,39 +63,34 @@ export function PlatformCard({
   onToggle: () => void
   onAccountChange: (v: string) => void
 }) {
-  const meta = PLATFORM_META[platform] ?? { color: '#1A1A1A', bg: 'rgba(0,0,0,0.04)', Icon: IgIcon, prefix: '@', hint: 'yourhandle' }
+  const meta = PLATFORM_META[platform] ?? { color: '#7aa8ff', Icon: IgIcon, prefix: '@', hint: 'yourhandle' }
   const isFilled = isSelected && (!showAccountInput || accountValue.trim().length > 0)
 
   return (
     <div
-      className="relative overflow-hidden transition-all duration-200"
-      style={{
-        border: `1px solid ${isSelected ? meta.color : '#E8E4DF'}`,
-        backgroundColor: isSelected ? meta.bg : 'transparent',
-      }}
+      className="liquid-glass rounded-xl overflow-hidden transition-all duration-200"
+      style={{ outline: isSelected ? `1px solid ${meta.color}40` : '1px solid transparent' }}
     >
       {/* Left accent strip */}
       <motion.div
-        className="absolute left-0 top-0 bottom-0 w-[3px]"
+        className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl"
         animate={{ scaleY: isSelected ? 1 : 0 }}
         initial={false}
         transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
         style={{ backgroundColor: meta.color, transformOrigin: 'top' }}
       />
 
-      {/* Card header row */}
       <button
         type="button"
         onClick={onToggle}
         className="w-full flex items-center gap-3 px-4 py-3 pl-[18px] cursor-pointer"
       >
         <span className="flex-shrink-0 transition-transform duration-200" style={{ transform: isSelected ? 'scale(1.1)' : 'scale(1)' }}>
-          <meta.Icon color={isSelected ? meta.color : '#AEAAA5'} />
+          <meta.Icon color={isSelected ? meta.color : 'rgba(255,255,255,0.35)'} />
         </span>
 
-        <span
-          className="text-sm font-medium flex-1 text-left tracking-wide transition-colors duration-200"
-          style={{ color: isSelected ? '#1A1A1A' : '#6B6560' }}
+        <span className="text-sm font-medium flex-1 text-left tracking-wide transition-colors duration-200 font-body"
+          style={{ color: isSelected ? '#fff' : 'rgba(255,255,255,0.5)' }}
         >
           {platform}
         </span>
@@ -135,15 +126,14 @@ export function PlatformCard({
               className="flex-shrink-0 flex items-center justify-center"
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <circle cx="9" cy="9" r="8.5" stroke="#D8D4CF" />
-                <path d="M9 5.5v7M5.5 9h7" stroke="#D8D4CF" strokeWidth="1.5" strokeLinecap="round" />
+                <circle cx="9" cy="9" r="8.5" stroke="rgba(255,255,255,0.2)" />
+                <path d="M9 5.5v7M5.5 9h7" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </motion.span>
           )}
         </AnimatePresence>
       </button>
 
-      {/* Animated username input */}
       <AnimatePresence>
         {isSelected && showAccountInput && (
           <motion.div
@@ -156,14 +146,14 @@ export function PlatformCard({
           >
             <div className="px-[18px] pb-4">
               <div
-                className="flex items-stretch bg-white transition-all duration-150"
-                style={{ border: `1px solid ${accountValue.trim() ? meta.color : '#D8D4CF'}` }}
+                className="flex items-stretch bg-white/5 rounded-lg transition-all duration-150"
+                style={{ border: `1px solid ${accountValue.trim() ? meta.color + '60' : 'rgba(255,255,255,0.12)'}` }}
               >
                 <span
-                  className="flex items-center px-3 text-xs font-bold tracking-wider border-r select-none shrink-0 transition-colors duration-150"
+                  className="flex items-center px-3 text-xs font-bold tracking-wider border-r select-none shrink-0 transition-colors duration-150 font-body"
                   style={{
                     color: meta.color,
-                    borderColor: accountValue.trim() ? meta.color : '#D8D4CF',
+                    borderColor: accountValue.trim() ? meta.color + '40' : 'rgba(255,255,255,0.1)',
                     letterSpacing: '0.05em',
                   }}
                 >
@@ -176,14 +166,10 @@ export function PlatformCard({
                   placeholder={meta.hint}
                   value={accountValue}
                   onChange={(e) => onAccountChange(e.target.value)}
-                  className="flex-1 py-2.5 px-3 text-sm bg-transparent outline-none text-[#1A1A1A] placeholder:text-[#C0BAB3]"
+                  className="flex-1 py-2.5 px-3 text-sm bg-transparent outline-none text-white placeholder:text-white/25 font-body"
                 />
                 {accountValue.trim() && (
-                  <motion.span
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex items-center pr-3"
-                  >
+                  <motion.span initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center pr-3">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <circle cx="7" cy="7" r="6.5" fill={meta.color} />
                       <path d="M4 7l2 2 4-3.5" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />

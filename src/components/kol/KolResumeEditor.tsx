@@ -143,9 +143,47 @@ function AssetRow({ asset, isSaved, onCaptionChange, onCaptionBlur, onDelete }: 
   )
 }
 
+// ── Upload progress ────────────────────────────────────────────────────────
+
+function UploadProgress({ items, onDismiss }: { items: UploadItem[]; onDismiss: (key: string) => void }) {
+  return (
+    <AnimatePresence>
+      {items.map((item) => (
+        <motion.div
+          key={item.key}
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.15 }}
+          className={`rounded border px-3 py-2 ${
+            item.status === 'error' ? 'border-red-200 bg-red-50/40' : 'border-foreground/10 bg-foreground/[0.015]'
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <span className="truncate text-xs text-foreground/60">{item.fileName}</span>
+            {item.status === 'error' ? (
+              <button type="button" onClick={() => onDismiss(item.key)} className="shrink-0 text-red-400 hover:text-red-600">
+                <X className="h-3 w-3" />
+              </button>
+            ) : (
+              <span className="shrink-0 text-xs tabular-nums text-muted-foreground/50">{item.progress}%</span>
+            )}
+          </div>
+          {item.status === 'uploading' && (
+            <div className="h-0.5 w-full overflow-hidden rounded-full bg-foreground/10">
+              <div className="h-full bg-foreground/40 transition-all duration-200" style={{ width: `${item.progress}%` }} />
+            </div>
+          )}
+          {item.status === 'error' && <p className="text-xs text-red-500">{item.error}</p>}
+        </motion.div>
+      ))}
+    </AnimatePresence>
+  )
+}
+
 // ── Upload helper ──────────────────────────────────────────────────────────
 
-function uploadResumeMedia({
+async function uploadResumeMedia({
   file,
   mediaType,
   sortOrder,
@@ -156,40 +194,47 @@ function uploadResumeMedia({
   sortOrder: number
   onProgress: (p: number) => void
 }): Promise<MediaAsset> {
-  return new Promise((resolve, reject) => {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('mediaType', mediaType)
-    formData.append('sortOrder', String(sortOrder))
+  // Step 1: Ask the API for a signed Supabase upload URL (no file sent to Vercel)
+  const prepareRes = await fetch('/api/kol/resume/media', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mediaType, sortOrder, fileName: file.name, mimeType: file.type, fileSize: file.size }),
+  })
+  if (!prepareRes.ok) {
+    const json = await prepareRes.json().catch(() => ({})) as { error?: string }
+    throw new Error(json.error ?? `Upload failed (${prepareRes.status})`)
+  }
+  const { signedUrl, path } = await prepareRes.json() as { signedUrl: string; path: string }
 
+  // Step 2: Upload the file directly to Supabase Storage (bypasses Vercel body limit)
+  await new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', '/api/kol/resume/media')
+    xhr.open('PUT', signedUrl)
+    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream')
 
     xhr.upload.addEventListener('progress', (e) => {
       if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100))
     })
 
     xhr.addEventListener('load', () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const json = JSON.parse(xhr.responseText) as { ok: boolean; asset: MediaAsset }
-          resolve(json.asset)
-        } catch {
-          reject(new Error('Invalid server response'))
-        }
-      } else {
-        try {
-          const json = JSON.parse(xhr.responseText) as { error?: string }
-          reject(new Error(json.error ?? `Upload failed (${xhr.status})`))
-        } catch {
-          reject(new Error(`Upload failed (${xhr.status})`))
-        }
-      }
+      xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`Storage upload failed (${xhr.status})`))
     })
-
     xhr.addEventListener('error', () => reject(new Error('Network error')))
-    xhr.send(formData)
+    xhr.send(file)
   })
+
+  // Step 3: Tell the API to register the asset in the database
+  const confirmRes = await fetch('/api/kol/resume/media', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'confirm', path, mediaType, sortOrder, mimeType: file.type, fileSize: file.size }),
+  })
+  if (!confirmRes.ok) {
+    const json = await confirmRes.json().catch(() => ({})) as { error?: string }
+    throw new Error(json.error ?? `Upload failed (${confirmRes.status})`)
+  }
+  const { asset } = await confirmRes.json() as { asset: MediaAsset }
+  return asset
 }
 
 function toResumeMediaItem(asset: MediaAsset): ResumeMediaItem {
@@ -236,13 +281,13 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
   }, [assets, setParentMedia])
 
   const handleFiles = (mediaType: 'image' | 'video', files: FileList | File[]) => {
-    const MAX_BYTES = { image: 10 * 1024 * 1024, video: 100 * 1024 * 1024 }
+    const MAX_BYTES = { image: 10 * 1024 * 1024, video: 50 * 1024 * 1024 }
     const fileArray = Array.from(files)
     fileArray.forEach((file) => {
       const key = `${Date.now()}-${Math.random()}`
 
       if (file.size > MAX_BYTES[mediaType]) {
-        const label = mediaType === 'image' ? '照片超過 10MB 上限' : '影片超過 100MB 上限'
+        const label = mediaType === 'image' ? '照片超過 10MB 上限' : '影片超過 50MB 上限'
         setUploadItems((prev) => [...prev, { key, fileName: file.name, mediaType, progress: 0, status: 'error', error: label }])
         return
       }
@@ -347,40 +392,9 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
   const photoAtLimit = photos.length >= PHOTO_LIMIT
   const videoAtLimit = videos.length >= VIDEO_LIMIT
 
-  const UploadProgress = ({ items }: { items: UploadItem[] }) => (
-    <AnimatePresence>
-      {items.map((item) => (
-        <motion.div
-          key={item.key}
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -4 }}
-          transition={{ duration: 0.15 }}
-          className={`rounded border px-3 py-2 ${
-            item.status === 'error' ? 'border-red-200 bg-red-50/40' : 'border-foreground/10 bg-foreground/[0.015]'
-          }`}
-        >
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <span className="truncate text-xs text-foreground/60">{item.fileName}</span>
-            {item.status === 'error' ? (
-              <button type="button" onClick={() => setUploadItems((prev) => prev.filter((u) => u.key !== item.key))} className="shrink-0 text-red-400 hover:text-red-600">
-                <X className="h-3 w-3" />
-              </button>
-            ) : (
-              <span className="shrink-0 text-xs tabular-nums text-muted-foreground/50">{item.progress}%</span>
-            )}
-          </div>
-          {item.status === 'uploading' && (
-            <div className="h-0.5 w-full overflow-hidden rounded-full bg-foreground/10">
-              <div className="h-full bg-foreground/40 transition-all duration-200" style={{ width: `${item.progress}%` }} />
-            </div>
-          )}
-          {item.status === 'error' && <p className="text-xs text-red-500">{item.error}</p>}
-        </motion.div>
-      ))}
-    </AnimatePresence>
-  )
-
+  const handleDismissUpload = useCallback((key: string) => {
+    setUploadItems((prev) => prev.filter((u) => u.key !== key))
+  }, [])
 
   return (
     <div
@@ -449,7 +463,7 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
           </div>
         ) : (
           <>
-            <UploadProgress items={photoUploads} />
+            <UploadProgress items={photoUploads} onDismiss={handleDismissUpload} />
             {photos.length === 0 && photoUploads.length === 0 ? (
               <button
                 type="button"
@@ -524,7 +538,7 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
         </div>
         <div className="px-4 pt-2 pb-4">
         <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <p className="text-xs text-muted-foreground">每支影片最大 100MB</p>
+          <p className="text-xs text-muted-foreground">每支影片最大 50MB</p>
           <span className="inline-flex items-center gap-1 rounded bg-foreground/[0.04] px-2 py-0.5 text-xs text-muted-foreground/70">
             <svg className="h-2.5 w-2.5 shrink-0" viewBox="0 0 10 8" fill="none" aria-hidden="true">
               <rect x="0.6" y="0.6" width="6.8" height="6.8" rx="0.8" stroke="currentColor" strokeWidth="1.2"/>
@@ -548,7 +562,7 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
           </div>
         ) : (
           <>
-            <UploadProgress items={videoUploads} />
+            <UploadProgress items={videoUploads} onDismiss={handleDismissUpload} />
             {videos.length === 0 && videoUploads.length === 0 ? (
               <button
                 type="button"

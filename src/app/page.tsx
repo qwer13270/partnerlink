@@ -18,6 +18,7 @@ import FeaturesChess, { ScrollArc } from '@/components/landing/FeaturesChess';
 import BlurText from '@/components/landing/BlurText';
 import MotionDiv from '@/components/landing/Motion';
 import { useRevealOnScroll } from '@/components/landing/use-reveal-on-scroll';
+import Logo from '@/components/Logo';
 
 function AuthErrorRedirect() {
   const router = useRouter();
@@ -39,28 +40,7 @@ function Navbar() {
   return (
     <nav className="fixed top-4 left-0 right-0 z-50 px-8 lg:px-16 py-3">
       <div className="flex items-center justify-between">
-        <Link href="/#top" className="flex items-center gap-2.5 group">
-          <div className="h-11 w-11 rounded-full liquid-glass-strong flex items-center justify-center relative">
-            <svg width="22" height="22" viewBox="0 0 32 32" fill="none" className="relative z-10">
-              <defs>
-                <linearGradient id="pl-g1" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#dbeafe" />
-                  <stop offset="1" stopColor="#7aa8ff" />
-                </linearGradient>
-                <linearGradient id="pl-g2" x1="1" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#ffffff" />
-                  <stop offset="1" stopColor="#6497ff" />
-                </linearGradient>
-              </defs>
-              <path d="M13 6a7 7 0 0 0 0 14h3" stroke="url(#pl-g1)" strokeWidth="3" strokeLinecap="round" fill="none" />
-              <path d="M19 26a7 7 0 0 0 0-14h-3" stroke="url(#pl-g2)" strokeWidth="3" strokeLinecap="round" fill="none" />
-              <circle cx="16" cy="16" r="1.8" fill="#ffffff" />
-            </svg>
-          </div>
-          <span className="font-body font-semibold text-xl text-white leading-none tracking-tight">
-            partner<span className="text-white/60">link</span>
-          </span>
-        </Link>
+        <Logo href="/#top" />
 
         <div className="liquid-glass rounded-full px-1.5 py-1 flex items-center gap-0">
           <Link
