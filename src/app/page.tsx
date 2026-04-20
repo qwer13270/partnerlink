@@ -1,388 +1,431 @@
-'use client'
+// @ts-nocheck
+'use client';
 
-import { Suspense, useEffect } from 'react'
-import Link from 'next/link'
-import strings from '@/lib/strings'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { ArrowUpRight } from 'lucide-react'
+import { Suspense, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ArrowUpRight } from 'lucide-react';
 
-// Detects Supabase auth error redirects that land on the site root
-// (happens when emailRedirectTo URL is not in the Supabase allowlist or OTP expires)
+import Preloader from '@/components/landing/Preloader';
+import HeroNetworkBG from '@/components/landing/HeroNetworkBG';
+import CtaNetworkBG from '@/components/landing/CtaNetworkBG';
+import StatsBG from '@/components/landing/StatsBG';
+import TrustedBy from '@/components/landing/TrustedBy';
+import AboutSection from '@/components/landing/AboutSection';
+import FeatureSteps from '@/components/landing/FeatureSteps';
+import FaqSection from '@/components/landing/FaqSection';
+import FeaturesChess, { ScrollArc } from '@/components/landing/FeaturesChess';
+import BlurText from '@/components/landing/BlurText';
+import MotionDiv from '@/components/landing/Motion';
+import { useRevealOnScroll } from '@/components/landing/use-reveal-on-scroll';
+
 function AuthErrorRedirect() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-
+  const router = useRouter();
+  const searchParams = useSearchParams();
   useEffect(() => {
-    const errorCode = searchParams.get('error_code') ?? searchParams.get('error')
-    if (!errorCode) return
-    const params = new URLSearchParams()
-    params.set('error_code', errorCode)
-    const desc = searchParams.get('error_description')
-    if (desc) params.set('error_description', desc)
-    router.replace(`/auth/error?${params}`)
-  }, [router, searchParams])
-
-  return null
+    const errorCode = searchParams.get('error_code') ?? searchParams.get('error');
+    if (!errorCode) return;
+    const params = new URLSearchParams();
+    params.set('error_code', errorCode);
+    const desc = searchParams.get('error_description');
+    if (desc) params.set('error_description', desc);
+    router.replace(`/auth/error?${params}`);
+  }, [router, searchParams]);
+  return null;
 }
 
-// ── Animation helpers ──────────────────────────────────────────────────────
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] as const },
-})
+/* ---------------- Navbar ---------------- */
+function Navbar() {
+  return (
+    <nav className="fixed top-4 left-0 right-0 z-50 px-8 lg:px-16 py-3">
+      <div className="flex items-center justify-between">
+        <Link href="/#top" className="flex items-center gap-2.5 group">
+          <div className="h-11 w-11 rounded-full liquid-glass-strong flex items-center justify-center relative">
+            <svg width="22" height="22" viewBox="0 0 32 32" fill="none" className="relative z-10">
+              <defs>
+                <linearGradient id="pl-g1" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#dbeafe" />
+                  <stop offset="1" stopColor="#7aa8ff" />
+                </linearGradient>
+                <linearGradient id="pl-g2" x1="1" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#ffffff" />
+                  <stop offset="1" stopColor="#6497ff" />
+                </linearGradient>
+              </defs>
+              <path d="M13 6a7 7 0 0 0 0 14h3" stroke="url(#pl-g1)" strokeWidth="3" strokeLinecap="round" fill="none" />
+              <path d="M19 26a7 7 0 0 0 0-14h-3" stroke="url(#pl-g2)" strokeWidth="3" strokeLinecap="round" fill="none" />
+              <circle cx="16" cy="16" r="1.8" fill="#ffffff" />
+            </svg>
+          </div>
+          <span className="font-body font-semibold text-xl text-white leading-none tracking-tight">
+            partner<span className="text-white/60">link</span>
+          </span>
+        </Link>
 
-const reveal = {
-  hidden:  { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as const } },
+        <div className="liquid-glass rounded-full px-1.5 py-1 flex items-center gap-0">
+          <Link
+            href="/login"
+            className="mr-1 md:mr-1.5 rounded-full px-3 md:px-3.5 py-1.5 text-sm font-body font-medium text-white/90 hover:text-white transition"
+          >
+            登入
+          </Link>
+          <Link
+            href="/signup"
+            className="bg-white text-black rounded-full px-3 md:px-3.5 py-1.5 text-sm font-body font-medium flex items-center gap-1 hover:bg-white/90 transition"
+          >
+            註冊 <ArrowUpRight size={14} />
+          </Link>
+        </div>
+      </div>
+    </nav>
+  );
 }
 
-const slideIn = (delay = 0) => ({
-  hidden:  { opacity: 0, x: -16 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] as const } },
-})
+/* ---------------- Hero ---------------- */
+function Hero() {
+  return (
+    <section id="top" className="relative overflow-hidden scroll-mt-0" style={{ height: 780 }}>
+      <div className="absolute inset-0 z-0">
+        <HeroNetworkBG />
+      </div>
 
-// ── Static data ────────────────────────────────────────────────────────────
-const PLATFORM_STATS = [
-  { value: '120', sup: '+', label: '合作 KOL'   },
-  { value: '18',  sup: '+', label: '合作商案'   },
-  { value: '2,600', sup: '+', label: '看屋預約' },
-  { value: '18.4', sup: '%', label: '平均轉換率' },
-]
+      <div className="absolute inset-0 bg-black/10 z-0" />
 
-const HOW_STEPS = [
-  { num: '01', title: 'KOL 申請加入',   desc: '填寫資料，審核通過後即可瀏覽全部商案並提出合作申請。'         },
-  { num: '02', title: '商家刊登商案',   desc: '設定佣金比例，審核 KOL 合作申請，掌握完整推廣活動。'         },
-  { num: '03', title: '推廣與即時追蹤', desc: '專屬連結記錄每次點擊、看屋預約與成交，數據全程可見。'         },
-  { num: '04', title: '佣金自動計算',   desc: '成交確認後自動計算佣金，定期撥款至帳戶，全程透明可查。'       },
-]
+      <div
+        className="absolute top-0 left-0 right-0 z-[1] pointer-events-none"
+        style={{
+          height: 220,
+          background: 'linear-gradient(to bottom, #000 0%, rgba(0,0,0,0.6) 35%, rgba(0,0,0,0) 100%)',
+        }}
+      />
+      <div
+        className="absolute bottom-0 left-0 right-0 z-[1] pointer-events-none"
+        style={{ height: 300, background: 'linear-gradient(to bottom, transparent, #000)' }}
+      />
 
-const KOL_FEATURES = [
-  '即時點擊、預約與成交追蹤',
-  'KOL 分級制度，佣金結構透明',
-  '豐富素材包，降低創作門檻',
-  '免費加入，審核 1–2 天內完成',
-]
+      <div
+        className="relative z-10 h-full flex flex-col items-center justify-center px-6 text-center"
+        style={{ paddingTop: 80 }}
+      >
+        <MotionDiv
+          initial={{ opacity: 0, transform: 'translateY(10px)', filter: 'blur(10px)' }}
+          animate={{ opacity: 1, transform: 'translateY(0px)', filter: 'blur(0px)' }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="liquid-glass rounded-full px-1 py-1 flex items-center gap-2 mb-8"
+        >
+          <span className="bg-white text-black rounded-full px-3 py-1 text-xs font-semibold font-body">New</span>
+          <span className="text-xs text-white/90 font-body pr-3">全台最大的行銷生態</span>
+        </MotionDiv>
 
-const MERCHANT_FEATURES = [
-  '精準觸及高意向潛在買家',
-  '按成效付費，投入風險可控',
-  'KOL 審核權由商家全程掌握',
-  '完整後台數據與月度報表',
-]
+        <BlurText
+          text="Connect Brands & Creators"
+          delay={100}
+          className="text-6xl md:text-7xl lg:text-[5.5rem] font-heading italic text-white leading-[0.8] max-w-2xl mx-auto"
+          as="h1"
+        />
 
-// ── Page ──────────────────────────────────────────────────────────────────
-export default function HomePage() {
-  const t = strings.landing
+        <MotionDiv
+          as="p"
+          initial={{ filter: 'blur(10px)', opacity: 0, transform: 'translateY(20px)' }}
+          animate={{ filter: 'blur(0px)', opacity: 1, transform: 'translateY(0px)' }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="mt-6 text-sm md:text-base text-white font-body font-light leading-tight max-w-md"
+        >
+          連結商家與KOL，創造共贏的行銷生態
+        </MotionDiv>
+
+        <MotionDiv
+          initial={{ filter: 'blur(10px)', opacity: 0, transform: 'translateY(20px)' }}
+          animate={{ filter: 'blur(0px)', opacity: 1, transform: 'translateY(0px)' }}
+          transition={{ duration: 0.6, delay: 1.1 }}
+          className="mt-8 flex items-center gap-4"
+        >
+          <Link
+            href="/signup?role=merchant"
+            className="liquid-glass-strong rounded-full px-5 py-2.5 text-sm font-body font-medium text-white flex items-center gap-2"
+          >
+            成為商家 <ArrowUpRight size={16} />
+          </Link>
+          <Link
+            href="/signup?role=kol"
+            className="liquid-glass rounded-full px-5 py-2.5 text-sm font-body font-medium text-white flex items-center gap-2"
+          >
+            成為 KOL <ArrowUpRight size={16} />
+          </Link>
+        </MotionDiv>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- Features Grid (Comparison) ---------------- */
+function FeaturesGrid() {
+  const ours = [
+    '即時媒合，AI 自動篩選合適 KOL',
+    '一站式管理：邀請、溝通、簽約、結案',
+    '透明數據報表，ROI 一目了然',
+    '自動化流程，減少行政負擔',
+    '專屬團隊協助，從策略到執行',
+  ];
+  const theirs = [
+    '手動發 DM，逐一寄信聯絡',
+    '合作細節散落在訊息、表單、Email',
+    '活動結束才拿到 PDF 報告',
+    '重複性作業多，人力成本高',
+    '出事才找得到人，支援不穩定',
+  ];
+
+  const { ref, visible } = useRevealOnScroll({ threshold: 0.05, rootMargin: '0px 0px -10% 0px' });
+
+  const Check = () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0">
+      <circle cx="8" cy="8" r="7.25" stroke="rgba(180,220,255,0.55)" strokeWidth="1" />
+      <path d="M5 8.2 L7.2 10.4 L11 6" stroke="rgba(220,240,255,0.95)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+  const Cross = () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0">
+      <circle cx="8" cy="8" r="7.25" stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
+      <path d="M5.5 5.5 L10.5 10.5 M10.5 5.5 L5.5 10.5" stroke="rgba(255,255,255,0.45)" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+
+  const rowClass = () =>
+    `flex items-center gap-3 py-3.5 px-4 rounded-xl transition-all duration-[700ms] ${
+      visible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-3'
+    }`;
 
   return (
-    <div className="overflow-x-hidden">
+    <section ref={ref} className="relative px-6 md:px-12 lg:px-20 py-28 max-w-6xl mx-auto">
+      <style>{`
+        @keyframes fg-our-glow {
+          0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 0 0 rgba(140,200,255,0); }
+          50%      { box-shadow: 0 0 0 1px rgba(180,220,255,0.32), 0 0 36px rgba(140,200,255,0.18); }
+        }
+        .fg-our-card { animation: fg-our-glow 6s ease-in-out infinite; }
+        @keyframes fg-check-pulse {
+          0%, 100% { filter: drop-shadow(0 0 0 rgba(180,220,255,0)); }
+          50%      { filter: drop-shadow(0 0 6px rgba(180,220,255,0.6)); }
+        }
+        .fg-check { animation: fg-check-pulse 3.2s ease-in-out infinite; }
+      `}</style>
+
+      <div className="text-center mb-14 relative z-10 flex flex-col items-center">
+        <div className="inline-flex items-center gap-2 liquid-glass rounded-full px-3.5 py-1 text-[11px] tracking-[0.28em] uppercase text-white/80 font-body mb-6">
+          <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
+          Comparison
+        </div>
+        <h2 className="font-heading text-white tracking-tight leading-[1.1] text-4xl md:text-5xl lg:text-6xl">
+          為何選擇我們<span style={{ fontStyle: 'italic' }} className="text-white/90">而非其他平台</span>
+        </h2>
+        <p className="mt-6 text-white/60 font-body font-light text-sm md:text-base max-w-2xl">
+          比較看看，為什麼越來越多商家與 KOL 選擇我們的平台。
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 relative z-10">
+        <div>
+          <div className="flex items-center justify-center gap-2.5 mb-5">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="10" stroke="rgba(180,220,255,0.7)" strokeWidth="1" />
+              <circle cx="11" cy="11" r="3.2" fill="rgba(200,230,255,0.9)" />
+              <circle cx="11" cy="11" r="6" stroke="rgba(180,220,255,0.35)" strokeWidth="1" />
+            </svg>
+            <span className="font-heading italic text-2xl md:text-[1.7rem] text-white">我們的平台</span>
+          </div>
+          <div className="liquid-glass fg-our-card rounded-2xl p-5 md:p-6">
+            <ul className="space-y-1">
+              {ours.map((t, i) => (
+                <li
+                  key={i}
+                  className={rowClass()}
+                  style={{ transitionDelay: visible ? `${i * 110}ms` : '0ms' }}
+                >
+                  <span className="fg-check" style={{ animationDelay: `${i * 0.4}s` }}>
+                    <Check />
+                  </span>
+                  <span className="text-white/90 font-body font-light text-sm md:text-[15px] leading-snug">
+                    {t}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-center gap-2.5 mb-5">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <rect x="4" y="7" width="14" height="10" rx="1.5" stroke="rgba(255,255,255,0.4)" strokeWidth="1" fill="none" />
+              <rect x="6.5" y="5" width="14" height="10" rx="1.5" stroke="rgba(255,255,255,0.25)" strokeWidth="1" fill="none" />
+              <rect x="9" y="3" width="14" height="10" rx="1.5" stroke="rgba(255,255,255,0.15)" strokeWidth="1" fill="none" />
+            </svg>
+            <span className="font-heading italic text-2xl md:text-[1.7rem] text-white/55">其他方式</span>
+          </div>
+          <div
+            className="rounded-2xl p-5 md:p-6 border border-white/[0.07]"
+            style={{ background: 'rgba(255,255,255,0.015)' }}
+          >
+            <ul className="space-y-1">
+              {theirs.map((t, i) => (
+                <li
+                  key={i}
+                  className={rowClass()}
+                  style={{ transitionDelay: visible ? `${i * 110 + 60}ms` : '0ms' }}
+                >
+                  <Cross />
+                  <span className="text-white/45 font-body font-light text-sm md:text-[15px] leading-snug line-through decoration-white/10">
+                    {t}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- Stats ---------------- */
+function Stats() {
+  const stats = [
+    { v: '12,000+', l: '合作媒合次數' },
+    { v: '5,800+', l: '活躍 KOL 數' },
+    { v: '5%', l: '平均轉換率' },
+    { v: '500萬', l: '平台總成交量' },
+  ];
+  return (
+    <section className="relative overflow-hidden">
+      <div className="absolute inset-0"><StatsBG /></div>
+      <div
+        className="absolute top-0 left-0 right-0 z-[1] pointer-events-none"
+        style={{ height: 200, background: 'linear-gradient(to bottom, #000, transparent)' }}
+      />
+      <div
+        className="absolute bottom-0 left-0 right-0 z-[1] pointer-events-none"
+        style={{ height: 200, background: 'linear-gradient(to top, #000, transparent)' }}
+      />
+      <div className="relative z-10 px-6 md:px-12 lg:px-20 py-32 max-w-7xl mx-auto">
+        <div className="liquid-glass rounded-3xl p-12 md:p-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+            {stats.map((s) => (
+              <div key={s.l}>
+                <div className="text-4xl md:text-5xl lg:text-6xl font-heading italic text-white leading-[0.9]">
+                  {s.v}
+                </div>
+                <div className="mt-3 text-white/60 font-body font-light text-sm">{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- CTA Footer ---------------- */
+function CtaFooter() {
+  return (
+    <section className="relative overflow-hidden">
+      <div className="absolute inset-0"><CtaNetworkBG /></div>
+      <div
+        className="absolute top-0 left-0 right-0 z-[1] pointer-events-none"
+        style={{ height: 200, background: 'linear-gradient(to bottom, #000, transparent)' }}
+      />
+      <div
+        className="absolute bottom-0 left-0 right-0 z-[1] pointer-events-none"
+        style={{ height: 200, background: 'linear-gradient(to top, #000, transparent)' }}
+      />
+
+      <div className="relative z-10 px-6 md:px-12 lg:px-20 py-40 max-w-7xl mx-auto">
+        <div className="text-center">
+          <h2 className="font-heading text-white tracking-tight leading-[1.1] text-4xl md:text-5xl lg:text-6xl max-w-4xl mx-auto">
+            加入平台，<span style={{ fontStyle: 'italic' }} className="text-white/90">開始合作</span>
+          </h2>
+
+          <p className="mt-7 text-white/70 font-body font-light text-sm md:text-base max-w-xl mx-auto">
+            無論你是想擴大品牌影響力的商家，還是想接到對的案子的 KOL——
+            註冊即可開始媒合，零門檻加入我們的合作生態。
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center items-center gap-4">
+            <Link
+              href="/signup?role=merchant"
+              className="liquid-glass-strong rounded-full px-6 py-3 text-sm font-body font-medium text-white flex items-center gap-2"
+            >
+              成為商家 <ArrowUpRight size={16} />
+            </Link>
+            <Link
+              href="/signup?role=kol"
+              className="bg-white text-black rounded-full px-6 py-3 text-sm font-body font-medium flex items-center gap-2"
+            >
+              成為 KOL <ArrowUpRight size={16} />
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-white/40 text-xs font-body">© 2026 Studio. All rights reserved.</div>
+          <div className="flex gap-6">
+            {['Privacy', 'Terms', 'Contact'].map((l) => (
+              <a key={l} href="#" className="text-white/40 text-xs font-body hover:text-white/80 transition">
+                {l}
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default function HomePage() {
+  useEffect(() => {
+    document.documentElement.classList.add('landing-no-scrollbar');
+    return () => document.documentElement.classList.remove('landing-no-scrollbar');
+  }, []);
+  return (
+    <div className="bg-black min-h-screen">
       <Suspense fallback={null}>
         <AuthErrorRedirect />
       </Suspense>
-
-      {/* ══════════════════════════════════════════════════════
-          HERO — light, full-width, centered
-      ══════════════════════════════════════════════════════ */}
-      <section
-        className="relative flex flex-col items-center justify-center min-h-screen text-center px-6 overflow-hidden bg-background"
-      >
-        {/* Soft radial glow */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse 70% 55% at 50% 35%, rgba(196,145,58,0.06) 0%, transparent 65%)',
-          }}
-        />
-
-        {/* Eyebrow — centered with flanking lines */}
-        <motion.div {...fadeUp(0.15)} className="flex items-center gap-4 mb-12">
-          <div className="w-8 h-px bg-[#c4913a]/50" />
-          <span className="text-[0.72rem] tracking-[3px] uppercase text-[#c4913a]">
-            {t.hero.badge}
-          </span>
-          <div className="w-8 h-px bg-[#c4913a]/50" />
-        </motion.div>
-
-        {/* Main headline */}
-        <motion.h1
-          {...fadeUp(0.3)}
-          className="font-serif text-5xl md:text-7xl lg:text-[5.5rem] font-light leading-[1.05] text-foreground mb-6 max-w-4xl"
-        >
-          讓每一次推薦<br />
-          <span style={{ color: '#c4913a' }}>創造真實價值</span>
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          {...fadeUp(0.45)}
-          className="font-light text-base leading-loose mb-14 max-w-md text-muted-foreground"
-        >
-          {t.hero.subtitle}
-        </motion.p>
-
-        {/* CTA pair */}
-        <motion.div {...fadeUp(0.6)} className="flex flex-wrap justify-center items-center gap-4 mb-24">
-          <Link
-            href="/join/kol"
-            className="group inline-flex items-center gap-2.5 text-[0.78rem] tracking-[2px] uppercase px-8 py-3.5 border border-foreground/20 text-foreground hover:border-[#c4913a] hover:text-[#c4913a] transition-colors duration-200"
-          >
-            {t.hero.ctaPrimary}
-            <ArrowUpRight className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
-          </Link>
-          <Link
-            href="/join/merchant"
-            className="inline-flex items-center gap-2.5 text-[0.78rem] tracking-[2px] uppercase px-8 py-3.5 text-white hover:bg-[#b8936a] transition-colors duration-200"
-            style={{ background: '#c4913a' }}
-          >
-            {t.hero.ctaSecondary}
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
-        </motion.div>
-
-        {/* Stats grid — big numbers separated by fine verticals */}
-        <motion.div
-          {...fadeUp(0.75)}
-          className="w-full max-w-3xl grid grid-cols-2 md:grid-cols-4 border-t border-foreground/[0.08]"
-        >
-          {PLATFORM_STATS.map((stat, i) => (
-            <div
-              key={stat.label}
-              className="py-8 text-center"
-              style={{ borderRight: i < 3 ? '1px solid hsl(var(--foreground) / 0.08)' : undefined }}
-            >
-              <div className="font-serif text-3xl md:text-4xl font-light leading-none text-foreground">
-                {stat.value}
-                <sup className="text-sm" style={{ color: '#c4913a' }}>{stat.sup}</sup>
+      <Preloader />
+      <div className="relative z-10">
+        <Navbar />
+        <Hero />
+        <div className="bg-black relative">
+          <TrustedBy />
+          <AboutSection />
+          <FeatureSteps />
+          <div className="relative isolate">
+            {ScrollArc && (
+              <div className="absolute inset-0 pointer-events-none -z-10">
+                <ScrollArc
+                  d={`M 0 0
+                      C 260 140, 180 280, 390 380
+                      C 550 460, 650 520, 620 620
+                      C 600 720, 680 780, 820 830
+                      C 950 880, 1100 930, 1220 1030
+                      C 1360 1140, 1400 1320, 1280 1480
+                      C 1150 1620, 950 1680, 780 1730
+                      C 600 1780, 480 1900, 450 2040
+                      C 440 2120, 460 2200, 490 2230`}
+                  W={1200}
+                  H={2400}
+                  nodeStops={[0.06, 0.2, 0.36, 0.52, 0.72, 0.9]}
+                  drawStart={0.03}
+                  drawSpan={0.9}
+                />
               </div>
-              <div className="text-[0.7rem] tracking-[2px] uppercase mt-2 text-muted-foreground">
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════
-          HOW IT WORKS — dark, horizontal step rows
-      ══════════════════════════════════════════════════════ */}
-      <section
-        className="px-10 md:px-20 py-24"
-        style={{ background: '#0f0f0f', borderTop: '1px solid rgba(255,255,255,0.05)' }}
-      >
-        <div className="max-w-5xl mx-auto">
-
-          {/* Section label */}
-          <div className="flex items-center gap-3 mb-16" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '1.5rem' }}>
-            <span className="text-[0.7rem] tracking-[3px] uppercase" style={{ color: '#c4913a' }}>平台運作方式</span>
-            <span className="text-[0.7rem] tracking-[2px] uppercase ml-auto" style={{ color: '#3a332d' }}>4 個步驟</span>
+            )}
+            <FeaturesChess hideArc />
+            <FeaturesGrid />
           </div>
-
-          {/* Step rows */}
-          <div>
-            {HOW_STEPS.map((step, i) => (
-              <motion.div
-                key={step.num}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={slideIn(i * 0.07)}
-                className="grid items-start py-7 group cursor-default"
-                style={{
-                  gridTemplateColumns: '72px 1fr 1.6fr',
-                  gap: '2rem',
-                  borderBottom: '1px solid rgba(255,255,255,0.05)',
-                }}
-              >
-                <span
-                  className="font-serif text-[2.8rem] font-light leading-none transition-colors duration-200"
-                  style={{ color: 'rgba(255,255,255,0.28)' }}
-                >
-                  {step.num}
-                </span>
-                <div
-                  className="text-sm font-medium pt-1 leading-snug transition-colors duration-200"
-                  style={{ color: 'rgba(255,255,255,0.75)' }}
-                >
-                  {step.title}
-                </div>
-                <div className="text-[0.75rem] leading-loose" style={{ color: '#6a6058' }}>
-                  {step.desc}
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          <Stats />
+          <FaqSection />
+          <CtaFooter />
         </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════
-          DUAL ROLE — centered content, 50/50 split
-      ══════════════════════════════════════════════════════ */}
-      <section className="grid md:grid-cols-2 border-y border-foreground/10">
-
-        {/* KOL — white */}
-        <motion.div
-          initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-          className="flex flex-col items-center text-center px-10 py-24 md:px-16 border-r border-foreground/10"
-        >
-          <div className="flex items-center gap-3 mb-10">
-            <div className="w-5 h-px bg-[#c4913a]/40" />
-            <span className="text-[0.7rem] tracking-[3px] uppercase text-muted-foreground">
-              KOL 合作計畫
-            </span>
-            <div className="w-5 h-px bg-[#c4913a]/40" />
-          </div>
-          <h2 className="font-serif text-3xl md:text-[2.4rem] font-light leading-[1.2] mb-5">
-            用影響力<br />
-            <span className="text-[#b8936a]">創造穩定收益</span>
-          </h2>
-          <p className="text-sm text-muted-foreground font-light leading-relaxed mb-10 max-w-xs">
-            與頂級建案合作，取得專屬推廣連結，每次成交自動計算佣金，完全透明可追蹤。
-          </p>
-
-          <div className="space-y-3 mb-12 w-full max-w-xs">
-            {KOL_FEATURES.map((f, i) => (
-              <motion.div
-                key={f}
-                initial="hidden" whileInView="visible" viewport={{ once: true }}
-                variants={slideIn(i * 0.06)}
-                className="flex items-center justify-center gap-3 text-xs text-muted-foreground"
-              >
-                <div className="w-1 h-1 rounded-full bg-[#c4913a] shrink-0" />
-                {f}
-              </motion.div>
-            ))}
-          </div>
-
-          <Link
-            href="/join/kol"
-            className="group inline-flex items-center gap-2 text-[0.75rem] tracking-[2px] uppercase text-foreground transition-colors duration-200 hover:text-[#c4913a]"
-            style={{ borderBottom: '1px solid currentColor', paddingBottom: '2px' }}
-          >
-            {t.cta.primary}
-            <ArrowUpRight className="h-3 w-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </Link>
-        </motion.div>
-
-        {/* Merchant — very light grey */}
-        <motion.div
-          initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-          className="flex flex-col items-center text-center px-10 py-24 md:px-16"
-          style={{ background: '#f7f6f4' }}
-        >
-          <div className="flex items-center gap-3 mb-10">
-            <div className="w-5 h-px bg-[#c4913a]/40" />
-            <span className="text-[0.7rem] tracking-[3px] uppercase text-muted-foreground">
-              商家合作方案
-            </span>
-            <div className="w-5 h-px bg-[#c4913a]/40" />
-          </div>
-          <h2 className="font-serif text-3xl md:text-[2.4rem] font-light leading-[1.2] mb-5">
-            精準觸及<br />
-            <span className="text-[#b8936a]">高意向買家</span>
-          </h2>
-          <p className="text-sm text-muted-foreground font-light leading-relaxed mb-10 max-w-xs">
-            透過 KOL 聯盟將商案推送至精準受眾，按成效付費，全程透明，由商家掌控合作流程。
-          </p>
-
-          <div className="space-y-3 mb-12 w-full max-w-xs">
-            {MERCHANT_FEATURES.map((f, i) => (
-              <motion.div
-                key={f}
-                initial="hidden" whileInView="visible" viewport={{ once: true }}
-                variants={slideIn(i * 0.06)}
-                className="flex items-center justify-center gap-3 text-xs text-muted-foreground"
-              >
-                <div className="w-1 h-1 rounded-full bg-[#c4913a] shrink-0" />
-                {f}
-              </motion.div>
-            ))}
-          </div>
-
-          <Link
-            href="/join/merchant"
-            className="group inline-flex items-center gap-2 text-[0.75rem] tracking-[2px] uppercase text-foreground transition-colors duration-200 hover:text-[#c4913a]"
-            style={{ borderBottom: '1px solid currentColor', paddingBottom: '2px' }}
-          >
-            {t.cta.secondary}
-            <ArrowUpRight className="h-3 w-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </Link>
-        </motion.div>
-      </section>
-
-
-      {/* ══════════════════════════════════════════════════════
-          FINAL CTA — dark, centered, minimal
-      ══════════════════════════════════════════════════════ */}
-      <section
-        className="relative px-10 py-32 text-center overflow-hidden"
-        style={{ background: '#0f0f0f' }}
-      >
-        {/* Radial glow */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse 55% 45% at 50% 50%, rgba(196,145,58,0.07) 0%, transparent 65%)',
-          }}
-        />
-
-        <div className="relative z-10 max-w-xl mx-auto">
-          {/* Eyebrow */}
-          <motion.div
-            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-            className="flex justify-center items-center gap-4 mb-8"
-          >
-            <div className="w-6 h-px" style={{ background: 'rgba(196,145,58,0.4)' }} />
-            <span className="text-[0.7rem] tracking-[3px] uppercase" style={{ color: '#c4913a' }}>立即開始</span>
-            <div className="w-6 h-px" style={{ background: 'rgba(196,145,58,0.4)' }} />
-          </motion.div>
-
-          {/* Title */}
-          <motion.h2
-            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-            className="font-serif text-4xl md:text-5xl font-light leading-[1.15] mb-5"
-            style={{ color: '#fff' }}
-          >
-            {t.cta.title}
-          </motion.h2>
-
-          {/* Subtitle */}
-          <motion.p
-            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-            className="font-light text-sm leading-loose mb-12"
-            style={{ color: '#5a5048' }}
-          >
-            {t.cta.subtitle}
-          </motion.p>
-
-          {/* Buttons */}
-          <motion.div
-            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}
-            className="flex flex-wrap justify-center gap-4"
-          >
-            <Link
-              href="/join/kol"
-              className="inline-flex items-center gap-2 text-[0.75rem] tracking-[2px] uppercase px-8 py-3.5 text-white transition-colors duration-250"
-              style={{ border: '1px solid rgba(255,255,255,0.2)' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#c4913a'; (e.currentTarget as HTMLAnchorElement).style.color = '#c4913a' }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.2)'; (e.currentTarget as HTMLAnchorElement).style.color = '#fff' }}
-            >
-              {t.cta.primary}
-            </Link>
-            <Link
-              href="/join/merchant"
-              className="inline-flex items-center gap-2 text-[0.75rem] tracking-[2px] uppercase px-8 py-3.5 text-white transition-colors duration-250"
-              style={{ background: '#c4913a' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = '#b8936a' }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = '#c4913a' }}
-            >
-              {t.cta.secondary}
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
+      </div>
     </div>
-  )
+  );
 }
