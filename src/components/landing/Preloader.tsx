@@ -12,19 +12,10 @@ function Preloader() {
   const rafRef = useRef(0);
   const startRef = useRef(0);
 
-  // Lock scroll while preloader is on screen
-  useEffect(() => {
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.documentElement.style.overflow = '';
-      document.body.style.overflow = '';
-    };
-  }, []);
 
   // Animate count 0 → 100
   useEffect(() => {
-    const DURATION = 2200; // ms
+    const DURATION = 900; // ms
     const easeOut = (t) => 1 - Math.pow(1 - t, 2.2);
 
     const tick = (now) => {
@@ -37,13 +28,9 @@ function Preloader() {
         rafRef.current = requestAnimationFrame(tick);
       } else {
         // Hold at 100 for a beat, then exit
-        setTimeout(() => setExiting(true), 280);
+        setTimeout(() => setExiting(true), 100);
         // Remove from DOM after exit transition
-        setTimeout(() => {
-          setGone(true);
-          document.documentElement.style.overflow = '';
-          document.body.style.overflow = '';
-        }, 280 + 900);
+        setTimeout(() => setGone(true), 100 + 500);
       }
     };
     rafRef.current = requestAnimationFrame(tick);
@@ -123,8 +110,8 @@ function Preloader() {
           {/* Connector node */}
           <circle cx="16" cy="16" r="1.8" fill="#ffffff" />
         </svg>
-        <span className="font-body font-semibold text-sm text-white leading-none tracking-tight">
-          partner<span className="text-white/60">link</span>
+        <span className="font-body font-semibold text-xl text-white leading-none tracking-tight">
+          Partner<span className="text-white/60">link</span>
         </span>
       </div>
 

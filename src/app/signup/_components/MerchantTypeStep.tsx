@@ -12,19 +12,8 @@ const TYPES: {
   desc: string
   disabled?: boolean
 }[] = [
-  {
-    value: 'property',
-    icon: Building2,
-    label: '住宅建案',
-    desc: '預售屋、新成屋等住宅開發案',
-  },
-  {
-    value: 'shop',
-    icon: Store,
-    label: '商業案場',
-    desc: '商辦、店面、商場等商業地產',
-    disabled: true,
-  },
+  { value: 'property', icon: Building2, label: '住宅建案', desc: '預售屋、新成屋等住宅開發案' },
+  { value: 'shop', icon: Store, label: '商業案場', desc: '商辦、店面、商場等商業地產' },
 ]
 
 export function MerchantTypeStep({
@@ -37,14 +26,11 @@ export function MerchantTypeStep({
   return (
     <motion.div key="step-merchant-type" {...slideIn}>
       <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp} className="mb-8">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-xs text-[#6B6560] hover:text-[#1A1A1A] transition-colors mb-4"
-        >
+        <button onClick={onBack} className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors mb-4 font-body">
           <span className="rotate-180 inline-block">→</span> 返回
         </button>
-        <h2 className="text-3xl font-serif text-[#1A1A1A] mb-1">你的案場類型</h2>
-        <p className="text-sm text-[#6B6560]">選擇後將決定你可刊登的案場類型</p>
+        <h2 className="font-heading italic text-white text-3xl mb-1">你的案場類型</h2>
+        <p className="font-body text-sm text-white/60">選擇後將決定你可刊登的案場類型</p>
       </motion.div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -57,28 +43,28 @@ export function MerchantTypeStep({
             variants={fadeUp}
             onClick={() => !disabled && onSelect(value)}
             disabled={disabled}
-            className={`relative text-left border p-6 transition-all duration-300 ${
+            className={`relative text-left rounded-xl p-6 transition-all duration-300 ${
               disabled
-                ? 'border-[#E8E4DF] bg-[#F7F6F4] cursor-not-allowed opacity-60'
-                : 'group border-[#E8E4DF] hover:border-[#1A1A1A] hover:bg-[#1A1A1A] cursor-pointer'
+                ? 'liquid-glass opacity-40 cursor-not-allowed'
+                : 'group liquid-glass hover:liquid-glass-strong cursor-pointer'
             }`}
           >
             {disabled && (
-              <span className="absolute top-3 right-3 text-[10px] tracking-[1.5px] uppercase text-[#9E9189] border border-[#D9D4CE] px-1.5 py-0.5 leading-none">
+              <span className="absolute top-3 right-3 text-[9px] tracking-[1.5px] uppercase text-white/40 liquid-glass rounded-full px-2 py-0.5 font-body">
                 開發中
               </span>
             )}
-            <div className={`w-10 h-10 border border-[#E8E4DF] flex items-center justify-center mb-5 transition-colors duration-300 ${!disabled && 'group-hover:border-white/20'}`}>
-              <Icon className={`h-4 w-4 text-[#6B6560] transition-colors duration-300 ${!disabled && 'group-hover:text-white'}`} />
+            <div className="w-10 h-10 rounded-lg liquid-glass flex items-center justify-center mb-5">
+              <Icon className={`h-4 w-4 text-white/50 transition-colors duration-300 ${!disabled && 'group-hover:text-white'}`} />
             </div>
-            <div className={`text-sm font-medium text-[#1A1A1A] mb-2 transition-colors duration-300 ${!disabled && 'group-hover:text-white'}`}>
+            <div className={`text-sm font-medium text-white mb-2 font-body transition-colors duration-300`}>
               {label}
             </div>
-            <div className={`text-xs text-[#6B6560] leading-relaxed transition-colors duration-300 ${!disabled && 'group-hover:text-white/50'}`}>
+            <div className={`text-xs text-white/50 leading-relaxed font-body`}>
               {desc}
             </div>
             {!disabled && (
-              <div className="mt-5 flex items-center gap-2 text-xs text-[#6B6560] group-hover:text-white/60 transition-colors duration-300">
+              <div className="mt-5 flex items-center gap-2 text-xs text-white/40 group-hover:text-white/70 transition-colors duration-300 font-body">
                 選擇
                 <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
               </div>
