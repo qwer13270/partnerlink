@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { DM_Serif_Display, DM_Sans, Noto_Serif_TC, Noto_Sans_TC, Instrument_Serif, Barlow } from "next/font/google"
+import { DM_Serif_Display, DM_Sans, Noto_Serif_TC, Noto_Sans_TC, Instrument_Serif, Barlow, JetBrains_Mono } from "next/font/google"
 import { Toaster } from '@/components/ui/sonner'
 import { ConditionalHeader, ConditionalFooter } from '@/components/layout/ConditionalHeader'
 import "./globals.css"
@@ -47,6 +47,13 @@ const barlow = Barlow({
   display: "swap",
 })
 
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+})
+
 export const metadata: Metadata = {
   title: "PartnerLink 夥伴 | Premium Brand Affiliate Platform",
   description: "Taiwan's premier real estate affiliate marketing platform — connecting merchants with influential KOLs",
@@ -68,7 +75,7 @@ export default function RootLayout({
   return (
     <html lang="zh-TW" suppressHydrationWarning>
       <body
-        className={`${dmSerifDisplay.variable} ${dmSans.variable} ${notoSerifTC.variable} ${notoSansTC.variable} ${instrumentSerif.variable} ${barlow.variable} font-sans antialiased`}
+        className={`${dmSerifDisplay.variable} ${dmSans.variable} ${notoSerifTC.variable} ${notoSansTC.variable} ${instrumentSerif.variable} ${barlow.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
         <div className="flex min-h-screen flex-col">
           <ConditionalHeader />

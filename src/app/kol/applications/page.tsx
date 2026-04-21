@@ -6,8 +6,6 @@ import {
   CheckCircle2, Clock, XCircle, MapPin, ChevronDown, ArrowRight,
 } from 'lucide-react'
 
-// ── Types ────────────────────────────────────────────────────────────────────
-
 type AppStatus = 'pending' | 'approved' | 'rejected'
 
 interface Application {
@@ -20,8 +18,6 @@ interface Application {
   date: string
   reason?: string
 }
-
-// ── Mock data ─────────────────────────────────────────────────────────────────
 
 const ALL_APPLICATIONS: Application[] = [
   {
@@ -52,14 +48,12 @@ const ALL_APPLICATIONS: Application[] = [
   },
 ]
 
-// ── Config ───────────────────────────────────────────────────────────────────
-
 const STATUS_CFG: Record<AppStatus, {
-  label: string; icon: React.ElementType; dot: string; text: string; badge: string; rowBg: string
+  label: string; icon: React.ElementType; dot: string; badge: string; rowBg: string
 }> = {
-  pending:  { label: '審核中', icon: Clock,        dot: 'bg-amber-400',   text: 'text-amber-700',   badge: 'bg-amber-50 text-amber-700 border border-amber-200/60',     rowBg: '' },
-  approved: { label: '已核准', icon: CheckCircle2, dot: 'bg-emerald-500', text: 'text-emerald-700', badge: 'bg-emerald-50 text-emerald-700 border border-emerald-200/60', rowBg: '' },
-  rejected: { label: '未通過', icon: XCircle,      dot: 'bg-red-400',     text: 'text-red-600',     badge: 'bg-red-50 text-red-600 border border-red-200/60',             rowBg: 'bg-red-50/30' },
+  pending:  { label: '審核中', icon: Clock,        dot: 'bg-amber-300',   badge: 'bg-amber-400/10 text-amber-200 border border-amber-300/30',     rowBg: '' },
+  approved: { label: '已核准', icon: CheckCircle2, dot: 'bg-emerald-400', badge: 'bg-emerald-400/10 text-emerald-200 border border-emerald-300/30', rowBg: '' },
+  rejected: { label: '未通過', icon: XCircle,      dot: 'bg-red-400',     badge: 'bg-red-400/10 text-red-200 border border-red-300/30',             rowBg: 'bg-red-400/[0.04]' },
 }
 
 const TABS: { key: AppStatus | 'all'; label: string }[] = [
@@ -68,8 +62,6 @@ const TABS: { key: AppStatus | 'all'; label: string }[] = [
   { key: 'approved', label: '已核准' },
   { key: 'rejected', label: '未通過' },
 ]
-
-// ── Animations ────────────────────────────────────────────────────────────────
 
 const stagger = {
   hidden: {},
@@ -81,55 +73,48 @@ const fadeUp = {
   visible:  { opacity: 1, y: 0, transition: { duration: 0.48, ease: [0.22, 1, 0.36, 1] as const } },
 }
 
-// ── Application row ───────────────────────────────────────────────────────────
-
-function ApplicationRow({ app, index }: { app: Application; index: number }) {
+function ApplicationRow({ app }: { app: Application; index: number }) {
   const [open, setOpen] = useState(false)
   const cfg = STATUS_CFG[app.status]
-  const Icon = cfg.icon
   const isRejected = app.status === 'rejected'
 
   return (
     <motion.div
       variants={fadeUp}
-      className={`border-b border-foreground/8 last:border-b-0 ${cfg.rowBg}`}
+      className={`border-b border-white/[0.07] last:border-b-0 ${cfg.rowBg}`}
     >
       <div
-        className={`flex items-center gap-4 px-6 py-4 ${isRejected ? 'cursor-pointer hover:bg-foreground/[0.02]' : 'hover:bg-foreground/[0.015]'} transition-colors duration-150`}
+        className={`flex items-center gap-4 px-6 py-4 ${isRejected ? 'cursor-pointer hover:bg-white/[0.03]' : 'hover:bg-white/[0.02]'} transition-colors duration-150`}
         onClick={() => isRejected && setOpen(v => !v)}
       >
-        {/* Status dot */}
         <span className={`shrink-0 h-2 w-2 rounded-full ${cfg.dot}`} />
 
-        {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <p className="text-sm font-medium text-foreground">{app.name}</p>
-            <span className="text-xs text-muted-foreground">{app.merchant}</span>
+            <p className="font-body text-sm font-medium text-white/95">{app.name}</p>
+            <span className="font-body text-xs text-white/55">{app.merchant}</span>
           </div>
           <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1 text-xs text-white/55">
               <MapPin className="h-2.5 w-2.5" />{app.location}
             </span>
-            <span className="text-xs text-muted-foreground">佣金 {app.commission}</span>
+            <span className="text-xs text-white/55">佣金 {app.commission}</span>
           </div>
         </div>
 
-        {/* Right side */}
         <div className="flex items-center gap-3 shrink-0">
-          <span className="hidden sm:block text-xs text-muted-foreground">{app.date}</span>
+          <span className="hidden sm:block text-xs text-white/45">{app.date}</span>
           <span className={`text-[0.72rem] font-medium px-2 py-0.5 rounded ${cfg.badge}`}>
             {cfg.label}
           </span>
           {isRejected && (
             <ChevronDown
-              className={`h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+              className={`h-3.5 w-3.5 text-white/55 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
             />
           )}
         </div>
       </div>
 
-      {/* Rejection panel */}
       <AnimatePresence initial={false}>
         {open && isRejected && (
           <motion.div
@@ -139,14 +124,14 @@ function ApplicationRow({ app, index }: { app: Application; index: number }) {
             transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <div className="mx-6 mb-4 border border-red-200/70 bg-red-50/60 px-5 py-4">
-              <p className="text-xs uppercase tracking-[0.35em] text-red-500/80 mb-2">
+            <div className="mx-6 mb-4 rounded-lg border border-red-300/30 bg-red-400/[0.06] px-5 py-4">
+              <p className="text-xs uppercase tracking-[0.35em] text-red-200/80 mb-2">
                 拒絕原因
               </p>
-              <p className="text-xs text-foreground/75 leading-relaxed mb-4">
+              <p className="font-body text-xs text-white/80 leading-relaxed mb-4">
                 {app.reason}
               </p>
-              <button className="group flex items-center gap-1.5 border border-foreground/20 px-3 py-1.5 text-[0.62rem] uppercase tracking-[0.2em] text-foreground transition-all hover:border-foreground hover:bg-foreground hover:text-background">
+              <button className="group flex items-center gap-1.5 rounded-full bg-white text-black px-3 py-1.5 text-[0.62rem] uppercase tracking-[0.2em] transition-all hover:bg-white/90">
                 重新申請
                 <ArrowRight className="h-2.5 w-2.5 transition-transform group-hover:translate-x-0.5" />
               </button>
@@ -157,8 +142,6 @@ function ApplicationRow({ app, index }: { app: Application; index: number }) {
     </motion.div>
   )
 }
-
-// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ApplicationsPage() {
   const [activeTab, setActiveTab] = useState<AppStatus | 'all'>('all')
@@ -179,17 +162,19 @@ export default function ApplicationsPage() {
       variants={stagger}
       initial="hidden"
       animate="visible"
-      className="space-y-8"
+      className="space-y-8 text-white"
     >
 
       {/* ── HEADER ─────────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="border-b border-foreground/10 pb-8">
-        <p className="text-xs uppercase tracking-[0.45em] text-muted-foreground mb-4">
+      <motion.div variants={fadeUp} className="border-b border-white/10 pb-8">
+        <p className="font-body text-[10px] uppercase tracking-[0.45em] text-white/45 mb-4">
           KOL 後台 · 申請管理
         </p>
         <div className="flex items-end justify-between gap-4">
-          <h1 className="text-3xl font-serif">商案申請</h1>
-          <p className="pb-1 text-xs text-muted-foreground tracking-wide">
+          <h1 className="font-heading text-4xl md:text-5xl tracking-tight leading-[1.05]">
+            商案 <span className="italic">申請</span>
+          </h1>
+          <p className="pb-1 font-body text-xs text-white/55 tracking-wide">
             共 {counts.all} 筆紀錄
           </p>
         </div>
@@ -199,15 +184,15 @@ export default function ApplicationsPage() {
       <motion.div variants={fadeUp}>
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: '審核中', value: counts.pending,  color: 'text-amber-600'   },
-            { label: '已核准', value: counts.approved, color: 'text-emerald-600' },
-            { label: '未通過', value: counts.rejected, color: 'text-red-500'     },
+            { label: '審核中', value: counts.pending,  color: 'text-amber-200'   },
+            { label: '已核准', value: counts.approved, color: 'text-emerald-200' },
+            { label: '未通過', value: counts.rejected, color: 'text-red-200'     },
           ].map(s => (
-            <div key={s.label} className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm px-6 py-5 transition-shadow duration-300 hover:shadow-md">
-              <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
+            <div key={s.label} className="liquid-glass rounded-2xl px-6 py-5">
+              <p className="font-body text-[10px] uppercase tracking-[0.4em] text-white/55">
                 {s.label}
               </p>
-              <p className={`text-[2.5rem] leading-none font-serif mt-2 ${s.color}`}>
+              <p className={`font-heading italic text-[2.5rem] leading-none mt-2 ${s.color}`}>
                 {s.value}
               </p>
             </div>
@@ -218,28 +203,28 @@ export default function ApplicationsPage() {
       {/* ── FILTER TABS + TABLE ─────────────────────────────── */}
       <motion.div variants={fadeUp} className="space-y-0">
 
-        <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
+        <div className="liquid-glass rounded-2xl overflow-hidden">
 
         {/* Tabs */}
-        <div className="flex border-b border-foreground/10">
+        <div className="flex border-b border-white/10">
           {TABS.map(tab => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`relative px-5 py-3 text-xs uppercase tracking-[0.3em] transition-colors duration-150 ${
                 activeTab === tab.key
-                  ? 'text-foreground'
-                  : 'text-muted-foreground hover:text-foreground/70'
+                  ? 'text-white'
+                  : 'text-white/55 hover:text-white/85'
               }`}
             >
               {tab.label}
-              <span className="ml-1.5 text-[0.65rem] text-muted-foreground/70">
+              <span className="ml-1.5 text-[0.65rem] text-white/45">
                 {counts[tab.key]}
               </span>
               {activeTab === tab.key && (
                 <motion.span
                   layoutId="tab-underline"
-                  className="absolute bottom-0 left-0 right-0 h-px bg-foreground"
+                  className="absolute bottom-0 left-0 right-0 h-px bg-white/85"
                 />
               )}
             </button>
@@ -258,7 +243,7 @@ export default function ApplicationsPage() {
               transition={{ duration: 0.15 }}
             >
               {filtered.length === 0 ? (
-                <div className="flex items-center justify-center py-16 text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                <div className="flex items-center justify-center py-16 text-xs uppercase tracking-[0.3em] text-white/55">
                   無申請紀錄
                 </div>
               ) : (

@@ -20,12 +20,16 @@ type PortfolioAssetRecord = {
 
 export type RecentCollab = {
   id: string
+  collaboration_id: string | null
   project_id: string
   merchant_user_id: string
+  collaboration_type: 'commission' | 'reciprocal' | 'sponsored' | null
   commission_rate: number | null
+  sponsorship_bonus: number | null
   responded_at: string | null
   created_at: string
   project_name: string | null
+  project_type: 'property' | 'shop' | null
   merchant_company_name: string | null
 }
 
@@ -88,7 +92,7 @@ export default async function KolHomePage() {
       .returns<PortfolioAssetRecord[]>(),
     admin
       .from('collaboration_requests')
-      .select('id,project_id,merchant_user_id,commission_rate,responded_at,created_at')
+      .select('id,project_id,merchant_user_id,collaboration_type,commission_rate,sponsorship_bonus,responded_at,created_at')
       .eq('kol_user_id', user.id)
       .eq('status', 'accepted')
       .order('responded_at', { ascending: false })
@@ -158,20 +162,31 @@ export default async function KolHomePage() {
   if (collabRowsSafe.length > 0) {
     const projectIds      = [...new Set(collabRowsSafe.map(r => r.project_id as string))]
     const merchantUserIds = [...new Set(collabRowsSafe.map(r => r.merchant_user_id as string))]
-    const [{ data: projects }, { data: merchants }] = await Promise.all([
-      admin.from('projects').select('id,name').in('id', projectIds),
+    const requestIds      = collabRowsSafe.map(r => r.id as string)
+    const [{ data: projects }, { data: merchants }, { data: collaborations }] = await Promise.all([
+      admin.from('projects').select('id,name,type').in('id', projectIds),
       admin.from('merchant_profiles').select('user_id,company_name').in('user_id', merchantUserIds),
+      admin.from('collaborations').select('id,request_id').in('request_id', requestIds),
     ])
-    const projectNameById      = new Map((projects ?? []).map(p => [p.id as string, p.name as string]))
-    const merchantNameByUserId = new Map((merchants ?? []).map(m => [m.user_id as string, m.company_name as string]))
+    const projectNameById         = new Map((projects ?? []).map(p => [p.id as string, p.name as string]))
+    const projectTypeById         = new Map((projects ?? []).map(p => [p.id as string, p.type as string]))
+    const merchantNameByUserId    = new Map((merchants ?? []).map(m => [m.user_id as string, m.company_name as string]))
+    const collaborationIdByReqId  = new Map((collaborations ?? []).map(c => [c.request_id as string, c.id as string]))
     recentCollabs = collabRowsSafe.map(r => ({
       id:                   r.id as string,
+      collaboration_id:     collaborationIdByReqId.get(r.id as string) ?? null,
       project_id:           r.project_id as string,
       merchant_user_id:     r.merchant_user_id as string,
+      collaboration_type:   (r.collaboration_type === 'commission' || r.collaboration_type === 'reciprocal' || r.collaboration_type === 'sponsored') ? r.collaboration_type : null,
       commission_rate:      typeof r.commission_rate === 'number' ? r.commission_rate : null,
+      sponsorship_bonus:    typeof r.sponsorship_bonus === 'number' ? r.sponsorship_bonus : null,
       responded_at:         r.responded_at as string | null,
       created_at:           r.created_at as string,
       project_name:         projectNameById.get(r.project_id as string) ?? null,
+      project_type:         (() => {
+        const t = projectTypeById.get(r.project_id as string)
+        return t === 'property' || t === 'shop' ? t : null
+      })(),
       merchant_company_name: merchantNameByUserId.get(r.merchant_user_id as string) ?? null,
     }))
   }

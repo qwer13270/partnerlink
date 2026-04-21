@@ -77,7 +77,7 @@ export default async function KolProjectsPage() {
           .in('id', requestIds)
       : Promise.resolve({ data: [] }),
     admin.from('referral_links')
-      .select('collaboration_id, short_code, is_active')
+      .select('id, collaboration_id, short_code, is_active')
       .in('collaboration_id', collabIds),
     admin.from('mutual_benefit_items')
       .select('collaboration_request_id')
@@ -88,7 +88,6 @@ export default async function KolProjectsPage() {
   ])
 
   // 3. Click counts for referral links
-  const linkIds = (linksR.data ?? []).map(l => l.collaboration_id as string)
   const linkShortCodes = new Map(
     (linksR.data ?? []).map(l => [l.collaboration_id as string, {
       short_code: l.short_code as string,
@@ -96,20 +95,8 @@ export default async function KolProjectsPage() {
     }])
   )
 
-  const allLinkIds = (linksR.data ?? []).map(l => {
-    // We need the referral_link.id for click lookups — fetch separately
-    return l.collaboration_id as string
-  })
-  void allLinkIds // used below via separate query
-
-  // Fetch actual referral_link IDs for click count lookup
-  const { data: rlRows } = await admin
-    .from('referral_links')
-    .select('id, collaboration_id')
-    .in('collaboration_id', collabIds)
-
   const rlIdByCollabId = new Map(
-    (rlRows ?? []).map(r => [r.collaboration_id as string, r.id as string])
+    (linksR.data ?? []).map(l => [l.collaboration_id as string, l.id as string])
   )
   const rlIds = [...rlIdByCollabId.values()]
 

@@ -9,6 +9,7 @@ import { ArrowRight, Eye, EyeOff, X } from 'lucide-react'
 import { getRoleFromUser, resolveRoleHomePath } from '@/lib/auth'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 import Logo from '@/components/Logo'
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -294,7 +295,16 @@ export default function LoginContent({ notice, email: emailParam = '', next: nex
               </motion.div>
             </form>
 
-            <motion.p custom={5} initial="hidden" animate="visible" variants={fadeUp} className="mt-10 text-xs text-white/50 text-center font-body">
+            <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp} className="mt-8">
+              <div className="flex items-center gap-3 mb-5" aria-hidden="true">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-body">或</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+              <GoogleSignInButton mode="signin" nextPath={nextPath} />
+            </motion.div>
+
+            <motion.p custom={6} initial="hidden" animate="visible" variants={fadeUp} className="mt-10 text-xs text-white/50 text-center font-body">
               {t.noAccount}{' '}
               <Link href="/signup" className="text-white underline underline-offset-4 hover:text-white/70 transition-colors duration-200">
                 {t.getStarted}

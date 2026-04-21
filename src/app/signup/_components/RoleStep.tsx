@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Building2, Mic2 } from 'lucide-react'
 import { slideIn, fadeUp } from '../_constants'
 import type { Role } from '../_types'
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton'
 
 export function RoleStep({ onSelect }: { onSelect: (r: Role) => void }) {
   return (
@@ -52,7 +53,16 @@ export function RoleStep({ onSelect }: { onSelect: (r: Role) => void }) {
         </motion.button>
       </div>
 
-      <motion.p custom={3} initial="hidden" animate="visible" variants={fadeUp} className="mt-8 text-xs text-white/50 text-center font-body">
+      <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp} className="mt-8">
+        <div className="flex items-center gap-3 mb-5" aria-hidden="true">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-body">或快速開始</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+        <GoogleSignInButton mode="signup" />
+      </motion.div>
+
+      <motion.p custom={4} initial="hidden" animate="visible" variants={fadeUp} className="mt-6 text-xs text-white/50 text-center font-body">
         已有帳號？{' '}
         <Link href="/login" className="text-white underline underline-offset-4 hover:text-white/70 transition-colors">
           登入

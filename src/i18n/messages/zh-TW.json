@@ -1,6 +1,6 @@
 {
   "common": {
-    "homekey": "PartnerLink 夥伴",
+    "partnerlink": "PartnerLink 夥伴",
     "loading": "載入中...",
     "copyLink": "複製連結",
     "copied": "已複製！",
@@ -39,7 +39,9 @@
       "projects": "合作項目",
       "applications": "商案申請",
       "resume": "我的履歷",
-      "inbox": "合作邀請"
+      "inbox": "合作邀請",
+      "editResume": "編輯履歷",
+      "viewResume": "查看履歷"
     },
     "welcome": "歡迎回來",
     "memberSince": "會員加入日期",

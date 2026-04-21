@@ -112,7 +112,7 @@ export default function NotificationBell({ role }: { role: Role }) {
   const [loading, setLoading] = useState(true)
   const panelRef = useRef<HTMLDivElement>(null)
   const btnRef   = useRef<HTMLButtonElement>(null)
-  const lsKey    = `homekey_notif_read_${role}`
+  const lsKey    = `partnerlink_notif_read_${role}`
 
   const getLastRead = useCallback(() => {
     try { return parseInt(localStorage.getItem(lsKey) ?? '0', 10) } catch { return 0 }

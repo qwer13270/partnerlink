@@ -56,7 +56,6 @@ type ApiPayload = {
   error?: string
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('zh-TW', {
     year: 'numeric', month: 'long', day: 'numeric',
@@ -67,7 +66,6 @@ function merchantLabel(req: CollabRequest) {
   return req.merchant_company_name ?? req.merchant_contact_name ?? '未知商家'
 }
 
-// ── Pending card ───────────────────────────────────────────────────────────
 function PendingCard({
   req, index, acting, onAccept, onDecline,
 }: {
@@ -82,19 +80,18 @@ function PendingCard({
   return (
     <motion.div
       custom={index} initial="hidden" animate="visible" variants={fadeUp}
-      className="border-b border-foreground/[0.08] last:border-b-0"
+      className="border-b border-white/[0.07] last:border-b-0"
     >
       <div className="px-5 py-5">
-        {/* Project + date */}
         <div className="flex items-start justify-between gap-4 mb-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              <span className="text-sm font-medium truncate">
+              <FileText className="h-3.5 w-3.5 text-white/55 shrink-0" />
+              <span className="text-sm font-medium truncate text-white/95">
                 {req.project_name ?? '未知商案'}
               </span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5 text-xs text-white/55">
               <Building2 className="h-3 w-3 shrink-0" />
               <span>{merchantLabel(req)}</span>
               <span className="opacity-30">·</span>
@@ -102,49 +99,47 @@ function PendingCard({
               <span>{formatDate(req.created_at)}</span>
             </div>
           </div>
-          {/* Amber pulse dot */}
-          <span className="mt-1 h-2 w-2 rounded-full bg-amber-400 shrink-0 animate-pulse" />
+          <span className="mt-1 h-2 w-2 rounded-full bg-amber-300 shrink-0 animate-pulse" />
         </div>
 
-        {/* Collaboration type details */}
         {(req.collaboration_type === 'reciprocal' || req.collaboration_type === 'sponsored') ? (
           <div className="mb-3 space-y-2">
             {req.collaboration_type === 'sponsored' ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200/60 w-fit">
-                <Package className="h-3 w-3 text-amber-600" />
-                <span className="text-[0.65rem] uppercase tracking-[0.35em] text-amber-700 font-medium">業配合作</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-400/10 border border-amber-300/30 w-fit">
+                <Package className="h-3 w-3 text-amber-200" />
+                <span className="text-[0.65rem] uppercase tracking-[0.35em] text-amber-200 font-medium">業配合作</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-teal-50 border border-teal-200/60 w-fit">
-                <Package className="h-3 w-3 text-teal-600" />
-                <span className="text-[0.65rem] uppercase tracking-[0.35em] text-teal-700 font-medium">互惠合作</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-teal-400/10 border border-teal-300/30 w-fit">
+                <Package className="h-3 w-3 text-teal-200" />
+                <span className="text-[0.65rem] uppercase tracking-[0.35em] text-teal-200 font-medium">互惠合作</span>
               </div>
             )}
             {req.collab_description && (
-              <div className="rounded-lg border border-foreground/[0.08] bg-stone-100/80 overflow-hidden">
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-foreground/[0.06]">
-                  <div className="h-2.5 w-px rounded-full bg-amber-400" />
-                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-muted-foreground">合作內容</span>
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] overflow-hidden">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.07]">
+                  <div className="h-2.5 w-px rounded-full bg-amber-300" />
+                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-white/55">合作內容</span>
                 </div>
-                <p className="px-3 py-2.5 text-xs text-foreground/80 leading-relaxed">
+                <p className="px-3 py-2.5 font-body text-xs text-white/85 leading-relaxed">
                   {req.collab_description}
                 </p>
               </div>
             )}
             {req.items.length > 0 && (
-              <div className="rounded-lg border border-foreground/[0.08] bg-stone-100/80 overflow-hidden">
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-foreground/[0.06]">
-                  <div className="h-2.5 w-px rounded-full bg-teal-400" />
-                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-muted-foreground">寄送商品</span>
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] overflow-hidden">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.07]">
+                  <div className="h-2.5 w-px rounded-full bg-teal-300" />
+                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-white/55">寄送商品</span>
                 </div>
-                <div className="divide-y divide-foreground/[0.05]">
+                <div className="divide-y divide-white/[0.06]">
                   {req.items.map((item, i) => (
                     <div key={i} className="px-3 py-2 flex items-center justify-between gap-3">
-                      <span className="text-xs text-foreground/80">{item.item_name}</span>
-                      <div className="flex items-center gap-2 shrink-0 text-xs text-muted-foreground">
+                      <span className="text-xs text-white/85">{item.item_name}</span>
+                      <div className="flex items-center gap-2 shrink-0 text-xs text-white/55">
                         <span>x{item.quantity}</span>
                         <span className="opacity-30">·</span>
-                        <span className="font-serif text-foreground/70">NT${item.estimated_value.toLocaleString()}</span>
+                        <span className="font-heading italic text-white/85">NT${item.estimated_value.toLocaleString()}</span>
                       </div>
                     </div>
                   ))}
@@ -152,12 +147,12 @@ function PendingCard({
               </div>
             )}
             {req.sponsorship_bonus != null && req.sponsorship_bonus > 0 && (
-              <div className="rounded-lg border border-foreground/[0.08] bg-stone-100/80 overflow-hidden">
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-foreground/[0.06]">
-                  <div className="h-2.5 w-px rounded-full bg-amber-400" />
-                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-muted-foreground">業配獎金</span>
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] overflow-hidden">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.07]">
+                  <div className="h-2.5 w-px rounded-full bg-amber-300" />
+                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-white/55">業配獎金</span>
                 </div>
-                <p className="px-3 py-2.5 text-xs text-foreground/80 leading-relaxed font-serif">
+                <p className="px-3 py-2.5 font-heading italic text-xs text-amber-200 leading-relaxed">
                   NT${req.sponsorship_bonus.toLocaleString()}
                 </p>
               </div>
@@ -166,18 +161,18 @@ function PendingCard({
         ) : (
           <div className="mb-3 space-y-2">
             {req.commission_rate != null && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-stone-100 border border-foreground/[0.07]">
-                <span className="text-[0.65rem] uppercase tracking-[0.35em] text-muted-foreground">佣金比例</span>
-                <span className="font-serif text-sm text-foreground">{req.commission_rate}%</span>
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.04] border border-white/10">
+                <span className="text-[0.65rem] uppercase tracking-[0.35em] text-white/55">佣金比例</span>
+                <span className="font-heading italic text-sm text-white">{req.commission_rate}%</span>
               </div>
             )}
             {req.collab_description && (
-              <div className="rounded-lg border border-foreground/[0.08] bg-stone-100/80 overflow-hidden">
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-foreground/[0.06]">
-                  <div className="h-2.5 w-px rounded-full bg-amber-400" />
-                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-muted-foreground">合作說明</span>
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] overflow-hidden">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.07]">
+                  <div className="h-2.5 w-px rounded-full bg-amber-300" />
+                  <span className="text-[0.6rem] uppercase tracking-[0.45em] text-white/55">合作說明</span>
                 </div>
-                <p className="px-3 py-2.5 text-xs text-foreground/80 leading-relaxed">
+                <p className="px-3 py-2.5 font-body text-xs text-white/85 leading-relaxed">
                   {req.collab_description}
                 </p>
               </div>
@@ -185,19 +180,17 @@ function PendingCard({
           </div>
         )}
 
-        {/* Message */}
         {req.message && (
-          <p className="text-xs text-muted-foreground leading-relaxed border-l-2 border-amber-300 pl-3 mb-4 italic">
+          <p className="text-xs text-white/65 leading-relaxed border-l-2 border-amber-300/60 pl-3 mb-4 italic">
             {req.message}
           </p>
         )}
 
-        {/* Actions */}
         <div className="flex gap-2 pt-1">
           <button
             onClick={() => onAccept(req.id)}
             disabled={isActing}
-            className="flex items-center gap-1.5 text-[0.78rem] font-medium px-4 py-2 rounded-lg bg-foreground text-background hover:bg-foreground/88 active:scale-[0.97] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 text-[0.78rem] font-medium px-4 py-2 rounded-full bg-white text-black hover:bg-white/90 active:scale-[0.97] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Check className="h-3 w-3" />
             {isActing ? '處理中…' : '接受合作'}
@@ -205,7 +198,7 @@ function PendingCard({
           <button
             onClick={() => onDecline(req.id)}
             disabled={isActing}
-            className="flex items-center gap-1.5 text-[0.78rem] font-medium px-4 py-2 rounded-lg bg-black/[0.06] text-foreground/70 hover:bg-black/[0.10] active:scale-[0.97] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="liquid-glass flex items-center gap-1.5 text-[0.78rem] font-medium px-4 py-2 rounded-full text-white/85 hover:text-white active:scale-[0.97] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <X className="h-3 w-3" />
             婉拒
@@ -216,19 +209,18 @@ function PendingCard({
   )
 }
 
-// ── Accepted card ──────────────────────────────────────────────────────────
 function AcceptedCard({ req, index }: { req: CollabRequest; index: number }) {
   return (
     <motion.div
       custom={index} initial="hidden" animate="visible" variants={fadeUp}
-      className="border-b border-foreground/[0.08] last:border-b-0"
+      className="border-b border-white/[0.07] last:border-b-0"
     >
       <div className="px-5 py-5">
         <div className="flex items-center gap-4">
-          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+          <CheckCircle2 className="h-4 w-4 text-emerald-300 shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{req.project_name ?? '未知商案'}</p>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+            <p className="text-sm font-medium text-white/95 truncate">{req.project_name ?? '未知商案'}</p>
+            <div className="flex items-center gap-1.5 text-xs text-white/55 mt-0.5">
               <Building2 className="h-3 w-3 shrink-0" />
               <span>{merchantLabel(req)}</span>
               {req.responded_at && (
@@ -239,17 +231,17 @@ function AcceptedCard({ req, index }: { req: CollabRequest; index: number }) {
               )}
             </div>
           </div>
-          <span className="text-[0.72rem] font-medium px-2 py-0.5 rounded border bg-emerald-50 text-emerald-700 border-emerald-200/60 shrink-0">
+          <span className="text-[0.72rem] font-medium px-2 py-0.5 rounded border bg-emerald-400/10 text-emerald-200 border-emerald-300/30 shrink-0">
             已接受
           </span>
         </div>
         {req.collab_description && (
-          <div className="mt-3 rounded-lg border border-foreground/[0.08] bg-stone-100/80 overflow-hidden">
-            <div className="flex items-center gap-2 px-3 py-2 border-b border-foreground/[0.06]">
-              <div className="h-2.5 w-px rounded-full bg-emerald-400" />
-              <span className="text-[0.6rem] uppercase tracking-[0.45em] text-muted-foreground">合作內容</span>
+          <div className="mt-3 rounded-lg border border-white/10 bg-white/[0.03] overflow-hidden">
+            <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.07]">
+              <div className="h-2.5 w-px rounded-full bg-emerald-300" />
+              <span className="text-[0.6rem] uppercase tracking-[0.45em] text-white/55">合作內容</span>
             </div>
-            <p className="px-3 py-2.5 text-xs text-foreground/80 leading-relaxed">
+            <p className="px-3 py-2.5 font-body text-xs text-white/85 leading-relaxed">
               {req.collab_description}
             </p>
           </div>
@@ -259,7 +251,6 @@ function AcceptedCard({ req, index }: { req: CollabRequest; index: number }) {
   )
 }
 
-// ── Declined card ──────────────────────────────────────────────────────────
 function DeclinedCard({ req, index }: { req: CollabRequest; index: number }) {
   const isCancelled = req.status === 'cancelled'
   const respondedAt = req.responded_at ?? req.cancelled_at
@@ -267,13 +258,13 @@ function DeclinedCard({ req, index }: { req: CollabRequest; index: number }) {
   return (
     <motion.div
       custom={index} initial="hidden" animate="visible" variants={fadeUp}
-      className="border-b border-foreground/[0.08] last:border-b-0"
+      className="border-b border-white/[0.07] last:border-b-0"
     >
       <div className="px-5 py-5 flex items-center gap-4">
-        <XCircle className="h-4 w-4 text-zinc-300 shrink-0" />
+        <XCircle className="h-4 w-4 text-white/35 shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-muted-foreground truncate">{req.project_name ?? '未知商案'}</p>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70 mt-0.5">
+          <p className="text-sm text-white/55 truncate">{req.project_name ?? '未知商案'}</p>
+          <div className="flex items-center gap-1.5 text-xs text-white/40 mt-0.5">
             <Building2 className="h-3 w-3 shrink-0" />
             <span>{merchantLabel(req)}</span>
             {respondedAt && (
@@ -284,7 +275,7 @@ function DeclinedCard({ req, index }: { req: CollabRequest; index: number }) {
             )}
           </div>
         </div>
-        <span className="text-[0.72rem] font-medium px-2 py-0.5 rounded border bg-zinc-100 text-zinc-500 border-zinc-200/60 shrink-0">
+        <span className="text-[0.72rem] font-medium px-2 py-0.5 rounded border bg-white/5 text-white/45 border-white/15 shrink-0">
           {isCancelled ? '已取消' : '已婉拒'}
         </span>
       </div>
@@ -292,7 +283,6 @@ function DeclinedCard({ req, index }: { req: CollabRequest; index: number }) {
   )
 }
 
-// ── Empty state ────────────────────────────────────────────────────────────
 const EMPTY_COPY: Record<TabKey, { icon: typeof Inbox; text: string }> = {
   pending:  { icon: Inbox,         text: '目前沒有待回覆的合作邀請。' },
   accepted: { icon: CheckCircle2,  text: '尚未接受任何合作邀請。'     },
@@ -303,22 +293,20 @@ function EmptyState({ tab }: { tab: TabKey }) {
   const { icon: Icon, text } = EMPTY_COPY[tab]
   return (
     <div className="px-5 py-14 text-center">
-      <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-foreground/[0.04] mb-3">
-        <Icon className="h-4 w-4 text-muted-foreground" />
+      <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.04] mb-3">
+        <Icon className="h-4 w-4 text-white/55" />
       </div>
-      <p className="text-sm text-muted-foreground">{text}</p>
+      <p className="text-sm text-white/55">{text}</p>
     </div>
   )
 }
 
-// ── Tab config ─────────────────────────────────────────────────────────────
 const TABS = [
   { key: 'pending'  as TabKey, label: '待回覆', icon: Inbox        },
   { key: 'accepted' as TabKey, label: '已接受', icon: CheckCircle2 },
   { key: 'declined' as TabKey, label: '已拒絕', icon: XCircle      },
 ]
 
-// ── Page ───────────────────────────────────────────────────────────────────
 export default function KolInboxPage() {
   const [requests, setRequests]       = useState<CollabRequest[]>([])
   const [loading, setLoading]         = useState(true)
@@ -393,7 +381,6 @@ export default function KolInboxPage() {
     }
   }
 
-  // Partition requests by tab
   const byTab: Record<TabKey, CollabRequest[]> = {
     pending:  requests.filter((r) => r.status === 'pending'),
     accepted: requests.filter((r) => r.status === 'accepted'),
@@ -404,24 +391,26 @@ export default function KolInboxPage() {
   const activeList   = byTab[tab]
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 text-white">
 
       {/* ── Header ── */}
       <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
-        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">KOL 後台</p>
+        <p className="font-body text-[10px] uppercase tracking-[0.45em] text-white/45 mb-3">KOL 後台</p>
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-serif">合作邀請</h1>
+          <h1 className="font-heading text-4xl md:text-5xl tracking-tight leading-[1.05]">
+            合作 <span className="italic">邀請</span>
+          </h1>
           {pendingCount > 0 && (
             <motion.span
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="inline-flex items-center justify-center h-6 min-w-6 px-1.5 rounded-full bg-amber-500 text-white text-xs font-medium"
+              className="inline-flex items-center justify-center h-6 min-w-6 px-1.5 rounded-full bg-amber-300 text-black text-xs font-medium"
             >
               {pendingCount}
             </motion.span>
           )}
         </div>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="font-body text-sm text-white/60 mt-3">
           管理商家寄來的合作邀請，接受後即建立正式合作關係。
         </p>
       </motion.div>
@@ -433,16 +422,16 @@ export default function KolInboxPage() {
           className="grid grid-cols-3 gap-3"
         >
           {[
-            { label: '待回覆', value: byTab.pending.length,  accent: 'text-amber-600'   },
-            { label: '已接受', value: byTab.accepted.length, accent: 'text-emerald-600' },
-            { label: '已拒絕', value: byTab.declined.length, accent: 'text-zinc-400'    },
+            { label: '待回覆', value: byTab.pending.length,  accent: 'text-amber-200' },
+            { label: '已接受', value: byTab.accepted.length, accent: 'text-emerald-200' },
+            { label: '已拒絕', value: byTab.declined.length, accent: 'text-white/55' },
           ].map((s) => (
             <div
               key={s.label}
-              className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm px-4 py-5 text-center hover:shadow-md transition-shadow duration-300"
+              className="liquid-glass rounded-2xl px-4 py-5 text-center"
             >
-              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-2">{s.label}</p>
-              <p className={`text-3xl font-serif ${s.accent}`}>{s.value}</p>
+              <p className="font-body text-[10px] uppercase tracking-[0.3em] text-white/55 mb-2">{s.label}</p>
+              <p className={`font-heading italic text-3xl ${s.accent}`}>{s.value}</p>
             </div>
           ))}
         </motion.div>
@@ -450,16 +439,15 @@ export default function KolInboxPage() {
 
       {/* ── Tab strip ── */}
       <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp}>
-        <div className="flex border-b border-foreground/[0.08]">
+        <div className="flex border-b border-white/10">
           {TABS.map(({ key, label, icon: Icon }) => {
             const count  = byTab[key].length
             const active = tab === key
 
-            // Per-tab accent colours for the active indicator
             const activeBar =
-              key === 'pending'  ? 'border-amber-500' :
-              key === 'accepted' ? 'border-emerald-500' :
-                                   'border-zinc-400'
+              key === 'pending'  ? 'border-amber-300' :
+              key === 'accepted' ? 'border-emerald-300' :
+                                   'border-white/40'
 
             return (
               <button
@@ -467,8 +455,8 @@ export default function KolInboxPage() {
                 onClick={() => setTab(key)}
                 className={`relative flex items-center gap-2 px-4 py-3 text-xs uppercase tracking-[0.25em] border-b-2 transition-all duration-200 -mb-px ${
                   active
-                    ? `${activeBar} text-foreground`
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                    ? `${activeBar} text-white`
+                    : 'border-transparent text-white/55 hover:text-white'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -476,10 +464,10 @@ export default function KolInboxPage() {
                 {count > 0 && (
                   <span className={`ml-0.5 text-[10px] font-medium px-1.5 py-px rounded-full leading-none ${
                     key === 'pending'
-                      ? 'bg-amber-100 text-amber-700'
+                      ? 'bg-amber-400/15 text-amber-200'
                       : key === 'accepted'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-zinc-100 text-zinc-500'
+                        ? 'bg-emerald-400/15 text-emerald-200'
+                        : 'bg-white/10 text-white/55'
                   }`}>
                     {count}
                   </span>
@@ -495,10 +483,10 @@ export default function KolInboxPage() {
         {actionError && (
           <motion.div
             initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center justify-between"
+            className="rounded-lg border border-red-300/30 bg-red-400/10 px-4 py-3 text-sm text-red-200 flex items-center justify-between"
           >
             {actionError}
-            <button onClick={() => setActionError('')} className="ml-4 text-red-400 hover:text-red-600">
+            <button onClick={() => setActionError('')} className="ml-4 text-red-300 hover:text-red-100">
               <X className="h-4 w-4" />
             </button>
           </motion.div>
@@ -507,14 +495,14 @@ export default function KolInboxPage() {
 
       {/* ── List ── */}
       <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp}>
-        <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
+        <div className="liquid-glass rounded-2xl overflow-hidden">
           {loading ? (
             <div className="px-5 py-12 text-center">
-              <p className="text-sm text-muted-foreground">載入中…</p>
+              <p className="text-sm text-white/55">載入中…</p>
             </div>
           ) : loadError ? (
             <div className="px-5 py-8 text-center">
-              <p className="text-sm text-red-600">{loadError}</p>
+              <p className="text-sm text-red-300">{loadError}</p>
             </div>
           ) : (
             <AnimatePresence mode="wait">

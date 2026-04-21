@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props) {
   }
 
   return {
-    title: `${project.name} | HomeKey`,
+    title: `${project.name} | PartnerLink`,
     description: project.subtitle,
   }
 }

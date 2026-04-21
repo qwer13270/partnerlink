@@ -9,6 +9,7 @@ function isDashboard(pathname: string) {
   if (pathname.startsWith('/properties/')) return true
   if (pathname.startsWith('/shops/')) return true
   if (pathname.startsWith('/kols/')) return true
+  if (pathname.startsWith('/kol/')) return true
   return false
 }
 

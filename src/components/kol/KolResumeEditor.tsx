@@ -61,18 +61,18 @@ type Section = 'basics' | 'media' | 'theme'
 // ── Field primitives ───────────────────────────────────────────────────────
 
 const fieldWrap =
-  'rounded-md border border-foreground/15 bg-background transition-colors duration-150 focus-within:border-foreground/40'
+  'rounded-lg border border-white/10 bg-white/[0.03] transition-colors duration-150 focus-within:border-white/35 focus-within:bg-white/[0.05]'
 const inputBase =
-  'w-full bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground/40'
+  'w-full bg-transparent px-3.5 py-3 text-base text-white/90 outline-none placeholder:text-white/25 font-body'
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs uppercase tracking-[0.4em] text-muted-foreground">
+      <label className="mb-2 block text-[12px] uppercase tracking-[0.35em] text-white/65 font-body">
         {label}
       </label>
       {children}
-      {hint && <p className="mt-1 text-xs text-muted-foreground/60">{hint}</p>}
+      {hint && <p className="mt-1.5 text-[13px] text-white/45 font-body">{hint}</p>}
     </div>
   )
 }
@@ -105,11 +105,11 @@ type AssetRowProps = {
 
 function AssetRow({ asset, isSaved, onCaptionChange, onCaptionBlur, onDelete }: AssetRowProps) {
   return (
-    <div className="group flex items-center gap-3 rounded border border-foreground/8 bg-foreground/[0.015] px-3 py-2.5 transition-colors hover:border-foreground/15">
-      <div className="h-[2.75rem] w-[3.5rem] shrink-0 overflow-hidden rounded-sm border border-foreground/10 bg-muted/20">
+    <div className="group flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2.5 transition-colors hover:border-white/25 hover:bg-white/[0.04]">
+      <div className="h-[2.75rem] w-[3.5rem] shrink-0 overflow-hidden rounded-md border border-white/10 bg-white/[0.04]">
         {asset.mediaType === 'video' ? (
-          <div className="flex h-full w-full items-center justify-center" style={{ background: 'linear-gradient(135deg, #1C2530 0%, #2E4052 100%)' }}>
-            <Play className="h-3 w-3 fill-white/60 text-white/60" />
+          <div className="flex h-full w-full items-center justify-center" style={{ background: 'linear-gradient(135deg, #0b1a2c 0%, #1a3052 100%)' }}>
+            <Play className="h-3 w-3 fill-white/80 text-white/80" />
           </div>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
@@ -117,25 +117,25 @@ function AssetRow({ asset, isSaved, onCaptionChange, onCaptionBlur, onDelete }: 
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs text-muted-foreground mb-1">{asset.fileName}</p>
+        <p className="truncate text-[13px] text-white/60 font-body mb-1.5">{asset.fileName}</p>
         <textarea
           rows={2}
           value={asset.caption}
           onChange={(e) => onCaptionChange(asset.id, e.target.value)}
           onBlur={(e) => onCaptionBlur(asset.id, e.target.value)}
           placeholder="新增說明文字…"
-          className={`${inputBase} resize-y rounded border border-foreground/10 py-1 text-[0.65rem] focus:border-foreground/30`}
+          className={`${inputBase} resize-y rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5 text-[13px] focus:border-white/25`}
         />
       </div>
       <div className="flex shrink-0 flex-col items-center gap-1.5">
         <AnimatePresence>
           {isSaved && (
             <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.15 }}>
-              <Check className="h-3.5 w-3.5 text-emerald-500" />
+              <Check className="h-3.5 w-3.5 text-emerald-300" />
             </motion.div>
           )}
         </AnimatePresence>
-        <button type="button" onClick={() => onDelete(asset.id)} className="text-muted-foreground/30 opacity-0 transition-all duration-150 hover:text-red-500 group-hover:opacity-100" aria-label="刪除">
+        <button type="button" onClick={() => onDelete(asset.id)} className="text-white/30 opacity-0 transition-all duration-150 hover:text-red-400 group-hover:opacity-100" aria-label="刪除">
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
@@ -155,26 +155,26 @@ function UploadProgress({ items, onDismiss }: { items: UploadItem[]; onDismiss: 
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -4 }}
           transition={{ duration: 0.15 }}
-          className={`rounded border px-3 py-2 ${
-            item.status === 'error' ? 'border-red-200 bg-red-50/40' : 'border-foreground/10 bg-foreground/[0.015]'
+          className={`rounded-lg border px-3 py-2 ${
+            item.status === 'error' ? 'border-red-400/30 bg-red-500/10' : 'border-white/10 bg-white/[0.03]'
           }`}
         >
           <div className="flex items-center justify-between gap-2 mb-1">
-            <span className="truncate text-xs text-foreground/60">{item.fileName}</span>
+            <span className="truncate text-sm text-white/70 font-body">{item.fileName}</span>
             {item.status === 'error' ? (
-              <button type="button" onClick={() => onDismiss(item.key)} className="shrink-0 text-red-400 hover:text-red-600">
+              <button type="button" onClick={() => onDismiss(item.key)} className="shrink-0 text-red-300 hover:text-red-200">
                 <X className="h-3 w-3" />
               </button>
             ) : (
-              <span className="shrink-0 text-xs tabular-nums text-muted-foreground/50">{item.progress}%</span>
+              <span className="shrink-0 text-sm tabular-nums text-white/55 font-mono">{item.progress}%</span>
             )}
           </div>
           {item.status === 'uploading' && (
-            <div className="h-0.5 w-full overflow-hidden rounded-full bg-foreground/10">
-              <div className="h-full bg-foreground/40 transition-all duration-200" style={{ width: `${item.progress}%` }} />
+            <div className="h-[3px] w-full overflow-hidden rounded-full bg-white/10">
+              <div className="h-full bg-gradient-to-r from-[#7aa8ff] to-[#dbeafe] transition-all duration-200" style={{ width: `${item.progress}%`, boxShadow: '0 0 12px rgba(140,200,255,0.55)' }} />
             </div>
           )}
-          {item.status === 'error' && <p className="text-xs text-red-500">{item.error}</p>}
+          {item.status === 'error' && <p className="text-sm text-red-300">{item.error}</p>}
         </motion.div>
       ))}
     </AnimatePresence>
@@ -398,7 +398,7 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
 
   return (
     <div
-      className="flex flex-col gap-4 px-5 py-5"
+      className="flex flex-col gap-4 px-5 py-6"
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
@@ -412,18 +412,18 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
 
       {/* Drag overlay hint */}
       {isDragging && (
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-foreground/40 bg-background/80">
-          <p className="text-xs uppercase tracking-[0.3em] text-foreground/50">放開以上傳</p>
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl border-2 border-dashed border-white/40 bg-black/70 backdrop-blur-xl">
+          <p className="text-sm uppercase tracking-[0.3em] text-white/85 font-body">放開以上傳</p>
         </div>
       )}
 
       {/* ── Photos ─────────────────────────────────── */}
-      <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/[0.07]">
+      <div className="liquid-glass !rounded-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08]">
           <div className="flex items-center gap-2">
-            <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">照片</p>
+            <p className="text-[12px] uppercase tracking-[0.35em] text-white/65 font-body">照片</p>
             {!loading && (
-              <span className={`text-xs tabular-nums ${photoAtLimit ? 'text-amber-500' : 'text-muted-foreground/40'}`}>
+              <span className={`text-[13px] tabular-nums font-mono ${photoAtLimit ? 'text-amber-300' : 'text-white/40'}`}>
                 {photos.length}/{PHOTO_LIMIT}
               </span>
             )}
@@ -432,16 +432,16 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
             type="button"
             onClick={() => imageRef.current?.click()}
             disabled={photoAtLimit}
-            className="inline-flex items-center gap-1.5 rounded border border-foreground/[0.12] px-2.5 py-1 text-xs uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-3 py-1.5 text-[12px] uppercase tracking-[0.2em] text-white/80 transition-colors hover:border-white/30 hover:bg-white/[0.08] hover:text-white disabled:pointer-events-none disabled:opacity-30 font-body"
           >
             <ImagePlus className="h-3 w-3" />
             新增
           </button>
         </div>
-        <div className="px-4 pt-2 pb-1">
+        <div className="px-4 pt-3 pb-2">
         <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <p className="text-xs text-muted-foreground">每張照片最大 10MB</p>
-          <span className="inline-flex items-center gap-1 rounded bg-foreground/[0.04] px-2 py-0.5 text-xs text-muted-foreground/70">
+          <p className="text-[13px] text-white/55 font-body">每張照片最大 10MB</p>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[12px] text-white/60 font-body">
             <svg className="h-2.5 w-2.5 shrink-0" viewBox="0 0 10 10" fill="none" aria-hidden="true">
               <rect x="1" y="1" width="8" height="8" rx="1" stroke="currentColor" strokeWidth="1.2"/>
             </svg>
@@ -452,11 +452,11 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
         {loading ? (
           <div className="grid grid-cols-2 gap-2">
             {[0, 1].map((i) => (
-              <div key={i} className="animate-pulse rounded border border-foreground/8 bg-foreground/[0.015]">
-                <div className="aspect-[4/3] bg-foreground/[0.05]" />
+              <div key={i} className="animate-pulse rounded-lg border border-white/10 bg-white/[0.02]">
+                <div className="aspect-[4/3] bg-white/[0.05]" />
                 <div className="p-2 space-y-1.5">
-                  <div className="h-2 w-3/4 rounded bg-foreground/[0.05]" />
-                  <div className="h-6 rounded bg-foreground/[0.05]" />
+                  <div className="h-2 w-3/4 rounded bg-white/[0.06]" />
+                  <div className="h-6 rounded bg-white/[0.04]" />
                 </div>
               </div>
             ))}
@@ -469,30 +469,30 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
                 type="button"
                 onClick={() => imageRef.current?.click()}
                 disabled={photoAtLimit}
-                className="w-full flex flex-col items-center gap-2 py-6 rounded border border-dashed border-foreground/[0.12] text-muted-foreground/30 hover:border-foreground/25 hover:text-muted-foreground/50 transition-colors disabled:pointer-events-none disabled:opacity-30"
+                className="w-full flex flex-col items-center gap-2 py-6 rounded-lg border border-dashed border-white/15 text-white/35 hover:border-white/30 hover:text-white/60 hover:bg-white/[0.02] transition-colors disabled:pointer-events-none disabled:opacity-30 font-body"
               >
                 <ImagePlus className="h-5 w-5" />
-                <span className="text-xs uppercase tracking-[0.3em]">上傳照片</span>
+                <span className="text-[12px] uppercase tracking-[0.28em]">上傳照片</span>
               </button>
             ) : (
               <div className="grid grid-cols-2 gap-2">
                 {photos.map((asset) => (
-                  <div key={asset.id} className="group rounded border border-foreground/8 overflow-hidden bg-foreground/[0.015] hover:border-foreground/15 transition-colors">
-                    <div className="relative aspect-[4/3] overflow-hidden bg-muted/20">
+                  <div key={asset.id} className="group rounded-lg border border-white/10 overflow-hidden bg-white/[0.02] hover:border-white/25 transition-colors">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-white/[0.04]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={asset.url} alt="" className="h-full w-full object-cover"
                         onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
                       <button
                         type="button"
                         onClick={() => handleDelete(asset.id)}
-                        className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 text-white/70 opacity-0 group-hover:opacity-100 hover:bg-red-500/80 hover:text-white transition-all duration-150"
+                        className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white/80 opacity-0 group-hover:opacity-100 hover:bg-red-500/80 hover:text-white transition-all duration-150 backdrop-blur-sm"
                         aria-label="刪除"
                       >
                         <X className="h-2.5 w-2.5" />
                       </button>
                       {savedIds.has(asset.id) && (
-                        <div className="absolute top-1.5 left-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/90">
-                          <Check className="h-2.5 w-2.5 text-white" />
+                        <div className="absolute top-1.5 left-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/90 shadow-[0_0_10px_rgba(140,230,180,0.5)]">
+                          <Check className="h-2.5 w-2.5 text-black" />
                         </div>
                       )}
                     </div>
@@ -503,7 +503,7 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
                         onChange={(e) => handleCaptionChange(asset.id, e.target.value)}
                         onBlur={(e) => handleCaptionBlur(asset.id, e.target.value)}
                         placeholder="說明文字…"
-                        className={`${inputBase} resize-none rounded border border-foreground/10 py-1 text-xs focus:border-foreground/30 w-full`}
+                        className={`${inputBase} resize-none rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5 text-[13px] focus:border-white/25 w-full`}
                       />
                     </div>
                   </div>
@@ -516,12 +516,12 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
       </div>{/* card */}
 
       {/* ── Videos ─────────────────────────────────── */}
-      <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/[0.07]">
+      <div className="liquid-glass !rounded-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08]">
           <div className="flex items-center gap-2">
-            <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">影片</p>
+            <p className="text-[12px] uppercase tracking-[0.35em] text-white/65 font-body">影片</p>
             {!loading && (
-              <span className={`text-xs tabular-nums ${videoAtLimit ? 'text-amber-500' : 'text-muted-foreground/40'}`}>
+              <span className={`text-[13px] tabular-nums font-mono ${videoAtLimit ? 'text-amber-300' : 'text-white/40'}`}>
                 {videos.length}/{VIDEO_LIMIT}
               </span>
             )}
@@ -530,16 +530,16 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
             type="button"
             onClick={() => videoRef.current?.click()}
             disabled={videoAtLimit}
-            className="inline-flex items-center gap-1.5 rounded border border-foreground/[0.12] px-2.5 py-1 text-xs uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-3 py-1.5 text-[12px] uppercase tracking-[0.2em] text-white/80 transition-colors hover:border-white/30 hover:bg-white/[0.08] hover:text-white disabled:pointer-events-none disabled:opacity-30 font-body"
           >
             <Film className="h-3 w-3" />
             新增
           </button>
         </div>
-        <div className="px-4 pt-2 pb-4">
+        <div className="px-4 pt-3 pb-4">
         <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <p className="text-xs text-muted-foreground">每支影片最大 50MB</p>
-          <span className="inline-flex items-center gap-1 rounded bg-foreground/[0.04] px-2 py-0.5 text-xs text-muted-foreground/70">
+          <p className="text-[13px] text-white/55 font-body">每支影片最大 50MB</p>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[12px] text-white/60 font-body">
             <svg className="h-2.5 w-2.5 shrink-0" viewBox="0 0 10 8" fill="none" aria-hidden="true">
               <rect x="0.6" y="0.6" width="6.8" height="6.8" rx="0.8" stroke="currentColor" strokeWidth="1.2"/>
               <path d="M7.4 3.2 L9.4 2 L9.4 6 L7.4 4.8Z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round"/>
@@ -551,11 +551,11 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
         {loading ? (
           <div className="space-y-2">
             {[0, 1].map((i) => (
-              <div key={i} className="flex items-center gap-3 rounded border border-foreground/8 bg-foreground/[0.015] px-3 py-2.5 animate-pulse">
-                <div className="h-[2.75rem] w-[3.5rem] shrink-0 rounded-sm bg-foreground/[0.06]" />
+              <div key={i} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2.5 animate-pulse">
+                <div className="h-[2.75rem] w-[3.5rem] shrink-0 rounded-md bg-white/[0.06]" />
                 <div className="flex-1 space-y-1.5">
-                  <div className="h-2 w-3/5 rounded bg-foreground/[0.06]" />
-                  <div className="h-2 w-4/5 rounded bg-foreground/[0.06]" />
+                  <div className="h-2 w-3/5 rounded bg-white/[0.06]" />
+                  <div className="h-2 w-4/5 rounded bg-white/[0.06]" />
                 </div>
               </div>
             ))}
@@ -568,10 +568,10 @@ function MediaManager({ setParentMedia }: { setParentMedia: React.Dispatch<React
                 type="button"
                 onClick={() => videoRef.current?.click()}
                 disabled={videoAtLimit}
-                className="w-full flex flex-col items-center gap-2 py-6 rounded border border-dashed border-foreground/[0.12] text-muted-foreground/30 hover:border-foreground/25 hover:text-muted-foreground/50 transition-colors disabled:pointer-events-none disabled:opacity-30"
+                className="w-full flex flex-col items-center gap-2 py-6 rounded-lg border border-dashed border-white/15 text-white/35 hover:border-white/30 hover:text-white/60 hover:bg-white/[0.02] transition-colors disabled:pointer-events-none disabled:opacity-30 font-body"
               >
                 <Film className="h-5 w-5" />
-                <span className="text-xs uppercase tracking-[0.3em]">上傳影片</span>
+                <span className="text-[12px] uppercase tracking-[0.28em]">上傳影片</span>
               </button>
             ) : (
               <div className="space-y-2">
@@ -728,48 +728,68 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
   ]
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-[#f0ece4]">
+    <div className="partnerlink-landing fixed inset-0 z-[100] flex flex-col overflow-hidden bg-black text-white">
+      {/* ── Ambient backdrop ─────────────────────────────── */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background:
+            'radial-gradient(ellipse 60% 45% at 15% 0%, rgba(60,110,220,0.18), transparent 60%), radial-gradient(ellipse 55% 40% at 95% 100%, rgba(30,70,160,0.14), transparent 65%)',
+        }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.04]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.9) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.9) 1px, transparent 1px)',
+          backgroundSize: '80px 80px',
+          maskImage: 'radial-gradient(ellipse at 50% 30%, black 20%, transparent 75%)',
+        }}
+      />
+
       {/* ── Header ────────────────────────────────────────── */}
-      <header className="shrink-0 border-b border-foreground/10 bg-background/98 backdrop-blur-md">
-        <div className="flex items-center gap-4 px-5 py-4 lg:px-6">
+      <header className="shrink-0 border-b border-white/10 bg-black/75 backdrop-blur-xl relative z-10">
+        <div className="flex items-center gap-4 px-5 py-3.5 lg:px-8">
           <button
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150 hover:bg-foreground/5 hover:text-foreground"
-            aria-label="關閉編輯器"
+            aria-label="返回"
+            className="group relative inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] pl-2.5 pr-4 text-[12px] uppercase tracking-[0.32em] text-white/75 transition-all duration-200 hover:border-white/30 hover:bg-white/[0.08] hover:text-white font-body"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 transition-all duration-200 group-hover:bg-white group-hover:text-black group-hover:-translate-x-0.5">
+              <ArrowLeft className="h-3 w-3" />
+            </span>
+            返回
           </button>
 
-          <div className="h-6 w-px shrink-0 bg-foreground/10" />
-
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm leading-snug">{resume.displayName}</p>
-            <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">履歷編輯器</p>
-          </div>
+          <div className="flex-1" />
 
           {isDirty && !saved && (
-            <span className="hidden rounded bg-amber-50 px-2.5 py-1 text-xs uppercase tracking-widest text-amber-700 ring-1 ring-amber-200 sm:inline-block">
+            <span className="hidden sm:inline-flex items-center gap-1.5 liquid-glass !rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-amber-200/90 font-body">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inset-0 rounded-full bg-amber-300/70 animate-ping" />
+                <span className="relative h-1.5 w-1.5 rounded-full bg-amber-300" />
+              </span>
               未儲存
             </span>
           )}
           {saved && (
-            <span className="hidden rounded bg-emerald-50 px-2.5 py-1 text-xs uppercase tracking-widest text-emerald-700 ring-1 ring-emerald-200 sm:inline-flex items-center gap-1">
+            <span className="hidden sm:inline-flex items-center gap-1.5 liquid-glass !rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-emerald-200/95 font-body">
               <CheckCircle2 className="h-3 w-3" />
               已儲存
             </span>
           )}
 
           {/* View mode toggle */}
-          <div className="hidden lg:flex shrink-0 items-center gap-0.5 rounded-lg border border-foreground/10 bg-foreground/[0.03] p-1">
+          <div className="hidden lg:flex shrink-0 items-center gap-0.5 rounded-full liquid-glass !p-1">
             <button
               type="button"
               onClick={() => setViewMode('desktop')}
               title="桌機檢視"
-              className={`flex h-7 w-9 items-center justify-center rounded-md transition-colors duration-150 ${
+              className={`flex h-7 w-9 items-center justify-center rounded-full transition-all duration-200 ${
                 viewMode === 'desktop'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-white text-black shadow-[0_0_14px_rgba(200,220,255,0.28)]'
+                  : 'text-white/55 hover:text-white'
               }`}
             >
               <Monitor className="h-3.5 w-3.5" />
@@ -778,10 +798,10 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
               type="button"
               onClick={() => setViewMode('mobile')}
               title="手機檢視"
-              className={`flex h-7 w-9 items-center justify-center rounded-md transition-colors duration-150 ${
+              className={`flex h-7 w-9 items-center justify-center rounded-full transition-all duration-200 ${
                 viewMode === 'mobile'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-white text-black shadow-[0_0_14px_rgba(200,220,255,0.28)]'
+                  : 'text-white/55 hover:text-white'
               }`}
             >
               <Smartphone className="h-3.5 w-3.5" />
@@ -793,7 +813,7 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
             href={`/kols/${resume.username}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden h-9 items-center gap-2 rounded-lg border border-foreground/15 px-3.5 text-xs uppercase tracking-[0.3em] text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground sm:inline-flex"
+            className="hidden sm:inline-flex h-9 items-center gap-2 liquid-glass !rounded-full px-4 text-[10px] uppercase tracking-[0.3em] text-white/80 transition-colors duration-150 hover:text-white font-body"
           >
             <Eye className="h-3.5 w-3.5" />
             預覽
@@ -803,7 +823,7 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
             type="button"
             onClick={handleSave}
             disabled={!isDirty}
-            className="inline-flex h-9 items-center gap-2 rounded-lg bg-foreground px-5 text-xs uppercase tracking-[0.3em] text-background transition-opacity duration-150 hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-30"
+            className="inline-flex h-9 items-center gap-2 rounded-full bg-white px-5 text-[10px] uppercase tracking-[0.3em] text-black font-body font-medium transition-opacity duration-150 hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-25"
           >
             <Save className="h-3.5 w-3.5" />
             儲存
@@ -812,13 +832,13 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
       </header>
 
       {/* ── Body ──────────────────────────────────────────── */}
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[360px_1fr] overflow-hidden">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[380px_1fr] overflow-hidden relative z-10">
 
         {/* ── LEFT SIDEBAR ─────────────────────────────────── */}
-        <aside className="flex min-h-0 flex-col overflow-hidden border-r border-foreground/10 bg-background">
+        <aside className="flex min-h-0 flex-col overflow-hidden border-r border-white/10 bg-black/40 backdrop-blur-xl">
 
           {/* Section tabs */}
-          <div className="shrink-0 border-b border-foreground/[0.07] px-5 pt-4">
+          <div className="shrink-0 border-b border-white/10 px-5 pt-4">
             <div className="flex items-center">
               {SECTIONS.map(({ id, label }) => {
                 const active = activeSection === id
@@ -827,15 +847,15 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                     key={id}
                     type="button"
                     onClick={() => setActiveSection(id)}
-                    className={`relative mr-5 pb-3.5 text-xs uppercase tracking-[0.3em] transition-colors duration-150 ${
-                      active ? 'text-foreground' : 'text-muted-foreground/40 hover:text-muted-foreground/70'
+                    className={`relative mr-6 pb-3.5 text-[13px] uppercase tracking-[0.3em] font-body transition-colors duration-150 ${
+                      active ? 'text-white' : 'text-white/40 hover:text-white/70'
                     }`}
                   >
                     {label}
                     {active && (
                       <motion.div
                         layoutId="editor-tab-line"
-                        className="absolute bottom-0 left-0 right-0 h-px bg-foreground"
+                        className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white to-transparent"
                       />
                     )}
                   </button>
@@ -859,15 +879,21 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                   key="basics"
                   initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}
-                  className="space-y-5 px-5 py-5"
+                  className="space-y-6 px-5 py-6"
                 >
                   {/* ── Profile photo ── */}
                   <div>
-                    <p className="mb-3 text-xs uppercase tracking-[0.4em] text-muted-foreground">個人頭像</p>
+                    <p className="mb-3 text-[12px] uppercase tracking-[0.35em] text-white/65 font-body">
+                      Avatar <span className="font-heading italic normal-case tracking-normal text-white/85 text-[15px]">個人頭像</span>
+                    </p>
                     <div className="flex items-center gap-4">
                       {/* Avatar preview */}
                       <div className="relative shrink-0">
-                        <div className="h-16 w-16 rounded-full overflow-hidden border border-foreground/15 bg-muted/30 flex items-center justify-center">
+                        <div
+                          className="absolute inset-0 -m-1 rounded-full opacity-70 blur-md"
+                          style={{ background: 'radial-gradient(circle at 35% 30%, rgba(140,200,255,0.35) 0%, rgba(20,40,80,0) 65%)' }}
+                        />
+                        <div className="relative h-16 w-16 rounded-full overflow-hidden border border-white/20 bg-white/[0.04] flex items-center justify-center shadow-[0_0_24px_rgba(140,200,255,0.15)]">
                           {(photoPreview ?? photoUrl) ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -876,27 +902,27 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                               className="h-full w-full object-cover"
                             />
                           ) : (
-                            <span className="text-2xl font-serif text-muted-foreground select-none">
+                            <span className="text-2xl font-heading italic text-white/70 select-none">
                               {(displayName || 'K').slice(0, 1).toUpperCase()}
                             </span>
                           )}
                         </div>
                         {photoSuccess && (
-                          <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-emerald-500">
-                            <CheckCircle2 className="h-2.5 w-2.5 text-white" />
+                          <span className="absolute -bottom-0.5 -right-0.5 z-10 flex h-5 w-5 items-center justify-center rounded-full border-2 border-black bg-emerald-400 shadow-[0_0_10px_rgba(140,230,180,0.6)]">
+                            <CheckCircle2 className="h-2.5 w-2.5 text-black" />
                           </span>
                         )}
                       </div>
 
                       {/* Actions */}
                       <div className="flex-1 min-w-0 space-y-2">
-                        <label className={`group flex cursor-pointer items-center gap-2 rounded-md border border-dashed px-3 py-2.5 transition-all ${photoSaving ? 'pointer-events-none border-foreground/20 opacity-60' : 'border-foreground/20 hover:border-foreground/40 hover:bg-foreground/[0.02]'}`}>
+                        <label className={`group flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-2.5 transition-all font-body ${photoSaving ? 'pointer-events-none border-white/15 opacity-60' : 'border-white/20 hover:border-white/40 hover:bg-white/[0.03]'}`}>
                           {photoSaving ? (
-                            <LoaderCircle className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
+                            <LoaderCircle className="h-3.5 w-3.5 shrink-0 animate-spin text-white/60" />
                           ) : (
-                            <Camera className="h-3.5 w-3.5 shrink-0 text-muted-foreground group-hover:text-foreground transition-colors" />
+                            <Camera className="h-3.5 w-3.5 shrink-0 text-white/60 group-hover:text-white transition-colors" />
                           )}
-                          <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+                          <span className="text-sm text-white/80 group-hover:text-white transition-colors">
                             {photoSaving ? '上傳中…' : (photoUrl ? '更換頭像' : '上傳頭像')}
                           </span>
                           <input
@@ -914,15 +940,15 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                         </label>
 
                         {photoError && (
-                          <p className="text-xs text-red-600">{photoError}</p>
+                          <p className="text-sm text-red-300 font-body">{photoError}</p>
                         )}
 
-                        <p className="text-[0.6rem] text-muted-foreground/50">JPG、PNG，最大 10 MB</p>
+                        <p className="text-[12px] text-white/45 font-body">JPG、PNG，最大 10 MB</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="h-px bg-foreground/[0.07]" />
+                  <div className="h-px bg-white/[0.08]" />
 
                   <Field label="顯示名稱">
                     <Input
@@ -955,12 +981,12 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                   <Field label="專長標籤">
                     <div className="flex flex-wrap gap-1.5 mb-2 min-h-[2rem]">
                       {nicheTags.map((tag) => (
-                        <span key={tag} className="inline-flex items-center gap-1 rounded-sm border border-foreground/15 bg-foreground/[0.03] px-2.5 py-1 text-xs uppercase tracking-[0.2em]">
+                        <span key={tag} className="inline-flex items-center gap-1.5 liquid-glass !rounded-full px-3.5 py-1.5 text-[13px] uppercase tracking-[0.18em] text-white/90 font-body">
                           {tag}
                           <button
                             type="button"
                             onClick={() => setNicheTags((prev) => prev.filter((t) => t !== tag))}
-                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            className="text-white/45 hover:text-white transition-colors"
                           >
                             <X className="h-2.5 w-2.5" />
                           </button>
@@ -981,23 +1007,23 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                       <button
                         type="button"
                         onClick={addTag}
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-foreground/15 text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-colors"
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full liquid-glass text-white/75 hover:text-white transition-colors"
                       >
-                        <Plus className="h-3.5 w-3.5" />
+                        <Plus className="h-4 w-4" />
                       </button>
                     </div>
                   </Field>
 
-                  <div className="h-px bg-foreground/[0.07]" />
+                  <div className="h-px bg-white/[0.08]" />
 
                   {/* ── Collaboration fee ── */}
                   <div>
-                    <label className="mb-1.5 block text-xs uppercase tracking-[0.4em] text-muted-foreground">
-                      合作費用
+                    <label className="mb-2 block text-[12px] uppercase tracking-[0.35em] text-white/65 font-body">
+                      Rate <span className="font-heading italic normal-case tracking-normal text-white/85 text-[15px]">合作費用</span>
                     </label>
 
                     <div className={`${fieldWrap} flex items-center`}>
-                      <span className="pl-3 text-xs text-muted-foreground/50 select-none shrink-0">NT$</span>
+                      <span className="pl-3.5 text-[13px] text-white/50 font-mono tracking-[0.08em] select-none shrink-0">NT$</span>
                       <input
                         type="number"
                         min={0}
@@ -1009,20 +1035,21 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                     </div>
 
                     {/* Live formatted preview */}
-                    <div className="mt-2 h-7 flex items-center">
+                    <div className="mt-2.5 h-8 flex items-center">
                       {parsedFee > 0 ? (
                         <motion.p
                           key={parsedFee}
                           initial={{ opacity: 0, y: 4 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="text-xs text-muted-foreground/60"
+                          className="text-sm text-white/75 font-body"
                         >
-                          NT${parsedFee.toLocaleString('zh-TW')}
-                          <span className="ml-1.5 text-muted-foreground/35">/ 每次合作</span>
+                          <span className="font-heading italic text-[#dbeafe]">NT$</span>
+                          {parsedFee.toLocaleString('zh-TW')}
+                          <span className="ml-2 text-white/40">/ 每次合作</span>
                         </motion.p>
                       ) : (
-                        <p className="text-xs text-muted-foreground/30">未設定費用，商家無法以預算篩選</p>
+                        <p className="text-sm text-white/40 font-body">未設定費用，商家無法以預算篩選</p>
                       )}
                     </div>
                   </div>
@@ -1035,11 +1062,11 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                   key="theme"
                   initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}
-                  className="px-5 py-5 space-y-6"
+                  className="px-5 py-6 space-y-6"
                 >
                   <div>
-                    <label className="mb-3 block text-xs uppercase tracking-[0.4em] text-muted-foreground">
-                      色彩主題
+                    <label className="mb-3 block text-[12px] uppercase tracking-[0.35em] text-white/65 font-body">
+                      Palette <span className="font-heading italic normal-case tracking-normal text-white/85 text-[15px]">色彩主題</span>
                     </label>
                     <div className="grid grid-cols-1 gap-2">
                       {(Object.entries(KOL_THEMES) as [KolThemeKey, typeof KOL_THEMES[KolThemeKey]][]).map(([key, theme]) => {
@@ -1049,16 +1076,15 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                             key={key}
                             type="button"
                             onClick={() => setColorTheme(key)}
-                            className={`group flex items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition-all duration-150 ${
+                            className={`group relative flex items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all duration-200 font-body ${
                               active
-                                ? 'border-foreground/40 bg-foreground/[0.04]'
-                                : 'border-foreground/[0.08] hover:border-foreground/20 hover:bg-foreground/[0.02]'
+                                ? 'border-white/35 bg-white/[0.06] shadow-[0_0_24px_rgba(140,200,255,0.12)]'
+                                : 'border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.04]'
                             }`}
                           >
                             {/* Swatch: bg fill + accent diagonal stripe */}
-                            <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded-md border border-foreground/10">
+                            <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-md border border-white/15">
                               <div className="absolute inset-0" style={{ background: theme['--k-hero'] }} />
-                              {/* Diagonal accent stripe bottom-right */}
                               <div
                                 className="absolute"
                                 style={{
@@ -1069,27 +1095,26 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
                                   opacity: 0.9,
                                 }}
                               />
-                              {/* Accent dot center */}
                               <div
                                 className="absolute bottom-1.5 right-1.5 h-2 w-2 rounded-full"
-                                style={{ background: theme['--k-accent'] }}
+                                style={{ background: theme['--k-accent'], boxShadow: `0 0 8px ${theme['--k-accent']}` }}
                               />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm leading-snug">{theme.label}</p>
-                              <p className="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground/50">
+                              <p className="text-base leading-snug text-white/90">{theme.label}</p>
+                              <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-white/45">
                                 {theme['--k-accent']}
                               </p>
                             </div>
                             {active && (
-                              <Check className="h-3.5 w-3.5 shrink-0 text-foreground/70" />
+                              <Check className="h-4 w-4 shrink-0 text-white" />
                             )}
                           </button>
                         )
                       })}
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground/50 leading-relaxed">
+                  <p className="text-sm text-white/55 leading-relaxed font-body">
                     選擇主題後，右側預覽會立即更新。儲存後套用至公開頁面。
                   </p>
                 </motion.div>
@@ -1100,41 +1125,81 @@ export default function KolResumeEditor({ resume, onClose, onSave }: Props) {
         </aside>
 
         {/* ── RIGHT: LIVE PREVIEW ───────────────────────────── */}
-        <div
-          className="hidden lg:flex min-h-0 flex-1 items-start justify-center overflow-auto bg-[#d9d1c5] p-6 [&::-webkit-scrollbar]:hidden"
-          style={{ scrollbarWidth: 'none' }}
-        >
-          {viewMode === 'desktop' ? (
-            <div className="w-full max-w-[1280px] overflow-hidden rounded-[28px] border border-black/10 shadow-[0_30px_90px_rgba(0,0,0,0.18)]">
-              <iframe
-                ref={iframeRef}
-                src={`/kols/${resume.username}/frame`}
-                className="block w-full bg-background"
-                style={{ height: '100vh', minHeight: 600 }}
-                title="桌機預覽"
-                onLoad={() => pushToFrame(liveResume)}
-              />
-            </div>
-          ) : (
-            <div className="w-full max-w-[390px] overflow-hidden rounded-[44px] border-[6px] border-black/80 shadow-[0_30px_90px_rgba(0,0,0,0.30)]">
-              {/* Notch bar */}
-              <div className="flex h-8 items-center justify-center bg-[#0A0A0A]">
-                <div className="h-1.5 w-24 rounded-full bg-white/10" />
+        <div className="hidden lg:flex relative min-h-0 flex-1 flex-col overflow-hidden p-8 pt-16">
+          {/* Stage atmosphere */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(ellipse 70% 60% at 50% 20%, rgba(90,140,230,0.10), transparent 70%)',
+            }}
+          />
+          {/* Faint grid */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.05]"
+            style={{
+              backgroundImage:
+                'linear-gradient(rgba(255,255,255,0.9) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.9) 1px, transparent 1px)',
+              backgroundSize: '48px 48px',
+              maskImage: 'radial-gradient(ellipse at 50% 30%, black 25%, transparent 75%)',
+            }}
+          />
+
+          {/* Stage label */}
+          <div className="pointer-events-none absolute top-4 left-8 right-8 flex items-center justify-between z-10">
+            <span className="inline-flex items-center gap-2 liquid-glass !rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-white/70 font-body">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inset-0 rounded-full bg-sky-300/70 animate-ping" />
+                <span className="relative h-1.5 w-1.5 rounded-full bg-sky-200" />
+              </span>
+              Live Preview
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-body">
+              {viewMode === 'desktop' ? 'Desktop · 桌機' : 'Mobile · 手機'}
+            </span>
+          </div>
+
+          <div className="relative flex-1 min-h-0 flex items-center justify-center">
+            {viewMode === 'desktop' ? (
+              <div className="relative w-full max-w-[1280px] h-full flex flex-col">
+                <div
+                  className="absolute -inset-8 -z-10 rounded-[36px] opacity-60"
+                  style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(140,200,255,0.12), transparent 70%)' }}
+                />
+                <div className="relative flex-1 min-h-0 overflow-hidden rounded-[24px] border border-white/15 shadow-[0_40px_120px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.04)_inset] bg-white/[0.02] backdrop-blur-sm">
+                  <iframe
+                    ref={iframeRef}
+                    src={`/kols/${resume.username}/frame`}
+                    className="block w-full h-full"
+                    title="桌機預覽"
+                    onLoad={() => pushToFrame(liveResume)}
+                  />
+                </div>
               </div>
-              <iframe
-                ref={iframeRef}
-                src={`/kols/${resume.username}/frame`}
-                className="block w-full bg-background"
-                style={{ height: 812 }}
-                title="手機預覽"
-                onLoad={() => pushToFrame(liveResume)}
-              />
-              {/* Home indicator */}
-              <div className="flex h-6 items-center justify-center bg-[#0A0A0A]">
-                <div className="h-1 w-28 rounded-full bg-white/10" />
+            ) : (
+              <div className="relative h-full flex flex-col items-center">
+                <div
+                  className="absolute -inset-10 -z-10 rounded-[60px] opacity-70"
+                  style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(140,200,255,0.14), transparent 70%)' }}
+                />
+                <div className="relative flex flex-col w-full max-w-[390px] h-full max-h-[calc(100vh-8rem)] overflow-hidden rounded-[44px] border-[6px] border-white/[0.14] bg-black shadow-[0_40px_120px_rgba(0,0,0,0.6)]">
+                  <div className="shrink-0 flex h-8 items-center justify-center bg-black">
+                    <div className="h-1.5 w-24 rounded-full bg-white/15" />
+                  </div>
+                  <iframe
+                    ref={iframeRef}
+                    src={`/kols/${resume.username}/frame`}
+                    className="block w-full flex-1 min-h-0"
+                    title="手機預覽"
+                    onLoad={() => pushToFrame(liveResume)}
+                  />
+                  <div className="shrink-0 flex h-6 items-center justify-center bg-black">
+                    <div className="h-1 w-28 rounded-full bg-white/20" />
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
       </div>

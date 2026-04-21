@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Search, ArrowRight, SlidersHorizontal, X, Check, Send } from 'lucide-react'
 
-// ── Animation ──────────────────────────────────────────────────────────────
 const fadeUp = {
   hidden:  { opacity: 0, y: 12 },
   visible: (i: number) => ({
@@ -13,7 +12,6 @@ const fadeUp = {
   }),
 }
 
-// ── Types ──────────────────────────────────────────────────────────────────
 type Project = {
   id: string
   merchant_user_id: string
@@ -27,7 +25,6 @@ type Project = {
 type ApiPayload   = { projects?: Project[]; error?: string }
 type SentPayload  = { requests?: { project_id: string; status: string }[]; error?: string }
 
-// ── Proposal modal ─────────────────────────────────────────────────────────
 function ProposalModal({
   project,
   onClose,
@@ -57,31 +54,29 @@ function ProposalModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-foreground/40"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
       <motion.div
         initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}
         transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 bg-background border border-foreground/15 w-full max-w-sm"
+        className="liquid-glass-strong relative z-10 rounded-2xl w-full max-w-sm text-white"
       >
-        {/* Header */}
-        <div className="flex items-start justify-between px-6 pt-6 pb-5 border-b border-foreground/[0.08]">
+        <div className="flex items-start justify-between px-6 pt-6 pb-5 border-b border-white/10">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">申請合作</p>
-            <p className="text-base font-medium">{project.name}</p>
+            <p className="font-body text-[10px] uppercase tracking-[0.3em] text-white/55 mb-1">申請合作</p>
+            <p className="text-base font-medium text-white/95">{project.name}</p>
             {project.company_name && (
-              <p className="text-xs text-muted-foreground mt-0.5">{project.company_name}</p>
+              <p className="text-xs text-white/55 mt-0.5">{project.company_name}</p>
             )}
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors mt-0.5">
+          <button onClick={onClose} className="text-white/55 hover:text-white transition-colors mt-0.5">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Message */}
         <div className="px-6 py-5">
-          <label className="text-xs text-muted-foreground block mb-2">
+          <label className="text-xs text-white/55 block mb-2">
             附上一段自我介紹，讓商家更快認識你 <span className="opacity-50">（選填）</span>
           </label>
           <textarea
@@ -89,24 +84,23 @@ function ProposalModal({
             onChange={(e) => setMessage(e.target.value)}
             placeholder="例如：我專注於台北豪宅市場，受眾以 30–45 歲高收入族群為主…"
             rows={4}
-            className="w-full border border-foreground/20 bg-transparent px-3 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-foreground transition-colors resize-none"
+            className="w-full rounded-lg border border-white/15 bg-white/[0.04] text-white px-3 py-2.5 text-sm placeholder:text-white/35 focus:outline-none focus:border-white/40 transition-colors resize-none"
           />
-          {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+          {error && <p className="mt-2 text-xs text-red-300">{error}</p>}
         </div>
 
-        {/* Actions */}
         <div className="px-6 pb-6 flex gap-2">
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 text-xs uppercase tracking-widest bg-foreground text-background hover:bg-foreground/85 transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-xs uppercase tracking-widest bg-white text-black hover:bg-white/90 transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <Send className="h-3 w-3" />
             {submitting ? '送出中…' : '送出申請'}
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2.5 text-xs uppercase tracking-widest border border-foreground/20 text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-150"
+            className="liquid-glass px-4 py-2.5 rounded-full text-xs uppercase tracking-widest text-white/85 hover:text-white transition-colors duration-150"
           >
             取消
           </button>
@@ -116,18 +110,14 @@ function ProposalModal({
   )
 }
 
-// ── Page ───────────────────────────────────────────────────────────────────
 export default function KolMarketplacePage() {
   const [projects, setProjects]       = useState<Project[]>([])
   const [loading, setLoading]         = useState(true)
   const [loadError, setLoadError]     = useState('')
   const [search, setSearch]           = useState('')
   const [proposingProject, setProposingProject] = useState<Project | null>(null)
-
-  // Tracks project IDs where KOL has a pending/accepted sent request
   const [proposedIds, setProposedIds] = useState<Set<string>>(new Set())
 
-  // Load published projects
   useEffect(() => {
     const controller = new AbortController()
     async function load() {
@@ -148,7 +138,6 @@ export default function KolMarketplacePage() {
     return () => controller.abort()
   }, [])
 
-  // Load existing sent requests so "已申請" persists across refresh
   useEffect(() => {
     async function loadSent() {
       try {
@@ -195,13 +184,15 @@ export default function KolMarketplacePage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 text-white">
 
       {/* ── Header ── */}
       <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
-        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">商案廣場</p>
-        <h1 className="text-3xl font-serif mb-1">所有合作商案</h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="font-body text-[10px] uppercase tracking-[0.45em] text-white/45 mb-3">商案廣場</p>
+        <h1 className="font-heading text-4xl md:text-5xl tracking-tight leading-[1.05] mb-3">
+          所有 <span className="italic">合作商案</span>
+        </h1>
+        <p className="font-body text-sm text-white/60">
           瀏覽平台上所有開放申請的商案，找到最適合你受眾的合作機會。
         </p>
       </motion.div>
@@ -209,13 +200,13 @@ export default function KolMarketplacePage() {
       {/* ── Search ── */}
       <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp}>
         <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/45" />
           <input
             type="text"
             placeholder="搜尋商案、商家或地區…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-8 pr-4 py-2.5 border border-border bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+            className="w-full pl-8 pr-4 py-2.5 rounded-full border border-white/15 bg-white/[0.04] text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-white/40 transition-colors"
           />
         </div>
       </motion.div>
@@ -226,8 +217,8 @@ export default function KolMarketplacePage() {
           custom={2} initial="hidden" animate="visible" variants={fadeUp}
           className="flex items-center gap-2"
         >
-          <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
-          <p className="text-xs text-muted-foreground uppercase tracking-widest">
+          <SlidersHorizontal className="h-3.5 w-3.5 text-white/55" />
+          <p className="text-xs text-white/55 uppercase tracking-widest">
             共 {filtered.length} 個商案
           </p>
         </motion.div>
@@ -235,19 +226,19 @@ export default function KolMarketplacePage() {
 
       {/* ── Error ── */}
       {loadError && (
-        <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{loadError}</div>
+        <div className="rounded-lg border border-red-300/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">{loadError}</div>
       )}
 
       {/* ── Grid ── */}
       {loading ? (
         <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp}
-          className="border border-foreground/15 py-20 text-center">
-          <p className="text-sm text-muted-foreground">載入商案中…</p>
+          className="liquid-glass rounded-2xl py-20 text-center">
+          <p className="text-sm text-white/55">載入商案中…</p>
         </motion.div>
       ) : filtered.length === 0 ? (
         <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp}
-          className="border border-foreground/15 py-20 text-center">
-          <p className="text-sm text-muted-foreground">
+          className="liquid-glass rounded-2xl py-20 text-center">
+          <p className="text-sm text-white/55">
             {projects.length === 0 ? '目前沒有開放申請的商案。' : '找不到符合條件的商案。'}
           </p>
         </motion.div>
@@ -260,45 +251,50 @@ export default function KolMarketplacePage() {
               <motion.div
                 key={project.id}
                 custom={3 + i} initial="hidden" animate="visible" variants={fadeUp}
-                className="border border-foreground/15 hover:border-foreground/40 transition-colors duration-300 flex flex-col"
+                className="liquid-glass rounded-2xl flex flex-col overflow-hidden hover:-translate-y-0.5 transition-transform duration-300"
               >
                 {/* Image placeholder */}
-                <div className="h-24 bg-muted/40 relative overflow-hidden flex items-center justify-center">
-                  <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted/50" />
-                  <p className="relative z-10 text-xs text-foreground/50 px-3 text-center leading-snug">
+                <div className="h-24 relative overflow-hidden flex items-center justify-center">
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        'radial-gradient(ellipse at 30% 30%, rgba(140,190,255,0.18) 0%, rgba(20,40,80,0.35) 70%)',
+                    }}
+                  />
+                  <p className="relative z-10 font-body text-xs text-white/70 px-3 text-center leading-snug">
                     {project.company_name ?? '未知商家'}
                   </p>
                 </div>
 
-                {/* Body */}
                 <div className="p-4 flex flex-col gap-3 flex-1">
                   <div>
-                    <p className="text-[0.7rem] text-muted-foreground mb-0.5">
+                    <p className="text-[0.7rem] text-white/55 mb-0.5">
                       {project.company_name ?? '未知商家'}
                     </p>
-                    <h3 className="text-sm font-medium leading-snug">{project.name}</h3>
+                    <h3 className="font-body text-sm font-medium leading-snug text-white/95">{project.name}</h3>
                     {project.subtitle && (
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{project.subtitle}</p>
+                      <p className="font-body text-xs text-white/55 mt-0.5 line-clamp-1">{project.subtitle}</p>
                     )}
                   </div>
 
                   {project.district_label && (
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5 text-xs text-white/55">
                       <MapPin className="h-3 w-3 shrink-0" />
                       {project.district_label}
                     </div>
                   )}
 
-                  <div className="mt-auto pt-2 border-t border-foreground/10">
+                  <div className="mt-auto pt-2 border-t border-white/10">
                     {applied ? (
-                      <div className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs uppercase tracking-widest">
+                      <div className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-emerald-300/30 bg-emerald-400/10 text-emerald-200 text-xs uppercase tracking-widest">
                         <Check className="h-3 w-3" />
                         已申請
                       </div>
                     ) : (
                       <button
                         onClick={() => setProposingProject(project)}
-                        className="w-full flex items-center justify-between px-4 py-2.5 bg-foreground text-background text-xs uppercase tracking-widest hover:bg-foreground/85 transition-colors group"
+                        className="w-full flex items-center justify-between px-4 py-2.5 rounded-full bg-white text-black text-xs uppercase tracking-widest hover:bg-white/90 transition-colors group"
                       >
                         <span>申請合作</span>
                         <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />

@@ -1,4 +1,4 @@
-# HomeKey KOL Dashboard — Design System
+# PartnerLink KOL Dashboard — Design System
 
 Reference for all established UI patterns across the KOL dashboard. New pages should follow these conventions to stay visually consistent.
 
