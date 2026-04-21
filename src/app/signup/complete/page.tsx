@@ -42,6 +42,8 @@ export default function SignupCompletePage() {
       setAccessToken(session.access_token)
 
       const hinted = (() => {
+        const fromUrl = new URLSearchParams(window.location.search).get('signup_role') ?? ''
+        if (fromUrl === 'kol' || fromUrl === 'merchant') return fromUrl
         try { return sessionStorage.getItem(PENDING_SIGNUP_ROLE_KEY) ?? '' } catch { return '' }
       })()
       const metaSignupRole = typeof session.user.user_metadata?.signup_role === 'string'
