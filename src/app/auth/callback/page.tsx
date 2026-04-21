@@ -3,6 +3,9 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
+import { getRoleFromUser, resolveRoleHomePath } from '@/lib/auth'
+import { PENDING_SIGNUP_ROLE_KEY } from '@/components/auth/GoogleSignInButton'
+import type { Session } from '@supabase/supabase-js'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
@@ -10,10 +13,8 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const url = new URL(window.location.href)
     const params = url.searchParams
-    // Hash fragment is only visible in the browser, not on the server
     const hash = new URLSearchParams(url.hash.slice(1))
 
-    // Handle errors from either query params or hash (Supabase puts errors in both)
     const errorCode =
       params.get('error_code') ?? hash.get('error_code') ?? params.get('error') ?? hash.get('error')
     if (errorCode) {
@@ -30,25 +31,95 @@ export default function AuthCallbackPage() {
     const tokenType = hash.get('type') ?? params.get('type')
     const isRecovery = tokenType === 'recovery'
 
-    const finish = (email: string) => {
-      if (isRecovery || next === '/auth/reset-password') {
-        router.replace('/auth/reset-password')
+    const routeRecovery = () => {
+      router.replace('/auth/reset-password')
+    }
+
+    const routeAfterSession = async (session: Session) => {
+      const user = session.user
+      const token = session.access_token
+      const role = getRoleFromUser(user)
+
+      if (role) {
+        if (next && next.startsWith('/')) { window.location.href = next; return }
+        window.location.href = resolveRoleHomePath(role)
         return
       }
-      router.replace(`/auth/confirmed${email ? `?email=${encodeURIComponent(email)}` : ''}`)
+
+      const metaSignupRole = typeof user.user_metadata?.signup_role === 'string'
+        ? user.user_metadata.signup_role
+        : ''
+      const storedSignupRole = (() => {
+        try { return sessionStorage.getItem(PENDING_SIGNUP_ROLE_KEY) ?? '' } catch { return '' }
+      })()
+      const signupRole = metaSignupRole || storedSignupRole
+
+      if (signupRole === 'kol') {
+        const res = await fetch('/api/auth/complete-kol-signup', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const payload = await res.json().catch(() => null) as { status?: string; code?: string } | null
+        if (res.ok && payload?.status === 'approved') {
+          window.location.href = resolveRoleHomePath('kol')
+          return
+        }
+        if (payload?.status === 'pending_admin_review' || payload?.status === 'denied') {
+          router.replace('/pending-approval')
+          return
+        }
+        if (payload?.code === 'MISSING_APPLICATION') {
+          router.replace('/signup/complete')
+          return
+        }
+        router.replace('/signup/complete')
+        return
+      }
+
+      if (signupRole === 'merchant') {
+        const res = await fetch('/api/auth/complete-merchant-signup', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const payload = await res.json().catch(() => null) as { status?: string; code?: string } | null
+        if (res.ok && payload?.status === 'approved') {
+          window.location.href = resolveRoleHomePath('merchant')
+          return
+        }
+        if (payload?.status === 'pending_admin_review' || payload?.status === 'denied') {
+          router.replace('/merchant-pending-approval')
+          return
+        }
+        if (payload?.code === 'MISSING_APPLICATION') {
+          router.replace('/signup/complete')
+          return
+        }
+        router.replace('/signup/complete')
+        return
+      }
+
+      // Brand-new OAuth user with no role and no signup_role hint.
+      router.replace('/signup/complete')
+    }
+
+    const finish = async (session: Session | null, emailForRecovery: string) => {
+      if (isRecovery || next === '/auth/reset-password') { routeRecovery(); return }
+      if (!session) {
+        router.replace(`/auth/confirmed${emailForRecovery ? `?email=${encodeURIComponent(emailForRecovery)}` : ''}`)
+        return
+      }
+      await routeAfterSession(session)
     }
 
     if (accessToken) {
-      // Implicit flow — token arrives in the hash fragment (never sent to server)
       supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).then(({ data, error }) => {
         if (error || !data.session) { router.replace('/auth/error?error_code=session_failed'); return }
-        finish(data.session.user.email ?? '')
+        void finish(data.session, data.session.user.email ?? '')
       })
     } else if (code) {
-      // PKCE flow fallback — exchange code using browser client
       supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
         if (error || !data.session) { router.replace('/auth/error?error_code=exchange_failed'); return }
-        finish(data.session.user.email ?? '')
+        void finish(data.session, data.session.user.email ?? '')
       })
     } else {
       router.replace('/auth/error?error_code=no_token')

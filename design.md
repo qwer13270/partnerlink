@@ -192,6 +192,114 @@ Uses CSS grid `1fr ⇄ 0fr`, **not** JS `scrollHeight`. Copy that pattern for an
 - Custom SVGs for brand/decorative (wordmark, network nodes, comparison indicators) — inline, use gradient fills via `<linearGradient>` defs.
 - Icon in a "coin": `w-12 h-12` rounded-full with `radial-gradient(circle at 35% 30%, rgba(140,190,255,0.25) 0%, rgba(20,40,80,0.4) 70%)` + `border: 1px solid rgba(255,255,255,0.12)` + `box-shadow: 0 0 30px rgba(140,190,255,0.15)`.
 
+### Top navigation bar
+The default site chrome — a classic fixed top bar, **not** a floating capsule. Full width, 64px tall, `bg-black/80 backdrop-blur-xl` with a `border-b border-white/10` hairline. Logo left, nav links absolutely centered (logged-out only), action cluster right.
+
+```jsx
+<header className="partnerlink-landing fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
+  <div className="mx-auto max-w-7xl px-4 md:px-8 lg:px-12">
+    <div className="flex items-center justify-between h-16 gap-4">
+      <Logo href="/" size="sm" />
+
+      {/* center nav (logged-out only) — underline grows on hover */}
+      <nav className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+        <Link className="relative text-[13px] uppercase tracking-[0.18em] font-body text-white/65 hover:text-white transition-colors duration-200 group py-1">
+          成為 KOL
+          <span className="absolute bottom-0 left-0 w-0 h-px bg-white/85 group-hover:w-full transition-all duration-300 ease-out" />
+        </Link>
+        …
+      </nav>
+
+      {/* right cluster — logged-out */}
+      <div className="hidden md:flex items-center gap-4">
+        <Link className="text-[13px] uppercase tracking-[0.14em] text-white/75 hover:text-white">登入</Link>
+        <div className="w-px h-4 bg-white/15" />
+        <Link className="bg-white text-black rounded-full px-4 py-1.5 text-[13px] font-medium flex items-center gap-1 hover:bg-white/90">
+          立即加入 <ArrowUpRight size={14} />
+        </Link>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div className="h-16" /> {/* spacer for fixed header */}
+```
+
+Rules:
+- Always wrap the `<header>` in `partnerlink-landing` so `font-body` resolves to Barlow.
+- Always pair with a `h-16` spacer div so page content doesn't sit under the fixed bar.
+- Reserve `bg-white text-black` for the single primary CTA. Nav links are text-only with a growing underline — no pills.
+- Chrome is `bg-black/80 backdrop-blur-xl`, never `.liquid-glass` (the full-width bar doesn't need the saturated gradient-border treatment — it would fight the page content scrolling beneath it).
+
+### Top-bar right cluster (logged-in)
+When signed in, the right cluster becomes: role chip (rounded-full outline) · dashboard link · hairline divider · bell · avatar + dropdown chevron. Items sit directly on the bar — no outer capsule.
+
+```jsx
+<div className="hidden md:flex items-center gap-4">
+  {/* rounded-full outline role chip */}
+  <span className="text-[10px] uppercase tracking-[0.25em] text-white/65 border border-white/15 px-2.5 py-1 leading-none rounded-full">
+    KOL
+  </span>
+
+  <Link className="flex items-center gap-1 text-[13px] uppercase tracking-[0.14em] text-white/85 hover:text-white">
+    KOL 後台 <ArrowUpRight className="w-3 h-3" />
+  </Link>
+
+  <div className="w-px h-4 bg-white/15" />
+
+  <HeaderBell role={role} />              {/* 32×32 ghost button, white/75 → white */}
+
+  <button className="flex items-center gap-1.5">
+    <Avatar /* w-7 h-7 ring-1 ring-white/20 bg-white text-black */ />
+    <ChevronDown className="w-3 h-3 text-white/55" />
+  </button>
+</div>
+```
+
+Dropdown panels (notifications, user menu) use `liquid-glass-strong !rounded-2xl`, dividers `border-white/10`, hover row `hover:bg-white/[0.06]`, unread row `bg-white/[0.05]` with a sky-300 dot (`box-shadow: 0 0 6px rgba(140,200,255,0.8)`) at the row's right edge.
+
+### Editorial footer
+Quiet closing surface — a soft radial bloom + faint grid (no animated network), a 12-col brand-and-links grid, ending in a thin copyright bar. Avoid duplicating the landing's `CtaFooter`; this is the footer that appears under sub-pages, not a second hero, so it opens directly with the brand block rather than a marketing CTA.
+
+```jsx
+<footer className="partnerlink-landing relative isolate overflow-hidden bg-black text-white border-t border-white/10">
+  {/* radial bloom */}
+  <div className="pointer-events-none absolute inset-0 -z-10"
+       style={{ background: 'radial-gradient(ellipse at 18% 0%, rgba(50,100,210,0.18), transparent 55%), radial-gradient(ellipse at 82% 100%, rgba(30,70,160,0.12), transparent 60%)' }} />
+  {/* faint grid */}
+  <div className="pointer-events-none absolute inset-0 -z-10 opacity-[0.045]"
+       style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.9) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '90px 90px', maskImage: 'radial-gradient(ellipse at 50% 30%, black 30%, transparent 80%)' }} />
+  {/* top fade-in from black */}
+  <div className="pointer-events-none absolute top-0 left-0 right-0 h-24"
+       style={{ background: 'linear-gradient(to bottom, #000, transparent)' }} />
+
+  {/* 12-col grid: brand 5 / col 2 / col 2 / contact 3 */}
+  <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-20 md:pt-24 pb-14 md:pb-16 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8">…</div>
+
+  {/* hairline + bottom bar */}
+  <div className="relative border-t border-white/10">
+    <div className="… py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] uppercase tracking-[0.18em]">
+      <p className="text-white/45">© 2026 PartnerLink 夥伴.</p>
+      <p className="text-white/40 normal-case tracking-normal text-[12px]">{disclaimer}</p>
+    </div>
+  </div>
+</footer>
+```
+
+Footer column heading idiom — pair an uppercase Latin sub-label with a Chinese italic-serif word, mirroring the bilingual heading pattern at smaller scale:
+
+```jsx
+<div className="mb-5">
+  <p className="text-[10px] uppercase tracking-[0.3em] text-white/40">Platform</p>
+  <p className="font-heading italic text-base text-white/85 mt-0.5">平台</p>
+</div>
+```
+
+Rules:
+- No CTAs in the footer — the landing's `CtaFooter` already handles the marketing close. The footer is brand + links + contact + copyright only.
+- Brand block carries the `<Logo size="sm" />`; do **not** redraw the wordmark.
+- Bottom-bar copyright uses uppercase tracking, but the disclaimer flips to `normal-case tracking-normal` for legibility.
+
 ---
 
 ## 8. Backgrounds
@@ -237,6 +345,7 @@ Checklist when refactoring a page to match:
 - Hover-pause on marquees — explicitly removed.
 - Two solid-white CTAs in one view — reserve for single primary action.
 - Redeclaring `.liquid-glass` locally — always reuse the global utility.
+- Visible browser-default chrome on form inputs — focus rings, search-input decorations, outlines. On this theme every input sits directly on a glass surface with no border and no solid focus ring. `globals.css` already scopes `:focus-visible` under `.partnerlink-landing` to a subtle inset `ring-1 ring-white/25` (no ring-offset) and zeroes out the ring on inputs/textareas/searches/text. Do **not** add `focus:ring-*` overrides on dark-theme inputs — rely on the global rule. Use `type="text"` instead of `type="search"` to sidestep the webkit cancel button.
 
 ---
 

@@ -61,11 +61,11 @@ const BENEFITS = [
 ]
 
 const COMPARISON_ROWS = [
-  { aspect: '付款時機',   traditional: '先付費，不保成效',   homekey: '成交後才支付佣金'   },
-  { aspect: '受眾精準度', traditional: '曝光廣、轉換低',     homekey: '精準觸及目標受眾'   },
-  { aspect: '數據追蹤',   traditional: '難以追蹤真實效果',   homekey: '全程數據透明可查'   },
-  { aspect: '買家信任',   traditional: '買家缺乏信任感',     homekey: 'KOL 口碑建立信任'  },
-  { aspect: '預算控制',   traditional: '預算浪費難量化',     homekey: '行銷預算零浪費'     },
+  { aspect: '付款時機',   traditional: '先付費，不保成效',   partnerlink: '成交後才支付佣金'   },
+  { aspect: '受眾精準度', traditional: '曝光廣、轉換低',     partnerlink: '精準觸及目標受眾'   },
+  { aspect: '數據追蹤',   traditional: '難以追蹤真實效果',   partnerlink: '全程數據透明可查'   },
+  { aspect: '買家信任',   traditional: '買家缺乏信任感',     partnerlink: 'KOL 口碑建立信任'  },
+  { aspect: '預算控制',   traditional: '預算浪費難量化',     partnerlink: '行銷預算零浪費'     },
 ]
 
 const FUNNEL_ROWS = [
@@ -463,7 +463,7 @@ export default function JoinMerchantPage() {
                       className="py-4 px-7 text-center"
                       style={{ background: 'rgba(196,145,58,0.04)' }}
                     >
-                      <span className="text-sm font-medium text-foreground">{row.homekey}</span>
+                      <span className="text-sm font-medium text-foreground">{row.partnerlink}</span>
                     </td>
                   </tr>
                 ))}

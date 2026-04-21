@@ -1,136 +1,95 @@
 # CLAUDE.md
 
-## Project Overview
+## What this is
 
-**HomeKey 房客** is a KOL and merchant platform. It connects KOL and merchants who earn commissions by referring buyers through trackable affiliate links.
+**PartnerLink 夥伴** — a Taiwan-market platform that connects merchants (建案 property developers and 商案 commercial shops) with KOLs. KOLs get trackable referral links (`/r/[code]`) that route visitors to a merchant-owned project page; inquiries and deals are attributed back to the KOL.
 
-## Tech Stack
+See `SPEC.md` for a detailed feature, schema, and API map.
 
-- **Framework**: Next.js (App Router) with TypeScript strict mode
-- **Styling**: Tailwind CSS v4 + shadcn/ui
-- **Charts**: Recharts
-- **Icons**: Lucide React
-- **Animations**: Framer Motion
-- **Backend**: Supabase (auth + database)
-- **Deployment**: Vercel
+## Tech stack
 
-## Dev Commands
+- **Framework**: Next.js 16.1 (App Router) + React 19, TypeScript strict
+- **Styling**: Tailwind v4 + shadcn/ui primitives (`src/components/ui/*`)
+- **Backend**: Supabase (Postgres + Auth + Storage) with RLS on every table
+- **AI**: OpenAI + Anthropic SDKs (project content extraction, audience insights, market trends)
+- **Maps**: Leaflet / react-leaflet
+- **Motion**: Framer Motion
+- **Tests**: Vitest (`src/lib/__tests__/`)
+
+Brand is **PartnerLink** end-to-end (package name, metadata, UI copy). The earlier `homekey`/`房客` naming has been fully retired.
+
+## Dev commands
 
 ```bash
-npm run dev      # Start dev server at localhost:3000
-npm run build    # Production build
-npm run lint     # ESLint
+npm run dev          # localhost:3000
+npm run build
+npm run lint
+npm run test         # vitest run
+npm run test:watch
 ```
 
-## Key Conventions
+## Roles and auth
 
-- **Data layer**: Real API routes in `src/app/api/` backed by Supabase. Some mock data remains in `src/data/` for UI development.
-- **Component style**: Use shadcn/ui components where possible. Extend with Tailwind utility classes.
-- **TypeScript**: Strict mode is on. Avoid `any`.
-- **File naming**: kebab-case for files/folders, PascalCase for components.
+Three roles, stored in `auth.users.app_metadata.role`:
 
-## Architecture Notes
+- `admin` — full platform access, reviews applications
+- `kol` — content creator (approved via `kol_applications`)
+- `merchant` — business (approved via `merchant_applications`, with `merchant_type ∈ {property, shop}`)
 
-- Backend is Supabase. Auth is handled via `src/middleware.ts` and `src/lib/supabase/`. Real API routes live in `src/app/api/`.
-- Remaining mock data in `src/data/` is for UI-only features not yet wired to the backend.
-- Three user roles: **Admin**, **KOL**, **Merchant** — each has its own dashboard section.
+Route guards:
 
-## 代碼風格 / Code Style
+- **Pages**: `src/middleware.ts` guards `/kol/*`, `/merchant/*`, `/admin/*`. Missing user → `/login?next=…`. Wrong role → that user's home.
+- **APIs**: Every route calls `requireApiRole(request, ['role', …])` (or `requireApiUser`) from `src/lib/server/api-auth.ts`. Accepts either a Bearer token or the Supabase SSR cookie. Returns 401/403 `{ error }` on failure.
+- **Signup**: Supabase email signup → `/api/auth/confirm` → `/api/auth/complete-{kol,merchant}-signup` promotes the pending application to `pending_admin_review`. Admin approval flips `app_metadata.role` and creates the `merchant_profiles` row (no equivalent for KOL — approval just grants the role).
+
+### KOL public-profile URL
+
+The public KOL profile lives at `/kols/[username]` (plural `kols`, singular `kol` is the owner dashboard). The `[username]` segment is resolved against `user_metadata.kol_username` — **not** `user_metadata.username`, and not the email prefix. See `deriveUsername()` in `src/app/kols/[username]/page.tsx` for the authoritative fallback chain: `kol_username` → sanitized email prefix (`[^a-z0-9_]` stripped, lowercased). When linking to a KOL's public profile from anywhere in the app, read `kol_username` with this same fallback — using the generic `username` meta will silently link to a non-existent profile.
+
+## Conventions
 
 ### Components
-- Functional components only — no class components
-- `'use client'` directive at the top of client components; server components are `async` functions with no directive
-- Default exports for all components: `export default function ComponentName({ prop }: Props)`
-- Props typed with inline interfaces defined above the function in the same file
-- Shared domain types live in `src/lib/types.ts`; feature-specific types in a `_types.ts` file within the feature folder
+- Functional only; `'use client'` at top for client components, server components are plain `async function`.
+- Default exports: `export default function ComponentName({ … }: Props)`.
+- Props interface inline above the component. Shared domain types in `src/lib/types.ts`; feature-local types in sibling `_types.ts`.
 
-### Data Fetching
-- Pages are server components that fetch data upfront and pass it as props to `'use client'` child components
-- Parallel fetches use `Promise.all()`
-- Supabase: use `getSupabaseAdminClient()` server-side, `getSupabaseBrowserClient()` client-side
-- Client components do not use `useEffect` for initial data fetching — receive pre-fetched props instead
-- When a client component needs live data, fetch via `fetch('/api/...')` with a Bearer token
+### Data fetching
+- Server component pages fetch data upfront and pass as props to `'use client'` children. No `useEffect` for initial loads.
+- Parallel fetches use `Promise.all`.
+- Use `getSupabaseAdminClient()` server-side (service role, bypasses RLS) and `getSupabaseBrowserClient()` in the browser.
+- Client-side live refresh: `fetch('/api/…', { headers: { Authorization: \`Bearer ${token}\` } })`.
 
-### API Routes
-- Named exports for HTTP verbs: `export async function GET(...)`, `export async function POST(...)`
-- Auth check first on every route via `requireApiRole(request, ['role'])`
-- Errors returned as `NextResponse.json({ error: '...' }, { status: ### })`
-- Error logging pattern: `console.error('[api/route-name] operation:', error.message)`
-- Validate request body fields with type checks before use: `typeof body.field === 'string' ? body.field.trim() : ''`
+### API routes
+- `export async function GET/POST/PATCH/DELETE(request: NextRequest, ctx?)`.
+- First line: auth check. Errors: `NextResponse.json({ error }, { status })`. Log with `console.error('[api/route-name] step:', err.message)`.
+- Validate body with `typeof body.x === 'string' ? body.x.trim() : ''` style — never trust shape.
 
 ### Styling
-- All styling via Tailwind utility classes — no CSS modules
-- Use `cn()` from `@/lib/utils` for conditional or merged class names
-- Extract repeated class strings to constants (e.g., status color maps) rather than duplicating inline
+- **Before building any new UI** — component, page, section, or restyle — read `design.md` first. It defines the liquid-glass aesthetic (colour palette, typography, glass surfaces, motion, network motif, bilingual heading idiom) that the product is built around. `docs/DESIGN-SYSTEM.md` has the component-level tokens. Don't invent a new look; compose from the documented patterns.
+- Tailwind utility classes only (no CSS modules). Merge with `cn()` from `@/lib/utils`.
+- Landing, auth, signup, KOL-facing public pages, **and the entire `/kol/*` dashboard** use the **liquid-glass dark theme** from `design.md` (bg-black shell with `partnerlink-landing` font scope, `.liquid-glass` surfaces, `font-heading` italic display + `font-body` text). The KOL dashboard renders through `KOLDashboardLayout` + `SidebarDark`. Only `/merchant/*` and `/admin/*` dashboards remain on the lighter editorial theme set in `globals.css`. Don't mix tokens across the two.
 
-### Error Handling
-- API routes: return appropriate HTTP status codes with a `{ error }` JSON body
-- Client forms: store error in state (`const [submitError, setSubmitError] = useState<string | null>(null)`) and render in UI
-- After Supabase queries, always check `if (error || !data)` before proceeding
-- After `fetch()` calls, check `if (!res.ok)` and parse the error body
+### Errors
+- API: correct HTTP status + `{ error }` body.
+- Client forms: `useState<string | null>` for `submitError`, render inline.
+- Always `if (error || !data)` after Supabase, `if (!res.ok)` after `fetch`.
 
-## Workflow Orchestration
+## Key directories
 
-### 1. Plan Node Default
+- `src/app/` — App Router. Public (`/`, `/properties`, `/shops/[slug]`, `/kols/[username]`, `/r/[code]`), auth (`/login`, `/signup`, `/auth/*`, `/verify-email`, `/pending-approval`), dashboards (`/kol/*`, `/merchant/*`, `/admin/*`), APIs (`/api/*`).
+- `src/components/` — `admin/`, `kol/`, `merchant/`, `landing/`, `layout/`, `login/`, `property/`, `shared/`, `ui/` (shadcn).
+- `src/lib/` — `auth.ts`, `server/api-auth.ts`, `server/properties.ts`, `supabase/*`, `property-template.ts`, `kol-*.ts`, `merchant-application.ts`, `types.ts`, `constants.ts`, `utils.ts`.
+- `src/data/` — remaining mock data for UI-only/unbuilt features (activity, mock KOLs/referrals for admin demo views).
+- `supabase/migrations/` — 36 SQL migrations, single source of truth for schema. No generated TS types checked in.
 
-- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
-- If something goes sideways, STOP and re-plan immediately - don't keep pushing
-- Use plan mode for verification steps, not just building
-- Write detailed specs upfront to reduce ambiguity
+## Mock vs real
 
-### 2. Subagent Strategy
+Most flows are real Supabase. Known mocks (`src/data/` + `useMockData`, `mock-*.ts`): admin activity log, some admin demo tables, `mock-resume` helpers for the public KOL profile fallback. Treat `src/lib/types.ts` with caution — it still uses old `property`/`template_key` shapes from before the `properties → projects` rename; new code uses the project/type names.
 
-- Use subagents liberally to keep main context window clean
-- Offload research, exploration, and parallel analysis to subagents
-- For complex problems, throw more compute at it via subagents
-- One tack per subagent for focused execution
+## Working style
 
-### 3. Self-Improvement Loop
-
-- After ANY correction from the user: update tasks/lessons.md with the pattern
-- Write rules for yourself that prevent the same mistake
-- Ruthlessly iterate on these lessons until mistake rate drops
-- Review lessons at session start for relevant project
-
-### 4. Verification Before Done
-
-- Never mark a task complete without proving it works
-- Diff behavior between main and your changes when relevant
-- Ask yourself: "Would a staff engineer approve this?"
-- Run tests, check logs, demonstrate correctness
-
-### 5. Demand Elegance (Balanced)
-
-- For non-trivial changes: pause and ask "is there a more elegant way?"
-- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
-- Skip this for simple, obvious fixes - don't over-engineer
-- Challenge your own work before presenting it
-
-### 6. Autonomous Bug Fixing
-
-- When given a bug report: just fix it. Don't ask for hand-holding
-- Point at logs, errors, failing tests - then resolve them
-- Zero context switching required from the user
-- Go fix failing CI tests without being told how
-
-## Task Management
-
-1. **Plan First**: Write plan to tasks/todo.md with checkable items
-2. **Verify Plan**: Check in before starting implementation
-3. **Track Progress**: Mark items complete as you go
-4. **Explain Changes**: High-level summary at each step
-5. **Document Results**: Add review section to tasks/todo.md
-6. **Capture Lessons**: Update tasks/lessons.md after corrections
-
-## 測試 / Testing
-
-- **Framework**: Vitest — unit tests for business logic in `src/lib/`
-- **Run tests**: `npm run test` (single run) or `npm run test:watch` (watch mode)
-- After any change to a tested file, run `npm run test` and fix all failures before marking the task done
-- Test files live in `__tests__/` folders next to the code they test (e.g. `src/lib/__tests__/`)
-
-## Core Principles
-
-- **Simplicity First**: Make every change as simple as possible. Impact minimal code.
-- **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
-- **Minimal Impact**: Changes should only touch what's necessary. Avoid introducing bugs.
+- Senior-engineer bar. Find root causes, no temporary patches, minimal diff.
+- Plan mode only for 3+ step or architectural changes. Simple UI/styling edits — just do them.
+- Don't take screenshots or start the dev server unless asked.
+- When correcting a past mistake, append a short rule to `tasks/lessons.md`.
+- This project uses git worktrees under `.claude/worktrees/<name>/`. Before editing, confirm the path prefix matches the active worktree (or the main repo) — don't cross-edit.

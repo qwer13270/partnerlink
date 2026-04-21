@@ -82,7 +82,7 @@ export interface AffiliateLink {
   propertyId: string
   propertyName: string
   propertyNameEn: string
-  link: string                    // e.g., "homekey.tw/p/light-river?ref=sarah_chen"
+  link: string                    // e.g., "partnerlink.tw/p/light-river?ref=sarah_chen"
   clicks: number
   bookings: number
   confirmedSales: number

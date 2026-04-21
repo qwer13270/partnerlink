@@ -15,9 +15,9 @@ export const fadeUp = {
 
 export const LEFT_CONTENT = {
   null: {
-    eyebrow: '加入 HomeKey',
+    eyebrow: '加入 PartnerLink',
     headline: '選擇你的\n合作身份',
-    desc: '無論你是內容創作者或商案商家，HomeKey 都有專屬方案等你加入。',
+    desc: '無論你是內容創作者或商案商家，PartnerLink 都有專屬方案等你加入。',
     stats: [
       { value: '120+',  label: '合作 KOL' },
       { value: '18+',   label: '精選商案' },
