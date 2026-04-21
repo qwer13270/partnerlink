@@ -8,7 +8,7 @@ export const PENDING_SIGNUP_ROLE_KEY = 'partnerlink:pending_signup_role'
 // Flip to true once Google OAuth is configured in Supabase + Google Cloud
 // (see docs/GOOGLE-OAUTH-SETUP.md). While false, the button renders disabled
 // with a "coming soon" label so the UI already shows the option.
-const GOOGLE_OAUTH_ENABLED = false
+const GOOGLE_OAUTH_ENABLED = true
 
 interface Props {
   mode: 'signin' | 'signup'
@@ -26,16 +26,11 @@ export default function GoogleSignInButton({ mode, signupRole, className, nextPa
     setLoading(true)
     setError(null)
 
-    if (signupRole) {
-      try { sessionStorage.setItem(PENDING_SIGNUP_ROLE_KEY, signupRole) } catch {}
-    } else {
-      try { sessionStorage.removeItem(PENDING_SIGNUP_ROLE_KEY) } catch {}
-    }
-
     const supabase = getSupabaseBrowserClient()
     const origin = window.location.origin
     const callbackUrl = new URL('/auth/callback', origin)
     if (nextPath) callbackUrl.searchParams.set('next', nextPath)
+    if (signupRole) callbackUrl.searchParams.set('signup_role', signupRole)
 
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
