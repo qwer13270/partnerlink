@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ExternalLink } from 'lucide-react'
+import { ChevronDown, ExternalLink, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 
 const fadeUp = {
@@ -54,6 +54,25 @@ export default function AdminMerchantsPage() {
   const [merchants, setMerchants]   = useState<Merchant[]>([])
   const [loading, setLoading]       = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Merchant | null>(null)
+  const [deleting, setDeleting]     = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true); setDeleteError('')
+    try {
+      const res = await fetch(`/api/admin/merchants/${deleteTarget.userId}`, { method: 'DELETE' })
+      const payload = (await res.json().catch(() => null)) as { error?: string } | null
+      if (!res.ok) { setDeleteError(payload?.error ?? '刪除失敗，請稍後再試。'); return }
+      setMerchants((prev) => prev.filter((m) => m.userId !== deleteTarget.userId))
+      setDeleteTarget(null)
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : '刪除失敗，請稍後再試。')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   useEffect(() => {
     fetch('/api/admin/merchants', { cache: 'no-store' })
@@ -172,7 +191,15 @@ export default function AdminMerchantsPage() {
                       </span>
                     </div>
 
-                    <div className="w-8 flex justify-end text-muted-foreground">
+                    <div className="w-8 flex justify-end items-center gap-1 text-muted-foreground">
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(merchant); setDeleteError('') }}
+                        className="p-1 hover:text-red-600 transition-colors"
+                        aria-label="Delete merchant"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                       <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
                     </div>
                   </div>
@@ -258,6 +285,68 @@ export default function AdminMerchantsPage() {
           </AnimatePresence>
         )}
       </motion.div>
+
+      {/* Delete confirm modal */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-background/80 backdrop-blur-[2px]"
+              onClick={() => { if (!deleting) setDeleteTarget(null) }}
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, y: 14, scale: 0.99 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.99 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                className="pointer-events-auto w-full max-w-lg bg-background border border-foreground/20 shadow-2xl rounded-2xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-start justify-between px-6 pt-6 pb-5 border-b border-foreground/[0.08]">
+                  <div>
+                    <p className="text-[0.6rem] font-mono uppercase tracking-[0.5em] text-red-600 mb-1">刪除商家</p>
+                    <h3 className="text-xl font-serif">永久刪除 {deleteTarget.companyName}</h3>
+                    <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                      此操作會永久刪除商家帳號、所有商案、上傳的圖片，以及相關紀錄。無法復原。
+                    </p>
+                  </div>
+                  <button type="button" onClick={() => setDeleteTarget(null)} disabled={deleting}
+                    className="mt-0.5 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-black/[0.06] transition-all duration-150 disabled:opacity-40">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="px-6 py-5 space-y-3">
+                  <div className="rounded-lg border border-foreground/[0.08] bg-linen px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground/50 mb-1">商家</p>
+                    <p className="text-sm">
+                      {deleteTarget.companyName}
+                      {deleteTarget.contactName && <> · <span className="text-muted-foreground">{deleteTarget.contactName}</span></>}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      共 {deleteTarget.activeProjects + deleteTarget.archivedProjects} 個商案將一併刪除
+                    </p>
+                  </div>
+                  {deleteError && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{deleteError}</div>
+                  )}
+                </div>
+                <div className="px-6 pb-6 flex justify-end gap-2">
+                  <button type="button" onClick={() => setDeleteTarget(null)} disabled={deleting}
+                    className="rounded-lg bg-black/[0.06] text-foreground/70 font-medium text-[0.78rem] px-4 py-2.5 hover:bg-black/[0.10] active:scale-[0.97] transition-all duration-150 disabled:opacity-40">
+                    取消
+                  </button>
+                  <button type="button" onClick={() => void handleDelete()} disabled={deleting}
+                    className="rounded-lg bg-red-500 text-white font-medium text-[0.78rem] px-4 py-2.5 hover:bg-red-600 active:scale-[0.97] transition-all duration-150 disabled:opacity-40 inline-flex items-center gap-1.5">
+                    <Trash2 className="h-3.5 w-3.5" />
+                    {deleting ? '刪除中…' : '確認刪除'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
 
     </div>
   )

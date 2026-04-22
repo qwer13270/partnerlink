@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ExternalLink } from 'lucide-react'
+import { ChevronDown, ExternalLink, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 
 const fadeUp = {
@@ -50,8 +50,33 @@ function conversionRate(clicks: unknown, conversions: unknown): string {
 }
 
 // ── KOL row ────────────────────────────────────────────────────────────────
-function KolRow({ kol, index }: { kol: KolRecord; index: number }) {
+function KolRow({
+  kol,
+  index,
+  onDeleted,
+}: {
+  kol: KolRecord
+  index: number
+  onDeleted: (userId: string) => void
+}) {
   const [expanded, setExpanded] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+
+  const handleDelete = async () => {
+    setDeleting(true); setDeleteError('')
+    try {
+      const res = await fetch(`/api/admin/kols/${kol.user_id}`, { method: 'DELETE' })
+      const payload = (await res.json().catch(() => null)) as { error?: string } | null
+      if (!res.ok) { setDeleteError(payload?.error ?? '刪除失敗，請稍後再試。'); return }
+      onDeleted(kol.user_id)
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : '刪除失敗，請稍後再試。')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   const platformDisplay = kol.platforms.length > 0
     ? kol.platforms.join(' / ')
@@ -124,6 +149,13 @@ function KolRow({ kol, index }: { kol: KolRecord; index: number }) {
             </Link>
           )}
           <button
+            onClick={() => setDeleteOpen(true)}
+            className="p-1.5 text-muted-foreground hover:text-red-600 transition-colors"
+            aria-label="Delete user"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+          <button
             onClick={() => setExpanded((v) => !v)}
             className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
           >
@@ -131,6 +163,62 @@ function KolRow({ kol, index }: { kol: KolRecord; index: number }) {
           </button>
         </div>
       </div>
+
+      {/* Delete confirm modal */}
+      <AnimatePresence>
+        {deleteOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-background/80 backdrop-blur-[2px]"
+              onClick={() => { if (!deleting) setDeleteOpen(false) }}
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, y: 14, scale: 0.99 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.99 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                className="pointer-events-auto w-full max-w-lg bg-background border border-foreground/20 shadow-2xl rounded-2xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-start justify-between px-6 pt-6 pb-5 border-b border-foreground/[0.08]">
+                  <div>
+                    <p className="text-[0.6rem] font-mono uppercase tracking-[0.5em] text-red-600 mb-1">刪除帳號</p>
+                    <h3 className="text-xl font-serif">永久刪除 {kol.full_name}</h3>
+                    <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                      此操作會永久刪除帳號、所有上傳的檔案以及所有相關紀錄（申請、合作、推薦連結、通知等）。無法復原。
+                    </p>
+                  </div>
+                  <button type="button" onClick={() => setDeleteOpen(false)} disabled={deleting}
+                    className="mt-0.5 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-black/[0.06] transition-all duration-150 disabled:opacity-40">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="px-6 py-5 space-y-3">
+                  <div className="rounded-lg border border-foreground/[0.08] bg-linen px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground/50 mb-1">帳號</p>
+                    <p className="text-sm">{kol.full_name} · <span className="text-muted-foreground">{kol.email}</span></p>
+                  </div>
+                  {deleteError && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{deleteError}</div>
+                  )}
+                </div>
+                <div className="px-6 pb-6 flex justify-end gap-2">
+                  <button type="button" onClick={() => setDeleteOpen(false)} disabled={deleting}
+                    className="rounded-lg bg-black/[0.06] text-foreground/70 font-medium text-[0.78rem] px-4 py-2.5 hover:bg-black/[0.10] active:scale-[0.97] transition-all duration-150 disabled:opacity-40">
+                    取消
+                  </button>
+                  <button type="button" onClick={() => void handleDelete()} disabled={deleting}
+                    className="rounded-lg bg-red-500 text-white font-medium text-[0.78rem] px-4 py-2.5 hover:bg-red-600 active:scale-[0.97] transition-all duration-150 disabled:opacity-40 inline-flex items-center gap-1.5">
+                    <Trash2 className="h-3.5 w-3.5" />
+                    {deleting ? '刪除中…' : '確認刪除'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Expanded detail */}
       <AnimatePresence initial={false}>
@@ -329,7 +417,12 @@ export default function AdminKolsPage() {
           </div>
         ) : (
           filtered.map((kol, i) => (
-            <KolRow key={kol.id} kol={kol} index={4 + i} />
+            <KolRow
+              key={kol.id}
+              kol={kol}
+              index={4 + i}
+              onDeleted={(userId) => setKols((prev) => prev.filter((k) => k.user_id !== userId))}
+            />
           ))
         )}
       </motion.div>

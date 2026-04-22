@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Building2, Calendar, Check, Mail, MapPin, Phone, Search, ShieldAlert, X } from 'lucide-react'
+import { Building2, Calendar, Check, Mail, MapPin, Phone, Search, ShieldAlert, Trash2, X } from 'lucide-react'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
@@ -21,6 +21,7 @@ const MERCHANT_TYPE_LABEL: Record<string, string> = {
 
 type Application = {
   id: string
+  userId: string | null
   email: string
   company: string
   contact: string
@@ -56,6 +57,7 @@ function formatDate(value: string) {
 function toViewModel(row: ApiApplication): Application {
   return {
     id:              row.id,
+    userId:          row.user_id,
     email:           row.email,
     company:         row.company_name,
     contact:         row.contact_name,
@@ -118,6 +120,9 @@ export default function AdminMerchantApplicationsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [denyReason, setDenyReason] = useState('')
   const [rejectModalOpen, setRejectModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   const active = useMemo(() => items.find((item) => item.id === activeId) ?? null, [items, activeId])
 
@@ -149,7 +154,29 @@ export default function AdminMerchantApplicationsPage() {
     setActionError('')
     setDenyReason(active?.rejectionReason ?? '')
     setRejectModalOpen(false)
+    setDeleteModalOpen(false)
+    setDeleteError('')
   }, [activeId, active?.rejectionReason])
+
+  const handleDelete = async () => {
+    if (!active?.userId) return
+    setDeleting(true); setDeleteError('')
+    try {
+      const res = await fetch(`/api/admin/merchants/${active.userId}`, { method: 'DELETE' })
+      const payload = (await res.json().catch(() => null)) as { error?: string } | null
+      if (!res.ok) { setDeleteError(payload?.error ?? '刪除失敗，請稍後再試。'); return }
+      setItems((prev) => {
+        const next = prev.filter((item) => item.id !== active.id)
+        setActiveId((current) => (current === active.id ? next[0]?.id ?? '' : current))
+        return next
+      })
+      setDeleteModalOpen(false)
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : '刪除失敗，請稍後再試。')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   const decide = async (id: string, decision: 'approve' | 'deny') => {
     setActionError(''); setActionLoadingId(id)
@@ -396,6 +423,15 @@ export default function AdminMerchantApplicationsPage() {
                             拒絕
                           </button>
                         )}
+                        {statusFilter === 'denied' && active.userId && (
+                          <button
+                            type="button" onClick={() => { setDeleteError(''); setDeleteModalOpen(true) }}
+                            className="rounded-lg bg-red-500 text-white font-medium text-[0.78rem] px-4 py-2.5 hover:bg-red-600 active:scale-[0.97] transition-all duration-150 disabled:opacity-40 inline-flex items-center gap-1.5"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            永久刪除
+                          </button>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -411,6 +447,62 @@ export default function AdminMerchantApplicationsPage() {
           )}
         </AnimatePresence>
       )}
+
+      {/* Delete modal */}
+      <AnimatePresence>
+        {deleteModalOpen && active && active.userId && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-background/80 backdrop-blur-[2px]"
+              onClick={() => { if (!deleting) setDeleteModalOpen(false) }}
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, y: 14, scale: 0.99 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.99 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                className="pointer-events-auto w-full max-w-lg bg-background border border-foreground/20 shadow-2xl rounded-2xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-start justify-between px-6 pt-6 pb-5 border-b border-foreground/[0.08]">
+                  <div>
+                    <p className="text-[0.6rem] font-mono uppercase tracking-[0.5em] text-red-600 mb-1">刪除帳號</p>
+                    <h3 className="text-xl font-serif">永久刪除 {active.company}</h3>
+                    <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                      此操作會永久刪除此已拒絕申請者的帳號、所有上傳的檔案，以及所有相關紀錄。無法復原。
+                    </p>
+                  </div>
+                  <button type="button" onClick={() => setDeleteModalOpen(false)} disabled={deleting}
+                    className="mt-0.5 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-black/[0.06] transition-all duration-150 disabled:opacity-40">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="px-6 py-5 space-y-3">
+                  <div className="rounded-lg border border-foreground/[0.08] bg-linen px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground/50 mb-1">申請者</p>
+                    <p className="text-sm">{active.company} · <span className="text-muted-foreground">{active.email}</span></p>
+                  </div>
+                  {deleteError && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{deleteError}</div>
+                  )}
+                </div>
+                <div className="px-6 pb-6 flex justify-end gap-2">
+                  <button type="button" onClick={() => setDeleteModalOpen(false)} disabled={deleting}
+                    className="rounded-lg bg-black/[0.06] text-foreground/70 font-medium text-[0.78rem] px-4 py-2.5 hover:bg-black/[0.10] active:scale-[0.97] transition-all duration-150 disabled:opacity-40">
+                    取消
+                  </button>
+                  <button type="button" onClick={() => void handleDelete()} disabled={deleting}
+                    className="rounded-lg bg-red-500 text-white font-medium text-[0.78rem] px-4 py-2.5 hover:bg-red-600 active:scale-[0.97] transition-all duration-150 disabled:opacity-40 inline-flex items-center gap-1.5">
+                    <Trash2 className="h-3.5 w-3.5" />
+                    {deleting ? '刪除中…' : '確認刪除'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Reject modal */}
       <AnimatePresence>

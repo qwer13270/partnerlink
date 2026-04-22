@@ -4,24 +4,9 @@ import { redirect } from 'next/navigation'
 import { getSupabaseUrl, getSupabasePublishableKey } from '@/lib/supabase/env'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getUsernameFromUser, getResumeByUsername, createDefaultResume } from '@/data/mock-resume'
-import type { SocialLinks } from '@/data/mock-resume'
 import { fetchKolPlatformStats } from '@/lib/kol-stats'
+import { platformAccountsToSocialLinks } from '@/lib/kol-social'
 import KolResumeEditClient from './_client'
-
-function platformAccountsToSocialLinks(accounts: Record<string, string>): SocialLinks {
-  const links: SocialLinks = {}
-  for (const [platform, value] of Object.entries(accounts)) {
-    if (!value) continue
-    switch (platform.toLowerCase()) {
-      case 'instagram': links.instagram = value; break
-      case 'tiktok':    links.tiktok    = value; break
-      case 'facebook':  links.facebook  = value; break
-      case 'youtube':   links.youtube   = value; break
-      case 'website':   links.website   = value; break
-    }
-  }
-  return links
-}
 
 export default async function KolResumeEditPage() {
   const cookieStore = await cookies()
