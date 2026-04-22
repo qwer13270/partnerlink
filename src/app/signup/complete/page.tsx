@@ -10,6 +10,7 @@ import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 import { getRoleFromUser, resolveRoleHomePath } from '@/lib/auth'
 import { PENDING_SIGNUP_ROLE_KEY } from '@/components/auth/GoogleSignInButton'
 import { CITIES, FOLLOWER_RANGES, CONTENT_TYPES, PROJECT_COUNTS } from '../_constants'
+import { KolPlatformAccountsStep } from '../_components/KolPlatformAccountsStep'
 import type { MerchantType } from '@/lib/merchant-application'
 import type { User } from '@supabase/supabase-js'
 
@@ -18,8 +19,16 @@ const USERNAME_RE = /^[a-z0-9_]{3,20}$/
 const darkLabel = 'block text-[10px] uppercase tracking-[0.3em] text-white/50 mb-2 font-body'
 const darkInput = 'w-full bg-transparent border-b border-white/20 py-3 text-sm text-white placeholder:text-white/25 outline-none focus:border-white/60 transition-colors duration-200'
 
-type View = 'loading' | 'role' | 'merchant-type' | 'kol-form' | 'merchant-form'
+type View = 'loading' | 'role' | 'merchant-type' | 'kol-form' | 'kol-platforms' | 'merchant-form'
 type UsernameStatus = 'idle' | 'checking' | 'available' | 'taken' | 'error'
+
+type KolDraft = {
+  fullName: string
+  username: string
+  followerRange: string
+  contentType: string
+  bio: string
+}
 
 export default function SignupCompletePage() {
   const router = useRouter()
@@ -27,6 +36,7 @@ export default function SignupCompletePage() {
   const [user, setUser] = useState<User | null>(null)
   const [accessToken, setAccessToken] = useState<string>('')
   const [merchantType, setMerchantType] = useState<MerchantType | null>(null)
+  const [kolDraft, setKolDraft] = useState<KolDraft | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -72,6 +82,7 @@ export default function SignupCompletePage() {
 
   const goBack = () => {
     setError('')
+    if (view === 'kol-platforms') { setView('kol-form'); return }
     if (view === 'merchant-form') { setView('merchant-type'); return }
     if (view === 'merchant-type' || view === 'kol-form') { setMerchantType(null); setView('role'); return }
   }
@@ -93,10 +104,16 @@ export default function SignupCompletePage() {
     try { sessionStorage.removeItem(PENDING_SIGNUP_ROLE_KEY) } catch {}
   }
 
-  const submitKol = async (input: {
-    fullName: string; username: string; followerRange: string; contentType: string; bio: string;
-  }) => {
-    if (!user) return
+  const handleKolFormNext = (input: KolDraft) => {
+    setError('')
+    setKolDraft(input)
+    setView('kol-platforms')
+  }
+
+  const submitKolWithPlatforms = async ({
+    platforms, platformAccounts,
+  }: { platforms: string[]; platformAccounts: Record<string, string> }) => {
+    if (!user || !kolDraft) return
     setSubmitting(true); setError('')
     try {
       await ensureSignupRoleMetadata('kol')
@@ -107,12 +124,12 @@ export default function SignupCompletePage() {
         body: JSON.stringify({
           userId: user.id,
           email: user.email,
-          fullName: input.fullName,
-          platforms: [],
-          platformAccounts: {},
-          followerRange: input.followerRange,
-          contentType: input.contentType,
-          bio: input.bio,
+          fullName: kolDraft.fullName,
+          platforms,
+          platformAccounts,
+          followerRange: kolDraft.followerRange,
+          contentType: kolDraft.contentType,
+          bio: kolDraft.bio,
           photos: [], videos: [],
         }),
       })
@@ -123,7 +140,7 @@ export default function SignupCompletePage() {
       }
       // Save username into user_metadata for the public profile lookup.
       const supabase = getSupabaseBrowserClient()
-      await supabase.auth.updateUser({ data: { kol_username: input.username, full_name: input.fullName } })
+      await supabase.auth.updateUser({ data: { kol_username: kolDraft.username, full_name: kolDraft.fullName } })
 
       const completeRes = await fetch('/api/auth/complete-kol-signup', {
         method: 'POST',
@@ -247,10 +264,21 @@ export default function SignupCompletePage() {
               {view === 'kol-form' && (
                 <KolInlineForm
                   key="kol"
+                  initial={kolDraft}
                   onBack={goBack}
-                  onSubmit={submitKol}
+                  onSubmit={handleKolFormNext}
                   submitting={submitting}
                   error={error}
+                />
+              )}
+
+              {view === 'kol-platforms' && (
+                <KolPlatformAccountsStep
+                  key="kol-platforms"
+                  onBack={goBack}
+                  onSubmit={submitKolWithPlatforms}
+                  error={error}
+                  submitting={submitting}
                 />
               )}
 
@@ -335,20 +363,21 @@ function MerchantTypeView({ onBack, onSelect }: { onBack: () => void; onSelect: 
 }
 
 function KolInlineForm({
-  onBack, onSubmit, submitting, error,
+  initial, onBack, onSubmit, submitting, error,
 }: {
+  initial: KolDraft | null
   onBack: () => void
   onSubmit: (input: { fullName: string; username: string; followerRange: string; contentType: string; bio: string }) => void
   submitting: boolean
   error: string
 }) {
-  const [fullName, setFullName] = useState('')
-  const [username, setUsername] = useState('')
+  const [fullName, setFullName] = useState(initial?.fullName ?? '')
+  const [username, setUsername] = useState(initial?.username ?? '')
   const [usernameTouched, setUsernameTouched] = useState(false)
   const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>('idle')
-  const [followerRange, setFollowerRange] = useState('')
-  const [contentType, setContentType] = useState('')
-  const [bio, setBio] = useState('')
+  const [followerRange, setFollowerRange] = useState(initial?.followerRange ?? '')
+  const [contentType, setContentType] = useState(initial?.contentType ?? '')
+  const [bio, setBio] = useState(initial?.bio ?? '')
 
   useEffect(() => {
     if (!USERNAME_RE.test(username)) { setUsernameStatus('idle'); return }
@@ -446,7 +475,7 @@ function KolInlineForm({
             disabled={!canSubmit || submitting}
             className="group w-full flex items-center justify-between px-6 py-3.5 bg-white text-black rounded-full text-sm font-body font-medium hover:bg-white/90 disabled:opacity-50 transition-colors"
           >
-            <span>{submitting ? '送出中…' : '送出申請'}</span>
+            <span>下一步</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </button>
         </div>

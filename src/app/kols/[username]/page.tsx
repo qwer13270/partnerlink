@@ -7,38 +7,11 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import {
   type ResumeViewerRole,
   type ResumeMediaItem,
-  type SocialLinks,
   type KolResumeData,
 } from '@/data/mock-resume'
 import KolResumePage from '@/components/kol/KolResumePage'
 import { fetchKolPlatformStats } from '@/lib/kol-stats'
-
-function toFullUrl(platform: string, value: string): string {
-  if (value.startsWith('http://') || value.startsWith('https://')) return value
-  const handle = value.replace(/^@/, '')
-  switch (platform) {
-    case 'instagram': return `https://instagram.com/${handle}`
-    case 'tiktok':    return `https://tiktok.com/@${handle}`
-    case 'facebook':  return `https://facebook.com/${handle}`
-    case 'youtube':   return `https://youtube.com/@${handle}`
-    default:          return `https://${value}`
-  }
-}
-
-function platformAccountsToSocialLinks(accounts: Record<string, string>): SocialLinks {
-  const links: SocialLinks = {}
-  for (const [platform, value] of Object.entries(accounts)) {
-    if (!value) continue
-    switch (platform.toLowerCase()) {
-      case 'instagram': links.instagram = toFullUrl('instagram', value); break
-      case 'tiktok':    links.tiktok    = toFullUrl('tiktok',    value); break
-      case 'facebook':  links.facebook  = toFullUrl('facebook',  value); break
-      case 'youtube':   links.youtube   = toFullUrl('youtube',   value); break
-      case 'website':   links.website   = toFullUrl('website',   value); break
-    }
-  }
-  return links
-}
+import { platformAccountsToSocialLinks } from '@/lib/kol-social'
 
 function deriveUsername(user: { email?: string | null; user_metadata?: Record<string, unknown> }): string {
   const stored = user.user_metadata?.kol_username
