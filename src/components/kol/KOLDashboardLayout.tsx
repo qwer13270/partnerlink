@@ -96,7 +96,7 @@ export default function KOLDashboardLayout({ children }: KOLDashboardLayoutProps
         html, body { background-color: #000; }
       `}</style>
 
-      <div className="relative z-10 flex min-h-screen max-w-[1488px] mx-auto">
+      <div className="relative z-10 flex min-h-screen lg:pl-12 xl:pl-20">
         <SidebarDark items={sidebarItems} translationNamespace="kol" user={sidebarUser} />
 
         <div className="flex-1 min-w-0 flex flex-col">
