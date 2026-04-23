@@ -15,6 +15,8 @@ import AboutSection from '@/components/landing/AboutSection';
 import FeatureSteps from '@/components/landing/FeatureSteps';
 import FaqSection from '@/components/landing/FaqSection';
 import FeaturesChess, { ScrollArc } from '@/components/landing/FeaturesChess';
+import PricingSection from '@/components/landing/PricingSection';
+import OutstandingKOLs from '@/components/landing/OutstandingKOLs';
 import BlurText from '@/components/landing/BlurText';
 import MotionDiv from '@/components/landing/Motion';
 import { useRevealOnScroll } from '@/components/landing/use-reveal-on-scroll';
@@ -40,7 +42,7 @@ function Navbar() {
   return (
     <nav className="fixed top-4 left-0 right-0 z-50 px-8 lg:px-16 py-3">
       <div className="flex items-center justify-between">
-        <Logo href="/#top" />
+        <Logo href="/#top" size="sm" />
 
         <div className="liquid-glass rounded-full px-1.5 py-1 flex items-center gap-0">
           <Link
@@ -109,7 +111,7 @@ function Hero() {
           initial={{ filter: 'blur(10px)', opacity: 0, transform: 'translateY(20px)' }}
           animate={{ filter: 'blur(0px)', opacity: 1, transform: 'translateY(0px)' }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="mt-6 text-sm md:text-base text-white font-body font-light leading-tight max-w-md"
+          className="mt-6 text-base md:text-lg text-white font-body font-light leading-tight max-w-xl"
         >
           連結商家與KOL，創造共贏的行銷生態
         </MotionDiv>
@@ -141,18 +143,18 @@ function Hero() {
 /* ---------------- Features Grid (Comparison) ---------------- */
 function FeaturesGrid() {
   const ours = [
-    '即時媒合，AI 自動篩選合適 KOL',
-    '一站式管理：邀請、溝通、簽約、結案',
-    '透明數據報表，ROI 一目了然',
-    '自動化流程，減少行政負擔',
-    '專屬團隊協助，從策略到執行',
+    '上百位 KOL 任你挑選合作',
+    '合作流程透明快速',
+    '一鍵建立商案網站',
+    '一站式管理：編輯商案、查看客戶、成效表現',
+    'AI 分析商案，更進一步提高轉換率',
   ];
   const theirs = [
-    '手動發 DM，逐一寄信聯絡',
-    '合作細節散落在訊息、表單、Email',
-    '活動結束才拿到 PDF 報告',
-    '重複性作業多，人力成本高',
-    '出事才找得到人，支援不穩定',
+    '人脈有限，難以找到合適 KOL',
+    '合作流程不透明，來回溝通耗時',
+    '需自行架站或外包，費時又費錢',
+    '邀約、商案、客戶、成效散落各處管理',
+    '缺乏數據洞察，轉換率只能靠經驗猜測',
   ];
 
   const { ref, visible } = useRevealOnScroll({ threshold: 0.05, rootMargin: '0px 0px -10% 0px' });
@@ -198,7 +200,7 @@ function FeaturesGrid() {
         <h2 className="font-heading text-white tracking-tight leading-[1.1] text-4xl md:text-5xl lg:text-6xl">
           為何選擇我們<span style={{ fontStyle: 'italic' }} className="text-white/90">而非其他平台</span>
         </h2>
-        <p className="mt-6 text-white/60 font-body font-light text-sm md:text-base max-w-2xl">
+        <p className="mt-6 text-white/60 font-body font-light text-base md:text-lg max-w-2xl">
           比較看看，為什麼越來越多商家與 KOL 選擇我們的平台。
         </p>
       </div>
@@ -324,7 +326,7 @@ function CtaFooter() {
             加入平台，<span style={{ fontStyle: 'italic' }} className="text-white/90">開始合作</span>
           </h2>
 
-          <p className="mt-7 text-white/70 font-body font-light text-sm md:text-base max-w-xl mx-auto">
+          <p className="mt-7 text-white/70 font-body font-light text-base md:text-lg max-w-xl mx-auto">
             無論你是想擴大品牌影響力的商家，還是想接到對的案子的 KOL——
             註冊即可開始媒合，零門檻加入我們的合作生態。
           </p>
@@ -400,8 +402,10 @@ export default function HomePage() {
             )}
             <FeaturesChess hideArc />
             <FeaturesGrid />
+            <PricingSection />
           </div>
-          <Stats />
+          {/* <Stats /> */}
+          <OutstandingKOLs />
           <FaqSection />
           <CtaFooter />
         </div>

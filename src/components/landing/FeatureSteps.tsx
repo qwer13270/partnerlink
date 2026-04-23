@@ -60,15 +60,13 @@ function MatchPreview({ active }) {
           100% { opacity: 0 }
         }
         @keyframes fs-cursor {
-          0%   { left: 10%;  top: 12%; opacity: 1 }
-          18%  { left: 78%;  top: 10% }
-          30%  { left: 40%;  top: 28% }
-          45%  { left: 18%;  top: 55% }
-          60%  { left: 62%;  top: 60% }
-          78%  { left: 78%;  top: 82% }
-          84%  { left: 78%;  top: 82%; transform: scale(0.75) }
-          88%  { left: 78%;  top: 82%; transform: scale(1) }
-          95%,100% { left: 78%; top: 82%; opacity: 0 }
+          0%   { left: 10%; top: 10%; opacity: 1; transform: scale(1) }
+          25%  { left: 58%; top: 22%; opacity: 1; transform: scale(1) }
+          50%  { left: 30%; top: 58%; opacity: 1; transform: scale(1) }
+          78%  { left: 78%; top: 82%; opacity: 1; transform: scale(1) }
+          84%  { left: 78%; top: 82%; opacity: 1; transform: scale(0.78) }
+          88%  { left: 78%; top: 82%; opacity: 1; transform: scale(1) }
+          95%,100% { left: 78%; top: 82%; opacity: 0; transform: scale(1) }
         }
       `}</style>
       <div
@@ -156,7 +154,7 @@ function MatchPreview({ active }) {
           <div
             className="absolute w-2 h-2 pointer-events-none"
             style={{
-              animation: 'fs-cursor 5s ease-in-out infinite',
+              animation: 'fs-cursor 5s cubic-bezier(0.45, 0, 0.55, 1) infinite',
             }}
           >
             <svg viewBox="0 0 12 12" className="w-full h-full">
@@ -172,36 +170,35 @@ function MatchPreview({ active }) {
 function CampaignPreview({ active }) {
   // 5 "KOL resume" cards — scan through 0..3, land on #4 (the chosen one)
   const RESUMES = [
-    { name: '@mira.k',   tag: 'Fashion',   avatar: 'linear-gradient(135deg,#f472b6,#a855f7)' },
-    { name: '@rey.code', tag: 'Tech',      avatar: 'linear-gradient(135deg,#34d399,#0ea5e9)' },
-    { name: '@nadia.v',  tag: 'Beauty',    avatar: 'linear-gradient(135deg,#fbbf24,#f97316)' },
-    { name: '@leo.fit',  tag: 'Fitness',   avatar: 'linear-gradient(135deg,#60a5fa,#6366f1)' },
-    { name: '@sana.tw',  tag: 'Lifestyle', avatar: 'linear-gradient(135deg,#c4b5fd,#60a5fa)' }, // the chosen
+    { name: '@mira.k',   tag: 'Fashion',   avatar: 'radial-gradient(circle at 35% 30%, #233456 0%, #070d1c 75%)' },
+    { name: '@rey.code', tag: 'Tech',      avatar: 'radial-gradient(circle at 35% 30%, #1d2a47 0%, #05091a 75%)' },
+    { name: '@nadia.v',  tag: 'Beauty',    avatar: 'radial-gradient(circle at 35% 30%, #2a3c66 0%, #080f24 75%)' },
+    { name: '@leo.fit',  tag: 'Fitness',   avatar: 'radial-gradient(circle at 35% 30%, #1f2d4d 0%, #060b1c 75%)' },
+    { name: '@sana.tw',  tag: 'Lifestyle', avatar: 'radial-gradient(circle at 35% 30%, #3a5ea0 0%, #0a1430 80%)' }, // the chosen — brighter blue
   ];
 
   return (
     <div className="w-full h-full relative p-5">
       <style>{`
         @keyframes fs-resume-scan {
-          0%,4%   { transform: translateY(0); opacity: 1 }
-          14%,18% { transform: translateY(-20%); }
-          28%,32% { transform: translateY(-40%); }
-          42%,46% { transform: translateY(-60%); }
-          58%,93% { transform: translateY(-80%); opacity: 1 }
-          100% { transform: translateY(-80%); opacity: 0 }
+          0%    { transform: translateY(0); opacity: 0 }
+          6%    { opacity: 1 }
+          55%   { transform: translateY(-80%); opacity: 1 }
+          93%   { transform: translateY(-80%); opacity: 1 }
+          100%  { transform: translateY(-80%); opacity: 0 }
         }
         @keyframes fs-resume-scanline {
           0%,58%   { opacity: 0.8 }
           68%,100% { opacity: 0 }
         }
         @keyframes fs-resume-chosen {
-          0%,58%   { box-shadow: 0 0 0 0 rgba(120,170,255,0); background: rgba(255,255,255,0.04); }
-          70%,93% { box-shadow: 0 0 0 1.5px rgba(150,200,255,0.9), 0 0 18px rgba(120,170,255,0.35); background: rgba(120,170,255,0.12); opacity: 1 }
+          0%,50%   { box-shadow: 0 0 0 0 rgba(120,170,255,0); background: rgba(255,255,255,0.04); }
+          62%,93% { box-shadow: 0 0 0 1.5px rgba(150,200,255,0.9), 0 0 18px rgba(120,170,255,0.35); background: rgba(120,170,255,0.12); opacity: 1 }
           100% { box-shadow: 0 0 0 1.5px rgba(150,200,255,0.9), 0 0 18px rgba(120,170,255,0.35); background: rgba(120,170,255,0.12); opacity: 0 }
         }
         @keyframes fs-resume-check {
-          0%,66%   { opacity: 0; transform: scale(0.6); }
-          74%,93% { opacity: 1; transform: scale(1); }
+          0%,58%   { opacity: 0; transform: scale(0.6); }
+          68%,93% { opacity: 1; transform: scale(1); }
           100% { opacity: 0; transform: scale(1); }
         }
         @keyframes fs-invite-btn {
@@ -259,7 +256,7 @@ function CampaignPreview({ active }) {
             className="absolute inset-x-0 top-0 flex flex-col"
             style={{
               height: `${RESUMES.length * 100}%`,
-              animation: active ? 'fs-resume-scan 5s cubic-bezier(0.7,0.05,0.3,0.95) infinite' : 'none',
+              animation: active ? 'fs-resume-scan 5s cubic-bezier(0.33, 1, 0.68, 1) infinite' : 'none',
             }}
           >
             {RESUMES.map((r, i) => {
@@ -277,7 +274,11 @@ function CampaignPreview({ active }) {
                 >
                   <div
                     className="w-4 h-4 rounded-full flex-shrink-0"
-                    style={{ background: r.avatar }}
+                    style={{
+                      background: r.avatar,
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
+                    }}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="h-1 w-[70%] bg-white/55 rounded-full mb-1" />
@@ -396,8 +397,7 @@ function AnalyticsPreview({ active }) {
           0%   { transform: translate(-50%, -50%) translateX(0px);   opacity: 0; }
           10%  { transform: translate(-50%, -50%) translateX(20px);  opacity: 1; }
           60%  { transform: translate(-50%, -50%) translateX(210px); opacity: 1; }
-          75%  { transform: translate(-50%, -50%) translateX(250px); opacity: 0; }
-          100% { transform: translate(-50%, -50%) translateX(260px); opacity: 0; }
+          75%, 100% { transform: translate(-50%, -50%) translateX(210px); opacity: 0; }
         }
         /* Wire dash flowing left → right */
         @keyframes fs-wire-flow {
@@ -565,7 +565,11 @@ function AnalyticsPreview({ active }) {
           >
             <div
               className="relative w-6 h-6 rounded-full flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg,#c4b5fd,#60a5fa)' }}
+              style={{
+                background: 'radial-gradient(circle at 35% 30%, #3a5ea0 0%, #0a1430 80%)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)',
+              }}
             >
               {/* Receive check badge */}
               <div
@@ -737,7 +741,7 @@ function FeatureSteps() {
         <h2 className="font-heading text-white tracking-tight leading-[1.1] text-4xl md:text-5xl lg:text-6xl max-w-3xl mx-auto">
           三個步驟,<span style={{ fontStyle: 'italic' }} className="text-white/90">啟動你的商案</span>
         </h2>
-        <p className="mt-5 text-white/70 font-body font-light text-sm md:text-base max-w-xl mx-auto">
+        <p className="mt-5 text-white/70 font-body font-light text-base md:text-lg max-w-xl mx-auto">
           從建立商案到合作與分潤，所有流程集中於同一平台，簡單又高效
         </p>
       </div>
