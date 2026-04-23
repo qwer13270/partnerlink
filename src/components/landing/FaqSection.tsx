@@ -11,23 +11,23 @@ import { ArrowUpRight } from 'lucide-react';
 const FAQS = [
   {
     q: '平台支援哪些類型的合作案？',
-    a: '我們支援各類品牌合作，包含 Instagram、YouTube、TikTok、部落格等社群平台的內容合作，也涵蓋短影音、直播、聯名商品等多種形式。',
+    a: '我們支援各類品牌合作，包含建案、品牌商品、傳產等，各種 B2C 與 B2B 合作案皆可透過平台媒合。無論您是推廣新建案、實體商品，或是專業服務，PartnerLink 都能協助您找到合適的 KOL 夥伴。',
   },
   {
-    q: '使用平台需要任何技術背景嗎？',
-    a: '完全不需要。我們的介面設計注重直覺操作，從建立商案、挑選 KOL 到後續追蹤成效，所有流程都能在幾個步驟內完成，不需要寫程式或設定工具。',
+    q: '如果已經有現有網頁，能串接到 PartnerLink 平台嗎？',
+    a: '此功能目前正在開發中，未來將開放 API 串接與自訂網域整合。現階段建議先使用我們提供的網站模板，快速建立專屬品牌頁面開始合作。',
   },
   {
-    q: '平台如何確保合作品質？',
-    a: '我們透過 AI 媒合演算法，根據創作者的受眾輪廓、過往成效與合作評價，為每個商案推薦最合適的對象，並提供完整的合約與驗收流程。',
+    q: 'KOL 的佣金與服務費如何計算？會有隱藏費用嗎？',
+    a: '費用完全透明，無任何隱藏收費。建案方案成交時收取 2-0.5% 服務費（依方案而定）；商案方案則依合作類型收取互惠中介費或業配服務費。KOL 佣金 100% 歸 KOL 所有，PartnerLink 不從 KOL 端抽成。',
   },
   {
-    q: '從媒合到完成合作大約需要多久？',
-    a: '一般從建立商案到 KOL 完成內容產出約 7-14 天，視合作複雜度而定。平台所有步驟皆有明確時程提示，方便雙方掌握進度。',
+    q: '如何媒合到適合我品牌的 KOL？',
+    a: '平台內建 AI 客群分析系統，會根據您的商品屬性、目標客群與地區，自動推薦合適的 KOL 人選。您也可以主動瀏覽 KOL 資料庫，依粉絲數、合作領域、過往成效等條件篩選，並直接發送合作邀請。',
   },
   {
-    q: '分潤與付款方式是如何運作的？',
-    a: '所有款項皆透過平台托管，商家預先存入款項，待 KOL 完成驗收後平台自動結算，並支援多種出款方式，保障雙方權益透明且即時。',
+    q: '成交或合作款項何時撥款？退款政策為何？',
+    a: '成交案件確認後，款項將於 7 個工作天內結算至您的帳戶。若合作過程中發生爭議（如 KOL 未依約執行、交易取消等），平台提供爭議處理機制，相關款項將暫緩撥付直至雙方達成共識。詳細條款請參閱服務合約。',
   },
 ];
 
@@ -79,7 +79,7 @@ function FaqItem({ item, isOpen, onClick, index }) {
         <div style={{ overflow: 'hidden', minHeight: 0 }}>
           <div className="px-5 md:px-6 pb-5 pt-0">
             <div className="h-px bg-white/10 mb-4" />
-            <p className="font-body font-light text-white/65 text-[13px] md:text-sm leading-relaxed">
+            <p className="font-body font-light text-white/65 text-sm md:text-base leading-relaxed">
               {item.a}
             </p>
           </div>
@@ -118,7 +118,7 @@ function FaqSection() {
           <span className="italic">問題</span>
         </h2>
 
-        <p className="mt-6 text-white/65 font-body font-light text-sm md:text-base max-w-xl mx-auto">
+        <p className="mt-6 text-white/65 font-body font-light text-base md:text-lg max-w-xl mx-auto">
           解答你對平台最常見的疑惑，讓你更快上手。
         </p>
       </div>

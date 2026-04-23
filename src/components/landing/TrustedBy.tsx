@@ -165,8 +165,8 @@ function TrustedBy() {
           Trusted by
           <span className="w-6 h-px bg-white/25" />
         </div>
-        <p className="mt-4 text-white/80 font-body font-light text-sm md:text-base max-w-xl mx-auto">
-          已有這些品牌與創作者透過我們完成合作媒合
+        <p className="mt-4 text-white/80 font-body font-light text-base md:text-lg max-w-xl mx-auto">
+          與我們一起成長的品牌
         </p>
       </div>
 

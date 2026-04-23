@@ -302,6 +302,344 @@ function PreviewStrategy() {
   );
 }
 
+/* ---------- New previews (mapped 1:1 to the 5 service titles) ----------
+   Originals above are intentionally kept in this file as legacy so the
+   wiring can be reverted by swapping component names back in the Cards. */
+
+// (1) 一鍵生成商案網站 — modular site blocks snapping in with AI sparkle
+function PreviewGenerate() {
+  return (
+    <div className="w-full h-full relative p-6 flex items-center justify-center">
+      <style>{`
+        @keyframes fc-gen-block { 0%,100% { opacity: 0.55 } 50% { opacity: 1 } }
+        @keyframes fc-gen-spark { 0%,100% { transform: scale(1); opacity: 0.75 } 50% { transform: scale(1.15); opacity: 1 } }
+      `}</style>
+      <div
+        className="w-full max-w-[230px] rounded-xl overflow-hidden relative"
+        style={{
+          background: 'rgba(10,14,22,0.7)',
+          border: '1px solid rgba(255,255,255,0.10)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+        }}
+      >
+        {/* browser chrome */}
+        <div className="flex items-center gap-1 px-2 py-1.5 border-b border-white/10">
+          <span className="w-1.5 h-1.5 rounded-full bg-white/25" />
+          <span className="w-1.5 h-1.5 rounded-full bg-white/25" />
+          <span className="w-1.5 h-1.5 rounded-full bg-white/25" />
+        </div>
+        {/* modular blocks */}
+        <div className="p-2.5 flex flex-col gap-1.5">
+          <div
+            className="h-4 rounded-sm"
+            style={{
+              background: 'linear-gradient(90deg, rgba(140,190,255,0.5), rgba(140,190,255,0.1))',
+              animation: 'fc-gen-block 2.4s ease-in-out 0s infinite',
+            }}
+          />
+          <div className="grid grid-cols-3 gap-1.5">
+            {[0, 0.2, 0.4].map((d, i) => (
+              <div
+                key={i}
+                className="h-8 rounded-sm"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  animation: `fc-gen-block 2.4s ease-in-out ${d}s infinite`,
+                }}
+              />
+            ))}
+          </div>
+          <div className="h-1 rounded-full w-[70%] bg-white/30" />
+          <div className="h-1 rounded-full w-[50%] bg-white/20" />
+        </div>
+        {/* AI sparkle badge */}
+        <div
+          className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center"
+          style={{
+            background: 'radial-gradient(circle at 35% 30%, #1a2942 0%, #050a18 70%)',
+            boxShadow: '0 0 12px rgba(140,190,255,0.5)',
+            border: '1px solid rgba(255,255,255,0.18)',
+            animation: 'fc-gen-spark 2s ease-in-out infinite',
+          }}
+        >
+          <svg viewBox="0 0 20 20" className="w-3 h-3 text-white">
+            <path d="M10 2 L11.3 8.5 L17.5 9.8 L11.3 11.2 L10 18 L8.7 11.2 L2.5 9.8 L8.7 8.5 Z" fill="currentColor" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// (2) AI 分析商案 — document with scan beam, analysis tags emerging
+function PreviewAnalysis() {
+  const tags = ['定位', '亮點', '受眾'];
+  return (
+    <div className="w-full h-full relative p-6 flex items-center justify-center gap-3">
+      <style>{`
+        @keyframes fc-ana-scan { 0%,100% { top: 10% } 50% { top: 72% } }
+        @keyframes fc-ana-tag { 0%,100% { opacity: 0.5; transform: translateX(-3px) } 50% { opacity: 1; transform: translateX(0) } }
+      `}</style>
+      {/* Document */}
+      <div
+        className="relative w-[72px] h-[96px] rounded-md overflow-hidden flex-shrink-0"
+        style={{
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.12)',
+        }}
+      >
+        <div className="p-2 flex flex-col gap-1">
+          <div className="h-1 w-[80%] rounded-full bg-white/55" />
+          <div className="h-0.5 w-[60%] rounded-full bg-white/30" />
+          <div className="h-0.5 w-[90%] rounded-full bg-white/30" />
+          <div className="h-0.5 w-[70%] rounded-full bg-white/30" />
+          <div className="h-0.5 w-[85%] rounded-full bg-white/30" />
+          <div className="h-0.5 w-[50%] rounded-full bg-white/30" />
+        </div>
+        {/* scan line */}
+        <div
+          className="absolute left-0 right-0 h-[2px]"
+          style={{
+            background: 'linear-gradient(90deg, transparent, rgba(140,190,255,1), transparent)',
+            boxShadow: '0 0 8px rgba(140,190,255,0.8)',
+            animation: 'fc-ana-scan 2.8s ease-in-out infinite',
+          }}
+        />
+      </div>
+      {/* connector */}
+      <div className="flex items-center gap-1">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="w-1 h-0.5 rounded-full bg-white/25" />
+        ))}
+      </div>
+      {/* Tags */}
+      <div className="flex flex-col gap-1.5">
+        {tags.map((t, i) => (
+          <div
+            key={i}
+            className="px-2 py-1 rounded-md text-[10px] font-body text-white/85 flex items-center gap-1.5"
+            style={{
+              background: 'linear-gradient(180deg, rgba(120,170,255,0.18), rgba(120,170,255,0.04))',
+              border: '1px solid rgba(150,200,255,0.35)',
+              animation: `fc-ana-tag 2.8s ease-in-out ${i * 0.25}s infinite`,
+            }}
+          >
+            <svg viewBox="0 0 10 10" className="w-2 h-2 text-cyan-200">
+              <path d="M2 5 L4.5 7 L8 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {t}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// (3) 即時數據洞察 — live sparkline + counters
+function PreviewInsights() {
+  return (
+    <div className="w-full h-full relative p-6 flex items-center justify-center">
+      <style>{`
+        @keyframes fc-ins-pulse { 0%,100% { opacity: 0.4 } 50% { opacity: 1 } }
+        @keyframes fc-ins-draw { 0% { stroke-dashoffset: 200 } 60%,100% { stroke-dashoffset: 0 } }
+      `}</style>
+      <div
+        className="w-full max-w-[230px] rounded-xl p-3"
+        style={{
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))',
+          border: '1px solid rgba(255,255,255,0.10)',
+        }}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <span
+              className="w-1.5 h-1.5 rounded-full bg-emerald-300"
+              style={{ animation: 'fc-ins-pulse 1.4s ease-in-out infinite' }}
+            />
+            <span className="text-[9px] uppercase tracking-widest text-white/60 font-body">Live</span>
+          </div>
+          <span className="font-body text-white text-sm font-semibold tabular-nums">+18.4%</span>
+        </div>
+        <svg viewBox="0 0 120 40" className="w-full h-14">
+          <defs>
+            <linearGradient id="fc-ins-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="rgba(140,190,255,0.45)" />
+              <stop offset="1" stopColor="rgba(140,190,255,0)" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M 0 32 L 15 26 L 30 28 L 45 20 L 60 22 L 75 14 L 90 18 L 105 8 L 120 10 L 120 40 L 0 40 Z"
+            fill="url(#fc-ins-grad)"
+          />
+          <path
+            d="M 0 32 L 15 26 L 30 28 L 45 20 L 60 22 L 75 14 L 90 18 L 105 8 L 120 10"
+            fill="none"
+            stroke="rgba(220,235,255,0.9)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeDasharray="200"
+            style={{ animation: 'fc-ins-draw 3s ease-in-out infinite' }}
+          />
+          <circle
+            cx="105"
+            cy="8"
+            r="2"
+            fill="#fff"
+            style={{ animation: 'fc-ins-pulse 1.4s ease-in-out infinite' }}
+          />
+        </svg>
+        <div className="flex items-center justify-between mt-1.5">
+          <span className="text-[9px] font-body text-white/45">點擊率</span>
+          <span className="text-[9px] font-mono text-white/70 tabular-nums">2,846</span>
+        </div>
+        <div className="flex items-center justify-between mt-1">
+          <span className="text-[9px] font-body text-white/45">轉換</span>
+          <span className="text-[9px] font-mono text-white/70 tabular-nums">134</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// (4) 完整的 KOL 資源 — 2×2 roster with one highlighted match
+function PreviewKOLs() {
+  const kols = [
+    { name: '@mira.k', tag: 'Fashion', g: 'radial-gradient(circle at 35% 30%, #233456 0%, #070d1c 75%)', pick: false },
+    { name: '@rey.code', tag: 'Tech', g: 'radial-gradient(circle at 35% 30%, #3a5ea0 0%, #0a1430 80%)', pick: true },
+    { name: '@nadia.v', tag: 'Beauty', g: 'radial-gradient(circle at 35% 30%, #1d2a47 0%, #05091a 75%)', pick: false },
+    { name: '@leo.fit', tag: 'Fitness', g: 'radial-gradient(circle at 35% 30%, #2a3c66 0%, #080f24 75%)', pick: false },
+  ];
+  return (
+    <div className="w-full h-full relative p-5 flex items-center justify-center">
+      <style>{`
+        @keyframes fc-kol-glow {
+          0%,100% { box-shadow: 0 0 0 1px rgba(150,200,255,0.5), 0 0 14px rgba(120,170,255,0.25) }
+          50%     { box-shadow: 0 0 0 1px rgba(150,200,255,0.8), 0 0 22px rgba(120,170,255,0.45) }
+        }
+      `}</style>
+      <div className="grid grid-cols-2 gap-2 w-full max-w-[240px]">
+        {kols.map((k, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-2 px-2 py-1.5 rounded-lg"
+            style={{
+              background: k.pick
+                ? 'rgba(120,170,255,0.12)'
+                : 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))',
+              border: k.pick ? '1px solid rgba(150,200,255,0.55)' : '1px solid rgba(255,255,255,0.10)',
+              animation: k.pick ? 'fc-kol-glow 2.4s ease-in-out infinite' : undefined,
+            }}
+          >
+            <div
+              className="w-6 h-6 rounded-full flex-shrink-0"
+              style={{
+                background: k.g,
+                border: '1px solid rgba(255,255,255,0.12)',
+                boxShadow: k.pick
+                  ? 'inset 0 1px 0 rgba(255,255,255,0.12), 0 0 8px rgba(120,170,255,0.35)'
+                  : 'inset 0 1px 0 rgba(255,255,255,0.08)',
+              }}
+            />
+            <div className="flex-1 min-w-0">
+              <div className="font-body text-[10px] text-white/85 truncate leading-tight">{k.name}</div>
+              <div className="font-body text-[8px] text-white/45 leading-tight">{k.tag}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// (5) 簡單化工作流程 — three connected steps with pulse + flowing dashes
+function PreviewWorkflow() {
+  const steps = [
+    { label: '邀請', icon: 'mail' },
+    { label: '溝通', icon: 'chat' },
+    { label: '成效', icon: 'chart' },
+  ];
+  const renderIcon = (k) => {
+    const common = { viewBox: '0 0 16 16', className: 'w-3.5 h-3.5 text-white' };
+    if (k === 'mail')
+      return (
+        <svg {...common}>
+          <rect x="2" y="4" width="12" height="9" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.3" />
+          <path d="M2.5 5 L8 9 L13.5 5" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+        </svg>
+      );
+    if (k === 'chat')
+      return (
+        <svg {...common}>
+          <path
+            d="M2 4 C2 3 3 2 4 2 L12 2 C13 2 14 3 14 4 L14 10 C14 11 13 12 12 12 L7 12 L4 14 L4 12 C3 12 2 11 2 10 Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    return (
+      <svg {...common}>
+        <path
+          d="M2 13 L6 8 L9 10 L14 4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="14" cy="4" r="1" fill="currentColor" />
+      </svg>
+    );
+  };
+  return (
+    <div className="w-full h-full relative p-5 flex items-center justify-center">
+      <style>{`
+        @keyframes fc-wf-pulse { 0%,100% { opacity: 0.75; transform: scale(1) } 50% { opacity: 1; transform: scale(1.06) } }
+        @keyframes fc-wf-flow { from { stroke-dashoffset: 12 } to { stroke-dashoffset: 0 } }
+      `}</style>
+      <div className="flex items-center gap-2">
+        {steps.map((s, i) => (
+          <React.Fragment key={i}>
+            <div className="flex flex-col items-center gap-1.5">
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 14px rgba(0,0,0,0.3)',
+                  animation: `fc-wf-pulse 2.4s ease-in-out ${i * 0.35}s infinite`,
+                }}
+              >
+                {renderIcon(s.icon)}
+              </div>
+              <span className="font-body text-[9px] text-white/70">{s.label}</span>
+            </div>
+            {i < steps.length - 1 && (
+              <svg viewBox="0 0 20 4" className="w-5 h-1 -mt-4">
+                <line
+                  x1="0"
+                  y1="2"
+                  x2="20"
+                  y2="2"
+                  stroke="rgba(180,210,255,0.5)"
+                  strokeWidth="1"
+                  strokeDasharray="2 2"
+                  strokeLinecap="round"
+                  style={{ animation: 'fc-wf-flow 1.4s linear infinite' }}
+                />
+              </svg>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Card shell ---------- */
 function Card({ previewH = 220, children, title, body, className = '' }) {
   return (
@@ -626,8 +964,8 @@ function FeaturesChess({ hideArc = false }) {
           className="font-heading text-white text-4xl md:text-5xl lg:text-6xl tracking-tight leading-[1.1]"
           as="h2"
         />
-        <p className="mt-5 text-white/60 font-body font-light text-sm md:text-base max-w-xl mx-auto">
-          一站式工具組，從商案建立、KOL 匹配到數據洞察，全部由 AI 驅動。
+        <p className="mt-5 text-white/60 font-body font-light text-base md:text-lg max-w-xl mx-auto">
+          從一鍵生成商案網站、AI 分析與趨勢洞察，到完整 KOL 資源與簡化工作流程，所有工具集中於同一平台。
         </p>
       </div>
 
@@ -636,19 +974,19 @@ function FeaturesChess({ hideArc = false }) {
         <div className="lg:col-span-1">
           <Card
             previewH={240}
-            title="自動處理重複工作"
-            body="排程社群貼文、追蹤 KOL 回覆、提醒付款——讓 AI 處理繁瑣，讓你專注在策略。"
+            title="一鍵生成商案網站"
+            body="使用模組化區塊，讓你一鍵生成商案網站；AI 自動填入資料，省下反覆排版與撰寫的時間。"
           >
-            <PreviewChecklist />
+            <PreviewGenerate />
           </Card>
         </div>
         <div className="lg:col-span-2">
           <Card
             previewH={240}
-            title="自動化商案工作流程"
-            body="從 brief 到上線，AI 串接 IG、TikTok、Figma、郵件等工具，讓整條工作流運轉如一。"
+            title="AI 分析商案"
+            body="AI 讀取你的商案資料，歸納定位、亮點與潛在受眾，並自動轉化為可用的內容素材。"
           >
-            <PreviewOrbit />
+            <PreviewAnalysis />
           </Card>
         </div>
       </div>
@@ -658,23 +996,23 @@ function FeaturesChess({ hideArc = false }) {
         <Card
           previewH={200}
           title="即時數據洞察"
-          body="依產業、受眾、互動率即時搜尋 KOL,讓每個決策都有數據佐證。"
+          body="用 AI 分析你商案當下的流量與互動趨勢，把散落的數據轉成一眼就懂的洞察。"
         >
-          <PreviewSearch />
+          <PreviewInsights />
         </Card>
         <Card
           previewH={200}
-          title="客製 AI 代理"
-          body="針對你的品牌訓練專屬 agent,無縫整合既有工具鏈,自動處理重複任務。"
+          title="完整的 KOL 資源"
+          body="內建大量已驗證的 KOL 名單，依產業、受眾與互動率即時篩選，快速找到最適合的合作對象。"
         >
-          <PreviewCode />
+          <PreviewKOLs />
         </Card>
         <Card
           previewH={200}
-          title="AI 策略顧問"
-          body="由專家配合 AI 模型給出具體建議,把洞察落地為可執行的下一步。"
+          title="簡單化工作流程"
+          body="從邀請、溝通到成效追蹤一站完成，流程清晰，讓每一步都少一點摩擦。"
         >
-          <PreviewStrategy />
+          <PreviewWorkflow />
         </Card>
       </div>
     </section>

@@ -75,43 +75,45 @@ function Preloader() {
 
       {/* Top-left wordmark */}
       <div
-        className="absolute top-8 left-8 md:top-10 md:left-10 flex items-center gap-2"
+        className="absolute top-8 left-8 md:top-10 md:left-10 flex items-center gap-2.5"
         style={{
           opacity: exiting ? 0 : 1,
           transform: exiting ? 'translateY(-8px)' : 'translateY(0)',
           transition: 'opacity 0.5s ease, transform 0.7s cubic-bezier(0.2,0.8,0.2,1)',
         }}
       >
-        <svg width="22" height="22" viewBox="0 0 32 32" fill="none" className="relative z-10">
-          <defs>
-            <linearGradient id="pre-pl-g1" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#dbeafe" />
-              <stop offset="1" stopColor="#7aa8ff" />
-            </linearGradient>
-            <linearGradient id="pre-pl-g2" x1="1" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#ffffff" />
-              <stop offset="1" stopColor="#6497ff" />
-            </linearGradient>
-          </defs>
-          {/* Left link */}
-          <path
-            d="M13 6a7 7 0 0 0 0 14h3"
-            stroke="url(#pre-pl-g1)"
-            strokeWidth="3"
-            strokeLinecap="round"
-            fill="none" />
-          {/* Right link */}
-          <path
-            d="M19 26a7 7 0 0 0 0-14h-3"
-            stroke="url(#pre-pl-g2)"
-            strokeWidth="3"
-            strokeLinecap="round"
-            fill="none" />
-          {/* Connector node */}
-          <circle cx="16" cy="16" r="1.8" fill="#ffffff" />
-        </svg>
-        <span className="font-body font-semibold text-xl text-white leading-none tracking-tight">
-          Partner<span className="text-white/60">link</span>
+        <div className="h-9 w-9 rounded-full liquid-glass-strong flex items-center justify-center relative shrink-0">
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="none" className="relative z-10" aria-hidden="true">
+            <defs>
+              <linearGradient id="pre-pl-g1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#dbeafe" />
+                <stop offset="1" stopColor="#7aa8ff" />
+              </linearGradient>
+              <linearGradient id="pre-pl-g2" x1="1" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#ffffff" />
+                <stop offset="1" stopColor="#6497ff" />
+              </linearGradient>
+            </defs>
+            {/* Left link */}
+            <path
+              d="M13 6a7 7 0 0 0 0 14h3"
+              stroke="url(#pre-pl-g1)"
+              strokeWidth="3"
+              strokeLinecap="round"
+              fill="none" />
+            {/* Right link */}
+            <path
+              d="M19 26a7 7 0 0 0 0-14h-3"
+              stroke="url(#pre-pl-g2)"
+              strokeWidth="3"
+              strokeLinecap="round"
+              fill="none" />
+            {/* Connector node */}
+            <circle cx="16" cy="16" r="1.8" fill="#ffffff" />
+          </svg>
+        </div>
+        <span className="font-body font-semibold text-lg text-white leading-none tracking-tight">
+          Partner<span className="text-white/50">link</span>
         </span>
       </div>
 
