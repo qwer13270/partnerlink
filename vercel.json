@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/kol-resume-reminders",
+      "schedule": "0 1 * * *"
+    }
+  ]
+}

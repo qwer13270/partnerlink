@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { requireApiRole } from '@/lib/server/api-auth'
+import { sendEmail } from '@/lib/email/send'
+import { getAppUrl } from '@/lib/email/resend'
+import MerchantApprovalEmail from '@/emails/MerchantApprovalEmail'
 
 export async function POST(
   request: NextRequest,
@@ -99,6 +102,26 @@ export async function POST(
       { error: `Failed to update application status: ${updateAppError.message}` },
       { status: 500 },
     )
+  }
+
+  const recipient = application.email ?? userResult.user.email
+  if (recipient) {
+    const result = await sendEmail({
+      to: recipient,
+      subject: '你的 PartnerLink 商家申請已通過審核',
+      react: MerchantApprovalEmail({
+        contactName: application.contact_name ?? '夥伴',
+        companyName: application.company_name ?? '你的商家',
+        merchantType: (application.merchant_type as 'property' | 'shop' | null) ?? null,
+        appUrl: getAppUrl(),
+      }),
+      tags: [{ name: 'type', value: 'merchant_approval' }],
+    })
+    if (!result.ok) {
+      console.error('[api/admin/merchant-applications/approve] email:', result.error)
+    }
+  } else {
+    console.error('[api/admin/merchant-applications/approve] email: no recipient address')
   }
 
   return NextResponse.json({ ok: true })
