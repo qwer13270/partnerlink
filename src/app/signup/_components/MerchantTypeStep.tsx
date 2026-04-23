@@ -13,7 +13,7 @@ const TYPES: {
   disabled?: boolean
 }[] = [
   { value: 'property', icon: Building2, label: '住宅建案', desc: '預售屋、新成屋等住宅開發案' },
-  { value: 'shop', icon: Store, label: '商業案場', desc: '商辦、店面、商場等商業地產' },
+  { value: 'shop', icon: Store, label: '商業品牌', desc: '商辦、店面、商場等商業地產' },
 ]
 
 export function MerchantTypeStep({
@@ -29,8 +29,8 @@ export function MerchantTypeStep({
         <button onClick={onBack} className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors mb-4 font-body">
           <span className="rotate-180 inline-block">→</span> 返回
         </button>
-        <h2 className="font-heading italic text-white text-3xl mb-1">你的案場類型</h2>
-        <p className="font-body text-sm text-white/60">選擇後將決定你可刊登的案場類型</p>
+        <h2 className="font-heading italic text-white text-3xl mb-1">你的營業類型</h2>
+        <p className="font-body text-sm text-white/60">選擇後將決定你可刊登的商案類型</p>
       </motion.div>
 
       <div className="grid grid-cols-2 gap-4">

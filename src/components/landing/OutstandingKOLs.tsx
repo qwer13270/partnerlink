@@ -1,73 +1,43 @@
 // @ts-nocheck
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { UserRound } from 'lucide-react';
 import { motion, useMotionValue, animate } from 'framer-motion';
 
 const KOLS = [
   {
-    id: 'max',
-    name: "Max's Real Estate Launch",
-    title: 'Max 的建案銷售成功案例',
-    body: 'Max 透過 PartnerLink 媒合在地生活風格 KOL，為北台灣新建案打造開箱實走影音與社群話題。預售期即完銷逾七成，帶看轉換率創同類型建案新高。',
+    id: 'mina',
+    name: 'Mina',
+    title: 'Mina 專職廣告演員',
+    body: '以鏡頭前的自然感染力見長，擅長將品牌核心價值轉化為有溫度的畫面語言。無論是精品質感或生活日常風格，都能精準拿捏品牌形象詮釋，為合作夥伴留下深刻且一致的觀眾印象。',
     stats: [
-      { value: 3000, suffix: '萬', label: '累積成交' },
-      { value: 8, suffix: '%', label: '平均轉換率' },
+      { value: 19.7, suffix: 'k', label: '粉絲人數' },
+      { value: 8, suffix: '', label: '合作過商案數' },
     ],
-    photo:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+    photo: '/images/kol1.jpg',
   },
   {
-    id: 'emily',
-    name: "Emily's E-commerce Success",
-    title: 'Emily 的電商成功故事',
-    body: 'Emily 運用 PartnerLink 的 AI 客群分析精準媒合美妝 KOL，規劃短影音與開箱合作。三個月內觸及翻倍，並帶動品牌官網轉換率顯著成長。',
+    id: 'ruby',
+    name: 'Ruby',
+    title: 'Ruby 戶外生活風格創作者',
+    body: '熱愛運動、旅遊與美食，擅長用真實的戶外體驗說故事。從登山健行到城市小旅行、在地美食探店，Ruby 以鮮明活力的鏡頭語言與分享節奏，帶領粉絲走進每一次旅程，為品牌打造貼近生活、富有行動感的內容合作。',
     stats: [
-      { value: 5000, suffix: '萬', label: '累積成交' },
-      { value: 10, suffix: '%', label: '平均轉換率' },
+      { value: 5000, suffix: '', label: '粉絲人數' },
+      { value: 10, suffix: '', label: '合作過商案數' },
     ],
-    photo:
-      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: 'sophia',
-    name: "Sophia's Retail Breakthrough",
-    title: "Sophia 的零售品牌突破",
-    body: 'Sophia 與傳統零售品牌合作，結合內容策展與 KOL 聯名企劃，協助品牌重新定位年輕客群。合作期間社群粉絲成長兩倍，首波聯名商品 48 小時內完售。',
-    stats: [
-      { value: 2000, suffix: '萬', label: '累積成交' },
-      { value: 6, suffix: '%', label: '平均轉換率' },
-    ],
-    photo:
-      'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=800&q=80',
+    photo: '/images/kol2.jpg',
   },
 ];
 
-// Stack position -> visual transform. 0 = active (front), 1 = 1 behind, 2 = 2 behind.
+// Stack position -> visual transform. 0 = active (front), 1 = 1 behind.
+// y-offset is driven by CSS custom properties (--peek-1) set via Tailwind
+// breakpoint on the stack wrapper, so the correct offset is present on
+// first paint without a JS media-query hydration swap.
 const STACK_STYLES = [
-  { y: 0,    scale: 1,    opacity: 1,    z: 3 },
-  { y: -50,  scale: 0.96, opacity: 0.75, z: 2 },
-  { y: -100, scale: 0.92, opacity: 0.55, z: 1 },
+  { y: '0px',             scale: 1,    opacity: 1,    z: 3 },
+  { y: 'var(--peek-1)',   scale: 0.96, opacity: 0.75, z: 2 },
 ];
-// Mobile offsets: tighter to avoid overflow on narrow viewports.
-const STACK_STYLES_SM = [
-  { y: 0,   scale: 1,    opacity: 1,    z: 3 },
-  { y: -28, scale: 0.96, opacity: 0.75, z: 2 },
-  { y: -56, scale: 0.92, opacity: 0.55, z: 1 },
-];
-
-function useIsMdUp() {
-  const [md, setMd] = useState(true);
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
-    const update = () => setMd(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-  return md;
-}
 
 function CountUp({ target, suffix = '', triggerKey, active }) {
   const val = useMotionValue(0);
@@ -85,7 +55,12 @@ function CountUp({ target, suffix = '', triggerKey, active }) {
       duration: 1.6,
       delay: 0.15,
       ease: [0.22, 1, 0.36, 1],
-      onUpdate: (v) => setDisplay(Math.round(v).toLocaleString()),
+      onUpdate: (v) =>
+        setDisplay(
+          Number.isInteger(target)
+            ? Math.round(v).toLocaleString()
+            : v.toFixed(1),
+        ),
     });
     return () => controls.stop();
   }, [triggerKey, target, val, active]);
@@ -98,9 +73,8 @@ function CountUp({ target, suffix = '', triggerKey, active }) {
   );
 }
 
-function KOLCard({ kol, stackPos, isActive, onActivate, mdUp }) {
-  const styles = mdUp ? STACK_STYLES : STACK_STYLES_SM;
-  const s = styles[Math.min(stackPos, styles.length - 1)];
+function KOLCard({ kol, stackPos, isActive, onActivate }) {
+  const s = STACK_STYLES[stackPos] ?? STACK_STYLES[STACK_STYLES.length - 1];
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -123,13 +97,15 @@ function KOLCard({ kol, stackPos, isActive, onActivate, mdUp }) {
         scale: s.scale,
         opacity: s.opacity,
       }}
-      whileHover={isActive ? undefined : { y: s.y + 8, opacity: 0.9 }}
+      whileHover={
+        isActive ? undefined : { y: `calc(${s.y} + 8px)`, opacity: 0.9 }
+      }
       transition={{ type: 'spring', stiffness: 200, damping: 25 }}
       style={{
         zIndex: s.z,
         cursor: isActive ? 'default' : 'pointer',
         transformOrigin: 'center top',
-        position: 'absolute',
+        position: isActive ? 'relative' : 'absolute',
         left: 0,
         right: 0,
         top: 0,
@@ -168,7 +144,7 @@ function KOLCard({ kol, stackPos, isActive, onActivate, mdUp }) {
 
       {/* Body */}
       <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 md:gap-8 p-6 md:p-8 relative z-10">
-        <div className="flex flex-col">
+        <div className="flex flex-col order-2 md:order-none">
           <h3 className="font-heading text-white text-2xl md:text-3xl leading-[1.15] tracking-tight">
             {kol.title}
           </h3>
@@ -195,7 +171,7 @@ function KOLCard({ kol, stackPos, isActive, onActivate, mdUp }) {
           </div>
         </div>
 
-        <div className="relative rounded-xl overflow-hidden aspect-[4/5] md:aspect-auto md:h-full md:min-h-[280px] bg-white/[0.04]">
+        <div className="relative rounded-xl overflow-hidden order-1 md:order-none h-56 md:h-full md:min-h-[280px] bg-white/[0.04]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={kol.photo}
@@ -210,8 +186,6 @@ function KOLCard({ kol, stackPos, isActive, onActivate, mdUp }) {
 }
 
 export default function OutstandingKOLs() {
-  const mdUp = useIsMdUp();
-
   // `order[0]` = active (front), `order[1]` = 1 behind, `order[2]` = 2 behind.
   const [order, setOrder] = useState(() => KOLS.map((k) => k.id));
 
@@ -264,10 +238,11 @@ export default function OutstandingKOLs() {
         </p>
       </div>
 
-      {/* Stacked deck — all cards mounted, absolute positioning.
-          Extra top padding (`pt-28 md:pt-32`) reserves room for the peeking back cards. */}
-      <div className="relative mx-auto w-full max-w-5xl pt-28 md:pt-32">
-        <div className="relative" style={{ minHeight: mdUp ? 480 : 540 }}>
+      {/* Stacked deck — active card drives container height (position: relative);
+          inactive cards overlay via position: absolute. Peek offsets are CSS
+          custom properties swapped at the md breakpoint — no JS media query. */}
+      <div className="relative mx-auto w-full max-w-5xl pt-16 md:pt-32">
+        <div className="relative [--peek-1:-28px] md:[--peek-1:-50px]">
           {KOLS.map((kol) => (
             <KOLCard
               key={kol.id}
@@ -275,7 +250,6 @@ export default function OutstandingKOLs() {
               stackPos={stackPos[kol.id]}
               isActive={stackPos[kol.id] === 0}
               onActivate={() => activate(kol.id)}
-              mdUp={mdUp}
             />
           ))}
         </div>
