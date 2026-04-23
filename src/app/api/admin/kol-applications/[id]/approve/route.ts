@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { requireApiRole } from '@/lib/server/api-auth'
+import { sendEmail } from '@/lib/email/send'
+import { getAppUrl } from '@/lib/email/resend'
+import KolApprovalEmail from '@/emails/KolApprovalEmail'
 
 export async function POST(
   request: NextRequest,
@@ -18,7 +21,7 @@ export async function POST(
 
   const { data: application, error: findError } = await admin
     .from('kol_applications')
-    .select('id,user_id,status,profile_photo_path')
+    .select('id,user_id,status,profile_photo_path,email,full_name')
     .eq('id', id)
     .single()
 
@@ -73,6 +76,24 @@ export async function POST(
       { error: `Failed to update application status: ${updateAppError.message}` },
       { status: 500 },
     )
+  }
+
+  const recipient = application.email ?? userResult.user.email
+  if (recipient) {
+    const result = await sendEmail({
+      to: recipient,
+      subject: '你的 PartnerLink KOL 申請已通過審核',
+      react: KolApprovalEmail({
+        fullName: application.full_name ?? '夥伴',
+        appUrl: getAppUrl(),
+      }),
+      tags: [{ name: 'type', value: 'kol_approval' }],
+    })
+    if (!result.ok) {
+      console.error('[api/admin/kol-applications/approve] email:', result.error)
+    }
+  } else {
+    console.error('[api/admin/kol-applications/approve] email: no recipient address')
   }
 
   return NextResponse.json({ ok: true })
