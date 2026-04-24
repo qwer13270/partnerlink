@@ -12,8 +12,6 @@ const NAV_COLUMNS: { heading: string; sub: string; links: { label: string; href:
     sub: "Platform",
     links: [
       { label: "首頁",       href: "/" },
-      { label: "成為 KOL",   href: "/join/kol" },
-      { label: "成為商家",   href: "/join/merchant" },
     ],
   },
   {

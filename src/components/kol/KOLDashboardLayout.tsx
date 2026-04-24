@@ -5,7 +5,7 @@ import { Menu, Home, Layers, Mail, FileEdit, ExternalLink } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import SidebarDark, { MobileSidebarDark, type SidebarUser } from '@/components/layout/SidebarDark'
-import KolTopBar from '@/components/kol/KolTopBar'
+import DashboardTopBar from '@/components/layout/DashboardTopBar'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
 
@@ -100,7 +100,8 @@ export default function KOLDashboardLayout({ children }: KOLDashboardLayoutProps
         <SidebarDark items={sidebarItems} translationNamespace="kol" user={sidebarUser} />
 
         <div className="flex-1 min-w-0 flex flex-col">
-          <KolTopBar
+          <DashboardTopBar
+            role="kol"
             user={user ?? undefined}
             displayName={displayName}
             profilePhotoUrl={profilePhotoUrl}

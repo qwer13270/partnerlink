@@ -1,8 +1,6 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Skeleton } from '@/components/ui/skeleton'
 import { useActivities } from '@/hooks/useMockData'
 import { useLocale } from '@/hooks/useLocale'
 import type { Activity } from '@/lib/types'
@@ -18,9 +16,9 @@ const FILTERS = [
 ]
 
 function filterActivities(activities: Activity[], filter: string) {
-  if (filter === 'all')      return activities
-  if (filter === 'sales')    return activities.filter((item) => item.type === 'sale-confirmed')
-  if (filter === 'bookings') return activities.filter((item) => item.type === 'booking')
+  if (filter === 'all')       return activities
+  if (filter === 'sales')     return activities.filter((item) => item.type === 'sale-confirmed')
+  if (filter === 'bookings')  return activities.filter((item) => item.type === 'booking')
   if (filter === 'referrals') return activities.filter((item) => item.type === 'click')
   return activities
 }
@@ -36,41 +34,44 @@ export default function ActivityLog() {
   }, [data, filter])
 
   if (isLoading || !data) {
-    return <Skeleton className="h-[240px] w-full" />
+    return <div className="liquid-glass !rounded-[22px] h-[240px] animate-pulse" />
   }
 
   return (
-    <div className="border border-border bg-card p-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-serif">{t.title}</h3>
+    <div className="liquid-glass !rounded-[22px] p-6">
+      <h3 className="font-heading italic text-[22px] text-white">{t.title}</h3>
+
+      <div className="mt-4 flex flex-wrap gap-1.5">
+        {FILTERS.map((item) => (
+          <button
+            key={item.value}
+            onClick={() => setFilter(item.value)}
+            className={`meta text-[10px] px-3 py-1.5 rounded-full border transition-colors ${
+              filter === item.value
+                ? 'border-white bg-white text-black'
+                : 'border-white/15 text-white/60 hover:border-white/40 hover:text-white'
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
-      <Tabs value={filter} onValueChange={setFilter} className="mt-4">
-        <TabsList>
-          {FILTERS.map((item) => (
-            <TabsTrigger key={item.value} value={item.value}>
-              {item.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        <TabsContent value={filter} className="mt-6">
-          <div className="space-y-4">
-            {items.map((activity) => (
-              <div key={activity.id} className="flex items-start justify-between gap-4 border-b border-border/60 pb-4 last:border-b-0 last:pb-0">
-                <div>
-                  <p className="text-sm text-foreground leading-relaxed">
-                    {isZhTW ? activity.message : activity.messageEn}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-2">{activity.timestamp}</p>
-                </div>
-                <div className="text-xs uppercase tracking-widest text-muted-foreground">
-                  {activity.type.replace('-', ' ')}
-                </div>
-              </div>
-            ))}
+      <div className="mt-6 space-y-4">
+        {items.map((activity) => (
+          <div key={activity.id} className="flex items-start justify-between gap-4 border-b border-white/5 pb-4 last:border-b-0 last:pb-0">
+            <div>
+              <p className="text-[13px] text-white/85 leading-relaxed">
+                {isZhTW ? activity.message : activity.messageEn}
+              </p>
+              <p className="meta text-[10px] text-white/45 mt-2">{activity.timestamp}</p>
+            </div>
+            <div className="meta text-[10px] text-white/40">
+              {activity.type.replace('-', ' ')}
+            </div>
           </div>
-        </TabsContent>
-      </Tabs>
+        ))}
+      </div>
     </div>
   )
 }

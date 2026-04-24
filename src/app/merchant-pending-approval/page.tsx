@@ -18,17 +18,26 @@ type ApplicationStatusPayload = {
 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 14 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 0.5, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] as const },
   }),
 }
 
 function formatDate(value?: string) {
   if (!value) return '—'
   return value.slice(0, 10)
+}
+
+function DataCell({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="liquid-glass rounded-xl px-4 py-3">
+      <p className="text-[10px] uppercase tracking-[0.3em] text-white/45 font-body">{label}</p>
+      <p className="mt-1 text-sm text-white/90 font-body">{value}</p>
+    </div>
+  )
 }
 
 export default function MerchantPendingApprovalPage() {
@@ -48,7 +57,6 @@ export default function MerchantPendingApprovalPage() {
         setStatus('missing')
         return
       }
-
       setStatus(payload?.status ?? 'missing')
       setApplication(payload?.application ?? null)
     } catch (caughtError) {
@@ -63,15 +71,27 @@ export default function MerchantPendingApprovalPage() {
     void loadStatus()
   }, [])
 
+  useEffect(() => {
+    const prevBody = document.body.style.backgroundColor
+    const prevHtml = document.documentElement.style.backgroundColor
+    document.body.style.backgroundColor = '#000'
+    document.documentElement.style.backgroundColor = '#000'
+    return () => {
+      document.body.style.backgroundColor = prevBody
+      document.documentElement.style.backgroundColor = prevHtml
+    }
+  }, [])
+
   const heroCopy = status === 'denied'
     ? {
         eyebrow: 'Review Result',
         title: '目前尚未通過商家審核',
         body: '你的帳號已完成驗證，但這次商家申請尚未通過。我們建議你聯繫團隊確認原因，再決定是否補件重新申請。',
         icon: ShieldAlert,
-        accent: 'text-[#9E4E4E]',
+        iconClass: 'text-[#ff9a9a]',
         badge: 'Denied',
-        badgeClass: 'border-red-200 bg-red-50 text-red-700',
+        dotClass: 'bg-red-300/80',
+        nextStep: '如果你想重新申請，建議先與團隊確認補件方向，再使用同一個帳號重新整理申請內容。',
       }
     : status === 'missing'
       ? {
@@ -79,126 +99,149 @@ export default function MerchantPendingApprovalPage() {
           title: '找不到對應的商家申請',
           body: '你的帳號已登入成功，但目前查不到對應的商家申請資料。這通常表示申請資料尚未建立完成，請聯繫團隊協助處理。',
           icon: ShieldAlert,
-          accent: 'text-[#8A5A44]',
+          iconClass: 'text-[#ffd28a]',
           badge: 'Support Needed',
-          badgeClass: 'border-[#d9c4ae] bg-[#fbf2e7] text-[#9a6c53]',
+          dotClass: 'bg-amber-300/80',
+          nextStep: '請聯繫團隊協助補建申請資料，之後你就能回到正常審核流程。',
         }
       : {
           eyebrow: 'Application Status',
           title: 'Email 已驗證，等待管理員審核',
           body: '你已經成功登入，我們也收到了你的商家申請。現在只差管理員完成最後審核，通過後你就能進入完整商家後台。',
           icon: Clock3,
-          accent: 'text-[#8B634D]',
+          iconClass: 'text-white/85',
           badge: 'Pending Review',
-          badgeClass: 'border-amber-200 bg-amber-50 text-amber-700',
+          dotClass: 'bg-sky-300/80',
+          nextStep: '目前不需要再做其他操作。你可以稍後回來查看，或等待團隊通知。',
         }
 
   const HeroIcon = heroCopy.icon
+  const isPending = status !== 'denied' && status !== 'missing'
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#f7f2eb_0%,#fbfaf8_45%,#f4ede3_100%)] px-6 py-16 md:px-10">
-      <section className="mx-auto max-w-5xl space-y-8">
-        <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp} className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="relative overflow-hidden border border-[#d8c7b4] bg-[linear-gradient(135deg,#fbf1e5_0%,#f8f4ee_42%,#efe1cf_100%)] p-8 md:p-10">
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 opacity-[0.28] pointer-events-none"
-              style={{
-                backgroundImage:
-                  'linear-gradient(90deg, rgba(165,114,87,0.09) 1px, transparent 1px), linear-gradient(0deg, rgba(33,58,53,0.05) 1px, transparent 1px)',
-                backgroundSize: '34px 34px',
-              }}
-            />
-            <div className="relative space-y-5">
-              <div className="flex items-center gap-3">
-                <span className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/70 ${heroCopy.accent}`}>
-                  <HeroIcon className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-[0.65rem] uppercase tracking-[0.35em] text-[#9b7865]">{heroCopy.eyebrow}</p>
-                  <span className={`mt-1 inline-flex items-center gap-2 border px-2.5 py-1 text-[0.58rem] uppercase tracking-[0.24em] ${heroCopy.badgeClass}`}>
-                    {status === 'pending_admin_review' && <Building2 className="h-3 w-3" />}
-                    {heroCopy.badge}
-                  </span>
-                </div>
-              </div>
-              <div>
-                <h1 className="text-3xl font-serif leading-[1.08] text-[#1e1914] md:text-[2.35rem]">{heroCopy.title}</h1>
-                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#746558]">{heroCopy.body}</p>
-              </div>
-              {application?.companyName && (
-                <div className="inline-flex items-center gap-2 border border-black/10 bg-white/60 px-3 py-2 text-xs uppercase tracking-[0.18em] text-[#7f6a5a]">
-                  <span>Merchant</span>
-                  <span className="text-[#1e1914]">{application.companyName}</span>
-                </div>
-              )}
-            </div>
-          </div>
+    <main className="partnerlink-landing relative -mt-16 min-h-screen overflow-hidden bg-black px-6 pt-40 pb-24 md:px-10">
+      {/* radial glow */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 80% 60% at 50% 20%, rgba(100,150,255,0.10) 0%, transparent 70%)',
+        }}
+      />
+      {/* faint grid */}
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-[0.025] pointer-events-none"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.9) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.9) 1px, transparent 1px)',
+          backgroundSize: '90px 90px',
+          maskImage: 'radial-gradient(ellipse at 50% 30%, black 30%, transparent 80%)',
+        }}
+      />
 
-          <div className="border border-[#ded4c8] bg-white/70 p-6 backdrop-blur-[2px] md:p-7">
-            <p className="text-[0.62rem] uppercase tracking-[0.3em] text-[#9b8b7e]">Status Board</p>
-            <div className="mt-5 space-y-4">
-              <div className="border border-black/8 bg-[#faf7f3] p-4">
-                <p className="text-[0.58rem] uppercase tracking-[0.24em] text-[#9a8a7e]">登入信箱</p>
-                <p className="mt-1 text-sm text-[#1e1914]">{application?.email ?? '—'}</p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="border border-black/8 bg-[#faf7f3] p-4">
-                  <p className="text-[0.58rem] uppercase tracking-[0.24em] text-[#9a8a7e]">送件日期</p>
-                  <p className="mt-1 text-sm text-[#1e1914]">{formatDate(application?.submittedAt)}</p>
+      <section className="relative mx-auto max-w-5xl space-y-6">
+
+        {/* Hero card */}
+        <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
+          <div className="liquid-glass rounded-2xl overflow-hidden">
+            <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
+              {/* Left: main status */}
+              <div className="p-8 md:p-10 space-y-5">
+                <div className="flex items-center gap-3">
+                  <span className={`liquid-glass-strong inline-flex h-10 w-10 items-center justify-center !rounded-full ${heroCopy.iconClass}`}>
+                    <HeroIcon className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-white/55 font-body">{heroCopy.eyebrow}</p>
+                    <span className="liquid-glass mt-1 inline-flex items-center gap-2 !rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.25em] text-white/75 font-body">
+                      <span className="relative inline-flex w-2 h-2 items-center justify-center">
+                        {isPending && (
+                          <span className={`absolute inset-0 rounded-full ${heroCopy.dotClass} animate-ping opacity-70`} />
+                        )}
+                        <span className={`relative w-1.5 h-1.5 rounded-full ${heroCopy.dotClass}`} />
+                      </span>
+                      {isPending && <Building2 className="h-3 w-3" />}
+                      {heroCopy.badge}
+                    </span>
+                  </div>
                 </div>
-                <div className="border border-black/8 bg-[#faf7f3] p-4">
-                  <p className="text-[0.58rem] uppercase tracking-[0.24em] text-[#9a8a7e]">審核日期</p>
-                  <p className="mt-1 text-sm text-[#1e1914]">{formatDate(application?.reviewedAt)}</p>
+
+                <div>
+                  <h1 className="font-heading text-white text-3xl leading-[1.1] md:text-[2.4rem]">
+                    {heroCopy.title}
+                  </h1>
+                  <p className="mt-3 max-w-xl text-sm leading-relaxed font-body font-light text-white/65">
+                    {heroCopy.body}
+                  </p>
                 </div>
+
+                {application?.companyName && (
+                  <div className="liquid-glass inline-flex items-center gap-2 !rounded-full px-3 py-1.5">
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-white/55 font-body">Merchant</span>
+                    <span className="text-sm font-medium text-white/90 font-body">{application.companyName}</span>
+                  </div>
+                )}
               </div>
-              <div className="border border-black/8 bg-[#faf7f3] p-4">
-                <p className="text-[0.58rem] uppercase tracking-[0.24em] text-[#9a8a7e]">下一步</p>
-                <p className="mt-1 text-sm leading-relaxed text-[#5e5146]">
-                  {status === 'denied'
-                    ? '如果你想重新申請，建議先與團隊確認補件方向，再使用同一個帳號重新整理申請內容。'
-                    : status === 'missing'
-                      ? '請聯繫團隊協助補建申請資料，之後你就能回到正常審核流程。'
-                      : '目前不需要再做其他操作。你可以稍後回來查看，或等待團隊通知。'}
-                </p>
-              </div>
-              {status === 'denied' && application?.rejectionReason && (
-                <div className="border border-red-200 bg-red-50 p-4">
-                  <p className="text-[0.58rem] uppercase tracking-[0.24em] text-red-700">未通過原因</p>
-                  <p className="mt-1 text-sm leading-relaxed text-[#6d3f3f]">{application.rejectionReason}</p>
+
+              {/* Right: status board */}
+              <div className="border-t border-white/10 lg:border-t-0 lg:border-l p-6 md:p-7 space-y-3">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-white/55 font-body">Status Board</p>
+
+                <DataCell label="登入信箱" value={application?.email ?? '—'} />
+
+                <div className="grid grid-cols-2 gap-3">
+                  <DataCell label="送件日期" value={formatDate(application?.submittedAt)} />
+                  <DataCell label="審核日期" value={formatDate(application?.reviewedAt)} />
                 </div>
-              )}
+
+                <div className="liquid-glass rounded-xl px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/45 font-body">下一步</p>
+                  <p className="mt-1 text-sm leading-relaxed font-body font-light text-white/70">{heroCopy.nextStep}</p>
+                </div>
+
+                {status === 'denied' && application?.rejectionReason && (
+                  <div className="liquid-glass rounded-xl border border-red-300/20 px-4 py-3">
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-red-300/70 font-body">未通過原因</p>
+                    <p className="mt-1 text-sm leading-relaxed font-body text-red-200/90">{application.rejectionReason}</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </motion.div>
 
+        {/* Error */}
         {error && (
-          <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
+          <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp}>
+            <div className="liquid-glass rounded-xl border border-red-300/25 px-4 py-3 text-sm text-red-200/90 font-body">
+              {error}
+            </div>
           </motion.div>
         )}
 
-        <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp} className="grid gap-4 md:grid-cols-2">
+        {/* Actions */}
+        <motion.div custom={2} initial="hidden" animate="visible" variants={fadeUp} className="flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => void loadStatus()}
             disabled={loading}
-            className="group flex items-center justify-between border border-[#d7ccbf] bg-white px-5 py-4 text-xs uppercase tracking-[0.22em] text-[#1e1914] transition-colors duration-200 hover:bg-[#f7f0e8] disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full bg-white text-black font-body font-medium text-sm px-5 py-2.5 hover:bg-white/90 active:scale-[0.97] transition-all duration-150 disabled:opacity-60"
           >
-            <span>{loading ? '讀取中…' : '重新整理狀態'}</span>
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : 'transition-transform duration-200 group-hover:rotate-12'}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? '讀取中…' : '重新整理狀態'}
           </button>
 
-          <div className="flex flex-wrap gap-3 md:justify-end">
-            <a
-              href="mailto:support@partnerlink.tw?subject=Merchant%20application%20status"
-              className="inline-flex items-center gap-2 border border-[#d7ccbf] bg-white px-4 py-4 text-xs uppercase tracking-[0.18em] text-[#1e1914] transition-colors duration-200 hover:bg-[#f7f0e8]"
-            >
-              <Mail className="h-3.5 w-3.5" />
-              聯繫團隊
-            </a>
-          </div>
+          <a
+            href="mailto:support@partnerlink.tw?subject=Merchant%20application%20status"
+            className="liquid-glass-strong inline-flex items-center gap-2 !rounded-full px-5 py-2.5 text-sm font-body font-medium text-white hover:text-white"
+          >
+            <Mail className="h-3.5 w-3.5" />
+            聯繫團隊
+          </a>
         </motion.div>
+
       </section>
     </main>
   )
