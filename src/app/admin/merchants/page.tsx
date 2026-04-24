@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ExternalLink, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 import StatusBadge from '@/components/admin/_shared/StatusBadge'
+import ModalPortal from '@/components/shared/ModalPortal'
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }
 const fadeUp = {
@@ -254,6 +255,7 @@ export default function AdminMerchantsPage() {
         </div>
       </motion.div>
 
+      <ModalPortal>
       <AnimatePresence>
         {deleteTarget && (
           <>
@@ -314,6 +316,7 @@ export default function AdminMerchantsPage() {
           </>
         )}
       </AnimatePresence>
+      </ModalPortal>
     </motion.div>
   )
 }
