@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ExternalLink, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 import StatusBadge from '@/components/admin/_shared/StatusBadge'
+import ModalPortal from '@/components/shared/ModalPortal'
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }
 const fadeUp = {
@@ -140,14 +141,15 @@ function KolRow({
         </div>
       </div>
 
-      <AnimatePresence>
-        {deleteOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
-              onClick={() => { if (!deleting) setDeleteOpen(false) }}
-            />
+      <ModalPortal>
+        <AnimatePresence>
+          {deleteOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+                onClick={() => { if (!deleting) setDeleteOpen(false) }}
+              />
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
               <motion.div
                 initial={{ opacity: 0, y: 14, scale: 0.99 }} animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -194,6 +196,7 @@ function KolRow({
           </>
         )}
       </AnimatePresence>
+      </ModalPortal>
 
       <AnimatePresence initial={false}>
         {expanded && (

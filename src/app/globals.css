@@ -725,6 +725,11 @@
   display: none;
 }
 
+html.landing-no-scrollbar,
+html.landing-no-scrollbar body {
+  background: #000;
+}
+
 .liquid-glass {
   background: rgba(120, 170, 255, 0.06);
   background-blend-mode: luminosity;
