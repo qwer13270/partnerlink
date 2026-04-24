@@ -3,14 +3,15 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowUpRight, ArrowRight, UserPlus, Building2, Users, Store } from 'lucide-react'
 
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07 } },
+}
 const fadeUp = {
-  hidden: { opacity: 0, y: 14 },
-  visible: (i: number) => ({
-    opacity: 1, y: 0,
-    transition: { duration: 0.45, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] as const },
-  }),
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const } },
 }
 
 type OverviewData = {
@@ -34,150 +35,181 @@ export default function AdminOverviewPage() {
       .catch(() => {})
   }, [])
 
-  const stats = data ? [
-    { label: 'KOL 待審申請',  value: data.stats.pendingKols,      href: '/admin/kol-applications',      urgent: true  },
-    { label: '商家待審申請',  value: data.stats.pendingMerchants,  href: '/admin/merchant-applications',  urgent: true  },
-    { label: '活躍 KOL',      value: data.stats.activeKols,        href: '/admin/kols',                   urgent: false },
-    { label: '合作商家',      value: data.stats.activeMerchants,   href: '/admin/merchants',              urgent: false },
-  ] : [
-    { label: 'KOL 待審申請',  value: null, href: '/admin/kol-applications',     urgent: true  },
-    { label: '商家待審申請',  value: null, href: '/admin/merchant-applications', urgent: true  },
-    { label: '活躍 KOL',      value: null, href: '/admin/kols',                  urgent: false },
-    { label: '合作商家',      value: null, href: '/admin/merchants',             urgent: false },
+  const today = new Date().toLocaleDateString('zh-TW', {
+    year: 'numeric', month: 'long', day: 'numeric',
+  })
+
+  const kpiCards = [
+    { label: 'KOL 待審申請',  value: data?.stats.pendingKols,      href: '/admin/kol-applications',     urgent: true,  icon: UserPlus },
+    { label: '商家待審申請',  value: data?.stats.pendingMerchants, href: '/admin/merchant-applications', urgent: true,  icon: Building2 },
+    { label: '活躍 KOL',      value: data?.stats.activeKols,       href: '/admin/kols',                  urgent: false, icon: Users },
+    { label: '合作商家',      value: data?.stats.activeMerchants,  href: '/admin/merchants',             urgent: false, icon: Store },
   ]
 
   return (
-    <div className="space-y-10">
+    <motion.div
+      variants={stagger}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col gap-12 text-white"
+    >
+      <motion.section variants={fadeUp}>
+        <div className="meta text-[10px] text-white/40 mb-5 flex items-center gap-3 flex-wrap">
+          <span>{today}</span>
+          <span className="text-white/20">·</span>
+          <span>管理後台</span>
+          <span className="text-white/20">·</span>
+          <span className="flex items-center gap-2">
+            <span className="pulse-dot h-1.5 w-1.5" />
+            online
+          </span>
+        </div>
+        <h1 className="font-heading text-[48px] md:text-[72px] leading-[1] tracking-tight text-white">
+          平台 <span className="italic">總覽</span>
+        </h1>
+        <p className="mt-4 font-body text-sm text-white/55 max-w-xl">
+          掌握申請狀態、活躍用戶與近期動態。
+        </p>
+      </motion.section>
 
-      {/* Header */}
-      <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
-        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">管理後台</p>
-        <h1 className="text-3xl font-serif">首頁</h1>
-        <p className="text-sm text-muted-foreground mt-2">平台申請狀態與用戶總覽。</p>
-      </motion.div>
+      <motion.section variants={fadeUp}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          {kpiCards.map((card) => {
+            const Icon = card.icon
+            const isPending = card.value !== undefined && card.value !== null
+            const needsAttention = card.urgent && (card.value ?? 0) > 0
+            return (
+              <Link
+                key={card.label}
+                href={card.href}
+                className="liquid-glass !rounded-[22px] p-6 pl-7 relative block group"
+              >
+                <div className="flex items-start justify-between mb-8">
+                  <div className="meta text-[10px] text-white/50">{card.label}</div>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-white/40 group-hover:text-white/80 transition-colors" strokeWidth={1.6} />
+                </div>
+                <div className="font-heading italic text-[56px] md:text-[64px] leading-none mb-4 text-white">
+                  {isPending ? card.value : (
+                    <span className="inline-block h-[1em] w-20 animate-pulse rounded bg-white/10 align-middle" />
+                  )}
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2 text-[12px] text-white/55">
+                    <Icon className="h-3.5 w-3.5" strokeWidth={1.6} />
+                    <span>{needsAttention ? '待處理' : '—'}</span>
+                  </div>
+                  {needsAttention && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-white/[0.02] px-2 py-0.5 meta text-[9px] text-amber-200">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-300 animate-pulse" />
+                      urgent
+                    </span>
+                  )}
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      </motion.section>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {stats.map((stat, i) => (
-          <motion.div key={stat.label} custom={1 + i} initial="hidden" animate="visible" variants={fadeUp}>
-            <Link
-              href={stat.href}
-              className="block rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-md p-5 h-full"
-            >
-              <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">{stat.label}</p>
-              {stat.value === null ? (
-                <div className="h-8 w-12 bg-foreground/[0.06] rounded animate-pulse mt-2" />
-              ) : (
-                <p className={`text-3xl font-serif mt-2 ${stat.urgent && stat.value > 0 ? 'text-amber-700' : ''}`}>
-                  {stat.value}
-                </p>
-              )}
-              {stat.urgent && stat.value != null && stat.value > 0 && (
-                <p className="text-xs text-amber-600 mt-1">待處理</p>
-              )}
-            </Link>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Recent applications */}
       <div className="grid md:grid-cols-2 gap-8">
-
-        {/* KOL */}
-        <div>
-          <motion.div
-            custom={5} initial="hidden" animate="visible" variants={fadeUp}
-            className="flex items-center justify-between mb-4"
-          >
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">最新 KOL 申請</p>
+        <motion.section variants={fadeUp}>
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <div className="meta text-[10px] text-white/45 mb-2 flex items-center">
+                <span className="section-underline" />
+                recent · KOL 申請
+              </div>
+              <h2 className="font-heading text-[28px] leading-none tracking-tight text-white">
+                最新 KOL
+              </h2>
+            </div>
             <Link
               href="/admin/kol-applications"
-              className="text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              className="meta text-[10px] text-white/50 hover:text-white transition-colors px-2 py-1 flex items-center gap-1"
             >
-              查看全部 <ArrowRight className="h-3 w-3" />
+              全部 <ArrowRight className="h-2.5 w-2.5" />
             </Link>
-          </motion.div>
-          <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
-            <div className="divide-y divide-foreground/[0.06]">
-              {!data ? (
-                [0, 1, 2].map(i => (
-                  <div key={i} className="px-5 py-4 flex items-center justify-between">
-                    <div className="space-y-1.5">
-                      <div className="h-3 w-24 bg-foreground/[0.07] rounded animate-pulse" />
-                      <div className="h-2.5 w-32 bg-foreground/[0.04] rounded animate-pulse" />
-                    </div>
-                    <div className="h-2.5 w-20 bg-foreground/[0.04] rounded animate-pulse" />
-                  </div>
-                ))
-              ) : data.recentKolApps.length === 0 ? (
-                <div className="px-5 py-6 text-xs text-muted-foreground/50 text-center">目前無待審申請</div>
-              ) : (
-                data.recentKolApps.map((app, i) => (
-                  <motion.div
-                    key={i} custom={6 + i} initial="hidden" animate="visible" variants={fadeUp}
-                    className="px-5 py-4 flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="text-sm">{app.name}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {app.platform}{app.followerRange ? ` · ${app.followerRange}` : ''}
-                      </p>
-                    </div>
-                    <p className="text-xs font-mono text-muted-foreground">{app.date}</p>
-                  </motion.div>
-                ))
-              )}
-            </div>
           </div>
-        </div>
+          <div className="liquid-glass !rounded-[22px] divide-y divide-white/5">
+            {!data ? (
+              [0, 1, 2].map(i => (
+                <div key={i} className="p-5 flex items-center justify-between">
+                  <div className="space-y-1.5">
+                    <div className="h-3 w-24 bg-white/10 rounded animate-pulse" />
+                    <div className="h-2.5 w-32 bg-white/[0.06] rounded animate-pulse" />
+                  </div>
+                  <div className="h-2.5 w-20 bg-white/[0.06] rounded animate-pulse" />
+                </div>
+              ))
+            ) : data.recentKolApps.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+                <UserPlus className="h-8 w-8 text-white/20" strokeWidth={1.2} />
+                <p className="font-body text-xs text-white/55">目前無待審申請</p>
+              </div>
+            ) : (
+              data.recentKolApps.map((app, i) => (
+                <div key={i} className="p-5 flex items-center justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[15px] text-white/90 truncate">{app.name}</p>
+                    <p className="meta text-[10px] text-white/40 mt-1 truncate">
+                      {app.platform}{app.followerRange ? ` · ${app.followerRange}` : ''}
+                    </p>
+                  </div>
+                  <p className="meta text-[10px] text-white/45 shrink-0 ml-4">{app.date}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </motion.section>
 
-        {/* Merchant */}
-        <div>
-          <motion.div
-            custom={5} initial="hidden" animate="visible" variants={fadeUp}
-            className="flex items-center justify-between mb-4"
-          >
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">最新商家申請</p>
+        <motion.section variants={fadeUp}>
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <div className="meta text-[10px] text-white/45 mb-2 flex items-center">
+                <span className="section-underline" />
+                recent · 商家申請
+              </div>
+              <h2 className="font-heading text-[28px] leading-none tracking-tight text-white">
+                最新商家
+              </h2>
+            </div>
             <Link
               href="/admin/merchant-applications"
-              className="text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              className="meta text-[10px] text-white/50 hover:text-white transition-colors px-2 py-1 flex items-center gap-1"
             >
-              查看全部 <ArrowRight className="h-3 w-3" />
+              全部 <ArrowRight className="h-2.5 w-2.5" />
             </Link>
-          </motion.div>
-          <div className="rounded-xl border border-foreground/[0.08] bg-linen shadow-sm overflow-hidden">
-            <div className="divide-y divide-foreground/[0.06]">
-              {!data ? (
-                [0, 1].map(i => (
-                  <div key={i} className="px-5 py-4 flex items-center justify-between">
-                    <div className="space-y-1.5">
-                      <div className="h-3 w-28 bg-foreground/[0.07] rounded animate-pulse" />
-                      <div className="h-2.5 w-20 bg-foreground/[0.04] rounded animate-pulse" />
-                    </div>
-                    <div className="h-2.5 w-20 bg-foreground/[0.04] rounded animate-pulse" />
-                  </div>
-                ))
-              ) : data.recentMerchantApps.length === 0 ? (
-                <div className="px-5 py-6 text-xs text-muted-foreground/50 text-center">目前無待審申請</div>
-              ) : (
-                data.recentMerchantApps.map((app, i) => (
-                  <motion.div
-                    key={i} custom={6 + i} initial="hidden" animate="visible" variants={fadeUp}
-                    className="px-5 py-4 flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="text-sm">{app.name}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{app.contact}</p>
-                    </div>
-                    <p className="text-xs font-mono text-muted-foreground">{app.date}</p>
-                  </motion.div>
-                ))
-              )}
-            </div>
           </div>
-        </div>
-
+          <div className="liquid-glass !rounded-[22px] divide-y divide-white/5">
+            {!data ? (
+              [0, 1].map(i => (
+                <div key={i} className="p-5 flex items-center justify-between">
+                  <div className="space-y-1.5">
+                    <div className="h-3 w-28 bg-white/10 rounded animate-pulse" />
+                    <div className="h-2.5 w-20 bg-white/[0.06] rounded animate-pulse" />
+                  </div>
+                  <div className="h-2.5 w-20 bg-white/[0.06] rounded animate-pulse" />
+                </div>
+              ))
+            ) : data.recentMerchantApps.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+                <Building2 className="h-8 w-8 text-white/20" strokeWidth={1.2} />
+                <p className="font-body text-xs text-white/55">目前無待審申請</p>
+              </div>
+            ) : (
+              data.recentMerchantApps.map((app, i) => (
+                <div key={i} className="p-5 flex items-center justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[15px] text-white/90 truncate">{app.name}</p>
+                    <p className="meta text-[10px] text-white/40 mt-1 truncate">{app.contact}</p>
+                  </div>
+                  <p className="meta text-[10px] text-white/45 shrink-0 ml-4">{app.date}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </motion.section>
       </div>
-    </div>
+    </motion.div>
   )
 }

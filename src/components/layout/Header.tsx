@@ -223,10 +223,7 @@ export function HeaderBell({ role }: { role: NotifRole }) {
   )
 }
 
-const NAV_LINKS = [
-  { label: "關於我們", href: "/about" },
-  { label: "成為 KOL", href: "/join/kol" },
-];
+const NAV_LINKS: { label: string; href: string }[] = [];
 
 export function HeaderAvatar({ name, imageUrl }: { name: string; imageUrl?: string | null }) {
   const initials = name

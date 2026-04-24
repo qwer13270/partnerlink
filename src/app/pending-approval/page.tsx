@@ -33,9 +33,9 @@ function formatDate(value?: string) {
 
 function DataCell({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-foreground/[0.08] bg-stone-50 px-4 py-3 shadow-sm">
-      <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm text-foreground">{value}</p>
+    <div className="liquid-glass rounded-xl px-4 py-3">
+      <p className="text-[10px] uppercase tracking-[0.3em] text-white/45 font-body">{label}</p>
+      <p className="mt-1 text-sm text-white/90 font-body">{value}</p>
     </div>
   )
 }
@@ -71,15 +71,26 @@ export default function PendingApprovalPage() {
     void loadStatus()
   }, [])
 
+  useEffect(() => {
+    const prevBody = document.body.style.backgroundColor
+    const prevHtml = document.documentElement.style.backgroundColor
+    document.body.style.backgroundColor = '#000'
+    document.documentElement.style.backgroundColor = '#000'
+    return () => {
+      document.body.style.backgroundColor = prevBody
+      document.documentElement.style.backgroundColor = prevHtml
+    }
+  }, [])
+
   const heroCopy = status === 'denied'
     ? {
         eyebrow: 'Review Result',
         title: '目前尚未通過審核',
         body: '你的帳號已完成驗證，但這次 KOL 申請尚未通過。我們建議你聯繫團隊確認原因，再決定是否補件重新申請。',
         icon: ShieldAlert,
-        iconClass: 'text-red-600',
+        iconClass: 'text-[#ff9a9a]',
         badge: 'Denied',
-        badgeClass: 'bg-red-50 text-red-600 border border-red-200/60',
+        dotClass: 'bg-red-300/80',
         nextStep: '如果你想重新申請，建議先與團隊確認補件方向，再使用同一個帳號重新整理申請內容。',
       }
     : status === 'missing'
@@ -88,9 +99,9 @@ export default function PendingApprovalPage() {
           title: '找不到對應的 KOL 申請',
           body: '你的帳號已登入成功，但目前查不到對應的申請資料。這通常表示申請資料尚未建立完成，請聯繫團隊協助處理。',
           icon: ShieldAlert,
-          iconClass: 'text-amber-600',
+          iconClass: 'text-[#ffd28a]',
           badge: 'Support Needed',
-          badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200/60',
+          dotClass: 'bg-amber-300/80',
           nextStep: '請聯繫團隊協助補建申請資料，之後你就能回到正常審核流程。',
         }
       : {
@@ -98,66 +109,85 @@ export default function PendingApprovalPage() {
           title: 'Email 已驗證，等待管理員審核',
           body: '你已經成功登入，我們也收到了你的 KOL 申請。現在只差管理員完成最後審核，通過後你就能直接進入完整儀表板。',
           icon: Clock3,
-          iconClass: 'text-[#8B634D]',
+          iconClass: 'text-white/85',
           badge: 'Pending Review',
-          badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200/60',
+          dotClass: 'bg-sky-300/80',
           nextStep: '目前不需要再做其他操作。你可以稍後回來查看，或等待團隊通知。',
         }
 
   const HeroIcon = heroCopy.icon
+  const isPending = status !== 'denied' && status !== 'missing'
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#f7f2eb_0%,#fbfaf8_45%,#f4ede3_100%)] px-6 py-16 md:px-10">
-      <section className="mx-auto max-w-5xl space-y-6">
+    <main className="partnerlink-landing relative -mt-16 min-h-screen overflow-hidden bg-black px-6 pt-40 pb-24 md:px-10">
+      {/* radial glow */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 80% 60% at 50% 20%, rgba(100,150,255,0.10) 0%, transparent 70%)',
+        }}
+      />
+      {/* faint grid */}
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-[0.025] pointer-events-none"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.9) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.9) 1px, transparent 1px)',
+          backgroundSize: '90px 90px',
+          maskImage: 'radial-gradient(ellipse at 50% 30%, black 30%, transparent 80%)',
+        }}
+      />
+
+      <section className="relative mx-auto max-w-5xl space-y-6">
 
         {/* Hero card */}
         <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
-          <div className="rounded-xl border border-foreground/[0.08] bg-[linear-gradient(135deg,#fbf1e5_0%,#f8f4ee_42%,#efe1cf_100%)] shadow-sm overflow-hidden">
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 opacity-[0.22] pointer-events-none rounded-xl"
-              style={{
-                backgroundImage:
-                  'linear-gradient(90deg, rgba(165,114,87,0.09) 1px, transparent 1px), linear-gradient(0deg, rgba(33,58,53,0.05) 1px, transparent 1px)',
-                backgroundSize: '34px 34px',
-              }}
-            />
-            <div className="relative grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="liquid-glass rounded-2xl overflow-hidden">
+            <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
               {/* Left: main status */}
               <div className="p-8 md:p-10 space-y-5">
                 <div className="flex items-center gap-3">
-                  <span className={`inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white/70 ${heroCopy.iconClass}`}>
+                  <span className={`liquid-glass-strong inline-flex h-10 w-10 items-center justify-center !rounded-full ${heroCopy.iconClass}`}>
                     <HeroIcon className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{heroCopy.eyebrow}</p>
-                    <span className={`mt-1 inline-flex items-center gap-1.5 rounded text-[0.72rem] font-medium px-2 py-0.5 ${heroCopy.badgeClass}`}>
-                      {status === 'pending_admin_review' && <CheckCircle2 className="h-3 w-3" />}
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-white/55 font-body">{heroCopy.eyebrow}</p>
+                    <span className="liquid-glass mt-1 inline-flex items-center gap-2 !rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.25em] text-white/75 font-body">
+                      <span className="relative inline-flex w-2 h-2 items-center justify-center">
+                        {isPending && (
+                          <span className={`absolute inset-0 rounded-full ${heroCopy.dotClass} animate-ping opacity-70`} />
+                        )}
+                        <span className={`relative w-1.5 h-1.5 rounded-full ${heroCopy.dotClass}`} />
+                      </span>
+                      {isPending && <CheckCircle2 className="h-3 w-3" />}
                       {heroCopy.badge}
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <h1 className="text-3xl font-serif font-light leading-[1.1] text-[#1e1914] md:text-[2.2rem]">
+                  <h1 className="font-heading text-white text-3xl leading-[1.1] md:text-[2.4rem]">
                     {heroCopy.title}
                   </h1>
-                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#746558]">
+                  <p className="mt-3 max-w-xl text-sm leading-relaxed font-body font-light text-white/65">
                     {heroCopy.body}
                   </p>
                 </div>
 
                 {application?.fullName && (
-                  <div className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white/60 px-3 py-1.5">
-                    <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Applicant</span>
-                    <span className="text-sm font-medium text-foreground">{application.fullName}</span>
+                  <div className="liquid-glass inline-flex items-center gap-2 !rounded-full px-3 py-1.5">
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-white/55 font-body">Applicant</span>
+                    <span className="text-sm font-medium text-white/90 font-body">{application.fullName}</span>
                   </div>
                 )}
               </div>
 
               {/* Right: status board */}
-              <div className="border-t border-foreground/[0.08] lg:border-t-0 lg:border-l bg-white/50 backdrop-blur-[2px] p-6 md:p-7 space-y-3">
-                <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Status Board</p>
+              <div className="border-t border-white/10 lg:border-t-0 lg:border-l p-6 md:p-7 space-y-3">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-white/55 font-body">Status Board</p>
 
                 <DataCell label="登入信箱" value={application?.email ?? '—'} />
 
@@ -166,15 +196,15 @@ export default function PendingApprovalPage() {
                   <DataCell label="審核日期" value={formatDate(application?.reviewedAt)} />
                 </div>
 
-                <div className="rounded-xl border border-foreground/[0.08] bg-stone-50 px-4 py-3 shadow-sm">
-                  <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">下一步</p>
-                  <p className="mt-1 text-sm leading-relaxed text-foreground/70">{heroCopy.nextStep}</p>
+                <div className="liquid-glass rounded-xl px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/45 font-body">下一步</p>
+                  <p className="mt-1 text-sm leading-relaxed font-body font-light text-white/70">{heroCopy.nextStep}</p>
                 </div>
 
                 {status === 'denied' && application?.rejectionReason && (
-                  <div className="rounded-xl border border-red-200/60 bg-red-50 px-4 py-3 shadow-sm">
-                    <p className="text-xs uppercase tracking-[0.3em] text-red-600/70">未通過原因</p>
-                    <p className="mt-1 text-sm leading-relaxed text-red-700">{application.rejectionReason}</p>
+                  <div className="liquid-glass rounded-xl border border-red-300/20 px-4 py-3">
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-red-300/70 font-body">未通過原因</p>
+                    <p className="mt-1 text-sm leading-relaxed font-body text-red-200/90">{application.rejectionReason}</p>
                   </div>
                 )}
               </div>
@@ -185,7 +215,7 @@ export default function PendingApprovalPage() {
         {/* Error */}
         {error && (
           <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp}>
-            <div className="rounded-xl border border-red-200/60 bg-red-50 px-4 py-3 text-sm text-red-600 shadow-sm">
+            <div className="liquid-glass rounded-xl border border-red-300/25 px-4 py-3 text-sm text-red-200/90 font-body">
               {error}
             </div>
           </motion.div>
@@ -197,7 +227,7 @@ export default function PendingApprovalPage() {
             type="button"
             onClick={() => void loadStatus()}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg bg-foreground text-background font-medium text-[0.78rem] px-4 py-2.5 hover:bg-foreground/88 active:scale-[0.97] transition-all duration-150 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full bg-white text-black font-body font-medium text-sm px-5 py-2.5 hover:bg-white/90 active:scale-[0.97] transition-all duration-150 disabled:opacity-60"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             {loading ? '讀取中…' : '重新整理狀態'}
@@ -205,7 +235,7 @@ export default function PendingApprovalPage() {
 
           <a
             href="mailto:support@partnerlink.tw?subject=KOL%20application%20status"
-            className="inline-flex items-center gap-2 rounded-lg bg-black/[0.06] text-foreground/70 font-medium text-[0.78rem] px-4 py-2.5 hover:bg-black/[0.10] active:scale-[0.97] transition-all duration-150"
+            className="liquid-glass-strong inline-flex items-center gap-2 !rounded-full px-5 py-2.5 text-sm font-body font-medium text-white hover:text-white"
           >
             <Mail className="h-3.5 w-3.5" />
             聯繫團隊

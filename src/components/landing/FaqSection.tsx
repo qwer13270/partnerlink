@@ -158,7 +158,7 @@ function FaqSection() {
             </p>
 
             <a
-              href="#contact"
+              href="mailto:tony@partnerlink.com.tw"
               className="mt-8 liquid-glass-strong rounded-full px-5 py-2.5 text-sm font-body font-medium text-white flex items-center gap-2 hover:brightness-110 transition"
             >
               聯絡我們

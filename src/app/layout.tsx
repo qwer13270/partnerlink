@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import { DM_Serif_Display, DM_Sans, Noto_Serif_TC, Noto_Sans_TC, Instrument_Serif, Barlow, JetBrains_Mono } from "next/font/google"
 import { Toaster } from '@/components/ui/sonner'
-import { ConditionalHeader, ConditionalFooter } from '@/components/layout/ConditionalHeader'
+import { ConditionalHeader } from '@/components/layout/ConditionalHeader'
 import "./globals.css"
 
 const dmSerifDisplay = DM_Serif_Display({
@@ -82,7 +82,6 @@ export default function RootLayout({
           <main className="flex-1">
             {children}
           </main>
-          <ConditionalFooter />
         </div>
         <Toaster position="top-center" richColors />
       </body>
