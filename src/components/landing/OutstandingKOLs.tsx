@@ -31,13 +31,25 @@ const KOLS = [
 ];
 
 // Stack position -> visual transform. 0 = active (front), 1 = 1 behind.
-// y-offset is driven by CSS custom properties (--peek-1) set via Tailwind
-// breakpoint on the stack wrapper, so the correct offset is present on
-// first paint without a JS media-query hydration swap.
-const STACK_STYLES = [
-  { y: '0px',             scale: 1,    opacity: 1,    z: 3 },
-  { y: 'var(--peek-1)',   scale: 0.96, opacity: 0.75, z: 2 },
-];
+// y is a plain number (px) so Framer Motion can interpolate reliably across
+// repeated switches. Peek offset is responsive: -28 mobile, -50 md+.
+const stackStyle = (pos, peek) =>
+  pos === 0
+    ? { y: 0,    scale: 1,    opacity: 1,    z: 3 }
+    : { y: peek, scale: 0.96, opacity: 0.75, z: 2 };
+
+function usePeekOffset() {
+  const [peek, setPeek] = useState(-28);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(min-width: 768px)');
+    const update = () => setPeek(mq.matches ? -50 : -28);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+  return peek;
+}
 
 function CountUp({ target, suffix = '', triggerKey, active }) {
   const val = useMotionValue(0);
@@ -73,8 +85,8 @@ function CountUp({ target, suffix = '', triggerKey, active }) {
   );
 }
 
-function KOLCard({ kol, stackPos, isActive, onActivate }) {
-  const s = STACK_STYLES[stackPos] ?? STACK_STYLES[STACK_STYLES.length - 1];
+function KOLCard({ kol, stackPos, isActive, onActivate, peek }) {
+  const s = stackStyle(stackPos, peek);
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -98,7 +110,7 @@ function KOLCard({ kol, stackPos, isActive, onActivate }) {
         opacity: s.opacity,
       }}
       whileHover={
-        isActive ? undefined : { y: `calc(${s.y} + 8px)`, opacity: 0.9 }
+        isActive ? undefined : { y: s.y + 8, opacity: 0.9 }
       }
       transition={{ type: 'spring', stiffness: 200, damping: 25 }}
       style={{
@@ -188,6 +200,7 @@ function KOLCard({ kol, stackPos, isActive, onActivate }) {
 export default function OutstandingKOLs() {
   // `order[0]` = active (front), `order[1]` = 1 behind, `order[2]` = 2 behind.
   const [order, setOrder] = useState(() => KOLS.map((k) => k.id));
+  const peek = usePeekOffset();
 
   const activate = (id) => {
     setOrder((prev) => {
@@ -239,10 +252,9 @@ export default function OutstandingKOLs() {
       </div>
 
       {/* Stacked deck — active card drives container height (position: relative);
-          inactive cards overlay via position: absolute. Peek offsets are CSS
-          custom properties swapped at the md breakpoint — no JS media query. */}
+          inactive cards overlay via position: absolute. */}
       <div className="relative mx-auto w-full max-w-5xl pt-16 md:pt-32">
-        <div className="relative [--peek-1:-28px] md:[--peek-1:-50px]">
+        <div className="relative">
           {KOLS.map((kol) => (
             <KOLCard
               key={kol.id}
@@ -250,6 +262,7 @@ export default function OutstandingKOLs() {
               stackPos={stackPos[kol.id]}
               isActive={stackPos[kol.id] === 0}
               onActivate={() => activate(kol.id)}
+              peek={peek}
             />
           ))}
         </div>
