@@ -194,7 +194,7 @@ export default function OnboardingPage() {
               <div className="inline-flex items-center liquid-glass rounded-full px-4 py-1.5">
                 <span className="text-[10px] tracking-[0.3em] text-white/60 font-body uppercase">{content.eyebrow}</span>
               </div>
-              <h1 className="font-heading italic text-white text-5xl leading-[0.95] tracking-tight whitespace-pre-line">
+              <h1 className="font-heading italic text-white text-5xl leading-[1.1] tracking-tight whitespace-pre-line pr-3 pb-1">
                 {content.headline}
               </h1>
               <p className="font-body text-sm text-white/60 leading-relaxed max-w-xs">{content.desc}</p>

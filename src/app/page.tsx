@@ -126,13 +126,13 @@ function Hero() {
             href="/signup?role=merchant"
             className="liquid-glass-strong rounded-full px-5 py-2.5 text-sm font-body font-medium text-white flex items-center gap-2"
           >
-            成為商家 <ArrowUpRight size={16} />
+            商家加入 <ArrowUpRight size={16} />
           </Link>
           <Link
             href="/signup?role=kol"
             className="liquid-glass rounded-full px-5 py-2.5 text-sm font-body font-medium text-white flex items-center gap-2"
           >
-            成為 KOL <ArrowUpRight size={16} />
+            KOL 加入 <ArrowUpRight size={16} />
           </Link>
         </MotionDiv>
       </div>
@@ -335,13 +335,13 @@ function CtaFooter() {
               href="/signup?role=merchant"
               className="liquid-glass-strong rounded-full px-6 py-3 text-sm font-body font-medium text-white flex items-center gap-2"
             >
-              成為商家 <ArrowUpRight size={16} />
+              商家加入 <ArrowUpRight size={16} />
             </Link>
             <Link
               href="/signup?role=kol"
               className="bg-white text-black rounded-full px-6 py-3 text-sm font-body font-medium flex items-center gap-2"
             >
-              成為 KOL <ArrowUpRight size={16} />
+              KOL 加入 <ArrowUpRight size={16} />
             </Link>
           </div>
         </div>
@@ -381,7 +381,7 @@ export default function HomePage() {
           <FeatureSteps />
           <div className="relative isolate">
             {ScrollArc && (
-              <div className="absolute inset-0 pointer-events-none -z-10">
+              <div className="hidden lg:block absolute inset-0 pointer-events-none -z-10">
                 <ScrollArc
                   d={`M 0 0
                       C 260 140, 180 280, 390 380
