@@ -57,9 +57,6 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "PartnerLink 夥伴 | Premium Brand Affiliate Platform",
   description: "Taiwan's premier real estate affiliate marketing platform — connecting merchants with influential KOLs",
-  icons: {
-    icon: "/favicon.svg",
-  },
 }
 
 export const viewport: Viewport = {
